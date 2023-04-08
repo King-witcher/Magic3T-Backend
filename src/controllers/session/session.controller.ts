@@ -36,7 +36,6 @@ export class SessionController {
   
   @Get(':token')
   async getSession(@Param('token') token: string) {
-    console.log(token)
     const session = this.sessionService.getSessionByToken(token)
     if (session) {
       const user = this.userService.findById(session.userId)

@@ -6,9 +6,10 @@ import { SessionService } from './services/session/session.service'
 import { UsersService } from './services/users/users.service'
 import { RegistersService } from './services/registers/registers.service'
 import { TeapotController } from './controllers/teapot/teapot.controller';
+import { GameModule } from './game/game.module';
 
 @Module({
-  imports: [],
+  imports: [GameModule],
   controllers: [SessionController, CheatsheetController, TeapotController],
   providers: [ServiceService, SessionService, UsersService, RegistersService],
 })
