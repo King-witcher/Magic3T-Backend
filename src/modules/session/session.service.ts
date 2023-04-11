@@ -24,7 +24,8 @@ export class SessionService {
       token,
       expires: Infinity
     }
-    this.sessions[token]
+    this.sessions[token] = session
+    return token
   }
 
   getUserIdFromToken(token: string): number | null {

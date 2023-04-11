@@ -1,6 +1,7 @@
-import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common'
+import { Body, Controller, HttpException, Post, UsePipes, ValidationPipe } from '@nestjs/common'
 import { CreateAccountDto } from './dto/createAccountDto'
 import { RegistryService } from './registry.service'
+import { QueryFailedError } from 'typeorm'
 
 @Controller('registry')
 export class RegistryController {
@@ -11,6 +12,10 @@ export class RegistryController {
   @Post()
   @UsePipes(new ValidationPipe())
   async createAccount(@Body() { email, username, password }: CreateAccountDto) {
-    await this.registryService.createRegistry(email, username, password)
+    try {
+      await this.registryService.createRegistry(email, username, password)
+    } catch (error: any) {
+      throw new HttpException('Bad request', 400)
+    }
   }
 }

@@ -17,7 +17,7 @@ export class Registry extends BaseEntity {
   private passwordDigest: string
 
   @OneToOne(() => Profile)
-  //@JoinColumn()
+  @JoinColumn()
   profile: Profile
 
   setPassword(password: string) {

@@ -18,7 +18,7 @@ export class SessionController {
   async signIn(@Body() body: SignInDto) {
     const registry = await this.registryService.findByUsername(body.username)
     if (registry.checkPassword(body.password)) {
-      const token = this.sessionService.createSession(registry.profile.id)
+      const token = this.sessionService.createSession(registry.profile?.id || 1)
       return {
         statusCode: 200,
         token: token,
