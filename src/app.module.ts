@@ -1,16 +1,30 @@
 import { Module } from '@nestjs/common'
-import { SessionController } from './controllers/session/session.controller'
-import { CheatsheetController } from './controllers/cheatsheet/cheatsheet.controller'
-import { ServiceService } from './controllers/cheatsheet/service/service.service'
-import { SessionService } from './services/session/session.service'
-import { UsersService } from './services/users/users.service'
-import { RegistersService } from './services/registers/registers.service'
-import { TeapotController } from './controllers/teapot/teapot.controller';
-import { GameModule } from './game/game.module';
+import { GameModule } from './modules/game/game.module';
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { Registry } from './entities/Registry'
+import { RegistryModule } from './modules/registry/registry.module'
+import { AppController } from './app.controller';
+import { SessionModule } from './modules/session/session.module';
+import { Profile } from './entities/Profile';
 
 @Module({
-  imports: [GameModule],
-  controllers: [SessionController, CheatsheetController, TeapotController],
-  providers: [ServiceService, SessionService, UsersService, RegistersService],
+  imports: [
+    GameModule,
+    RegistryModule,
+    SessionModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      username: process.env.PG_USERNAME,
+      password: process.env.PG_PASSSWORD,
+      host: process.env.PG_HOST,
+      database: process.env.PG_NAME,
+      ssl: true,
+      entities: [Registry, Profile],
+      synchronize: true
+    }),
+  ],
+  controllers: [AppController],
+  providers: [],
+
 })
 export class AppModule {}

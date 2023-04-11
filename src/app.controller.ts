@@ -1,8 +1,8 @@
 import { Controller, Get, ImATeapotException } from '@nestjs/common'
 
-@Controller('teapot')
-export class TeapotController {
-  @Get()
+@Controller()
+export class AppController {
+  @Get('teapot')
   teapot() {
     throw new ImATeapotException()
   }
