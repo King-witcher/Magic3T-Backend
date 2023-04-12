@@ -29,13 +29,15 @@ export class SessionController {
   }
 
   @Get(':token')
-  async getSessionInfo(@Param('token') token: string) {
+  async findSession(@Param('token') token: string) {
     const userId = this.sessionService.getUserIdFromToken(token)
-    if (userId) {
-      const profile = await this.profileService.getById(userId)
-      return profile
-    } else {
-      throw new NotFoundException()
-    }
+    if (userId)
+      return {
+        authenticated: true
+      }
+    else
+      throw new NotFoundException({
+        authenticated: false
+      })
   }
 }
