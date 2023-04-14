@@ -15,7 +15,6 @@ import { Profile } from './entities/Profile';
     TypeOrmModule.forRoot({
       type: 'postgres',
       username: process.env.PG_USERNAME,
-      password: process.env.PG_PASSSWORD,
       host: process.env.PG_HOST,
       database: process.env.PG_NAME,
       ssl: true,

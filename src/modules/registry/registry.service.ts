@@ -19,6 +19,6 @@ export class RegistryService {
   }
 
   async findByUsername(username: string): Promise<Registry | null> {
-    return await this.registryRepository.findOneBy({ username })
+    return await this.registryRepository.findOneBy({ username }) || null
   }
 }

@@ -16,7 +16,10 @@ export class SessionController {
   @HttpCode(200)
   @UsePipes(new ValidationPipe())
   async signIn(@Body() body: SignInDto) {
+    console.log(body)
     const registry = await this.registryService.findByUsername(body.username)
+    if (!registry) throw new ForbiddenException()
+
     if (registry.checkPassword(body.password)) {
       const token = this.sessionService.createSession(registry.profile?.id || 1)
       return {
