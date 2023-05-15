@@ -6,6 +6,8 @@ import { RegistryModule } from './modules/registry/registry.module'
 import { AppController } from './app.controller';
 import { SessionModule } from './modules/session/session.module';
 import { Profile } from './entities/Profile';
+import { QueueModule } from './modules/queue/queue.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { Profile } from './entities/Profile';
       entities: [Registry, Profile],
       synchronize: true
     }),
+    QueueModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -7,6 +7,7 @@ import { ProfileModule } from '../profile/profile.module';
 @Module({
   imports: [RegistryModule, ProfileModule],
   controllers: [SessionController],
-  providers: [SessionService]
+  providers: [SessionService],
+  exports: [SessionService],
 })
 export class SessionModule {}
