@@ -10,8 +10,8 @@ export class QueueController {
   ) { }
 
   @Post('casual')
-  async enqueue(@Body() { matchType, sessionId }: EnqueueDto) {
-    if (matchType === 'casual') {
+  async enqueue(@Body() { gameMode, sessionId }: EnqueueDto) {
+    if (gameMode === 'casual') {
       const queueId = await this.queueService.enqueue(sessionId, QueueMode.Casual)
       return { queueId }
     }

@@ -2,7 +2,7 @@ import { IsNotEmpty, ValidateIf, isNotEmpty } from "class-validator"
 
 export class EnqueueDto {
   @IsNotEmpty()
-  matchType: 'casual' | 'ranked'
+  gameMode: 'casual' | 'ranked'
   
   sessionId: string | null
 }
