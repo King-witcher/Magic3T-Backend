@@ -6,4 +6,11 @@ export class AppController {
   teapot() {
     throw new ImATeapotException()
   }
+
+  @Get('status')
+  status() {
+    return {
+      status: 'available'
+    }
+  }
 }
