@@ -22,7 +22,7 @@ export default class Queue {
     this.iterateInterval = setInterval(this.iterate.bind(this), ITERATE_TIME)
   }
 
-  async enqueue(sessionId: string | null): Promise<string> {
+  async insert(sessionId: string | null): Promise<string> {
     if (!sessionId) {
       if (this.isRatingPaired)
         throw new Error('sessionId nulo passado para uma fila que não aceita nulos.')
@@ -43,6 +43,10 @@ export default class Queue {
     } else throw new NotImplementedException()
   }
 
+  remove(queueId: string) {
+    delete this.entries[queueId]
+  }
+
   getEntryStatus(queueId: string) {
     const queueEntry = this.entries[queueId]
     if (queueEntry) {
@@ -55,7 +59,6 @@ export default class Queue {
   }
 
   private iterate() {
-    console.log(this.entries)
     let oddEntry: [string, QueueEntry] | null = null
     for (const [key, value] of Object.entries(this.entries)) {
       if (value.queueStatus === QueueStatus.Searching) {

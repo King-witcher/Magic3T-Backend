@@ -23,9 +23,15 @@ export class QueueService {
     this.casualQueue.init()
   }
 
-  async enqueue(sessionId: string | null, mode: QueueMode): Promise<string> {
+  async insertToQueue(sessionId: string | null, mode: QueueMode): Promise<string> {
     if (mode===QueueMode.Casual) {
-      return await this.casualQueue.enqueue(sessionId)
+      return await this.casualQueue.insert(sessionId)
+    } else throw new NotImplementedException()
+  }
+
+  removeFromQueue(queueId: string, gameMode: QueueMode) {
+    if (gameMode===QueueMode.Casual) {
+      return this.casualQueue.remove(queueId)
     } else throw new NotImplementedException()
   }
 

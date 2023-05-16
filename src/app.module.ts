@@ -14,6 +14,8 @@ import { ProfileModule } from './modules/profile/profile.module';
     GameModule,
     RegistryModule,
     SessionModule,
+    QueueModule,
+    ProfileModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       username: process.env.PG_USERNAME,
@@ -23,11 +25,8 @@ import { ProfileModule } from './modules/profile/profile.module';
       entities: [Registry, Profile],
       synchronize: true
     }),
-    QueueModule,
-    ProfileModule,
   ],
   controllers: [AppController],
-  providers: [],
 
 })
 export class AppModule {}

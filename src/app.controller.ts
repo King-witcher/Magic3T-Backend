@@ -9,6 +9,7 @@ export class AppController {
 
   @Get('status')
   status() {
+    console.log(`Server status check at ${new Date()}.`)
     return {
       status: 'available'
     }
