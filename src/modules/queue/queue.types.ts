@@ -8,7 +8,7 @@ export interface BaseQueueEntry {
   lastQueueCheck: number
   queueStatus: QueueStatus
   matchTime: number | null
-  gameId: string | null
+  playerId: string | null
 }
 
 export interface SignedQueueEntry extends BaseQueueEntry {

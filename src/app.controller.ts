@@ -1,4 +1,5 @@
 import { Controller, Get, ImATeapotException } from '@nestjs/common'
+const Package = require('../package.json')
 
 @Controller()
 export class AppController {
@@ -13,5 +14,10 @@ export class AppController {
     return {
       status: 'available'
     }
+  }
+
+  @Get('version')
+  getVersion() {
+    return Package.version
   }
 }

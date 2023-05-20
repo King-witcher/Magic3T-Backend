@@ -3,6 +3,8 @@ import { SessionService } from "../session/session.service";
 import { QueueEntry, QueueStatus } from "./queue.types";
 import { v4 } from "uuid";
 import { GameService } from "../game/game.service";
+import { Player } from "../game/lib/Player";
+import { race } from "rxjs";
 
 const ITERATE_TIME = parseInt(process.env.QUEUE_ITERATE_TIME || '5000')
 const MAX_AFK_TIME = parseInt(process.env.QUEUE_MAX_AFK_TIME || '10000') // Tempo máximo que um jogador pode ficar sem checar a fila para que seja retirado.
@@ -35,7 +37,7 @@ export default class Queue {
         queueTime: Date.now(),
         queueStatus: QueueStatus.Searching,
         matchTime: null,
-        gameId: null,
+        playerId: null,
       }
 
       this.entries[queueId] = queueEntry
@@ -81,12 +83,23 @@ export default class Queue {
 
   private match(queueId1: string, queueId2: string) {
 
-    this.entries[queueId1].queueStatus = QueueStatus.Matched
-    this.entries[queueId1].matchTime = Date.now()
-    this.entries[queueId1].gameId = 'example game id'
+    const entry1 = this.entries[queueId1]
+    const entry2 = this.entries[queueId2]
 
-    this.entries[queueId2].queueStatus = QueueStatus.Matched
-    this.entries[queueId2].matchTime = Date.now()
-    this.entries[queueId2].gameId = 'example game id'
+    if (entry1.profile || entry2.profile)
+      throw new NotImplementedException()
+
+    const player1 = new Player(null, 1500)
+    const player2 = new Player(null, 1500)
+
+    entry1.queueStatus = QueueStatus.Matched
+    entry1.matchTime = Date.now()
+    entry1.playerId = player1.playerId
+
+    entry2.queueStatus = QueueStatus.Matched
+    entry2.matchTime = Date.now()
+    entry2.playerId = player2.playerId
+
+    this.gameService.createGame([player1, player2])
   }
 }
