@@ -1,23 +1,35 @@
 import { v4 } from 'uuid'
 import { GameEvent } from './GameEvent'
+import Timer from 'src/lib/Timer'
 
 export interface PlayerReport {
   nickname: string | null
-  initialRating: number
+  initialRating: number | null
   remainingTime: number
-  choices: number[]
+  choices: Choice[]
 }
 
+export type Choice = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
 export class Player {
-  playerId: string = v4()
+  readonly playerId: string = v4()
+  readonly nickname: string | null
+  readonly rating: number | null
   oponent: Player = this
-  choices: number[] = []
-  pendingEvents: GameEvent[] = []
-  remainingTime = 0
+  choices: Choice[] = []
+  timer: Timer
 
-  constructor(public nickname: string | null, public rating: number) {}
+  constructor(
+    nickname: string | null,
+    rating: number | null,
+    timelimit: number
+  ) {
+    this.nickname = nickname
+    this.rating = rating
+    this.timer = new Timer(timelimit)
+  }
 
-  hasNumber(number: number): boolean {
+  hasNumber(number: Choice): boolean {
     return this.choices.indexOf(number) !== -1
   }
 
@@ -26,20 +38,20 @@ export class Player {
       choices: this.choices,
       nickname: this.nickname,
       initialRating: this.rating,
-      remainingTime: this.remainingTime,
+      remainingTime: this.timer.getRemaining(),
     }
   }
 
-  push(number: number) {
+  addChoice(number: Choice) {
     this.choices.push(number)
   }
 
-  assignOponent(oponent: Player) {
-    this.oponent = oponent
-    oponent.oponent = this
+  static setOponents(player1: Player, player2: Player) {
+    player1.oponent = player2
+    player2.oponent = player1
   }
 
-  won(): boolean {
+  isWinner(): boolean {
     for (let i = 0; i < this.choices.length; i++)
       for (let j = i + 1; j < this.choices.length; j++)
         for (let k = j + 1; k < this.choices.length; k++)

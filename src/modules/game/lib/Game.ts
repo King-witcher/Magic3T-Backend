@@ -1,8 +1,8 @@
 import { timeout } from 'rxjs'
 import { GameEvent } from './GameEvent'
-import { Player, PlayerReport } from './Player'
+import { Choice, Player, PlayerReport } from './Player'
 
-const InitialTime = 120 * 1000
+const Timelimit = 120 * 1000
 
 export interface GameReport {
   player: PlayerReport
@@ -12,68 +12,74 @@ export interface GameReport {
   result: 'victory' | 'defeat' | 'draw' | null
 }
 
+interface GameParams {
+  player1: {
+    out_id: [string]
+    nickname: string | null
+    rating: number | null
+  }
+  player2: {
+    out_id: [string]
+    nickname: string | null
+    rating: number | null
+  }
+  timelimit: number
+}
+
 export class Game {
-  readonly players: { [playerId: string]: Player } = {}
+  readonly playerMap: { [playerId: string]: Player } = {}
   readonly firstPlayer: Player
-  events: GameEvent[] = []
-  turn: {
-    player: Player
-    turnStartTime: number
-    timeout: NodeJS.Timeout
-  } | null = null
+  turn: Player | null = null
   finished: boolean = false
   winner: Player | null = null
 
-  constructor([player1, player2]: [Player, Player]) {
-    player1.assignOponent(player2)
-    player1.remainingTime = InitialTime
-    player2.remainingTime = InitialTime
+  constructor({ player1: p1, player2: p2, timelimit }: GameParams) {
+    const player1 = new Player(p1.nickname, p1.rating, timelimit)
+    const player2 = new Player(p2.nickname, p2.rating, timelimit)
+    player1.timer.timeoutCallback = () => {
+      this.handleTimeout.bind(this)(player1)
+    }
+    player2.timer.timeoutCallback = () => {
+      this.handleTimeout.bind(this)(player2)
+    }
+    Player.setOponents(player1, player2)
 
+    // Define um jogador inicial aleatoriamente
     const random = Math.random()
     if (random < 0.5) this.firstPlayer = player1
     else this.firstPlayer = player2
 
-    this.players[player1.playerId] = player1
-    this.players[player2.playerId] = player2
+    // Insere os jogadores no mapa
+    this.playerMap[player1.playerId] = player1
+    this.playerMap[player2.playerId] = player2
+
+    // Devolve os ids dos jogadores
+    p1.out_id[0] = player1.playerId
+    p2.out_id[0] = player2.playerId
   }
 
   start() {
-    const timeout = setTimeout(() => {
-      this.handleTimeOut.bind(this)(this.firstPlayer.playerId)
-    }, this.firstPlayer.remainingTime)
-
-    this.turn = {
-      player: this.firstPlayer,
-      turnStartTime: Date.now(),
-      timeout,
-    }
+    this.turn = this.firstPlayer
+    this.turn.timer.start()
   }
 
-  handleTimeOut(playerId: string) {
-    const player = this.players[playerId]
-    player.remainingTime = 0
+  flipTurns() {
+    if (!this.turn) return
+    this.turn.timer.pause()
+    this.turn = this.turn.oponent
+    this.turn.timer.start()
+  }
+
+  handleTimeout(player: Player) {
+    player.timer.pause()
     this.finished = true
     this.winner = player.oponent
     this.turn = null
   }
 
-  updateGameTime() {
-    if (!this.turn) return
-    const wastedTime = Date.now() - this.turn.turnStartTime
-    const remaining = this.turn.player.remainingTime - wastedTime
-
-    if (remaining <= 0) {
-      this.finished = true
-      this.winner = this.turn.player.oponent
-      this.turn = null
-    }
-  }
-
   getStateReport(playerId: string): GameReport {
-    const player = this.players[playerId]
+    const player = this.playerMap[playerId]
     const oponent = player.oponent
-
-    this.updateGameTime()
 
     if (!this.turn) {
       // Partida finalizada
@@ -105,7 +111,7 @@ export class Game {
 
     // Partida rodando
     return {
-      turn: this.turn.player === player ? 'player' : 'oponent',
+      turn: this.turn === player ? 'player' : 'oponent',
       oponent: oponent.getStateReport(),
       player: player.getStateReport(),
       finished: false,
@@ -113,20 +119,25 @@ export class Game {
     }
   }
 
-  isValidChoice(number: number) {
-    for (const playerId of Object.keys(this.players))
-      if (this.players[playerId].hasNumber(number)) return false
+  isValidChoice(choice: Choice) {
+    for (const playerId of Object.keys(this.playerMap))
+      if (this.playerMap[playerId].hasNumber(choice)) return false
 
-    if (number < 1 || number > 9) return false
+    if (choice < 1 || choice > 9) return false
 
-    if (!Number.isInteger(number)) return false
+    if (!Number.isInteger(choice)) return false
 
     return true
   }
 
-  setChoice(playerId: string, choice: number) {
-    this.players[playerId].push(choice)
+  setChoice(playerId: string, choice: Choice) {
+    const player = this.playerMap[playerId]
+    if (this.turn !== player) throw new Error('Wrong turn')
+    player.addChoice(choice)
+    if (player.isWinner()) {
+      this.winner = player
+      this.finished = true
+      this.turn = null
+    } else this.flipTurns()
   }
-
-  private addEvent(event: GameEvent) {}
 }

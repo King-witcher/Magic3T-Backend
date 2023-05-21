@@ -1,18 +1,18 @@
 export default class Timer {
   private remaining: number
-  private callback?: () => void
   private countingSince: number | null = null
   private timeout: NodeJS.Timeout | null = null
+  public timeoutCallback?: () => void
 
   constructor(initial: number, callback?: () => void) {
     this.remaining = initial
-    this.callback = callback
+    this.timeoutCallback = callback
   }
 
   start() {
     this.countingSince = Date.now()
-    if (this.remaining > 0 && this.callback)
-      this.timeout = setTimeout(this.callback, this.remaining)
+    if (this.remaining > 0 && this.timeoutCallback)
+      this.timeout = setTimeout(this.timeoutCallback, this.remaining)
   }
 
   pause() {

@@ -2,13 +2,39 @@ import { Injectable } from '@nestjs/common'
 import { Player } from './lib/Player'
 import { Game, GameReport } from './lib/Game'
 
+const timelimit = 60
+
+type PlayerProps = {
+  nickname: string | null
+  rating: number | null
+  out_id: [string]
+}
+interface CreateGameProps {
+  player1: PlayerProps
+  player2: PlayerProps
+}
+
 @Injectable()
 export class GameService {
   games: { [playerId: string]: Game } = {}
 
-  createGame([player1, player2]: [Player, Player]) {
-    const game = new Game([player1, player2])
-    this.games[player1.playerId] = this.games[player2.playerId] = game
+  createGame({ player1, player2 }: CreateGameProps) {
+    const game = new Game({
+      player1: {
+        nickname: player1.nickname,
+        rating: player1.rating,
+        out_id: player1.out_id,
+      },
+      player2: {
+        nickname: player2.nickname,
+        rating: player2.rating,
+        out_id: player2.out_id,
+      },
+      timelimit,
+    })
+
+    this.games[player1.out_id[0]] = this.games[player2.out_id[0]] = game
+
     game.start()
   }
 
