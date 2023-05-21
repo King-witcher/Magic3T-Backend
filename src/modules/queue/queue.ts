@@ -1,10 +1,9 @@
-import { NotImplementedException } from "@nestjs/common";
-import { SessionService } from "../session/session.service";
-import { QueueEntry, QueueStatus } from "./queue.types";
-import { v4 } from "uuid";
-import { GameService } from "../game/game.service";
-import { Player } from "../game/lib/Player";
-import { race } from "rxjs";
+import { NotImplementedException } from '@nestjs/common'
+import { SessionService } from '../session/session.service'
+import { QueueEntry, QueueStatus } from './queue.types'
+import { v4 } from 'uuid'
+import { GameService } from '../game/game.service'
+import { race } from 'rxjs'
 
 const ITERATE_TIME = parseInt(process.env.QUEUE_ITERATE_TIME || '5000')
 const MAX_AFK_TIME = parseInt(process.env.QUEUE_MAX_AFK_TIME || '10000') // Tempo máximo que um jogador pode ficar sem checar a fila para que seja retirado.
@@ -14,11 +13,11 @@ export default class Queue {
   private entries: { [queueId: string]: QueueEntry } = {}
   private iterateInterval: NodeJS.Timer
 
-  constructor (
+  constructor(
     private isRatingPaired: boolean,
     private sessionService: SessionService,
-    private gameService: GameService,
-  ) { }
+    private gameService: GameService
+  ) {}
 
   init() {
     this.iterateInterval = setInterval(this.iterate.bind(this), ITERATE_TIME)
@@ -27,7 +26,9 @@ export default class Queue {
   async insert(sessionId: string | null): Promise<string> {
     if (!sessionId) {
       if (this.isRatingPaired)
-        throw new Error('sessionId nulo passado para uma fila que não aceita nulos.')
+        throw new Error(
+          'sessionId nulo passado para uma fila que não aceita nulos.'
+        )
 
       const queueId = v4()
 
@@ -53,11 +54,10 @@ export default class Queue {
     const queueEntry = this.entries[queueId]
     if (queueEntry) {
       queueEntry.lastQueueCheck = Date.now()
-      if(queueEntry.queueStatus === QueueStatus.Matched)
+      if (queueEntry.queueStatus === QueueStatus.Matched)
         delete this.entries[queueId]
       return queueEntry
-    }
-    else return null
+    } else return null
   }
 
   private iterate() {
@@ -82,24 +82,33 @@ export default class Queue {
   }
 
   private match(queueId1: string, queueId2: string) {
-
     const entry1 = this.entries[queueId1]
     const entry2 = this.entries[queueId2]
 
-    if (entry1.profile || entry2.profile)
-      throw new NotImplementedException()
+    if (entry1.profile || entry2.profile) throw new NotImplementedException()
 
-    const player1 = new Player(null, 1500)
-    const player2 = new Player(null, 1500)
+    const id1: [string] = ['']
+    const id2: [string] = ['']
+
+    this.gameService.createGame({
+      player1: {
+        nickname: null,
+        rating: null,
+        out_id: id1,
+      },
+      player2: {
+        nickname: null,
+        rating: null,
+        out_id: id2,
+      },
+    })
 
     entry1.queueStatus = QueueStatus.Matched
     entry1.matchTime = Date.now()
-    entry1.playerId = player1.playerId
+    entry1.playerId = id1[0]
 
     entry2.queueStatus = QueueStatus.Matched
     entry2.matchTime = Date.now()
-    entry2.playerId = player2.playerId
-
-    this.gameService.createGame([player1, player2])
+    entry2.playerId = id2[0]
   }
 }

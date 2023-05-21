@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common'
-import { Player } from './lib/Player'
-import { Game, GameReport } from './lib/Game'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
+import { Game, GameReport } from '../../lib/Game'
+import { Choice } from 'src/lib/Player'
 
-const timelimit = 60
+const timelimit = 1200 * 1000
 
 type PlayerProps = {
   nickname: string | null
@@ -43,5 +47,16 @@ export class GameService {
     if (!game) return null
 
     return game.getStateReport(playerId)
+  }
+
+  setChoice(playerId: string, choice: Choice) {
+    const game = this.games[playerId]
+    if (!game) throw new NotFoundException()
+
+    try {
+      game.setChoice(playerId, choice)
+    } catch {
+      throw new BadRequestException()
+    }
   }
 }

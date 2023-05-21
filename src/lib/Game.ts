@@ -1,5 +1,3 @@
-import { timeout } from 'rxjs'
-import { GameEvent } from './GameEvent'
 import { Choice, Player, PlayerReport } from './Player'
 
 const Timelimit = 120 * 1000

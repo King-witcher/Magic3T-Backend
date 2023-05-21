@@ -10,9 +10,10 @@ export class AppController {
 
   @Get('status')
   status() {
-    console.log(`Server status check at ${new Date()}.`)
+    const rand = Math.random()
+    if (rand < 0.05) throw new ImATeapotException()
     return {
-      status: 'available'
+      status: 'available',
     }
   }
 

@@ -1,13 +1,17 @@
-import { Body, Controller, HttpException, Post, UsePipes, ValidationPipe } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  HttpException,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common'
 import { CreateAccountDto } from './dto/createAccountDto'
 import { RegistryService } from './registry.service'
-import { QueryFailedError } from 'typeorm'
 
 @Controller('registry')
 export class RegistryController {
-  constructor (
-    private registryService: RegistryService
-  ) { }
+  constructor(private registryService: RegistryService) {}
 
   @Post()
   @UsePipes(new ValidationPipe())

@@ -1,5 +1,4 @@
 import { v4 } from 'uuid'
-import { GameEvent } from './GameEvent'
 import Timer from 'src/lib/Timer'
 
 export interface PlayerReport {
