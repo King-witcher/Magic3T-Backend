@@ -53,10 +53,13 @@ export class GameService {
     const game = this.games[playerId]
     if (!game) throw new NotFoundException()
 
-    try {
-      game.setChoice(playerId, choice)
-    } catch {
-      throw new BadRequestException()
-    }
+    game.setChoice(playerId, choice)
+  }
+
+  forfeit(playerId: string) {
+    const game = this.games[playerId]
+    if (!game) return null
+
+    game.forfeit(playerId)
   }
 }

@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { config } from 'dotenv'
 config()
 import { AppModule } from './app.module'
+import { Player } from './lib/Player'
 
 async function bootstrap() {
   const port = process.env.PORT || 4000

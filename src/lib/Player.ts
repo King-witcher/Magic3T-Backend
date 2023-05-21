@@ -28,7 +28,7 @@ export class Player {
     this.timer = new Timer(timelimit)
   }
 
-  hasNumber(number: Choice): boolean {
+  hasChoice(number: Choice): boolean {
     return this.choices.indexOf(number) !== -1
   }
 
@@ -54,7 +54,8 @@ export class Player {
     for (let i = 0; i < this.choices.length; i++)
       for (let j = i + 1; j < this.choices.length; j++)
         for (let k = j + 1; k < this.choices.length; k++)
-          if (i + j + k === 15) return true
+          if (this.choices[i] + this.choices[j] + this.choices[k] === 15)
+            return true
     return false
   }
 }

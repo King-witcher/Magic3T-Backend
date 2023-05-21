@@ -12,8 +12,12 @@ export class GameController {
   }
 
   @Post(':playerId/choices')
-  choose(@Body() choice: ChoiceDto) {}
+  choose(@Param('playerId') playerId: string, @Body() choice: ChoiceDto) {
+    this.gameService.setChoice(playerId, choice.value)
+  }
 
   @Post(':playerId/forfeit')
-  forfeit() {}
+  forfeit(@Param('playerId') playerId: string) {
+    this.gameService.forfeit(playerId)
+  }
 }

@@ -1,3 +1,4 @@
+import { BadRequestException, HttpException } from '@nestjs/common'
 import { Choice, Player, PlayerReport } from './Player'
 
 const Timelimit = 120 * 1000
@@ -119,7 +120,7 @@ export class Game {
 
   isValidChoice(choice: Choice) {
     for (const playerId of Object.keys(this.playerMap))
-      if (this.playerMap[playerId].hasNumber(choice)) return false
+      if (this.playerMap[playerId].hasChoice(choice)) return false
 
     if (choice < 1 || choice > 9) return false
 
@@ -130,12 +131,26 @@ export class Game {
 
   setChoice(playerId: string, choice: Choice) {
     const player = this.playerMap[playerId]
-    if (this.turn !== player) throw new Error('Wrong turn')
+    if (this.turn !== player) throw new HttpException('Wrong turn', 400)
+
+    if (player.hasChoice(choice) || player.oponent.hasChoice(choice))
+      throw new HttpException('Number already chosen', 400)
+
     player.addChoice(choice)
     if (player.isWinner()) {
       this.winner = player
       this.finished = true
       this.turn = null
     } else this.flipTurns()
+  }
+
+  forfeit(playerId: string) {
+    if (this.finished) throw new HttpException('Game finished', 400)
+
+    const player = this.playerMap[playerId]
+
+    this.winner = player.oponent
+    this.finished = true
+    this.turn = null
   }
 }
