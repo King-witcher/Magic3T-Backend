@@ -6,7 +6,7 @@ import ChoiceDto from './dto/choice.dto'
 export class GameController {
   constructor(public gameService: GameService) {}
 
-  @Get(':playerId/game-state')
+  @Get(':playerId/state')
   getGameState(@Param('playerId') playerId: string) {
     return this.gameService.getGameState(playerId) || 'not found'
   }

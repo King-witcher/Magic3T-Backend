@@ -12,7 +12,7 @@ export default class Timer {
   start() {
     this.countingSince = Date.now()
     if (this.remaining > 0 && this.timeoutCallback)
-      this.timeout = setTimeout(this.timeoutCallback, this.remaining)
+      this.timeout = setTimeout(this.handleTimeout.bind(this), this.remaining)
   }
 
   pause() {
@@ -24,6 +24,13 @@ export default class Timer {
   getRemaining() {
     this.updateRemaining()
     return this.remaining
+  }
+
+  private handleTimeout() {
+    this.pause()
+    this.remaining = 0
+    this.timeout = null
+    if (this.timeoutCallback) this.timeoutCallback()
   }
 
   private updateRemaining() {

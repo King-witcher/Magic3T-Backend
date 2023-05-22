@@ -70,7 +70,6 @@ export class Game {
   }
 
   handleTimeout(player: Player) {
-    player.timer.pause()
     this.finished = true
     this.winner = player.oponent
     this.turn = null
@@ -140,6 +139,7 @@ export class Game {
     if (player.isWinner()) {
       this.winner = player
       this.finished = true
+      this.turn.timer.pause()
       this.turn = null
     } else this.flipTurns()
   }
