@@ -9,6 +9,7 @@ export interface GameReport {
   turn: 'player' | 'oponent' | null
   finished: boolean
   result: 'victory' | 'defeat' | 'draw' | null
+  triple: [Choice, Choice, Choice] | null
 }
 
 interface GameParams {
@@ -31,6 +32,7 @@ export class Game {
   turn: Player | null = null
   finished: boolean = false
   winner: Player | null = null
+  triple: [Choice, Choice, Choice] | null = null
 
   constructor({ player1: p1, player2: p2, timelimit }: GameParams) {
     const player1 = new Player(p1.nickname, p1.rating, timelimit)
@@ -93,6 +95,7 @@ export class Game {
               ? 'draw'
               : 'defeat',
           turn: null,
+          triple: this.triple,
         }
 
         // Partida não iniciada
@@ -103,6 +106,7 @@ export class Game {
           finished: false,
           result: null,
           turn: null,
+          triple: null,
         }
       }
     }
@@ -114,6 +118,7 @@ export class Game {
       player: player.getStateReport(),
       finished: false,
       result: null,
+      triple: null,
     }
   }
 
@@ -136,12 +141,20 @@ export class Game {
       throw new HttpException('Number already chosen', 400)
 
     player.addChoice(choice)
-    if (player.isWinner()) {
+    const victory = player.getTriple()
+    if (victory) {
       this.winner = player
       this.finished = true
       this.turn.timer.pause()
       this.turn = null
-    } else this.flipTurns()
+      this.triple = victory
+    } else if (player.choices.length + player.oponent.choices.length !== 9)
+      this.flipTurns()
+    else {
+      this.finished = true
+      this.turn.timer.pause()
+      this.turn = null
+    }
   }
 
   forfeit(playerId: string) {

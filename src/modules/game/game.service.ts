@@ -6,7 +6,7 @@ import {
 import { Game, GameReport } from '../../lib/Game'
 import { Choice } from 'src/lib/Player'
 
-const timelimit = 60 * 1000
+const timelimit = 80 * 1000
 
 type PlayerProps = {
   nickname: string | null

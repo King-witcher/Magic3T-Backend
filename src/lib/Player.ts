@@ -50,12 +50,12 @@ export class Player {
     player2.oponent = player1
   }
 
-  isWinner(): boolean {
+  getTriple(): [Choice, Choice, Choice] | null {
     for (let i = 0; i < this.choices.length; i++)
       for (let j = i + 1; j < this.choices.length; j++)
         for (let k = j + 1; k < this.choices.length; k++)
           if (this.choices[i] + this.choices[j] + this.choices[k] === 15)
-            return true
-    return false
+            return [this.choices[i], this.choices[j], this.choices[k]]
+    return null
   }
 }
