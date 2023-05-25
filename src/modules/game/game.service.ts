@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { Game, GameReport } from '../../lib/Game'
 import { Choice } from 'src/lib/Player'
 
