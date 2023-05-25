@@ -26,7 +26,10 @@ export class RegistryService {
     password: string,
     nickname: string
   ) {
-    const profile = this.profileRepository.create({ nickname })
+    const profile = this.profileRepository.create({
+      nickname,
+      nicknameDigest: nickname,
+    })
     const registry = this.registryRepository.create({
       email,
       username,

@@ -1,9 +1,17 @@
-import { Controller, Get, NotImplementedException } from '@nestjs/common'
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common'
+import { ProfileService } from './profile.service'
 
 @Controller('profiles')
 export class ProfileController {
-  constructor() {}
+  constructor(public profileService: ProfileService) {}
 
   @Get('nicknames/:nickname')
-  getProfile() {}
+  async getProfile(@Param('nickname') nickname: string) {
+    const profile = await this.profileService.getByNickname(nickname)
+    if (!profile) throw new NotFoundException()
+    return {
+      nickname: profile.nickname,
+      rating: profile.rating,
+    }
+  }
 }

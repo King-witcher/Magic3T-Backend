@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Profile } from 'src/entities/Profile'
 import { Repository } from 'typeorm'
@@ -12,21 +12,15 @@ export class ProfileService {
 
   async existsNickname(nickname: string): Promise<boolean> {
     return !!(await this.profileRepository.findOne({
-      where: { nickname },
+      where: { nicknameDigest: nickname },
     }))
   }
 
   async getById(id: number) {
-    return await this.profileRepository.findOneBy({ id: id })
+    return await this.profileRepository.findOneBy({ id })
   }
 
-  async create(nickname: string) {
-    if (await this.existsNickname(nickname))
-      throw new BadRequestException('nickname taken')
-    const profile = await this.profileRepository.create({
-      nickname,
-      rating: 1500,
-    })
-    return await profile.save()
+  async getByNickname(nickname: string) {
+    return await this.profileRepository.findOneBy({ nicknameDigest: nickname })
   }
 }

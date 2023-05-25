@@ -12,6 +12,19 @@ export class Profile extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number
 
+  @Column({
+    unique: true,
+    transformer: {
+      to(data: string) {
+        return data.toLowerCase().replace(' ', '').replace('\t', '')
+      },
+      from(data: string) {
+        return data
+      },
+    },
+  })
+  nicknameDigest: string
+
   @Column({ unique: true })
   nickname: string
 
