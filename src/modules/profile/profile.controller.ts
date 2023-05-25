@@ -1,9 +1,9 @@
-import { Controller, Get, NotImplementedException } from '@nestjs/common';
+import { Controller, Get, NotImplementedException } from '@nestjs/common'
 
-@Controller('profile')
+@Controller('profiles')
 export class ProfileController {
-  @Get()
-  getProfile() {
-    throw new NotImplementedException()
-  }
+  constructor() {}
+
+  @Get('nicknames/:nickname')
+  getProfile() {}
 }

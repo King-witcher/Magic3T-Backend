@@ -1,4 +1,11 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm'
+import { Registry } from './Registry'
 
 @Entity('profiles')
 export class Profile extends BaseEntity {
@@ -10,4 +17,7 @@ export class Profile extends BaseEntity {
 
   @Column({ default: 1500 })
   rating: number
+
+  @OneToOne(() => Registry, (registry) => registry.profile)
+  registry: Registry
 }

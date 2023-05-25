@@ -1,6 +1,13 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm"
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm'
 import { compareSync, hashSync } from 'bcrypt'
-import { Profile } from "./Profile"
+import { Profile } from './Profile'
 
 @Entity('registries')
 export class Registry extends BaseEntity {
@@ -13,18 +20,25 @@ export class Registry extends BaseEntity {
   @Column()
   email: string
 
-  @Column({ default: '', name: 'password_digest' })
-  private passwordDigest: string
+  @Column({
+    name: 'password_digest',
+    transformer: {
+      to: (password) => hashSync(password, 12),
+      from: (digest) => digest,
+    },
+  })
+  private password: string
 
-  @OneToOne(() => Profile)
-  @JoinColumn()
+  @OneToOne(() => Profile, (profile) => profile.registry, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({
+    name: 'profile_id',
+  })
   profile: Profile
 
-  setPassword(password: string) {
-    this.passwordDigest = hashSync(password, 12)
-  }
-
   checkPassword(password: string) {
-    return compareSync(password, this.passwordDigest)
+    return compareSync(password, this.password)
   }
 }

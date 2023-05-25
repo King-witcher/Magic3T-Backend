@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common'
-import { GameModule } from './modules/game/game.module';
+import { GameModule } from './modules/game/game.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Registry } from './entities/Registry'
 import { RegistryModule } from './modules/registry/registry.module'
-import { AppController } from './app.controller';
-import { SessionModule } from './modules/session/session.module';
-import { Profile } from './entities/Profile';
-import { QueueModule } from './modules/queue/queue.module';
-import { ProfileModule } from './modules/profile/profile.module';
+import { AppController } from './app.controller'
+import { SessionModule } from './modules/session/session.module'
+import { Profile } from './entities/Profile'
+import { QueueModule } from './modules/queue/queue.module'
+import { ProfileModule } from './modules/profile/profile.module'
 
 @Module({
   imports: [
@@ -23,10 +23,9 @@ import { ProfileModule } from './modules/profile/profile.module';
       database: process.env.PG_NAME,
       ssl: true,
       entities: [Registry, Profile],
-      synchronize: true
+      synchronize: true,
     }),
   ],
   controllers: [AppController],
-
 })
 export class AppModule {}
