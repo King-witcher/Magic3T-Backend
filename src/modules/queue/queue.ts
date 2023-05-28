@@ -3,7 +3,6 @@ import { SessionService } from '../session/session.service'
 import { QueueEntry, QueueStatus } from './queue.types'
 import { v4 } from 'uuid'
 import { GameService } from '../game/game.service'
-import { race } from 'rxjs'
 
 const ITERATE_TIME = parseInt(process.env.QUEUE_ITERATE_TIME || '1000')
 const MAX_AFK_TIME = parseInt(process.env.QUEUE_MAX_AFK_TIME || '1000') // Tempo máximo que um jogador pode ficar sem checar a fila para que seja retirado.
@@ -61,12 +60,14 @@ export default class Queue {
   }
 
   private iterate() {
+    console.log(this.entries)
     let oddEntry: [string, QueueEntry] | null = null
     for (const [key, value] of Object.entries(this.entries)) {
       if (value.queueStatus === QueueStatus.Searching) {
         // Remove entradas que não checaram status há um tempo.
         if (Date.now() - value.lastQueueCheck >= MAX_AFK_TIME) {
-          delete this.entries[key]
+          console.log('deleting:', Date.now() - value.lastQueueCheck)
+          //delete this.entries[key]
           continue
         }
 

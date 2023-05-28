@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { Game, GameReport } from '../../lib/Game'
 import { Choice } from 'src/lib/Player'
 
-const timelimit = 80 * 1000
+const timelimit = 300 * 1000
 
 type PlayerProps = {
   nickname: string | null
