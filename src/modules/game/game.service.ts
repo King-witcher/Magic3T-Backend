@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { Game, GameReport } from '../../lib/Game'
 import { Choice } from 'src/lib/Player'
 
-const timelimit = 300 * 1000
+const timelimit = parseInt(process.env.GAME_TIMELIMIT || '180000')
 
 type PlayerProps = {
   nickname: string | null
