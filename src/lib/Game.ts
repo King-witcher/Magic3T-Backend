@@ -1,7 +1,13 @@
-import { BadRequestException, HttpException } from '@nestjs/common'
+import { HttpException } from '@nestjs/common'
 import { Choice, Player, PlayerReport } from './Player'
 
 const Timelimit = 120 * 1000
+
+interface MessageReport {
+  player: 'player' | 'oponent'
+  content: string
+  time: number
+}
 
 export interface GameReport {
   player: PlayerReport
@@ -10,6 +16,7 @@ export interface GameReport {
   finished: boolean
   result: 'victory' | 'defeat' | 'draw' | null
   triple: [Choice, Choice, Choice] | null
+  chat: MessageReport[]
 }
 
 interface GameParams {
@@ -33,6 +40,7 @@ export class Game {
   finished: boolean = false
   winner: Player | null = null
   triple: [Choice, Choice, Choice] | null = null
+  messages: { player: Player; content: string; time: number }[] = []
 
   constructor({ player1: p1, player2: p2, timelimit }: GameParams) {
     const player1 = new Player(p1.nickname, p1.rating, timelimit)
@@ -64,6 +72,15 @@ export class Game {
     this.turn.timer.start()
   }
 
+  pushMessage(playerId: string, content: string) {
+    const player = this.playerMap[playerId]
+    this.messages.push({
+      player,
+      content,
+      time: Date.now(),
+    })
+  }
+
   flipTurns() {
     if (!this.turn) return
     this.turn.timer.pause()
@@ -81,6 +98,14 @@ export class Game {
     const player = this.playerMap[playerId]
     const oponent = player.oponent
 
+    const chat: MessageReport[] = this.messages.map((message) => {
+      return {
+        player: player === message.player ? 'player' : 'oponent',
+        time: message.time,
+        content: message.content,
+      }
+    })
+
     if (!this.turn) {
       // Partida finalizada
       if (this.finished) {
@@ -96,6 +121,7 @@ export class Game {
               : 'defeat',
           turn: null,
           triple: this.triple,
+          chat,
         }
 
         // Partida não iniciada
@@ -107,6 +133,7 @@ export class Game {
           result: null,
           turn: null,
           triple: null,
+          chat,
         }
       }
     }
@@ -119,6 +146,7 @@ export class Game {
       finished: false,
       result: null,
       triple: null,
+      chat,
     }
   }
 

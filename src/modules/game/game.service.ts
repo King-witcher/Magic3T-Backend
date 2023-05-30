@@ -58,4 +58,11 @@ export class GameService {
 
     game.forfeit(playerId)
   }
+
+  pushMessage(playerId: string, message: string) {
+    const game = this.games[playerId]
+    if (!game) throw new BadRequestException('invalid playerId')
+
+    game.pushMessage(playerId, message)
+  }
 }
