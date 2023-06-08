@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module } from '@nestjs/common'
 import { GameModule } from './modules/game/game.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Registry } from './entities/Registry'
@@ -8,6 +8,7 @@ import { SessionModule } from './modules/session/session.module'
 import { Profile } from './entities/Profile'
 import { QueueModule } from './modules/queue/queue.module'
 import { ProfileModule } from './modules/profile/profile.module'
+import { SessionMiddleware } from './modules/session/session.middleware'
 
 @Module({
   imports: [
@@ -28,4 +29,8 @@ import { ProfileModule } from './modules/profile/profile.module'
   ],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SessionMiddleware).forRoutes('*')
+  }
+}

@@ -1,7 +1,10 @@
 export type Session = {
-  token: string
-  userId: number
+  readonly ssid: string
+  readonly profile: {
+    readonly nickname: string
+    readonly rating: number
+  }
   expires: number
 }
 
-export type SessionMap = { [key: string]: Session }
+export type SessionMap = { [ssid: string]: Session }

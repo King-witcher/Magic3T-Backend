@@ -1,4 +1,7 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common'
 
 @Controller('chat')
-export class ChatController {}
+export class ChatController {
+  @Get('messages')
+  getMessages() {}
+}

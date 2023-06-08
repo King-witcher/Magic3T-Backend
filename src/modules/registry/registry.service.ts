@@ -54,6 +54,13 @@ export class RegistryService {
   }
 
   async findByUsername(username: string): Promise<Registry | null> {
-    return (await this.registryRepository.findOneBy({ username })) || null
+    return (
+      (await this.registryRepository.findOne({
+        where: {
+          username,
+        },
+        relations: ['profile'],
+      })) || null
+    )
   }
 }
