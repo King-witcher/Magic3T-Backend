@@ -6,7 +6,7 @@ import {
 import { SessionData, SessionMap } from './session.types'
 import { v4 } from 'uuid'
 import { ProfileService } from '../profile/profile.service'
-import { Profile } from 'src/entities/Profile'
+import { Profile } from 'src/models/Profile'
 import { Request } from 'express'
 
 @Injectable()

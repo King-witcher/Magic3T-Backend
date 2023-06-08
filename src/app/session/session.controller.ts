@@ -14,7 +14,7 @@ import {
 import { SignInDto } from './dto/signIn.dto'
 import { RegistryService } from '../registry/registry.service'
 import { SessionService } from './session.service'
-import { Profile } from 'src/entities/Profile'
+import { Profile } from 'src/models/Profile'
 import { Session } from './session.decorator'
 
 @UsePipes(new ValidationPipe())
