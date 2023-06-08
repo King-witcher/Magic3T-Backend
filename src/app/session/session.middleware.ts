@@ -12,8 +12,8 @@ export class SessionMiddleware implements NestMiddleware {
     if (ssid instanceof Array) {
       ssid = ssid[0]
     }
-    const profile = this.sessionService.getProfile(ssid)
-    req.profile = profile
+    const session = this.sessionService.getSession(ssid)
+    req.session = session
 
     if (req.headers) next()
   }

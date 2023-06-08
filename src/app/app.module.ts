@@ -1,14 +1,14 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common'
-import { GameModule } from './modules/game/game.module'
+import { GameModule } from './game/game.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { Registry } from './entities/Registry'
-import { RegistryModule } from './modules/registry/registry.module'
+import { Registry } from '../entities/Registry'
+import { RegistryModule } from './registry/registry.module'
 import { AppController } from './app.controller'
-import { SessionModule } from './modules/session/session.module'
-import { Profile } from './entities/Profile'
-import { QueueModule } from './modules/queue/queue.module'
-import { ProfileModule } from './modules/profile/profile.module'
-import { SessionMiddleware } from './modules/session/session.middleware'
+import { SessionModule } from './session/session.module'
+import { Profile } from '../entities/Profile'
+import { QueueModule } from './queue/queue.module'
+import { ProfileModule } from './profile/profile.module'
+import { SessionMiddleware } from './session/session.middleware'
 
 @Module({
   imports: [

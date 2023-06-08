@@ -25,6 +25,12 @@ export class SessionController {
     private sessionService: SessionService
   ) {}
 
+  @Get('')
+  async getProfile(@Session() session: Profile) {
+    if (session) return session
+    else throw new NotFoundException()
+  }
+
   @Post()
   @HttpCode(200)
   async signIn(@Body() body: SignInDto, @Session() profile: Profile) {
@@ -52,10 +58,5 @@ export class SessionController {
       throw new NotFoundException({
         authenticated: false,
       })
-  }
-
-  @Get('')
-  async getProfile(@Session() session: Profile) {
-    return session
   }
 }

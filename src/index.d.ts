@@ -1,10 +1,7 @@
 declare global {
   namespace Express {
     export interface Request {
-      profile: {
-        nickname: string
-        rating: number
-      } | null = null
+      session: import('./app/session/session.types').SessionData | null
     }
   }
 }

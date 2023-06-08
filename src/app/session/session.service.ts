@@ -3,7 +3,7 @@ import {
   Injectable,
   createParamDecorator,
 } from '@nestjs/common'
-import { Session, SessionMap } from './types'
+import { SessionData, SessionMap } from './session.types'
 import { v4 } from 'uuid'
 import { ProfileService } from '../profile/profile.service'
 import { Profile } from 'src/entities/Profile'
@@ -35,8 +35,8 @@ export class SessionService {
   createSession(profile: Profile) {
     const ssid = 'SSID' + v4()
 
-    const session: Session = {
-      ssid: ssid,
+    const session: SessionData = {
+      id: ssid,
       expires: Infinity,
       profile: {
         nickname: profile.nickname,
@@ -53,10 +53,7 @@ export class SessionService {
     else return null
   }
 
-  getSession(request: Request) {
-    const ssid = request.headers['Magic3t-Session'] || ''
-    if (ssid instanceof Array) {
-      return this.sessions[ssid[0]] || null
-    } else return this.sessions[ssid] || null
+  getSession(id: string): SessionData | null {
+    return this.sessions[id] || null
   }
 }
