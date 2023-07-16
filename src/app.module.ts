@@ -21,7 +21,7 @@ import { ProfileModule } from './modules/profile/profile.module'
       username: process.env.PG_USERNAME,
       host: process.env.PG_HOST,
       database: process.env.PG_NAME,
-      ssl: true,
+      ssl: false,
       entities: [Registry, Profile],
       synchronize: true,
     }),
