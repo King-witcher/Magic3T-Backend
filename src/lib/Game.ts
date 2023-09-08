@@ -21,12 +21,10 @@ export interface GameReport {
 
 interface GameParams {
   player1: {
-    out_id: [string]
     nickname: string | null
     rating: number | null
   }
   player2: {
-    out_id: [string]
     nickname: string | null
     rating: number | null
   }
@@ -35,6 +33,8 @@ interface GameParams {
 
 export class Game {
   readonly playerMap: { [playerId: string]: Player } = {}
+  readonly player1: Player
+  readonly player2: Player
   readonly firstPlayer: Player
   turn: Player | null = null
   finished: boolean = false
@@ -43,8 +43,16 @@ export class Game {
   messages: { player: Player; content: string; time: number }[] = []
 
   constructor({ player1: p1, player2: p2, timelimit }: GameParams) {
-    const player1 = new Player(p1.nickname, p1.rating, timelimit)
-    const player2 = new Player(p2.nickname, p2.rating, timelimit)
+    const player1 = (this.player1 = new Player(
+      p1.nickname,
+      p1.rating,
+      timelimit
+    ))
+    const player2 = (this.player2 = new Player(
+      p2.nickname,
+      p2.rating,
+      timelimit
+    ))
     player1.timer.timeoutCallback = () => {
       this.handleTimeout.bind(this)(player1)
     }
@@ -59,12 +67,8 @@ export class Game {
     else this.firstPlayer = player2
 
     // Insere os jogadores no mapa
-    this.playerMap[player1.playerId] = player1
-    this.playerMap[player2.playerId] = player2
-
-    // Devolve os ids dos jogadores
-    p1.out_id[0] = player1.playerId
-    p2.out_id[0] = player2.playerId
+    this.playerMap[player1.token] = player1
+    this.playerMap[player2.token] = player2
   }
 
   start() {

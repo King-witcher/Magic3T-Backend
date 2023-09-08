@@ -11,7 +11,6 @@ const timelimit = 80 * 1000
 type PlayerProps = {
   nickname: string | null
   rating: number | null
-  out_id: [string]
 }
 interface CreateGameProps {
   player1: PlayerProps
@@ -27,19 +26,19 @@ export class GameService {
       player1: {
         nickname: player1.nickname,
         rating: player1.rating,
-        out_id: player1.out_id,
       },
       player2: {
         nickname: player2.nickname,
         rating: player2.rating,
-        out_id: player2.out_id,
       },
       timelimit,
     })
 
-    this.games[player1.out_id[0]] = this.games[player2.out_id[0]] = game
+    this.games[game.player1.token] = this.games[game.player2.token] = game
 
     game.start()
+
+    return game
   }
 
   getGameState(playerId: string): GameReport | null {
