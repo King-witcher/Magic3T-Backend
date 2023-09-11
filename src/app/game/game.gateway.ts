@@ -1,15 +1,25 @@
-import { Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger, ParseIntPipe } from '@nestjs/common'
 import {
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   ConnectedSocket,
+  WebSocketServer,
 } from '@nestjs/websockets'
-import { Socket } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import { Game } from 'src/lib/Game'
+import { Choice, Player } from 'src/lib/Player'
+import { PlayerHandler } from './player.handler'
+import { CasualGameConfig } from '../config/config.symbols'
+import { GameConfig } from '../config/config.types'
+import {
+  ChoiceUnavailableException,
+  GameFinishedException,
+  WrongTurnException,
+} from './game.exceptions'
+import { PlayerResult } from './game.types'
 
 const timelimit = 80 * 1000
 
@@ -23,41 +33,86 @@ type PlayerProps = {
   rating: number | null
 }
 
+type Connection = {
+  playerId: string
+}
+
 @WebSocketGateway({ cors: '*', namespace: 'game' })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  games: { [playerId: string]: Game } = {}
+  @WebSocketServer()
+  server: Server
 
-  createGame({ player1, player2 }: CreateGameProps) {
-    const game = new Game({
-      player1: {
-        nickname: player1.nickname,
-        rating: player1.rating,
-      },
-      player2: {
-        nickname: player2.nickname,
-        rating: player2.rating,
-      },
-      timelimit,
-    })
+  /**Tokens de jogadores que ainda não se conectaram com o servidor. */
+  tokens: Record<string, PlayerHandler> = {}
 
-    this.games[game.player1.token] = this.games[game.player2.token] = game
+  /**SocketId -> Player */
+  players: Record<string, PlayerHandler> = {}
 
-    game.start()
+  constructor(@Inject(CasualGameConfig) private casualGameConfig: GameConfig) {}
+
+  handleConnection(socket: Socket): void {
+    const token = socket.handshake.auth.token
+    if (!token) {
+      socket.disconnect()
+      return
+    }
+
+    const player = this.tokens[token]
+
+    if (!player) {
+      socket.disconnect()
+      return
+    }
+
+    delete this.tokens[token]
+    this.players[socket.id] = player
+    player.socket = socket
   }
 
-  @SubscribeMessage('message')
-  private handleMessage(
-    @MessageBody() message: any,
-    @ConnectedSocket() socket: Socket
+  @SubscribeMessage('choice')
+  handleChoice(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody(ParseIntPipe) choice: number
   ) {
-    console.log(message, socket.handshake.auth)
+    const player = this.players[socket.id]
+
+    if (!player.oponent) return
+    if (!player.turn) throw new WrongTurnException()
+    if (
+      [...player.choices, ...player.oponent.choices].includes(choice as Choice)
+    )
+      throw new ChoiceUnavailableException() // hackeável
+    if (player.result) throw new GameFinishedException()
+
+    player.choices.push(choice as Choice)
+
+    const triple = player.isWinner() // optimizável
+
+    // O jogador venceu a partida
+    if (triple) {
+      player.timer.pause()
+      player.turn = false
+      player.result = PlayerResult.Victory
+      player.oponent.result = PlayerResult.Defeat
+
+      socket.emit('victory', {})
+      player.oponent.socket?.emit('defeat', {})
+    } else {
+      if (player.choices.length + player.oponent.choices.length === 9) {
+        player.timer.pause()
+        player.turn = false
+        player.result = player.oponent.result = PlayerResult.Draw
+        socket.emit('draw', {})
+        player.oponent.socket?.emit('draw', {})
+      } else {
+        player.turn = false
+        player.oponent.turn = true
+        socket.emit('ack', {})
+        player.oponent.socket?.emit('oponentChoice', choice)
+        // Emitir o estado atual do jogo para os dois
+      }
+    }
   }
 
-  handleConnection(client: any, ...args: any[]) {
-    Logger.log('Client connected', 'Game Gateway')
-  }
-
-  handleDisconnect(client: any) {
-    console.log('disc')
-  }
+  handleDisconnect(client: any) {}
 }

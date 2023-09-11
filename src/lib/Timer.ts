@@ -4,8 +4,12 @@ export default class Timer {
   private timeout: NodeJS.Timeout | null = null
   public timeoutCallback?: () => void
 
-  constructor(initial: number, callback?: () => void) {
-    this.remaining = initial
+  /**
+   * @param time Tempo do timer em ms
+   * @param callback Callback a ser executado quando o timer encerrar
+   */
+  constructor(time: number, callback?: () => void) {
+    this.remaining = time
     this.timeoutCallback = callback
   }
 

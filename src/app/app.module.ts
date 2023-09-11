@@ -9,6 +9,17 @@ import { Profile } from '../models/Profile'
 import { QueueModule } from './queue/queue.module'
 import { ProfileModule } from './profile/profile.module'
 import { SessionMiddleware } from './session/session.middleware'
+import { ConfigModule } from './config/config.module';
+
+const typeOrmModule = TypeOrmModule.forRoot({
+  type: 'postgres',
+  username: process.env.PG_USERNAME,
+  host: process.env.PG_HOST,
+  database: process.env.PG_NAME,
+  ssl: false,
+  entities: [Registry, Profile],
+  synchronize: true,
+})
 
 @Module({
   imports: [
@@ -17,15 +28,8 @@ import { SessionMiddleware } from './session/session.middleware'
     SessionModule,
     QueueModule,
     ProfileModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      username: process.env.PG_USERNAME,
-      host: process.env.PG_HOST,
-      database: process.env.PG_NAME,
-      ssl: false,
-      entities: [Registry, Profile],
-      synchronize: true,
-    }),
+    typeOrmModule,
+    ConfigModule,
   ],
   controllers: [AppController],
   providers: [],

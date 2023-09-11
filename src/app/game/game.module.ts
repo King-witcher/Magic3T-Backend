@@ -6,6 +6,6 @@ import { GameGateway } from './game.gateway'
 @Module({
   providers: [GameService, GameGateway],
   controllers: [GameController],
-  exports: [GameService, GameGateway],
+  exports: [GameService],
 })
 export class GameModule {}
