@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common'
 import { Game, GameReport } from '../../lib/Game'
 import { Choice } from 'src/lib/Player'
+import { GameGateway } from './game.gateway'
 
 const timelimit = 80 * 1000
 
@@ -20,25 +21,10 @@ interface CreateGameProps {
 @Injectable()
 export class GameService {
   games: { [playerId: string]: Game } = {}
+  constructor(private gameGateway: GameGateway) {}
 
-  createGame({ player1, player2 }: CreateGameProps) {
-    const game = new Game({
-      player1: {
-        nickname: player1.nickname,
-        rating: player1.rating,
-      },
-      player2: {
-        nickname: player2.nickname,
-        rating: player2.rating,
-      },
-      timelimit,
-    })
-
-    this.games[game.player1.token] = this.games[game.player2.token] = game
-
-    game.start()
-
-    return game
+  createGame() {
+    return this.gameGateway.createGame()
   }
 
   getGameState(playerId: string): GameReport | null {

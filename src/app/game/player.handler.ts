@@ -1,17 +1,12 @@
 import Timer from 'src/lib/Timer'
-import { GameHandler } from './game.handler'
 import { Choice } from 'src/lib/Player'
-import {
-  ChoiceUnavailableException,
-  GameFinishedException,
-  WrongTurnException,
-} from './game.exceptions'
+import { GameFinishedException, WrongTurnException } from './game.exceptions'
 import { PlayerResult as PlayerResult } from './game.types'
 import { Socket } from 'socket.io'
+import { Logger } from '@nestjs/common'
 
 interface PlayerOptions {
   timeLimit: number
-  timeoutCallback: (player: PlayerHandler) => void
 }
 
 export class PlayerHandler {
@@ -23,12 +18,14 @@ export class PlayerHandler {
   turn: boolean = false
   result: PlayerResult | null
 
-  constructor({ timeLimit, timeoutCallback }: PlayerOptions) {
-    this.timer = new Timer(timeLimit * 1000, () => timeoutCallback(this)) // Possível erro de bind
+  constructor({ timeLimit }: PlayerOptions) {
+    this.timer = new Timer(timeLimit * 1000, () => {}) // Possível erro de bind
     this.oponent = this
   }
 
   onTimeout() {
+    if (this.result) return
+
     this.oponent.result = PlayerResult.Victory
     this.result = PlayerResult.Defeat
     this.turn = false
@@ -45,20 +42,21 @@ export class PlayerHandler {
     return false
   }
 
-  onChoose(choice: Choice) {
-    if (!this.oponent) return
-    if (this.turn) throw new WrongTurnException()
-    //if (!this.game.isAvailable(choice)) throw new ChoiceUnavailableException()
-    if (this.result) throw new GameFinishedException()
-
-    this.choices.push(choice)
-  }
-
   onReady() {
     if (this.ready) return
 
+    this.ready = true
+
     if (this.oponent.ready) {
-      this.timer
+      const rand = Math.random()
+      if (rand <= 0.5) {
+        this.turn = true
+        this.timer.start()
+      } else {
+        this.oponent.turn = true
+        this.oponent.timer.start()
+      }
+      Logger.log('Game started.', 'PlayerHandler')
     }
   }
 

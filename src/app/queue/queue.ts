@@ -87,23 +87,14 @@ export default class Queue {
 
     if (entry1.profile || entry2.profile) throw new NotImplementedException()
 
-    const game = this.gameService.createGame({
-      player1: {
-        nickname: null,
-        rating: null,
-      },
-      player2: {
-        nickname: null,
-        rating: null,
-      },
-    })
+    const [token1, token2] = this.gameService.createGame()
 
     entry1.queueStatus = QueueStatus.Matched
     entry1.matchTime = Date.now()
-    entry1.playerId = game.player1.token
+    entry1.playerId = token1
 
     entry2.queueStatus = QueueStatus.Matched
     entry2.matchTime = Date.now()
-    entry2.playerId = game.player2.token
+    entry2.playerId = token2
   }
 }

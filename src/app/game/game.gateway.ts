@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, ParseIntPipe } from '@nestjs/common'
+import { Inject, Logger, ParseIntPipe } from '@nestjs/common'
 import {
   SubscribeMessage,
   WebSocketGateway,
@@ -9,8 +9,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { Game } from 'src/lib/Game'
-import { Choice, Player } from 'src/lib/Player'
+import { Choice } from 'src/lib/Player'
 import { PlayerHandler } from './player.handler'
 import { CasualGameConfig } from '../config/config.symbols'
 import { GameConfig } from '../config/config.types'
@@ -20,6 +19,7 @@ import {
   WrongTurnException,
 } from './game.exceptions'
 import { PlayerResult } from './game.types'
+import { v4 } from 'uuid'
 
 const timelimit = 80 * 1000
 
@@ -50,23 +50,46 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(@Inject(CasualGameConfig) private casualGameConfig: GameConfig) {}
 
+  createGame(): [string, string] {
+    const player1 = new PlayerHandler({
+      timeLimit: this.casualGameConfig.timeLimit,
+    })
+    const player2 = new PlayerHandler({
+      timeLimit: this.casualGameConfig.timeLimit,
+    })
+    player1.confront(player2)
+
+    const id1 = v4()
+    const id2 = v4()
+
+    this.tokens[id1] = player1
+    this.tokens[id2] = player2
+
+    Logger.log(`Game created for ids ${id1} and ${id2}.`, 'GameGateway')
+    return [id1, id2]
+  }
+
   handleConnection(socket: Socket): void {
     const token = socket.handshake.auth.token
     if (!token) {
       socket.disconnect()
+      Logger.error('Connection attempt failed.', 'GameGateway')
       return
     }
 
     const player = this.tokens[token]
-
     if (!player) {
       socket.disconnect()
+      Logger.error('Connection attempt failed.', 'GameGateway')
       return
     }
+
+    Logger.log(`Player with id ${token} connected.`, 'GameGateway')
 
     delete this.tokens[token]
     this.players[socket.id] = player
     player.socket = socket
+    player.onReady()
   }
 
   @SubscribeMessage('choice')
@@ -81,15 +104,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (
       [...player.choices, ...player.oponent.choices].includes(choice as Choice)
     )
-      throw new ChoiceUnavailableException() // hackeável
+      throw new ChoiceUnavailableException() // brecha hackeável
     if (player.result) throw new GameFinishedException()
 
     player.choices.push(choice as Choice)
 
     const triple = player.isWinner() // optimizável
 
-    // O jogador venceu a partida
     if (triple) {
+      // O jogador venceu a partida
       player.timer.pause()
       player.turn = false
       player.result = PlayerResult.Victory
@@ -99,12 +122,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       player.oponent.socket?.emit('defeat', {})
     } else {
       if (player.choices.length + player.oponent.choices.length === 9) {
+        // Partida empatou
         player.timer.pause()
         player.turn = false
         player.result = player.oponent.result = PlayerResult.Draw
         socket.emit('draw', {})
         player.oponent.socket?.emit('draw', {})
       } else {
+        // Partida seguiu normalmente
         player.turn = false
         player.oponent.turn = true
         socket.emit('ack', {})
