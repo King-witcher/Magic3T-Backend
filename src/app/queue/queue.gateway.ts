@@ -32,6 +32,7 @@ export class QueueGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: Socket) {}
 
   handleDisconnect(client: Socket) {
+    Logger.log(`Player leaved queue.`, 'QueueGateway')
     if (this.pendingPlayer === client) this.pendingPlayer = null
   }
 }

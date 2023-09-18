@@ -4,6 +4,7 @@ import { GameFinishedException, WrongTurnException } from './game.exceptions'
 import { PlayerResult as PlayerResult } from './game.types'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
+import { GameState, GameStatus } from 'src/constants/types'
 
 interface PlayerOptions {
   timeLimit: number
@@ -57,6 +58,17 @@ export class PlayerHandler {
         this.oponent.timer.start()
       }
       Logger.log('Game started.', 'PlayerHandler')
+    }
+  }
+
+  getState(): GameState {
+    return {
+      playerChoices: this.choices,
+      oponentChoices: this.oponent.choices,
+      gameStatus: GameStatus.Ongoing,
+      oponentTimeLeft: 9999999,
+      playerTimeLeft: 9999999,
+      turn: this.turn,
     }
   }
 

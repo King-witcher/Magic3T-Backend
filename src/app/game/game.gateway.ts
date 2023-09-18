@@ -137,7 +137,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // Emitir o estado atual do jogo para os dois
       }
     }
+
+    socket.emit('gameState', JSON.stringify(player.getState()))
+    player.oponent.socket?.emit(
+      'gameState',
+      JSON.stringify(player.oponent.getState())
+    )
   }
 
-  handleDisconnect(client: any) {}
+  handleDisconnect(client: any) {
+    Logger.log(`Player ${client.id} disconnected.`, 'GameGateway')
+  }
 }
