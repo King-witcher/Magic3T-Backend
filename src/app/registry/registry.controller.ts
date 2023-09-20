@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common'
 import { CreateAccountDto } from './dto/createAccountDto'
 import { RegistryService } from './registry.service'
-import { ProfileService } from '@modules/profile/profile.service'
+import { ProfileService } from '../profile/profile.service'
 
 @Controller('registries')
 export class RegistryController {
