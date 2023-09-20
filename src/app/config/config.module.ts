@@ -3,7 +3,7 @@ import { CasualGameConfig, RankedGameConfig } from './config.symbols'
 import { GameConfig } from './config.types'
 
 const casual: GameConfig = {
-  timeLimit: 150,
+  timeLimit: 120,
 }
 
 @Global()

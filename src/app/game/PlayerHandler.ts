@@ -25,17 +25,19 @@ export class PlayerHandler {
   result: PlayerResult | null
 
   constructor({ timeLimit }: PlayerOptions) {
-    this.timer = new Timer(timeLimit * 1000, () => {}) // Possível erro de bind
+    this.timer = new Timer(timeLimit * 1000, this.handleTimeout.bind(this)) // Possível erro de bind
     this.oponent = this
   }
 
-  onTimeout() {
+  handleTimeout() {
     if (this.result) return
 
     this.oponent.result = PlayerResult.Victory
     this.result = PlayerResult.Defeat
     this.oponent.turn = false
     this.turn = false
+    this.emitState()
+    this.oponent.emitState()
   }
 
   //** Retorna um array com 3 Choices se o jogador for vencedor; caso contrário, false. */
