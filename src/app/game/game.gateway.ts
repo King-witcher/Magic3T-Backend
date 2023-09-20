@@ -96,11 +96,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const player = this.players[socket.id]
 
     player.onReady()
-    socket.emit('gameState', JSON.stringify(player.getState()))
-    player.oponent.socket?.emit(
-      'gameState',
-      JSON.stringify(player.oponent.getState())
-    )
+    player.emitState()
+    player.oponent.emitState()
   }
 
   @SubscribeMessage('choice')
@@ -110,43 +107,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const player = this.players[socket.id]
 
-    if (!player.oponent) return
-    if (!player.turn) throw new WrongTurnException()
-    if (
-      [...player.choices, ...player.oponent.choices].includes(choice as Choice)
-    )
-      throw new ChoiceUnavailableException() // brecha hackeável
-    if (player.result) throw new GameFinishedException()
+    player.handleChoice(choice as Choice)
 
-    player.choices.push(choice as Choice)
-
-    const triple = player.isWinner() // optimizável
-
-    if (triple) {
-      // O jogador venceu a partida
-      player.timer.pause()
-      player.turn = false
-      player.result = PlayerResult.Victory
-      player.oponent.result = PlayerResult.Defeat
-    } else {
-      if (player.choices.length + player.oponent.choices.length === 9) {
-        // Partida empatou
-        player.timer.pause()
-        player.turn = false
-        player.result = player.oponent.result = PlayerResult.Draw
-      } else {
-        // Partida seguiu normalmente
-        player.turn = false
-        player.oponent.turn = true
-        // Emitir o estado atual do jogo para os dois
-      }
-    }
-
-    socket.emit('gameState', JSON.stringify(player.getState()))
-    player.oponent.socket?.emit(
-      'gameState',
-      JSON.stringify(player.oponent.getState())
-    )
+    player.emitState()
+    player.oponent.emitState()
   }
 
   handleDisconnect(client: any) {

@@ -1,10 +1,15 @@
 import Timer from 'src/lib/Timer'
 import { Choice } from 'src/lib/Player'
-import { GameFinishedException, WrongTurnException } from './game.exceptions'
+import {
+  ChoiceUnavailableException,
+  GameFinishedException,
+  WrongTurnException,
+} from './game.exceptions'
 import { PlayerResult as PlayerResult } from './game.types'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
 import { GameState, GameStatus } from 'src/constants/types'
+import { log } from 'console'
 
 interface PlayerOptions {
   timeLimit: number
@@ -59,6 +64,49 @@ export class PlayerHandler {
       }
       Logger.log('Game started.', 'PlayerHandler')
     }
+  }
+
+  handleChoice(choice: Choice) {
+    if (!this.oponent) return
+    if (!this.turn) return this.emitState()
+    if ([...this.choices, ...this.oponent.choices].includes(choice as Choice))
+      return this.emitState()
+    if (choice % 1 !== 0 || choice < 1 || choice > 9) return
+    if (this.result) return this.emitState()
+
+    this.choices.push(choice as Choice)
+
+    const triple = this.isWinner() // optimizável
+
+    if (triple) {
+      // O jogador venceu a partida
+      this.timer.pause()
+      this.turn = false
+      this.result = PlayerResult.Victory
+      this.oponent.result = PlayerResult.Defeat
+    } else {
+      if (this.choices.length + this.oponent.choices.length === 9) {
+        // Partida empatou
+        this.timer.pause()
+        this.turn = false
+        this.result = this.oponent.result = PlayerResult.Draw
+      } else {
+        // Partida seguiu normalmente
+        this.flipTurns()
+      }
+    }
+  }
+
+  flipTurns() {
+    if (this.turn) return this.oponent.flipTurns()
+    this.oponent.timer.pause()
+    this.turn = this.oponent.turn
+    this.oponent.turn = false
+    if (this.turn) this.timer.start()
+  }
+
+  emitState() {
+    this.socket?.emit('gameState', JSON.stringify(this.getState()))
   }
 
   getState(): GameState {
