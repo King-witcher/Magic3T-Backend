@@ -29,8 +29,8 @@ export class PlayerHandler {
 
     this.oponent.result = PlayerResult.Victory
     this.result = PlayerResult.Defeat
-    this.turn = false
     this.oponent.turn = false
+    this.turn = false
   }
 
   //** Retorna um array com 3 Choices se o jogador for vencedor; caso contrário, false. */
@@ -62,19 +62,30 @@ export class PlayerHandler {
   }
 
   getState(): GameState {
+    let gameStatus = GameStatus.Undefined
+    if (this.ready && this.oponent.ready) {
+      if (!this.result) gameStatus = GameStatus.Ongoing
+      else gameStatus = this.result as unknown as GameStatus
+    }
+
     return {
       playerChoices: this.choices,
       oponentChoices: this.oponent.choices,
-      gameStatus: GameStatus.Ongoing,
-      oponentTimeLeft: 9999999,
-      playerTimeLeft: 9999999,
+      gameStatus,
+      oponentTimeLeft: this.oponent.timer.getRemaining(),
+      playerTimeLeft: this.timer.getRemaining(),
       turn: this.turn,
     }
   }
 
   //**Inicia uma partida contra o jogador definido em que o player atual é o primeiro a jogar. */
-  confront(player: PlayerHandler) {
+  setOponent(player: PlayerHandler) {
     this.oponent = player
     player.oponent = this
+  }
+
+  static setOponents(player1: PlayerHandler, player2: PlayerHandler) {
+    player1.oponent = player2
+    player2.oponent = player1
   }
 }
