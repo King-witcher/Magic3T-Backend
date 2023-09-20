@@ -1,5 +1,5 @@
 import { Controller, Get, ImATeapotException } from '@nestjs/common'
-const Package = require('../package.json')
+const Package = require('../../package.json')
 
 @Controller()
 export class AppController {
@@ -11,7 +11,7 @@ export class AppController {
   @Get('status')
   status() {
     const rand = Math.random()
-    if (rand < 0.05) throw new ImATeapotException()
+    if (rand < 0.03) throw new ImATeapotException()
     return {
       status: 'available',
     }

@@ -9,9 +9,8 @@ export interface PlayerReport {
 }
 
 export type Choice = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
 export class Player {
-  readonly playerId: string = v4()
+  readonly token: string = v4() // ID único de player de partida
   readonly nickname: string | null
   readonly rating: number | null
   oponent: Player = this

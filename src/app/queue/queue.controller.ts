@@ -17,14 +17,12 @@ export class QueueController {
   constructor(public queueService: QueueService) {}
 
   @Post('casual')
-  async insert(@Body() { gameMode, sessionId }: EnqueueDto) {
-    if (gameMode === 'casual') {
-      const queueId = await this.queueService.insertToQueue(
-        sessionId,
-        QueueMode.Casual
-      )
-      return { queueId }
-    }
+  async insert(@Body() { sessionId }: EnqueueDto) {
+    const queueId = await this.queueService.insertToQueue(
+      sessionId,
+      QueueMode.Casual
+    )
+    return { queueId }
   }
 
   @Post('ranked')

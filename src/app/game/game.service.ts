@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common'
 import { Game, GameReport } from '../../lib/Game'
 import { Choice } from 'src/lib/Player'
+import { GameGateway } from './game.gateway'
 
 const timelimit = parseInt(process.env.GAME_TIMELIMIT || '180000')
 
 type PlayerProps = {
   nickname: string | null
   rating: number | null
-  out_id: [string]
 }
 interface CreateGameProps {
   player1: PlayerProps
@@ -21,25 +21,10 @@ interface CreateGameProps {
 @Injectable()
 export class GameService {
   games: { [playerId: string]: Game } = {}
+  constructor(private gameGateway: GameGateway) {}
 
-  createGame({ player1, player2 }: CreateGameProps) {
-    const game = new Game({
-      player1: {
-        nickname: player1.nickname,
-        rating: player1.rating,
-        out_id: player1.out_id,
-      },
-      player2: {
-        nickname: player2.nickname,
-        rating: player2.rating,
-        out_id: player2.out_id,
-      },
-      timelimit,
-    })
-
-    this.games[player1.out_id[0]] = this.games[player2.out_id[0]] = game
-
-    game.start()
+  createGame() {
+    return this.gameGateway.createGame()
   }
 
   getGameState(playerId: string): GameReport | null {

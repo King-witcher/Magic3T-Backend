@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Profile } from 'src/entities/Profile'
-import { Registry } from 'src/entities/Registry'
+import { Profile } from 'src/models/Profile'
+import { Registry } from 'src/models/Registry'
 import { DataSource, Repository } from 'typeorm'
 
 @Injectable()
@@ -54,6 +54,13 @@ export class RegistryService {
   }
 
   async findByUsername(username: string): Promise<Registry | null> {
-    return (await this.registryRepository.findOneBy({ username })) || null
+    return (
+      (await this.registryRepository.findOne({
+        where: {
+          username,
+        },
+        relations: ['profile'],
+      })) || null
+    )
   }
 }
