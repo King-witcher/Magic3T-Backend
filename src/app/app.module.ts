@@ -10,6 +10,7 @@ import { QueueModule } from './queue/queue.module'
 import { ProfileModule } from './profile/profile.module'
 import { SessionMiddleware } from './session/session.middleware'
 import { ConfigModule } from './config/config.module';
+import { AuthModule } from './auth/auth.module';
 
 const typeOrmModule = TypeOrmModule.forRoot({
   type: 'postgres',
@@ -30,6 +31,7 @@ const typeOrmModule = TypeOrmModule.forRoot({
     ProfileModule,
     typeOrmModule,
     ConfigModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],
