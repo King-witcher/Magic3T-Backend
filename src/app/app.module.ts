@@ -9,8 +9,10 @@ import { Profile } from '../models/Profile'
 import { QueueModule } from './queue/queue.module'
 import { ProfileModule } from './profile/profile.module'
 import { SessionMiddleware } from './session/session.middleware'
-import { ConfigModule } from './config/config.module';
-import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from './config/config.module'
+import { AuthModule } from './auth/auth.module'
+import { APP_GUARD } from '@nestjs/core'
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 
 const typeOrmModule = TypeOrmModule.forRoot({
   type: 'postgres',
@@ -34,7 +36,12 @@ const typeOrmModule = TypeOrmModule.forRoot({
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

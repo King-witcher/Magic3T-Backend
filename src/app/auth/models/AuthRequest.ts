@@ -1,5 +1,5 @@
 import { Registry } from '@/models/Registry'
 
-export interface AuthRequest extends Request {
+export interface LocalAuthRequest extends Request {
   user: Registry
 }

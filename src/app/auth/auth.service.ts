@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { RegistryService } from '../registry/registry.service'
 import { Registry } from '@/models/Registry'
 import { JwtService } from '@nestjs/jwt'
-import { UserPayload } from './models/UserPayload'
+import { JwtPayload } from './models/JwtPayload'
 import { UserToken } from './models/UserToken'
 
 @Injectable()
@@ -13,10 +13,11 @@ export class AuthService {
   ) {}
 
   login(user: Registry): UserToken {
-    const payload: UserPayload = {
-      sub: user.id,
+    const payload: JwtPayload = {
+      registryId: user.id,
+      profileId: user.profile.id,
       email: user.email,
-      name: user.profile.nickname,
+      nickname: user.profile.nickname,
       username: user.username,
     }
 
@@ -36,6 +37,6 @@ export class AuthService {
         }
     }
 
-    throw new Error()
+    throw new Error('Invalid username and password combination.')
   }
 }
