@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common'
+import { MiddlewareConsumer, Module, Provider } from '@nestjs/common'
 import { GameModule } from './game/game.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Registry } from '../models/Registry'
@@ -14,7 +14,7 @@ import { AuthModule } from './auth/auth.module'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 
-const typeOrmModule = TypeOrmModule.forRoot({
+const DatabaseModule = TypeOrmModule.forRoot({
   type: 'postgres',
   username: process.env.PG_USERNAME,
   host: process.env.PG_HOST,
@@ -24,6 +24,11 @@ const typeOrmModule = TypeOrmModule.forRoot({
   synchronize: true,
 })
 
+const AppGuard: Provider = {
+  provide: APP_GUARD,
+  useClass: JwtAuthGuard,
+}
+
 @Module({
   imports: [
     GameModule,
@@ -31,17 +36,12 @@ const typeOrmModule = TypeOrmModule.forRoot({
     SessionModule,
     QueueModule,
     ProfileModule,
-    typeOrmModule,
+    DatabaseModule,
     ConfigModule,
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
-  ],
+  providers: [AppGuard],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

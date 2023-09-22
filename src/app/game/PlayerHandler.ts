@@ -4,7 +4,7 @@ import {
   ChoiceUnavailableException,
   GameFinishedException,
   WrongTurnException,
-} from './game.exceptions'
+} from './errors/game.exceptions'
 import { PlayerResult as PlayerResult } from './game.types'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'

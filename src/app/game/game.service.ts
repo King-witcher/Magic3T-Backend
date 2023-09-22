@@ -26,32 +26,4 @@ export class GameService {
   createGame() {
     return this.gameGateway.createGame()
   }
-
-  getGameState(playerId: string): GameReport | null {
-    const game = this.games[playerId]
-    if (!game) return null
-
-    return game.getStateReport(playerId)
-  }
-
-  setChoice(playerId: string, choice: Choice) {
-    const game = this.games[playerId]
-    if (!game) throw new NotFoundException()
-
-    game.setChoice(playerId, choice)
-  }
-
-  forfeit(playerId: string) {
-    const game = this.games[playerId]
-    if (!game) return null
-
-    game.forfeit(playerId)
-  }
-
-  pushMessage(playerId: string, message: string) {
-    const game = this.games[playerId]
-    if (!game) throw new BadRequestException('invalid playerId')
-
-    game.pushMessage(playerId, message)
-  }
 }

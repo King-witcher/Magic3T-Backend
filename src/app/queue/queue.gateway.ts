@@ -6,7 +6,9 @@ import {
 } from '@nestjs/websockets'
 import { Socket } from 'socket.io'
 import { GameService } from '../game/game.service'
-import { Logger } from '@nestjs/common'
+import { Logger, UseGuards } from '@nestjs/common'
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
+import { CurrentGame } from './decorators/game.decorator'
 
 // Versão simplificada
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -16,7 +18,7 @@ export class QueueGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private gameService: GameService) {}
 
   @SubscribeMessage('enqueue')
-  handleEnqueue(client: Socket) {
+  handleEnqueue(client: Socket, @CurrentGame() game: any) {
     Logger.log(`Player enqueued.`, 'QueueGateway')
 
     if (this.pendingPlayer) {

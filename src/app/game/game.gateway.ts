@@ -17,7 +17,7 @@ import {
   ChoiceUnavailableException,
   GameFinishedException,
   WrongTurnException,
-} from './game.exceptions'
+} from './errors/game.exceptions'
 import { PlayerResult } from './game.types'
 import { v4 } from 'uuid'
 
