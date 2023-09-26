@@ -19,6 +19,7 @@ export class Player {
   ready: boolean = false
   turn: boolean = false
   result: PlayerResult | null
+  readyTimeout: NodeJS.Timeout = setTimeout(this.forfeit.bind(this), 2000)
 
   constructor({ timeLimit }: PlayerOptions) {
     this.timer = new Timer(timeLimit * 1000, this.handleTimeout.bind(this)) // Possível erro de bind
@@ -49,6 +50,7 @@ export class Player {
   onReady() {
     if (this.ready) return
 
+    clearTimeout(this.readyTimeout)
     this.ready = true
 
     if (this.oponent.ready) {
@@ -125,6 +127,8 @@ export class Player {
   }
 
   forfeit() {
+    if (this.result) return
+
     this.turn = this.oponent.turn = false
     this.timer.pause()
     this.oponent.timer.pause()
