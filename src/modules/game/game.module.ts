@@ -8,4 +8,6 @@ import { MatchGateway } from './match/match.gateway'
   controllers: [GameController],
   providers: [QueueGateway, MatchService, MatchGateway],
 })
-export class GameModule {}
+export class GameModule {
+  register() {}
+}

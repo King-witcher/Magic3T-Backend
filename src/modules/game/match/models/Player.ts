@@ -60,7 +60,7 @@ export class Player {
         this.oponent.turn = true
         this.oponent.timer.start()
       }
-      Logger.log('Game started.', 'PlayerHandler')
+      Logger.log('Game started', 'PlayerHandler')
     }
   }
 
@@ -122,6 +122,16 @@ export class Player {
       playerTimeLeft: this.timer.getRemaining(),
       turn: this.turn,
     }
+  }
+
+  forfeit() {
+    this.turn = this.oponent.turn = false
+    this.timer.pause()
+    this.oponent.timer.pause()
+    this.result = PlayerResult.Defeat
+    this.oponent.result = PlayerResult.Victory
+    this.emitState()
+    this.oponent.emitState()
   }
 
   //**Inicia uma partida contra o jogador definido em que o player atual é o primeiro a jogar. */

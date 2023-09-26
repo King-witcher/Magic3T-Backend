@@ -52,6 +52,13 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     match.emitState()
   }
 
+  @SubscribeMessage('forfeit')
+  handleForfeit(@CurrentPlayer() player: Player, @CurrentMatch() match: Match) {
+    Logger.log('Player forfeits', 'GameGateway')
+    player.forfeit()
+    match.emitState()
+  }
+
   @SubscribeMessage('choice')
   handleChoice(
     @CurrentPlayer() player: Player,
@@ -62,8 +69,11 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     match.emitState()
   }
 
-  handleDisconnect(client: Socket) {
-    Logger.log('Player disconnected.', 'MatchGateway')
-    // Should set a timer to forfeit if the player doesn't reconnect.
+  handleDisconnect(client: PlayerSocket) {
+    if (client.data.player && !client.data.player.result) {
+      Logger.log('Player forfeits by disconnection', 'MatchGateway')
+      client.data.player.forfeit()
+      client.data.player.socket?.emit('enemyForfeits', {})
+    }
   }
 }

@@ -13,6 +13,4 @@ export class MatchService {
   getMatch(id: string) {
     return this.matches[id] || null
   }
-
-  getPlayer(matchId: string, playerKey: string) {}
 }
