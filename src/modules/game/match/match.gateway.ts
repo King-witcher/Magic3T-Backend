@@ -1,4 +1,4 @@
-import { Logger, ParseIntPipe, UseGuards } from '@nestjs/common'
+import { Logger, ParseIntPipe } from '@nestjs/common'
 import {
   ConnectedSocket,
   MessageBody,
@@ -13,17 +13,14 @@ import { PlayerSocket } from './models/PlayerSocket'
 import { CurrentPlayer } from './decorators/currentPlayer.decorator'
 import { PlayerHandler } from './models/Player'
 import { CurrentMatch } from './decorators/currentMatch.decorator'
-import { Match } from './models/Match'
 import { Choice } from '@/lib/Player'
 
-//@UseGuards(MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private matchService: MatchService) {}
 
   handleConnection(@ConnectedSocket() socket: PlayerSocket) {
-    const { matchId } = socket.handshake.query
-    const { playerKey } = socket.handshake.auth
+    const { matchId, playerKey } = socket.handshake.auth
 
     if (typeof matchId === 'string' && typeof playerKey === 'string') {
       const match = this.matchService.getMatch(matchId)
@@ -38,16 +35,18 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     }
-    Logger.error('Player rejected', 'MatchGateway')
-    socket.disconnect()
+    console.log(matchId, playerKey)
+    Logger.error('Connection rejected', 'MatchGateway')
+    //socket.disconnect()
   }
 
   @SubscribeMessage('ready')
   handleReady(
     @CurrentPlayer() player: PlayerHandler,
-    @CurrentMatch() match: Match
+    @ConnectedSocket() socket: PlayerSocket
   ) {
     Logger.log('Player ready', 'GameGateway')
+    console.log(socket.handshake.query)
     player.onReady()
     player.emitState()
     player.oponent.emitState()

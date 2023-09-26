@@ -22,8 +22,9 @@ export class QueueGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Logger.log(`Player enqueued`, 'QueueGateway')
 
     if (this.pendingSocket) {
+      //Logger.log('Match found', 'QueueGateway')
       const match = this.matchService.createMatch()
-      let [key1, key2] = match.ids
+      const [key1, key2] = match.ids
 
       this.pendingSocket.emit('matchFound', {
         matchId: match.id,
