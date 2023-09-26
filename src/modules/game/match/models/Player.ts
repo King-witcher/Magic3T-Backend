@@ -1,20 +1,21 @@
 import Timer from 'src/lib/Timer'
-import { Choice } from 'src/lib/Player'
 import { PlayerResult } from './PlayerResult'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
 import { GameState, GameStatus } from 'src/constants/types'
-import { log } from 'console'
+import { v4 } from 'uuid'
+import { Choice } from './Choice'
 
 interface PlayerOptions {
   timeLimit: number
 }
 
-export class PlayerHandler {
+export class Player {
+  id: string = v4()
   socket: Socket | null = null
   choices: Choice[] = []
   timer: Timer
-  oponent: PlayerHandler
+  oponent: Player
   ready: boolean = false
   turn: boolean = false
   result: PlayerResult | null
@@ -63,7 +64,7 @@ export class PlayerHandler {
     }
   }
 
-  handleChoice(choice: Choice) {
+  onChoose(choice: Choice) {
     if (!this.oponent) return
     if (!this.turn) return this.emitState()
     if ([...this.choices, ...this.oponent.choices].includes(choice as Choice))
@@ -124,12 +125,12 @@ export class PlayerHandler {
   }
 
   //**Inicia uma partida contra o jogador definido em que o player atual é o primeiro a jogar. */
-  setOponent(player: PlayerHandler) {
+  setOponent(player: Player) {
     this.oponent = player
     player.oponent = this
   }
 
-  static setOponents(player1: PlayerHandler, player2: PlayerHandler) {
+  static setOponents(player1: Player, player2: Player) {
     player1.oponent = player2
     player2.oponent = player1
   }

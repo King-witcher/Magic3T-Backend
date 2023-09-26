@@ -11,9 +11,11 @@ import { Socket } from 'socket.io'
 import { MatchService } from './match.service'
 import { PlayerSocket } from './models/PlayerSocket'
 import { CurrentPlayer } from './decorators/currentPlayer.decorator'
-import { PlayerHandler } from './models/Player'
+import { Player } from './models/Player'
 import { CurrentMatch } from './decorators/currentMatch.decorator'
-import { Choice } from '@/lib/Player'
+import { Match } from './models/Match'
+import { ChoicePipe } from './pipes/choice.pipe'
+import { Choice } from './models/Choice'
 
 @WebSocketGateway({ cors: '*', namespace: 'match' })
 export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -35,31 +37,29 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       }
     }
-    console.log(matchId, playerKey)
     Logger.error('Connection rejected', 'MatchGateway')
     //socket.disconnect()
   }
 
   @SubscribeMessage('ready')
   handleReady(
-    @CurrentPlayer() player: PlayerHandler,
+    @CurrentPlayer() player: Player,
+    @CurrentMatch() match: Match,
     @ConnectedSocket() socket: PlayerSocket
   ) {
     Logger.log('Player ready', 'GameGateway')
-    console.log(socket.handshake.query)
     player.onReady()
-    player.emitState()
-    player.oponent.emitState()
+    match.emitState()
   }
 
   @SubscribeMessage('choice')
   handleChoice(
-    @CurrentPlayer() player: PlayerHandler,
-    @MessageBody(ParseIntPipe) choice: Choice
+    @CurrentPlayer() player: Player,
+    @CurrentMatch() match: Match,
+    @MessageBody(ChoicePipe) choice: Choice
   ) {
-    player.handleChoice(choice)
-    player.emitState()
-    player.oponent.emitState()
+    player.onChoose(choice)
+    match.emitState()
   }
 
   handleDisconnect(client: Socket) {

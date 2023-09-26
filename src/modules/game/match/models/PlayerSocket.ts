@@ -1,11 +1,11 @@
 import { Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import { Match } from './Match'
-import { PlayerHandler } from './Player'
+import { Player } from './Player'
 
 export type PlayerSocketData = {
   match: Match
-  player: PlayerHandler
+  player: Player
 }
 
 export type PlayerSocket = Socket<
