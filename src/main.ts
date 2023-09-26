@@ -2,8 +2,7 @@ import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'
 import { config } from 'dotenv'
 config()
-import { AppModule } from './app/app.module'
-import { Player } from './lib/Player'
+import { AppModule } from './modules/app.module'
 import * as cookieParser from 'cookie-parser'
 
 async function bootstrap() {
@@ -13,7 +12,7 @@ async function bootstrap() {
   app.enableCors()
   app.use(cookieParser())
   await app.listen(port)
-  console.log(`Listening on port ${port}`)
+  console.log(`Server running on port ${port}.`)
 }
 
 bootstrap()

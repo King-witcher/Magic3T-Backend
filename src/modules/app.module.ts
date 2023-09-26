@@ -1,16 +1,14 @@
 import { MiddlewareConsumer, Module, Provider } from '@nestjs/common'
-import { GameModule } from './game/game.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Registry } from '../models/Registry'
 import { RegistryModule } from './registry/registry.module'
 import { AppController } from './app.controller'
 import { Profile } from '../models/Profile'
-import { QueueModule } from './queue/queue.module'
 import { ProfileModule } from './profile/profile.module'
-import { ConfigModule } from './config/config.module'
 import { AuthModule } from './auth/auth.module'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
+import { GameModule } from './game/game.module'
 
 const DatabaseModule = TypeOrmModule.forRoot({
   type: 'postgres',
@@ -29,13 +27,11 @@ const AppGuard: Provider = {
 
 @Module({
   imports: [
-    GameModule,
     RegistryModule,
-    QueueModule,
     ProfileModule,
     DatabaseModule,
-    ConfigModule,
     AuthModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [AppGuard],

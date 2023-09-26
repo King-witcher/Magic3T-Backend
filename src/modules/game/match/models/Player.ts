@@ -1,11 +1,6 @@
 import Timer from 'src/lib/Timer'
 import { Choice } from 'src/lib/Player'
-import {
-  ChoiceUnavailableException,
-  GameFinishedException,
-  WrongTurnException,
-} from './errors/game.exceptions'
-import { PlayerResult as PlayerResult } from './game.types'
+import { PlayerResult } from './PlayerResult'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
 import { GameState, GameStatus } from 'src/constants/types'
@@ -16,7 +11,7 @@ interface PlayerOptions {
 }
 
 export class PlayerHandler {
-  socket: Socket | null
+  socket: Socket | null = null
   choices: Choice[] = []
   timer: Timer
   oponent: PlayerHandler
