@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io'
-import { Player } from './player'
+import { Player } from './Player'
 import { v4 } from 'uuid'
 
 export class Match {
