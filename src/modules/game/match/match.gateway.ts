@@ -41,6 +41,11 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     //socket.disconnect()
   }
 
+  @SubscribeMessage('message')
+  handleMessage(@CurrentPlayer() player: Player, @MessageBody() message: any) {
+    player.oponent.socket?.emit('message', message.toString())
+  }
+
   @SubscribeMessage('ready')
   handleReady(
     @CurrentPlayer() player: Player,
