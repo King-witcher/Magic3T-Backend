@@ -14,6 +14,7 @@ import { ProfileModule } from '../profile/profile.module'
     ProfileModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
+      global: true,
       signOptions: {
         expiresIn: '30d',
       },

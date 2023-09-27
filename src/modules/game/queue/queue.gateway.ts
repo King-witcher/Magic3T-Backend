@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -6,16 +7,26 @@ import {
 } from '@nestjs/websockets'
 import { Socket } from 'socket.io'
 import { MatchService } from '../match/match.service'
-import { Logger } from '@nestjs/common'
+import { Inject, Logger } from '@nestjs/common'
+import { AuthStrategy } from './strategies/AuthStrategy'
 
 // Versão simplificada
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayConnection, OnGatewayDisconnect {
   pendingSocket: Socket | null = null
 
-  constructor(private matchService: MatchService) {}
+  constructor(
+    private matchService: MatchService,
+    private authStrategy: AuthStrategy,
+    @Inject('GAME_MODE_CONFIG') private gameModeConfig: any
+  ) {}
 
-  handleConnection() {}
+  handleConnection(@ConnectedSocket() socket: Socket) {
+    if (!this.authStrategy.validate(socket)) {
+      socket.disconnect()
+      Logger.error('Queue connection rejected', 'QueueGateway')
+    }
+  }
 
   @SubscribeMessage('enqueue')
   handleEnqueue(client: Socket) {
