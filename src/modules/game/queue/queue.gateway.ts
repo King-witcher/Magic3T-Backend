@@ -1,60 +1,83 @@
 import {
   ConnectedSocket,
-  OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets'
-import { Socket } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import { MatchService } from '../match/match.service'
-import { Inject, Logger } from '@nestjs/common'
-import { AuthStrategy } from './strategies/AuthStrategy'
+import { Inject, Logger, UseGuards } from '@nestjs/common'
+import { FirebaseAuth } from '@/modules/firebase/firebase.module'
+import { Auth } from 'firebase-admin/auth'
+import { QueueSocket } from './models/QueueSocket'
+import { QueueEntry } from './models/QueueEntry'
+import { CurrentUser } from './decorators/currentUser.decorator'
+import { PlayerData } from './models/PlayerData'
+import { QueueGuard } from './queue.guard'
 
-// Versão simplificada
+@UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
-export class QueueGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  pendingSocket: Socket | null = null
+export class QueueGateway implements OnGatewayDisconnect {
+  @WebSocketServer()
+  server: Server
+  pendingEntry: QueueEntry | null = null
 
   constructor(
     private matchService: MatchService,
-    private authStrategy: AuthStrategy,
+    @Inject(FirebaseAuth) private auth: Auth,
     @Inject('GAME_MODE_CONFIG') private gameModeConfig: any
   ) {}
 
-  handleConnection(@ConnectedSocket() socket: Socket) {
-    if (!this.authStrategy.validate(socket)) {
-      socket.disconnect()
-      Logger.error('Queue connection rejected', 'QueueGateway')
-    }
-  }
-
   @SubscribeMessage('enqueue')
-  handleEnqueue(client: Socket) {
+  handleEnqueue(
+    @ConnectedSocket() client: Socket,
+    @CurrentUser() user: PlayerData
+  ) {
+    if (this.pendingEntry?.user.uid === user.uid) {
+      Logger.error('Cannot queue same uid twice.', 'QueueGateway')
+      return 'Cannot queue same uid twice.'
+    }
+
     Logger.log(`Player enqueued`, 'QueueGateway')
+    if (this.pendingEntry) {
+      const match = this.matchService.createMatch(
+        user,
+        this.pendingEntry.user,
+        {
+          readyTimeout: 2000,
+          timelimit: 1000 * 150,
+        }
+      )
 
-    if (this.pendingSocket) {
-      //Logger.log('Match found', 'QueueGateway')
-      const match = this.matchService.createMatch()
-      const [key1, key2] = match.ids
-
-      this.pendingSocket.emit('matchFound', {
+      this.pendingEntry.socket.emit('matchFound', {
         matchId: match.id,
-        playerKey: key1,
       })
-      this.pendingSocket.disconnect()
 
       client.emit('matchFound', {
         matchId: match.id,
-        playerKey: key2,
       })
+
+      this.pendingEntry.socket.disconnect()
       client.disconnect()
 
-      this.pendingSocket = null
-    } else this.pendingSocket = client
+      this.pendingEntry = null
+      return
+    }
+    this.pendingEntry = {
+      socket: client,
+      user: {
+        name: user.name,
+        uid: user.uid,
+        rating: user.rating,
+      },
+    }
   }
 
   handleDisconnect(client: Socket) {
-    Logger.log(`Player leaved queue`, 'QueueGateway')
-    if (this.pendingSocket === client) this.pendingSocket = null
+    if (this.pendingEntry?.socket === client) {
+      this.pendingEntry = null
+      Logger.log(`Player leaved queue`, 'QueueGateway')
+    }
   }
 }

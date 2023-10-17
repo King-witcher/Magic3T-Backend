@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module'
 import { APP_GUARD } from '@nestjs/core'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { GameModule } from './game/game.module'
+import { FirebaseModule } from './firebase/firebase.module';
 
 const DatabaseModule = TypeOrmModule.forRoot({
   type: 'postgres',
@@ -39,6 +40,7 @@ const AppGuard: Provider = {
       isRanked: false,
       timeLimit: 105,
     }),
+    FirebaseModule,
   ],
   controllers: [AppController],
   providers: [AppGuard],

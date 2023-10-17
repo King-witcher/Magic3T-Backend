@@ -4,6 +4,7 @@ import { config } from 'dotenv'
 config()
 import { AppModule } from './modules/app.module'
 import * as cookieParser from 'cookie-parser'
+import { getApps } from 'firebase-admin/app'
 
 async function bootstrap() {
   const port = process.env.PORT || 4000
@@ -14,5 +15,7 @@ async function bootstrap() {
   await app.listen(port)
   console.log(`Server running on port ${port}.`)
 }
+
+const app = getApps()
 
 bootstrap()

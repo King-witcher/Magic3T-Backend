@@ -1,66 +1,136 @@
 import Timer from 'src/lib/Timer'
-import { PlayerResult } from './PlayerResult'
+import { PlayerStatus } from './PlayerStatus'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
-import { GameState, GameStatus } from 'src/constants/types'
-import { v4 } from 'uuid'
 import { Choice } from './Choice'
+import { PlayerData as PlayerProfile } from '../../queue/models/PlayerData'
+import { Match } from './Match'
+import { GameState as POVGameState } from './POVGameState'
 
-interface PlayerOptions {
-  timeLimit: number
+interface PlayerParams {
+  profile: PlayerProfile
+  match: Match
 }
 
-export class Player {
-  id: string = v4()
-  socket: Socket | null = null
-  choices: Choice[] = []
+type PlayerState = {
+  choices: Choice[]
   timer: Timer
-  oponent: Player
-  ready: boolean = false
-  turn: boolean = false
-  result: PlayerResult | null
-  readyTimeout: NodeJS.Timeout = setTimeout(this.forfeit.bind(this), 2000)
+  readyTimeout: NodeJS.Timeout
+  ready: boolean
+} & (
+  | {
+      turn: boolean
+      forfeit: false
+    }
+  | {
+      turn: false
+      forfeit: true
+    }
+)
 
-  constructor({ timeLimit }: PlayerOptions) {
-    this.timer = new Timer(timeLimit * 1000, this.handleTimeout.bind(this)) // Possível erro de bind
+export class Player {
+  profile: PlayerProfile
+  match: Match
+  socket: Socket | null = null
+  oponent: Player
+  state: PlayerState
+
+  constructor({ profile, match }: PlayerParams) {
+    this.profile = profile
+    this.match = match
     this.oponent = this
+
+    const readyTimeout = setTimeout(
+      this.forfeit.bind(this),
+      match.config.readyTimeout
+    )
+
+    this.state = {
+      timer: new Timer(match.config.timelimit, this.handleTimeout.bind(this)),
+      choices: [],
+      forfeit: false,
+      ready: false,
+      turn: false,
+      readyTimeout,
+    }
+  }
+
+  getStatus(): PlayerStatus {
+    // Forfeit
+    if (this.state.forfeit) return PlayerStatus.Defeat
+    if (this.oponent.state.forfeit) return PlayerStatus.Victory
+
+    // Timeout
+    if (this.state.timer.getRemaining() === 0) return PlayerStatus.Defeat
+    if (this.oponent.state.timer.getRemaining() === 0)
+      return PlayerStatus.Victory
+
+    // Choices
+    if (this.isWinner()) return PlayerStatus.Victory
+    if (this.oponent.isWinner()) return PlayerStatus.Defeat
+    if (this.state.choices.length + this.oponent.state.choices.length === 9)
+      return PlayerStatus.Draw
+
+    // Waiting the game to start
+    if (!this.state.ready || !this.oponent.state.ready)
+      return PlayerStatus.Waiting
+
+    // Playing
+    return PlayerStatus.Playing
+  }
+
+  getState(): POVGameState {
+    return {
+      playerChoices: this.state.choices,
+      oponentChoices: this.oponent.state.choices,
+      status: this.getStatus(),
+      oponentTimeLeft: this.oponent.state.timer.getRemaining(),
+      playerTimeLeft: this.state.timer.getRemaining(),
+      turn: this.state.turn,
+    }
   }
 
   handleTimeout() {
-    if (this.result) return
-
-    this.oponent.result = PlayerResult.Victory
-    this.result = PlayerResult.Defeat
-    this.oponent.turn = false
-    this.turn = false
+    // if (this.getResult() !== null) return
+    // this.oponent.state.timer.pause()
+    this.oponent.state.turn = this.state.turn = false
     this.emitState()
     this.oponent.emitState()
   }
 
   //** Retorna um array com 3 Choices se o jogador for vencedor; caso contrário, false. */
   isWinner(): [Choice, Choice, Choice] | false {
-    for (let i = 0; i < this.choices.length; i++)
-      for (let j = i + 1; j < this.choices.length; j++)
-        for (let k = j + 1; k < this.choices.length; k++)
-          if (this.choices[i] + this.choices[j] + this.choices[k] === 15)
-            return [this.choices[i], this.choices[j], this.choices[k]]
+    const choices = this.state.choices
+    for (let i = 0; i < choices.length; i++)
+      for (let j = i + 1; j < choices.length; j++)
+        for (let k = j + 1; k < choices.length; k++)
+          if (choices[i] + choices[j] + choices[k] === 15)
+            return [choices[i], choices[j], choices[k]]
     return false
   }
 
   onReady() {
-    if (this.ready) return
+    if (this.state.ready) return
 
-    clearTimeout(this.readyTimeout)
-    this.ready = true
+    clearTimeout(this.state.readyTimeout)
+    this.state.ready = true
 
-    if (this.oponent.ready) {
-      const rand = Math.random()
-      if (rand <= 0.5) {
-        this.turn = true
-        this.timer.start()
+    // Starts the game respecting the preset turn. If no turn was set, sets the first player randomly.
+    if (this.oponent.state.ready) {
+      if (this.state.turn) {
+        this.state.timer.start()
+      } else if (this.oponent.state.turn) {
+        this.oponent.state.timer.start()
       } else {
-        this.oponent.turn = true
-        this.oponent.timer.start()
+        Logger.log('Randomly setting turns.', 'PlayerHandler')
+        const rand = Math.random()
+        if (rand <= 0.5) {
+          this.state.turn = true
+          this.state.timer.start()
+        } else {
+          this.oponent.state.turn = true
+          this.oponent.state.timer.start()
+        }
       }
       Logger.log('Game started', 'PlayerHandler')
     }
@@ -68,28 +138,26 @@ export class Player {
 
   onChoose(choice: Choice) {
     if (!this.oponent) return
-    if (!this.turn) return this.emitState()
-    if ([...this.choices, ...this.oponent.choices].includes(choice as Choice))
+    if (!this.state.turn) return this.emitState()
+    if ([...this.state.choices, ...this.oponent.state.choices].includes(choice))
       return this.emitState()
     if (choice % 1 !== 0 || choice < 1 || choice > 9) return
-    if (this.result) return this.emitState()
+    if (this.getStatus() !== PlayerStatus.Playing) return this.emitState()
+    if (!this.state.ready || !this.oponent.state.ready) return this.emitState()
 
-    this.choices.push(choice as Choice)
+    this.state.choices.push(choice as Choice)
 
     const triple = this.isWinner() // optimizável
 
     if (triple) {
       // O jogador venceu a partida
-      this.timer.pause()
-      this.turn = false
-      this.result = PlayerResult.Victory
-      this.oponent.result = PlayerResult.Defeat
+      this.state.timer.pause()
+      this.state.turn = false
     } else {
-      if (this.choices.length + this.oponent.choices.length === 9) {
+      if (this.state.choices.length + this.state.choices.length === 9) {
         // Partida empatou
-        this.timer.pause()
-        this.turn = false
-        this.result = this.oponent.result = PlayerResult.Draw
+        this.state.timer.pause()
+        this.state.turn = false
       } else {
         // Partida seguiu normalmente
         this.flipTurns()
@@ -98,42 +166,23 @@ export class Player {
   }
 
   flipTurns() {
-    if (this.turn) return this.oponent.flipTurns()
-    this.oponent.timer.pause()
-    this.turn = this.oponent.turn
-    this.oponent.turn = false
-    if (this.turn) this.timer.start()
+    if (this.state.turn) return this.oponent.flipTurns()
+    this.oponent.state.timer.pause()
+    this.state.turn = this.oponent.state.turn
+    this.oponent.state.turn = false
+    if (this.state.turn) this.state.timer.start()
   }
 
   emitState() {
-    this.socket?.emit('gameState', JSON.stringify(this.getState()))
-  }
-
-  getState(): GameState {
-    let gameStatus = GameStatus.Undefined
-    if (this.ready && this.oponent.ready) {
-      if (!this.result) gameStatus = GameStatus.Ongoing
-      else gameStatus = this.result as unknown as GameStatus
-    }
-
-    return {
-      playerChoices: this.choices,
-      oponentChoices: this.oponent.choices,
-      gameStatus,
-      oponentTimeLeft: this.oponent.timer.getRemaining(),
-      playerTimeLeft: this.timer.getRemaining(),
-      turn: this.turn,
-    }
+    this.socket?.emit('gameState', JSON.stringify(this.getState())) // pq esse stringify?
   }
 
   forfeit() {
-    if (this.result) return
+    if (this.getStatus()) return
 
-    this.turn = this.oponent.turn = false
-    this.timer.pause()
-    this.oponent.timer.pause()
-    this.result = PlayerResult.Defeat
-    this.oponent.result = PlayerResult.Victory
+    this.state.turn = this.oponent.state.turn = false
+    this.state.timer.pause()
+    this.oponent.state.timer.pause()
     this.emitState()
     this.oponent.emitState()
   }

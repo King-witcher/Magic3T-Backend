@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Match } from './models/Match'
+import { PlayerData } from '../queue/models/PlayerData'
+import { MatchConfig } from './models/MatchConfig'
 
 @Injectable()
 export class MatchService {
@@ -8,9 +10,15 @@ export class MatchService {
   ) {}
   matches: Record<string, Match> = {}
 
-  createMatch() {
+  createMatch(
+    firstPlayer: PlayerData,
+    secondPlayer: PlayerData,
+    config: MatchConfig
+  ) {
     const match = new Match({
-      timelimit: this.gameModeConfig.timeLimit || 90,
+      firstPlayer,
+      secondPlayer,
+      config,
     })
     return (this.matches[match.id] = match)
   }

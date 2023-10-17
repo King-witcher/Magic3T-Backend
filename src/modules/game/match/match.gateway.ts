@@ -1,57 +1,31 @@
-import { Logger, ParseIntPipe } from '@nestjs/common'
+import { Logger, UseGuards } from '@nestjs/common'
 import {
-  ConnectedSocket,
   MessageBody,
-  OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
-import { Socket } from 'socket.io'
 import { MatchService } from './match.service'
 import { PlayerSocket } from './models/PlayerSocket'
 import { CurrentPlayer } from './decorators/currentPlayer.decorator'
 import { Player } from './models/Player'
 import { CurrentMatch } from './decorators/currentMatch.decorator'
 import { Match } from './models/Match'
-import { ChoicePipe } from './pipes/choice.pipe'
+import { ChoicePipe } from './choice.pipe'
 import { Choice } from './models/Choice'
+import { MatchGuard } from './match.guard'
+import { PlayerData } from '../queue/models/PlayerData'
 
+@UseGuards(MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
-export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private matchService: MatchService) {}
-
-  handleConnection(@ConnectedSocket() socket: PlayerSocket) {
-    const { matchId, playerKey } = socket.handshake.auth
-
-    if (typeof matchId === 'string' && typeof playerKey === 'string') {
-      const match = this.matchService.getMatch(matchId)
-      if (match) {
-        const player = match.getPlayer(playerKey)
-        if (player && player.socket === null) {
-          socket.data.player = player
-          socket.data.match = match
-          player.socket = socket
-          Logger.log('Player connected', 'MatchGateway')
-          return
-        }
-      }
-    }
-    Logger.error('Connection rejected', 'MatchGateway')
-    //socket.disconnect()
-  }
-
+export class MatchGateway implements OnGatewayDisconnect {
   @SubscribeMessage('message')
   handleMessage(@CurrentPlayer() player: Player, @MessageBody() message: any) {
     player.oponent.socket?.emit('message', message.toString())
   }
 
   @SubscribeMessage('ready')
-  handleReady(
-    @CurrentPlayer() player: Player,
-    @CurrentMatch() match: Match,
-    @ConnectedSocket() socket: PlayerSocket
-  ) {
+  handleReady(@CurrentPlayer() player: Player, @CurrentMatch() match: Match) {
     Logger.log('Player ready', 'GameGateway')
     player.onReady()
     match.emitState()
@@ -62,6 +36,20 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Logger.log('Player forfeits', 'GameGateway')
     player.forfeit()
     match.emitState()
+  }
+
+  @SubscribeMessage('getOponentProfile')
+  getOponentProfile(@CurrentPlayer() player: Player) {
+    if (player.oponent.profile.isAnonymous) {
+      player.socket?.emit('oponentProfile', null)
+    } else {
+      const payload: Partial<PlayerData> = {
+        ...player.oponent.profile,
+        isAnonymous: undefined,
+      }
+
+      player.socket?.emit('oponentProfile', payload)
+    }
   }
 
   @SubscribeMessage('choice')
@@ -75,7 +63,7 @@ export class MatchGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: PlayerSocket) {
-    if (client.data.player && !client.data.player.result) {
+    if (client.data.player && client.data.player.getStatus() !== null) {
       Logger.log('Player forfeits by disconnection', 'MatchGateway')
       client.data.player.forfeit()
       client.data.player.socket?.emit('enemyForfeits', {})
