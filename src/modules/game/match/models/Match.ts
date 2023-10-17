@@ -19,8 +19,6 @@ export class Match {
   constructor({ firstPlayer, secondPlayer, config, onFinish }: MatchParams) {
     this.config = config
 
-    console.log(firstPlayer, secondPlayer)
-
     const player1 = new Player({
       profile: firstPlayer,
       match: this,

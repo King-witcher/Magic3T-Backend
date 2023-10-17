@@ -178,9 +178,12 @@ export class Player {
   }
 
   forfeit() {
-    if (this.getStatus()) return
+    const status = this.getStatus()
+    if (status !== PlayerStatus.Playing && status !== PlayerStatus.Waiting)
+      return
 
     this.state.turn = this.oponent.state.turn = false
+    this.state.forfeit = true
     this.state.timer.pause()
     this.oponent.state.timer.pause()
     this.emitState()

@@ -37,7 +37,6 @@ export class AuthController {
   @Get('me')
   async getLogin(@CurrentUser() user: UserFromJwt) {
     const profile = await this.profileService.getById(user.profileId)
-    console.log(user)
     debugger
     return { ...profile, id: undefined, nicknameDigest: undefined }
   }

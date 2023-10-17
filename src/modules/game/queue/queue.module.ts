@@ -14,7 +14,7 @@ export class QueueModule {
 
     return {
       module: QueueModule,
-      imports: [MatchModule.register(params), FirebaseModule],
+      imports: [MatchModule.register(params)],
       providers: [QueueGuard, QueueGateway, gameModeConfigs],
     }
   }

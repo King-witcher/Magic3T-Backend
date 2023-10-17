@@ -44,7 +44,7 @@ export class MatchGuard implements CanActivate {
       Logger.log('Connection accepted', 'MatchGuard')
       return true
     } catch (e) {
-      Logger.error(e.message, 'MathGuard')
+      Logger.error(e.message, 'MatchGuard')
       return false
     }
   }
