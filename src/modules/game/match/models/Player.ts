@@ -3,13 +3,14 @@ import { PlayerStatus } from './PlayerStatus'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
 import { Choice } from './Choice'
-import { PlayerData as PlayerProfile } from '../../queue/models/PlayerData'
+import { PlayerProfile as PlayerProfile } from '../../queue/models/PlayerProfile'
 import { Match } from './Match'
 import { GameState as POVGameState } from './POVGameState'
 
 interface PlayerParams {
   profile: PlayerProfile
   match: Match
+  side: 'white' | 'black'
 }
 
 type PlayerState = {
@@ -34,11 +35,13 @@ export class Player {
   socket: Socket | null = null
   oponent: Player
   state: PlayerState
+  side: 'white' | 'black'
 
-  constructor({ profile, match }: PlayerParams) {
+  constructor({ profile, match, side }: PlayerParams) {
     this.profile = profile
     this.match = match
     this.oponent = this
+    this.side = side
 
     const readyTimeout = setTimeout(
       this.forfeit.bind(this),
@@ -96,7 +99,13 @@ export class Player {
     this.oponent.state.turn = this.state.turn = false
     this.emitState()
     this.oponent.emitState()
-    if (this.match.onFinish) this.match.onFinish()
+
+    this.match.history.moves.push({
+      move: 'timeout',
+      player: this.side,
+      time: this.match.getTime(),
+    })
+    this.match.handleFinish()
   }
 
   //** Retorna um array com 3 Choices se o jogador for vencedor; caso contrário, false. */
@@ -118,22 +127,14 @@ export class Player {
 
     // Starts the game respecting the preset turn. If no turn was set, sets the first player randomly.
     if (this.oponent.state.ready) {
-      if (this.state.turn) {
+      if (this.side === 'white') {
+        this.state.turn = true
         this.state.timer.start()
-      } else if (this.oponent.state.turn) {
-        this.oponent.state.timer.start()
       } else {
-        Logger.log('Randomly setting turns.', 'PlayerHandler')
-        const rand = Math.random()
-        if (rand <= 0.5) {
-          this.state.turn = true
-          this.state.timer.start()
-        } else {
-          this.oponent.state.turn = true
-          this.oponent.state.timer.start()
-        }
+        this.oponent.state.turn = true
+        this.oponent.state.timer.start()
       }
-      Logger.log('Game started', 'PlayerHandler')
+      Logger.log('Game started', 'Player')
     }
   }
 
@@ -146,7 +147,12 @@ export class Player {
     if (this.getStatus() !== PlayerStatus.Playing) return this.emitState()
     if (!this.state.ready || !this.oponent.state.ready) return this.emitState()
 
-    this.state.choices.push(choice as Choice)
+    this.state.choices.push(choice)
+    this.match.history.moves.push({
+      move: choice,
+      player: this.side,
+      time: this.match.getTime(),
+    })
 
     const triple = this.isWinner() // optimizável
 
@@ -154,13 +160,13 @@ export class Player {
       // O jogador venceu a partida
       this.state.timer.pause()
       this.state.turn = false
-      if (this.match.onFinish) this.match.onFinish()
+      this.match.handleFinish()
     } else {
-      if (this.state.choices.length + this.state.choices.length === 9) {
+      if (this.state.choices.length + this.oponent.state.choices.length === 9) {
         // Partida empatou
         this.state.timer.pause()
         this.state.turn = false
-        if (this.match.onFinish) this.match.onFinish()
+        this.match.handleFinish()
       } else {
         // Partida seguiu normalmente
         this.flipTurns()
@@ -191,7 +197,13 @@ export class Player {
     this.oponent.state.timer.pause()
     this.emitState()
     this.oponent.emitState()
-    if (this.match.onFinish) this.match.onFinish()
+
+    this.match.history.moves.push({
+      move: 'forfeit',
+      player: this.side,
+      time: this.match.getTime(),
+    })
+    this.match.handleFinish()
   }
 
   //**Inicia uma partida contra o jogador definido em que o player atual é o primeiro a jogar. */

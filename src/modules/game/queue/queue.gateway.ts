@@ -13,7 +13,7 @@ import { Auth } from 'firebase-admin/auth'
 import { QueueSocket } from './models/QueueSocket'
 import { QueueEntry } from './models/QueueEntry'
 import { CurrentUser } from './decorators/currentUser.decorator'
-import { PlayerData } from './models/PlayerData'
+import { PlayerProfile } from './models/PlayerProfile'
 import { QueueGuard } from './queue.guard'
 import { Firestore } from 'firebase-admin/firestore'
 
@@ -34,7 +34,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   @SubscribeMessage('enqueue')
   handleEnqueue(
     @ConnectedSocket() client: Socket,
-    @CurrentUser() user: PlayerData
+    @CurrentUser() user: PlayerProfile
   ) {
     if (this.pendingEntry?.user.uid === user.uid) {
       Logger.error('Cannot queue same uid twice.', 'QueueGateway')
@@ -45,22 +45,14 @@ export class QueueGateway implements OnGatewayDisconnect {
     if (this.pendingEntry) {
       const firestore = this.firestore
       const match = this.matchService.createMatch({
-        firstPlayer: user,
-        secondPlayer: this.pendingEntry.user,
+        white: user,
+        black: this.pendingEntry.user,
         config: {
           readyTimeout: 2000,
           timelimit: 1000 * 150,
         },
-        async onFinish() {
-          const whitePlayer = match.getPlayer(user.uid)
-          const blackPlayer = whitePlayer.oponent
-
-          await firestore.collection('matchLogs').add({
-            whitePlayer: whitePlayer.profile,
-            blackPlayer: blackPlayer.profile,
-            timestamp: new Date(),
-            whiteResult: whitePlayer.getStatus(),
-          })
+        async onFinish(history) {
+          await firestore.collection('matches').add(history)
         },
       })
 

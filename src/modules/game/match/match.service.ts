@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Match, MatchParams } from './models/Match'
-import { PlayerData } from '../queue/models/PlayerData'
+import { PlayerProfile } from '../queue/models/PlayerProfile'
 import { MatchConfig } from './models/MatchConfig'
 
 @Injectable()

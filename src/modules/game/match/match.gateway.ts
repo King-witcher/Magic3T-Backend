@@ -14,7 +14,7 @@ import { Match } from './models/Match'
 import { ChoicePipe } from './choice.pipe'
 import { Choice } from './models/Choice'
 import { MatchGuard } from './match.guard'
-import { PlayerData } from '../queue/models/PlayerData'
+import { PlayerProfile } from '../queue/models/PlayerProfile'
 
 @UseGuards(MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
@@ -43,7 +43,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     if (player.oponent.profile.isAnonymous) {
       player.socket?.emit('oponentProfile', null)
     } else {
-      const payload: Partial<PlayerData> = {
+      const payload: Partial<PlayerProfile> = {
         ...player.oponent.profile,
         isAnonymous: undefined,
       }
