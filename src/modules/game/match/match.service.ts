@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { Match } from './models/Match'
+import { Match, MatchParams } from './models/Match'
 import { PlayerData } from '../queue/models/PlayerData'
 import { MatchConfig } from './models/MatchConfig'
 
@@ -10,16 +10,8 @@ export class MatchService {
   ) {}
   matches: Record<string, Match> = {}
 
-  createMatch(
-    firstPlayer: PlayerData,
-    secondPlayer: PlayerData,
-    config: MatchConfig
-  ) {
-    const match = new Match({
-      firstPlayer,
-      secondPlayer,
-      config,
-    })
+  createMatch(params: MatchParams) {
+    const match = new Match(params)
     return (this.matches[match.id] = match)
   }
 

@@ -96,6 +96,7 @@ export class Player {
     this.oponent.state.turn = this.state.turn = false
     this.emitState()
     this.oponent.emitState()
+    if (this.match.onFinish) this.match.onFinish()
   }
 
   //** Retorna um array com 3 Choices se o jogador for vencedor; caso contrário, false. */
@@ -153,11 +154,13 @@ export class Player {
       // O jogador venceu a partida
       this.state.timer.pause()
       this.state.turn = false
+      if (this.match.onFinish) this.match.onFinish()
     } else {
       if (this.state.choices.length + this.state.choices.length === 9) {
         // Partida empatou
         this.state.timer.pause()
         this.state.turn = false
+        if (this.match.onFinish) this.match.onFinish()
       } else {
         // Partida seguiu normalmente
         this.flipTurns()
@@ -188,6 +191,7 @@ export class Player {
     this.oponent.state.timer.pause()
     this.emitState()
     this.oponent.emitState()
+    if (this.match.onFinish) this.match.onFinish()
   }
 
   //**Inicia uma partida contra o jogador definido em que o player atual é o primeiro a jogar. */

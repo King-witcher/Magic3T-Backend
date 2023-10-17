@@ -15,6 +15,7 @@ import { QueueEntry } from './models/QueueEntry'
 import { CurrentUser } from './decorators/currentUser.decorator'
 import { PlayerData } from './models/PlayerData'
 import { QueueGuard } from './queue.guard'
+import { Firestore } from 'firebase-admin/firestore'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -26,6 +27,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   constructor(
     private matchService: MatchService,
     @Inject(FirebaseAuth) private auth: Auth,
+    @Inject(Firestore) private firestore: Firestore,
     @Inject('GAME_MODE_CONFIG') private gameModeConfig: any
   ) {}
 
@@ -41,14 +43,26 @@ export class QueueGateway implements OnGatewayDisconnect {
 
     Logger.log(`Player enqueued`, 'QueueGateway')
     if (this.pendingEntry) {
-      const match = this.matchService.createMatch(
-        user,
-        this.pendingEntry.user,
-        {
+      const firestore = this.firestore
+      const match = this.matchService.createMatch({
+        firstPlayer: user,
+        secondPlayer: this.pendingEntry.user,
+        config: {
           readyTimeout: 2000,
           timelimit: 1000 * 150,
-        }
-      )
+        },
+        async onFinish() {
+          const whitePlayer = match.getPlayer(user.uid)
+          const blackPlayer = whitePlayer.oponent
+
+          await firestore.collection('matchLogs').add({
+            whitePlayer: whitePlayer.profile,
+            blackPlayer: blackPlayer.profile,
+            timestamp: new Date(),
+            whiteResult: whitePlayer.getStatus(),
+          })
+        },
+      })
 
       this.pendingEntry.socket.emit('matchFound', {
         matchId: match.id,

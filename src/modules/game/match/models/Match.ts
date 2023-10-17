@@ -4,20 +4,22 @@ import { v4 } from 'uuid'
 import { PlayerData } from '../../queue/models/PlayerData'
 import { MatchConfig } from './MatchConfig'
 
-interface MatchParams {
+export interface MatchParams {
   firstPlayer: PlayerData
   secondPlayer: PlayerData
   config: MatchConfig
-  onFinish?: () => void // initial
+  onFinish?: () => Promise<void> // initial
 }
 
 export class Match {
   id: string = v4()
   config: MatchConfig
   players: Record<string, Player> = {}
+  onFinish?: () => Promise<void>
 
   constructor({ firstPlayer, secondPlayer, config, onFinish }: MatchParams) {
     this.config = config
+    this.onFinish = onFinish
 
     const player1 = new Player({
       profile: firstPlayer,

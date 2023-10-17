@@ -33,6 +33,6 @@ export const FirebaseAuth = Symbol('firebase-auth')
       useValue: auth,
     },
   ],
-  exports: [FirebaseAuth],
+  exports: [FirebaseAuth, Firestore],
 })
 export class FirebaseModule {}
