@@ -49,7 +49,7 @@ export class QueueGateway implements OnGatewayDisconnect {
         black: this.pendingEntry.user,
         config: {
           readyTimeout: 2000,
-          timelimit: 1000 * 150,
+          timelimit: 1000 * 90,
         },
         async onFinish(history) {
           await firestore.collection('matches').add(history)
