@@ -3,7 +3,6 @@ import { ValidationPipe } from '@nestjs/common'
 import { config } from 'dotenv'
 config()
 import { AppModule } from './modules/app.module'
-import * as cookieParser from 'cookie-parser'
 import { getApps } from 'firebase-admin/app'
 
 async function bootstrap() {
@@ -11,7 +10,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
   app.enableCors()
-  app.use(cookieParser())
   await app.listen(port)
   console.log(`Server running on port ${port}.`)
 }
