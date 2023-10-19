@@ -1,9 +1,6 @@
 import { Controller, Get, ImATeapotException, UseGuards } from '@nestjs/common'
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
-import { IsPublic } from './auth/decorators/is-public.decorator'
 const Package = require('../../package.json')
 
-@IsPublic()
 @Controller()
 export class AppController {
   @Get('teapot')
