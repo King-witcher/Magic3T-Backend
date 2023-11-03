@@ -102,7 +102,7 @@ export class Match {
 
     // Calculate and update ratings, if the match is ranked
     if (this.config.ranked) {
-      const pWhite = 1 / (1 + Math.pow(10, (white.rating - black.rating) / 400))
+      const pWhite = 1 / (1 + Math.pow(10, (black.rating - white.rating) / 400))
       const whiteGain =
         whiteStatus === PlayerStatus.Victory
           ? (1 - pWhite) * ratingVariation // Victory
