@@ -11,7 +11,7 @@ export class AppController {
   @Get('status')
   status() {
     const rand = Math.random()
-    if (rand < 0.03) throw new ImATeapotException()
+    if (rand < 0.001) throw new ImATeapotException()
     return {
       status: 'available',
     }
