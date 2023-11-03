@@ -10,8 +10,8 @@ const firebase =
     credential: cert(JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS!)),
   })
 
-const firestore = getFirestore()
-const auth = getAuth()
+export const firestore = getFirestore()
+export const auth = getAuth()
 
 export const Firebase = Symbol('firebase')
 export const FirebaseAuth = Symbol('firebase-auth')

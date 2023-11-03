@@ -1,4 +1,3 @@
-import { PlayerProfile } from '../../queue/models/PlayerProfile'
 import { PlayerMove } from './PlayerMove'
 
 interface Player {

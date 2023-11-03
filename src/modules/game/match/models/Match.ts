@@ -3,26 +3,28 @@ import { v4 } from 'uuid'
 import { PlayerProfile } from '../../queue/models/PlayerProfile'
 import { MatchConfig } from './MatchConfig'
 import { MatchRegistry as MoveHistory } from './MatchRegistry'
+import { firestore } from '@/modules/firebase/firebase.module'
+import { PlayerStatus } from './PlayerStatus'
 
 export interface MatchParams {
   white: PlayerProfile
   black: PlayerProfile
   config: MatchConfig
-  onFinish?: (history: MoveHistory) => Promise<void> // initial
 }
 
+const ratingVariation = 40
+
 export class Match {
+  finished = false
   id: string = v4()
   config: MatchConfig
   players: Record<string, Player> = {}
   white: Player
   black: Player
   history: MoveHistory
-  private onFinish?: (history: MoveHistory) => Promise<void>
 
-  constructor({ white, black, config, onFinish }: MatchParams) {
+  constructor({ white, black, config }: MatchParams) {
     this.config = config
-    this.onFinish = onFinish
 
     const whitePlayer = new Player({
       profile: white,
@@ -56,7 +58,7 @@ export class Match {
         rating: white.rating,
         rv: 0,
       },
-      mode: 'casual',
+      mode: config.ranked ? 'ranked' : 'casual',
       moves: [],
       winner: 'none',
       timestamp: new Date(),
@@ -68,11 +70,7 @@ export class Match {
   }
 
   getTime(): number {
-    return (
-      2 * this.config.timelimit -
-      this.white.state.timer.getRemaining() -
-      this.black.state.timer.getRemaining()
-    )
+    return 2 * this.config.timelimit - this.white.state.timer.getRemaining() - this.black.state.timer.getRemaining()
   }
 
   emitState() {
@@ -81,7 +79,14 @@ export class Match {
     }
   }
 
-  handleFinish() {
+  async handleFinish() {
+    if (this.finished) return
+    this.finished = true
+
+    const history = this.history
+    const white = history.white
+    const black = history.black
+
     const whiteStatus = this.white.getStatus()
 
     const statusMap: Record<string, 'white' | 'black' | 'none'> = {
@@ -90,11 +95,36 @@ export class Match {
       draw: 'none',
     }
 
-    if (this.onFinish) {
-      this.history.winner = statusMap[whiteStatus]
-      this.onFinish(this.history)
-      // Prevents this function from being called twice
-      this.onFinish = undefined
+    history.winner = statusMap[whiteStatus]
+
+    // Saves the match in the history.
+    const historyPromise = firestore.collection('matches').doc(this.id).create(history)
+
+    // Calculate and update ratings, if the match is ranked
+    if (this.config.ranked) {
+      const pWhite = 1 / (1 + Math.pow(10, (white.rating - black.rating) / 400))
+      const whiteGain =
+        whiteStatus === PlayerStatus.Victory
+          ? (1 - pWhite) * ratingVariation // Victory
+          : whiteStatus === PlayerStatus.Defeat
+          ? -pWhite * ratingVariation // Defeat
+          : (0.5 - pWhite) * ratingVariation // Draw
+
+      white.rv = whiteGain
+      black.rv = -whiteGain
+
+      await Promise.all([
+        firestore
+          .collection('users')
+          .doc(white.uid)
+          .update({ rating: white.rating + whiteGain }),
+        firestore
+          .collection('users')
+          .doc(black.uid)
+          .update({ rating: black.rating - whiteGain }),
+      ])
     }
+
+    await historyPromise
   }
 }

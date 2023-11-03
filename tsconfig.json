@@ -18,6 +18,7 @@
     "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
+    "noUnusedLocals": false,
     "paths": {
       "@/*": ["./src/*"],
       "@modules/*": ["./src/modules/*"]

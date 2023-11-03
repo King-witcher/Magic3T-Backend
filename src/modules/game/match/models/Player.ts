@@ -45,7 +45,7 @@ export class Player {
 
     const readyTimeout = setTimeout(
       this.forfeit.bind(this),
-      match.config.readyTimeout
+      match.config.readyTimeout,
     )
 
     this.state = {

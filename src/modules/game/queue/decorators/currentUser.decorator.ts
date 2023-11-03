@@ -6,5 +6,5 @@ export const CurrentUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): PlayerProfile => {
     const client = ctx.switchToWs().getClient<QueueSocket>()
     return client.data.user
-  }
+  },
 )

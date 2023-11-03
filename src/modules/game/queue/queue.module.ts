@@ -1,7 +1,6 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common'
 import { QueueGateway } from './queue.gateway'
 import { MatchModule } from '../match/match.module'
-import { FirebaseModule } from '@/modules/firebase/firebase.module'
 import { QueueGuard } from './queue.guard'
 
 @Module({})

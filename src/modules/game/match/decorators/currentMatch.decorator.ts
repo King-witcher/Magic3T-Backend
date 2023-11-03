@@ -6,5 +6,5 @@ export const CurrentMatch = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): Match => {
     const client = ctx.switchToWs().getClient<PlayerSocket>()
     return client.data.match
-  }
+  },
 )

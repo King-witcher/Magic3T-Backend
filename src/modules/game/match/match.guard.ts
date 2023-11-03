@@ -14,7 +14,7 @@ import { MatchService } from './match.service'
 export class MatchGuard implements CanActivate {
   constructor(
     @Inject(FirebaseAuth) private auth: Auth,
-    private matchService: MatchService
+    private matchService: MatchService,
   ) {}
 
   async canActivate(context: ExecutionContext) {

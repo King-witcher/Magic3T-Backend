@@ -56,7 +56,7 @@ export class MatchGateway implements OnGatewayDisconnect {
   handleChoice(
     @CurrentPlayer() player: Player,
     @CurrentMatch() match: Match,
-    @MessageBody(ChoicePipe) choice: Choice
+    @MessageBody(ChoicePipe) choice: Choice,
   ) {
     player.onChoose(choice)
     match.emitState()
