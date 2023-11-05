@@ -78,7 +78,7 @@ export class QueueGateway implements OnGatewayDisconnect {
       user: {
         name: user.name,
         uid: user.uid,
-        rating: user.rating,
+        glicko: user.glicko,
       },
     })
   }
@@ -93,7 +93,7 @@ export class QueueGateway implements OnGatewayDisconnect {
       user: {
         name: user.name,
         uid: user.uid,
-        rating: user.rating,
+        glicko: user.glicko,
       },
     })
   }

@@ -8,9 +8,4 @@ export type PlayerSocketData = {
   player: Player
 }
 
-export type PlayerSocket = Socket<
-  DefaultEventsMap,
-  DefaultEventsMap,
-  DefaultEventsMap,
-  PlayerSocketData
->
+export type PlayerSocket = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, PlayerSocketData>

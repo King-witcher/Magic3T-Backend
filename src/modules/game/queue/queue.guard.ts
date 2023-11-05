@@ -3,6 +3,7 @@ import { Auth } from 'firebase-admin/auth'
 import { QueueSocket } from './models/QueueSocket'
 import { FirebaseAuth } from '@/modules/firebase/firebase.module'
 import { Firestore } from 'firebase-admin/firestore'
+import { models } from '@/firebase/models'
 
 @Injectable()
 export class QueueGuard implements CanActivate {
@@ -15,15 +16,12 @@ export class QueueGuard implements CanActivate {
     if (socket.data.user) return true
     try {
       const authData = await this.auth.verifyIdToken(token)
-      const snap = await this.firestore.collection('users').doc(authData.uid).get()
-      const userData = snap.data()
-
-      if (!userData) throw new Error('Failed to load user data.')
+      const userData = await models.users.getById(authData.uid)
 
       socket.data.user = {
-        name: authData.name,
-        uid: authData.uid,
-        rating: userData.rating,
+        name: userData.nickname,
+        uid: userData._id,
+        glicko: userData.glicko,
       }
 
       return true

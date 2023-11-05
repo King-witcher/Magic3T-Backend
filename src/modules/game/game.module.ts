@@ -20,12 +20,10 @@ export class GameModule {
   }
 
   static register(params: GameModeConfig): DynamicModule {
-    if (params.isRanked && params.autenticated)
-      throw new Error('Ranked gamemodes must be authenticated')
+    if (params.isRanked && params.autenticated) throw new Error('Ranked gamemodes must be authenticated')
 
     for (const mode of this.gameModes)
-      if (mode.gameModeAlias === params.gameModeAlias)
-        throw new Error('Game mode alias already in use')
+      if (mode.gameModeAlias === params.gameModeAlias) throw new Error('Game mode alias already in use')
 
     this.gameModes.push(params)
 

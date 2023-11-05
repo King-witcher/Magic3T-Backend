@@ -4,15 +4,14 @@ import { PlayerProfile } from '../../queue/models/PlayerProfile'
 import { MatchConfig } from './MatchConfig'
 import { MatchRegistry as MoveHistory } from './MatchRegistry'
 import { firestore } from '@/modules/firebase/firebase.module'
-import { PlayerStatus } from './PlayerStatus'
+import { getNewRatings } from '@/lib/Glicko'
+import { models } from '@/firebase/models'
 
 export interface MatchParams {
   white: PlayerProfile
   black: PlayerProfile
   config: MatchConfig
 }
-
-const ratingVariation = 40
 
 export class Match {
   finished = false
@@ -49,13 +48,13 @@ export class Match {
       black: {
         uid: black.uid,
         name: black.name,
-        rating: black.rating,
+        rating: black.glicko.rating,
         rv: 0,
       },
       white: {
         uid: white.uid,
         name: white.name,
-        rating: white.rating,
+        rating: white.glicko.rating,
         rv: 0,
       },
       mode: config.ranked ? 'ranked' : 'casual',
@@ -84,8 +83,8 @@ export class Match {
     this.finished = true
 
     const history = this.history
-    const white = history.white
-    const black = history.black
+    const white = this.white
+    const black = this.black
 
     const whiteStatus = this.white.getStatus()
 
@@ -102,26 +101,20 @@ export class Match {
 
     // Calculate and update ratings, if the match is ranked
     if (this.config.ranked) {
-      const pWhite = 1 / (1 + Math.pow(10, (black.rating - white.rating) / 400))
-      const whiteGain =
-        whiteStatus === PlayerStatus.Victory
-          ? (1 - pWhite) * ratingVariation // Victory
-          : whiteStatus === PlayerStatus.Defeat
-          ? -pWhite * ratingVariation // Defeat
-          : (0.5 - pWhite) * ratingVariation // Draw
+      const whiteResult = this.history.winner === 'white' ? 1 : this.history.winner === 'black' ? 0 : 0.5
 
-      white.rv = whiteGain
-      black.rv = -whiteGain
+      const [whiteRating, blackRating] = getNewRatings(
+        this.white.profile.glicko,
+        this.black.profile.glicko,
+        whiteResult,
+      )
+
+      this.history.white.rv = whiteRating.rating - white.profile.glicko.rating
+      this.history.black.rv = blackRating.rating - black.profile.glicko.rating
 
       await Promise.all([
-        firestore
-          .collection('users')
-          .doc(white.uid)
-          .update({ rating: white.rating + whiteGain }),
-        firestore
-          .collection('users')
-          .doc(black.uid)
-          .update({ rating: black.rating - whiteGain }),
+        models.users.updateGlicko(white.profile.uid, whiteRating),
+        models.users.updateGlicko(black.profile.uid, blackRating),
       ])
     }
 
