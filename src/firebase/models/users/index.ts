@@ -1,10 +1,10 @@
-import { firestore } from '@/firebase/services'
+import { database } from '@/firebase/services'
 import { getConverter } from '../getConverter'
 import { Glicko, User } from './User'
 import { NotFoundError } from '../errors/NotFoundError'
 
 const converter = getConverter<User>()
-const usersCollection = firestore.collection('users').withConverter(converter)
+const usersCollection = database.collection('users').withConverter(converter)
 
 async function getById(id: string): Promise<User> {
   const doc = await usersCollection.doc(id).get()

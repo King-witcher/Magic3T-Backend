@@ -1,11 +1,20 @@
 import { Player } from './Player'
 import { v4 } from 'uuid'
 import { PlayerProfile } from '../../queue/models/PlayerProfile'
-import { MatchConfig } from './MatchConfig'
-import { MatchRegistry as MoveHistory } from './MatchRegistry'
-import { firestore } from '@/modules/firebase/firebase.module'
 import { getNewRatings } from '@/lib/Glicko'
 import { models } from '@/firebase/models'
+import { MatchRegistry } from '@/firebase/models/matches/MatchRegistry'
+
+export type ForfeitSchedule = {
+  player: Player
+  nodeTimeout: NodeJS.Timeout
+}
+
+export interface MatchConfig {
+  timelimit: number
+  ranked: boolean
+  readyTimeout: number
+}
 
 export interface MatchParams {
   white: PlayerProfile
@@ -20,7 +29,7 @@ export class Match {
   players: Record<string, Player> = {}
   white: Player
   black: Player
-  history: MoveHistory
+  history: MatchRegistry
 
   constructor({ white, black, config }: MatchParams) {
     this.config = config
@@ -45,6 +54,7 @@ export class Match {
     this.players[black.uid] = blackPlayer
 
     this.history = {
+      _id: this.id,
       black: {
         uid: black.uid,
         name: black.name,
@@ -97,7 +107,7 @@ export class Match {
     history.winner = statusMap[whiteStatus]
 
     // Saves the match in the history.
-    const historyPromise = firestore.collection('matches').doc(this.id).create(history)
+    const historyPromise = models.matches.save(this.history)
 
     // Calculate and update ratings, if the match is ranked
     if (this.config.ranked) {

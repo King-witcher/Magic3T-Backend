@@ -1,6 +1,6 @@
 import { ArgumentMetadata, PipeTransform, ValidationPipe } from '@nestjs/common'
 import { InvalidChoiceError } from './errors/InvalidChoiceError'
-import { Choice } from './models/Choice'
+import { Choice } from './types/Choice'
 
 export class ChoicePipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata): Choice {

@@ -1,11 +1,11 @@
 import Timer from 'src/lib/Timer'
-import { PlayerStatus } from './PlayerStatus'
+import { PlayerStatus } from '../types/PlayerStatus'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
-import { Choice } from './Choice'
+import { Choice } from '../types/Choice'
 import { PlayerProfile as PlayerProfile } from '../../queue/models/PlayerProfile'
 import { Match } from './Match'
-import { GameState as POVGameState } from './POVGameState'
+import { GameState as POVGameState } from '../types/POVGameState'
 
 interface PlayerParams {
   profile: PlayerProfile

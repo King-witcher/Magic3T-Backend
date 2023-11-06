@@ -1,6 +1,6 @@
 import { ExecutionContext, createParamDecorator } from '@nestjs/common'
 import { Socket } from 'socket.io'
-import { Player } from '../models/Player'
+import { Player } from '../lib/Player'
 import { PlayerSocket } from '../models/PlayerSocket'
 
 export const CurrentPlayer = createParamDecorator(

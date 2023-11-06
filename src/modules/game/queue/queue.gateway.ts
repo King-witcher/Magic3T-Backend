@@ -7,12 +7,10 @@ import {
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
 import { MatchService } from '../match/match.service'
-import { Inject, Logger, UseGuards } from '@nestjs/common'
-import { QueueEntry } from './models/QueueEntry'
+import { Logger, UseGuards } from '@nestjs/common'
 import { CurrentUser } from './decorators/currentUser.decorator'
 import { PlayerProfile } from './models/PlayerProfile'
 import { QueueGuard } from './queue.guard'
-import { Firestore } from 'firebase-admin/firestore'
 import { Queue } from './models/Queue'
 import { SimpleQueue } from './models/SimpleQueue'
 import { QueueSocket } from './models/QueueSocket'
@@ -25,7 +23,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   casualQueue: Queue
   rankedQueue: Queue
 
-  constructor(private matchService: MatchService, @Inject(Firestore) private firestore: Firestore) {
+  constructor(private matchService: MatchService) {
     this.casualQueue = new SimpleQueue((player1, player2) => {
       const match = this.matchService.createMatch({
         white: player1.user,

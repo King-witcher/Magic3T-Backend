@@ -1,6 +1,7 @@
 import { WithId } from '@/firebase/models/types/WithId'
 import { FirestoreDataConverter, QueryDocumentSnapshot, Timestamp } from 'firebase-admin/firestore'
 import { Firestorify } from './types/Firestorify'
+import { OptionalProp } from '@/types/OptionalProp'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function convert(data: Record<string, any>) {
@@ -15,14 +16,19 @@ function convert(data: Record<string, any>) {
 
 export function getConverter<T extends WithId>(): FirestoreDataConverter<T> {
   return {
-    fromFirestore(snap: QueryDocumentSnapshot) {
+    fromFirestore(snap: QueryDocumentSnapshot<T>) {
       const data = snap.data()
       convert(data)
       return {
         ...data,
         _id: snap.id,
-      } as T
+      }
     },
-    toFirestore: (data) => data as Firestorify<T>,
+
+    toFirestore: (data: T): Firestorify<T> => {
+      const output: OptionalProp<T, '_id'> = { ...data }
+      delete output._id
+      return output
+    },
   }
 }

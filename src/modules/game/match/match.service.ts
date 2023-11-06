@@ -1,9 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { Match, MatchParams } from './models/Match'
+import { Injectable } from '@nestjs/common'
+import { Match, MatchParams } from './lib/Match'
 
 @Injectable()
 export class MatchService {
-  constructor(@Inject('GAME_MODE_CONFIG') private readonly gameModeConfig: GameModeConfig) {}
   matches: Record<string, Match> = {}
 
   createMatch(params: MatchParams) {
