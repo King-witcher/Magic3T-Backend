@@ -1,4 +1,4 @@
-import { QueueEntry } from './QueueEntry'
+import { QueueEntry } from '../types/QueueEntry'
 
 export type MatchFoundCallback = (player1: QueueEntry, player2: QueueEntry) => void
 

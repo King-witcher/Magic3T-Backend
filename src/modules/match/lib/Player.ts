@@ -2,13 +2,13 @@ import Timer from 'src/lib/Timer'
 import { PlayerStatus } from '../types/PlayerStatus'
 import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
-import { Choice } from '../types/Choice'
-import { PlayerProfile as PlayerProfile } from '../../queue/models/PlayerProfile'
+import { Choice } from '../../../types/Choice'
+import { GamePlayerProfile as GamePlayerProfile } from '../../queue/types/GamePlayerProfile'
 import { Match } from './Match'
 import { GameState as POVGameState } from '../types/POVGameState'
 
 interface PlayerParams {
-  profile: PlayerProfile
+  profile: GamePlayerProfile
   match: Match
   side: 'white' | 'black'
 }
@@ -30,7 +30,7 @@ type PlayerState = {
 )
 
 export class Player {
-  profile: PlayerProfile
+  profile: GamePlayerProfile
   match: Match
   socket: Socket | null = null
   oponent: Player

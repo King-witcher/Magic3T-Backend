@@ -1,6 +1,6 @@
 import { Player } from './Player'
 import { v4 } from 'uuid'
-import { PlayerProfile } from '../../queue/models/PlayerProfile'
+import { GamePlayerProfile } from '../../queue/types/GamePlayerProfile'
 import { getNewRatings } from '@/lib/Glicko'
 import { models } from '@/firebase/models'
 import { MatchRegistry } from '@/firebase/models/matches/MatchRegistry'
@@ -17,8 +17,8 @@ export interface MatchConfig {
 }
 
 export interface MatchParams {
-  white: PlayerProfile
-  black: PlayerProfile
+  white: GamePlayerProfile
+  black: GamePlayerProfile
   config: MatchConfig
 }
 

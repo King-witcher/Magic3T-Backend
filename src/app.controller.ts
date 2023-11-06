@@ -1,5 +1,5 @@
-import { Controller, Get, ImATeapotException, UseGuards } from '@nestjs/common'
-const Package = require('../../package.json')
+import { Controller, Get, ImATeapotException } from '@nestjs/common'
+const Package = require('../package.json')
 
 @Controller()
 export class AppController {

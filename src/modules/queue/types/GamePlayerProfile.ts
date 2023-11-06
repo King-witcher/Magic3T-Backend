@@ -1,6 +1,6 @@
 import { Glicko } from '@/firebase/models/users/User'
 
-export interface PlayerProfile {
+export interface GamePlayerProfile {
   uid: string
   name: string
   glicko: Glicko

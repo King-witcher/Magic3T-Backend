@@ -1,7 +1,7 @@
 import { Socket } from 'socket.io'
-import { PlayerProfile } from './PlayerProfile'
+import { GamePlayerProfile } from './GamePlayerProfile'
 
 export interface QueueEntry {
   socket: Socket
-  user: PlayerProfile
+  user: GamePlayerProfile
 }

@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common'
-import { QueueSocket } from './models/QueueSocket'
+import { QueueSocket } from './types/QueueSocket'
 import { models } from '@/firebase/models'
 import { firebaseAuth } from '@/firebase/services'
 

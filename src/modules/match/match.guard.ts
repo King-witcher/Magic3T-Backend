@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common'
-import { PlayerSocket } from './models/PlayerSocket'
+import { PlayerSocket } from './types/PlayerSocket'
 import { MatchService } from './match.service'
 import { firebaseAuth } from '@/firebase/services'
 

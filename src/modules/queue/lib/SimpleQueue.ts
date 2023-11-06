@@ -1,5 +1,5 @@
 import { MatchFoundCallback, Queue } from './Queue'
-import { QueueEntry } from './QueueEntry'
+import { QueueEntry } from '../types/QueueEntry'
 
 export class SimpleQueue extends Queue {
   private pendingPlayer: QueueEntry | null = null

@@ -9,11 +9,11 @@ import { Server, Socket } from 'socket.io'
 import { MatchService } from '../match/match.service'
 import { Logger, UseGuards } from '@nestjs/common'
 import { CurrentUser } from './decorators/currentUser.decorator'
-import { PlayerProfile } from './models/PlayerProfile'
+import { GamePlayerProfile } from './types/GamePlayerProfile'
 import { QueueGuard } from './queue.guard'
-import { Queue } from './models/Queue'
-import { SimpleQueue } from './models/SimpleQueue'
-import { QueueSocket } from './models/QueueSocket'
+import { Queue } from './lib/Queue'
+import { SimpleQueue } from './lib/SimpleQueue'
+import { QueueSocket } from './types/QueueSocket'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -67,7 +67,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('casual')
-  handleCasual(@ConnectedSocket() client: Socket, @CurrentUser() user: PlayerProfile) {
+  handleCasual(@ConnectedSocket() client: Socket, @CurrentUser() user: GamePlayerProfile) {
     if (this.rankedQueue.contains(user.uid)) return
 
     Logger.log('Player enqueued on casual gameMode', 'QueueGateway')
@@ -82,7 +82,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('ranked')
-  handleRanked(@ConnectedSocket() client: Socket, @CurrentUser() user: PlayerProfile) {
+  handleRanked(@ConnectedSocket() client: Socket, @CurrentUser() user: GamePlayerProfile) {
     if (this.casualQueue.contains(user.uid)) return
     Logger.log('Player enqueued on ranked gameMode', 'QueueGateway')
 

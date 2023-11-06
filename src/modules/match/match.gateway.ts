@@ -1,27 +1,21 @@
 import { Logger, UseGuards } from '@nestjs/common'
-import {
-  MessageBody,
-  OnGatewayDisconnect,
-  SubscribeMessage,
-  WebSocketGateway,
-} from '@nestjs/websockets'
-import { MatchService } from './match.service'
-import { PlayerSocket } from './models/PlayerSocket'
+import { MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
+import { PlayerSocket } from './types/PlayerSocket'
 import { CurrentPlayer } from './decorators/currentPlayer.decorator'
 import { Player } from './lib/Player'
 import { CurrentMatch } from './decorators/currentMatch.decorator'
 import { Match } from './lib/Match'
 import { ChoicePipe } from './choice.pipe'
-import { Choice } from './types/Choice'
+import { Choice } from '../../types/Choice'
 import { MatchGuard } from './match.guard'
-import { PlayerProfile } from '../queue/models/PlayerProfile'
+import { GamePlayerProfile } from '../queue/types/GamePlayerProfile'
 
 @UseGuards(MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
 export class MatchGateway implements OnGatewayDisconnect {
   @SubscribeMessage('message')
-  handleMessage(@CurrentPlayer() player: Player, @MessageBody() message: any) {
-    player.oponent.socket?.emit('message', message.toString())
+  handleMessage(@CurrentPlayer() player: Player, @MessageBody() message: string) {
+    player.oponent.socket?.emit('message', message)
   }
 
   @SubscribeMessage('ready')
@@ -43,7 +37,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     if (player.oponent.profile.isAnonymous) {
       player.socket?.emit('oponentProfile', null)
     } else {
-      const payload: Partial<PlayerProfile> = {
+      const payload: Partial<GamePlayerProfile> = {
         ...player.oponent.profile,
         isAnonymous: undefined,
       }
@@ -53,11 +47,7 @@ export class MatchGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('choice')
-  handleChoice(
-    @CurrentPlayer() player: Player,
-    @CurrentMatch() match: Match,
-    @MessageBody(ChoicePipe) choice: Choice,
-  ) {
+  handleChoice(@CurrentPlayer() player: Player, @CurrentMatch() match: Match, @MessageBody(ChoicePipe) choice: Choice) {
     player.onChoose(choice)
     match.emitState()
   }

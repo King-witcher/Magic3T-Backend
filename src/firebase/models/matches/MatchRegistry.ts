@@ -1,4 +1,4 @@
-import { Choice } from '@/modules/game/match/types/Choice'
+import { Choice } from '@/types/Choice'
 import { WithId } from '../types/WithId'
 
 export interface Player {

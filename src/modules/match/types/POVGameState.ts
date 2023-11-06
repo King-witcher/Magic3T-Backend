@@ -1,4 +1,4 @@
-import { Choice } from './Choice'
+import { Choice } from '../../../types/Choice'
 import { PlayerStatus } from './PlayerStatus'
 
 /** Represents the game state from a specific player's point of view. */
