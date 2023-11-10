@@ -6,12 +6,12 @@ export type QueueSocketData = {
   user: GamePlayerProfile
 }
 
-type EmitEvents = {
+export type EmitEvents = {
   queueRejected: (reason?: string) => void
   queueAcepted: (payload: { mode: 'casual' | 'ranked' }) => void
   queueModes: (payload: { casual: boolean; ranked: boolean }) => void
   matchFound: (data: { matchId: string }) => void
-  udpateUserCount: (data: {
+  updateUserCount: (data: {
     connected: number
     casual: { queue: number; inGame: number }
     ranked: { queue: number; inGame: number }

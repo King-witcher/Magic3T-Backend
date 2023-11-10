@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { QueueEntry } from './types/QueueEntry'
 import { MatchService } from '../match/match.service'
+import { SocketsService } from './sockets.service'
 
 @Injectable()
 export class QueueService {
   casualPendingEntry: QueueEntry | null = null
   rankedPendingEntry: QueueEntry | null = null
 
-  constructor(private matchService: MatchService) {}
+  constructor(private matchService: MatchService, private socketsService: SocketsService) {}
 
   isAvailable(uid: string) {
     return !(this.casualPendingEntry?.user.uid === uid || this.rankedPendingEntry?.user.uid === uid)
@@ -50,6 +51,13 @@ export class QueueService {
     else if (mode === 'ranked' && this.rankedPendingEntry?.user.uid === uid) this.rankedPendingEntry = null
   }
 
+  getUserCount() {
+    return {
+      casual: this.casualPendingEntry ? 1 : 0,
+      ranked: this.rankedPendingEntry ? 1 : 0,
+    }
+  }
+
   createMatch(entry1: QueueEntry, entry2: QueueEntry, ranked?: boolean) {
     const match = this.matchService.createMatch({
       white: entry1.user,
@@ -60,10 +68,11 @@ export class QueueService {
         timelimit: 1000 * 105,
       },
     })
-    entry1.socket.emit('matchFound', {
+
+    this.socketsService.emit(entry1.user.uid, 'matchFound', {
       matchId: match.id,
     })
-    entry2.socket.emit('matchFound', {
+    this.socketsService.emit(entry2.user.uid, 'matchFound', {
       matchId: match.id,
     })
   }

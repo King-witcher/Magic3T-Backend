@@ -2,9 +2,12 @@ import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/commo
 import { QueueSocket } from './types/QueueSocket'
 import { models } from '@/firebase/models'
 import { firebaseAuth } from '@/firebase/services'
+import { SocketsService } from './sockets.service'
 
 @Injectable()
 export class QueueGuard implements CanActivate {
+  constructor(public socketsService: SocketsService) {}
+
   async canActivate(context: ExecutionContext) {
     const socket = context.switchToWs().getClient<QueueSocket>()
     const token = socket.handshake.auth.token
@@ -19,6 +22,8 @@ export class QueueGuard implements CanActivate {
         uid: userData._id,
         glicko: userData.glicko,
       }
+
+      this.socketsService.add(userData._id, socket)
 
       return true
     } catch (e) {

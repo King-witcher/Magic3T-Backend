@@ -1,5 +1,4 @@
 import {
-  ConnectedSocket,
   MessageBody,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -13,6 +12,7 @@ import { GamePlayerProfile } from './types/GamePlayerProfile'
 import { QueueGuard } from './queue.guard'
 import { QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
+import { SocketsService } from './sockets.service'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -20,33 +20,42 @@ export class QueueGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: QueueServer
 
-  constructor(private matchService: MatchService, private queueService: QueueService) {
+  constructor(
+    private matchService: MatchService,
+    private queueService: QueueService,
+    public socketsService: SocketsService,
+  ) {
     setInterval(() => {
-      this.server.emit('udpateUserCount', {
+      const queueCount = this.queueService.getUserCount()
+      this.server.emit('updateUserCount', {
         casual: {
-          inGame: 0,
-          queue: 0,
+          inGame: NaN,
+          queue: queueCount.casual,
         },
-        connected: 0,
+        connected: NaN,
         ranked: {
-          inGame: 0,
-          queue: 0,
+          inGame: NaN,
+          queue: queueCount.ranked,
         },
       })
-    }, 5000)
+    }, 2000)
+  }
+
+  @SubscribeMessage('interact')
+  handleInteract() {
+    return
   }
 
   @SubscribeMessage('casual')
-  handleCasual(@ConnectedSocket() client: QueueSocket, @CurrentUser() user: GamePlayerProfile) {
+  handleCasual(@CurrentUser() user: GamePlayerProfile) {
     if (!this.matchService.isAvailable(user.uid)) {
       console.error(`Player "${user.name}" unavailable for queue: ingame.`)
-      client.emit('queueRejected')
+      this.socketsService.emit(user.uid, 'queueRejected')
       return
     }
 
     this.queueService.enqueue(
       {
-        socket: client,
         user: {
           name: user.name,
           uid: user.uid,
@@ -57,23 +66,22 @@ export class QueueGateway implements OnGatewayDisconnect {
     )
 
     const userQueueModes = this.queueService.getQueueModes(user.uid)
-    client.emit('queueModes', userQueueModes)
+    this.socketsService.emit(user.uid, 'queueModes', userQueueModes)
 
     console.log(`Player "${user.name}" enqueued on casual mode.`)
-    client.emit('queueAcepted', { mode: 'casual' })
+    this.socketsService.emit(user.uid, 'queueAcepted', { mode: 'casual' })
   }
 
   @SubscribeMessage('ranked')
-  handleRanked(@ConnectedSocket() client: QueueSocket, @CurrentUser() user: GamePlayerProfile) {
+  handleRanked(@CurrentUser() user: GamePlayerProfile) {
     if (!this.matchService.isAvailable(user.uid)) {
       console.error(`Player "${user.name}" unavailable for queue: ingame.`)
-      client.emit('queueRejected')
+      this.socketsService.emit(user.uid, 'queueRejected')
       return
     }
 
     this.queueService.enqueue(
       {
-        socket: client,
         user: {
           name: user.name,
           uid: user.uid,
@@ -84,22 +92,18 @@ export class QueueGateway implements OnGatewayDisconnect {
     )
 
     const userQueueModes = this.queueService.getQueueModes(user.uid)
-    client.emit('queueModes', userQueueModes)
+    this.socketsService.emit(user.uid, 'queueModes', userQueueModes)
 
     console.log(`User "${user.name}" enqueued on ranked mode.`)
-    client.emit('queueAcepted', { mode: 'ranked' })
+    this.socketsService.emit(user.uid, 'queueAcepted', { mode: 'ranked' })
   }
 
   @SubscribeMessage('dequeue')
-  handleDequeue(
-    @ConnectedSocket() client: QueueSocket,
-    @CurrentUser() user: GamePlayerProfile,
-    @MessageBody() message: 'ranked' | 'casual',
-  ) {
+  handleDequeue(@CurrentUser() user: GamePlayerProfile, @MessageBody() message: 'ranked' | 'casual') {
     this.queueService.dequeue(user.uid, message)
 
     const userQueueModes = this.queueService.getQueueModes(user.uid)
-    client.emit('queueModes', userQueueModes)
+    this.socketsService.emit(user.uid, 'queueModes', userQueueModes)
 
     console.log(`User "${user.name}" dequeued from mode "${message}".`)
   }
