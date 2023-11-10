@@ -13,10 +13,15 @@ export class SocketsService {
     else this.socketMap[uid] = [socket]
   }
 
+  getUserCount() {
+    return Object.keys(this.socketMap).length
+  }
+
   remove(uid: string, socket: QueueSocket) {
     const sockets = this.socketMap[uid]
     if (!sockets) throw new Error('Uid not found')
     this.socketMap[uid].splice(sockets.indexOf(socket), 1)
+    if (this.socketMap[uid].length === 0) delete this.socketMap[uid]
   }
 
   emit<Ev extends EventNames<EmitEvents>>(uid: string, event: Ev, ...data: EventParams<EmitEvents, Ev>) {

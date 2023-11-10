@@ -32,7 +32,7 @@ export class QueueGateway implements OnGatewayDisconnect {
           inGame: NaN,
           queue: queueCount.casual,
         },
-        connected: NaN,
+        connected: this.socketsService.getUserCount(),
         ranked: {
           inGame: NaN,
           queue: queueCount.ranked,
@@ -116,6 +116,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     const user = client.data.user
     if (user) {
       this.queueService.dequeue(user.uid)
+      this.socketsService.remove(user.uid, client)
     }
   }
 }
