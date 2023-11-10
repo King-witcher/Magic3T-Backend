@@ -21,7 +21,7 @@ rules:
       trailingComma: all
       arrowParens: always
       semi: false
-      endOfLine: auto
+      endOfLine: lf
   indent:
     - off
   linebreak-style:

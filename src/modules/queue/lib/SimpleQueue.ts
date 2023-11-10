@@ -2,28 +2,32 @@ import { MatchFoundCallback, Queue } from './Queue'
 import { QueueEntry } from '../types/QueueEntry'
 
 export class SimpleQueue extends Queue {
-  private pendingPlayer: QueueEntry | null = null
+  private pendingEntry: QueueEntry | null = null
 
   constructor(onFindMatch: MatchFoundCallback) {
     super(onFindMatch)
   }
 
-  enqueue(entry: QueueEntry) {
-    if (this.pendingPlayer?.user.uid === entry.user.uid) return
+  isAvailable(uid: string): boolean {
+    return this.pendingEntry?.user.uid !== uid
+  }
 
-    if (!this.pendingPlayer) this.pendingPlayer = entry
+  enqueue(entry: QueueEntry) {
+    if (this.pendingEntry?.user.uid === entry.user.uid) return
+
+    if (!this.pendingEntry) this.pendingEntry = entry
     else {
-      const pending = this.pendingPlayer
-      this.pendingPlayer = null
+      const pending = this.pendingEntry
+      this.pendingEntry = null
       this.onFindMatch(pending, entry)
     }
   }
 
   contains(uid: string) {
-    return this.pendingPlayer?.user.uid === uid
+    return this.pendingEntry?.user.uid === uid
   }
 
   dequeue(uid: string) {
-    if (this.pendingPlayer?.user.uid === uid) this.pendingPlayer = null
+    if (this.pendingEntry?.user.uid === uid) this.pendingEntry = null
   }
 }

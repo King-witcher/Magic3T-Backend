@@ -9,7 +9,7 @@ export class QueueGuard implements CanActivate {
     const socket = context.switchToWs().getClient<QueueSocket>()
     const token = socket.handshake.auth.token
 
-    if (socket.data.user) return true
+    // if (socket.data.user) return true
     try {
       const authData = await firebaseAuth.verifyIdToken(token)
       const userData = await models.users.getById(authData.uid)

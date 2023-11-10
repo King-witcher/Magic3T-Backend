@@ -16,7 +16,6 @@ interface PlayerParams {
 type PlayerState = {
   choices: Choice[]
   timer: Timer
-  readyTimeout: NodeJS.Timeout
   ready: boolean
 } & (
   | {
@@ -43,15 +42,12 @@ export class Player {
     this.oponent = this
     this.side = side
 
-    const readyTimeout = setTimeout(this.forfeit.bind(this), match.config.readyTimeout)
-
     this.state = {
       timer: new Timer(match.config.timelimit, this.handleTimeout.bind(this)),
       choices: [],
       forfeit: false,
       ready: false,
       turn: false,
-      readyTimeout,
     }
   }
 
@@ -97,7 +93,7 @@ export class Player {
     this.match.history.moves.push({
       move: 'timeout',
       player: this.side,
-      time: this.match.getTime(),
+      time: this.match.getCurrentTime(),
     })
     this.match.handleFinish()
   }
@@ -115,7 +111,6 @@ export class Player {
   onReady() {
     if (this.state.ready) return
 
-    clearTimeout(this.state.readyTimeout)
     this.state.ready = true
 
     // Starts the game respecting the preset turn. If no turn was set, sets the first player randomly.
@@ -143,7 +138,7 @@ export class Player {
     this.match.history.moves.push({
       move: choice,
       player: this.side,
-      time: this.match.getTime(),
+      time: this.match.getCurrentTime(),
     })
 
     const triple = this.isWinner() // optimizável
@@ -192,7 +187,7 @@ export class Player {
     this.match.history.moves.push({
       move: 'forfeit',
       player: this.side,
-      time: this.match.getTime(),
+      time: this.match.getCurrentTime(),
     })
     this.match.handleFinish()
   }

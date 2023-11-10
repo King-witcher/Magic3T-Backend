@@ -22,7 +22,7 @@ export class MatchGuard implements CanActivate {
     try {
       const authData = await firebaseAuth.verifyIdToken(token)
 
-      const player = match.players[authData.uid]
+      const player = match.playerMap[authData.uid]
       if (!player) {
         Logger.error('Invalid player uid.', 'MatchGuard')
         return false

@@ -4,6 +4,7 @@ import { GamePlayerProfile } from '../../queue/types/GamePlayerProfile'
 import { getNewRatings } from '@/lib/Glicko'
 import { models } from '@/firebase/models'
 import { MatchRegistry } from '@/firebase/models/matches/MatchRegistry'
+import Publisher from '@/lib/Publisher'
 
 export type ForfeitSchedule = {
   player: Player
@@ -12,7 +13,8 @@ export type ForfeitSchedule = {
 
 export interface MatchConfig {
   timelimit: number
-  ranked: boolean
+  isRanked: boolean
+  /** Amount of time after which the match will be cancelled if both players didn't ready. If one player has set ready, the match is considered a win for this player. */
   readyTimeout: number
 }
 
@@ -22,36 +24,57 @@ export interface MatchParams {
   config: MatchConfig
 }
 
-export class Match {
+export class Match extends Publisher<'onFinish'> {
   finished = false
   id: string = v4()
   config: MatchConfig
-  players: Record<string, Player> = {}
+  playerMap: Record<string, Player> = {}
   white: Player
   black: Player
   history: MatchRegistry
+  readyTimeout: NodeJS.Timeout
 
   constructor({ white, black, config }: MatchParams) {
+    super()
     this.config = config
 
-    const whitePlayer = new Player({
+    const whitePlayer = (this.white = new Player({
       profile: white,
       match: this,
       side: 'white',
-    })
-    this.white = whitePlayer
+    }))
 
-    const blackPlayer = new Player({
+    const blackPlayer = (this.black = new Player({
       profile: black,
       match: this,
       side: 'black',
-    })
-    this.black = blackPlayer
+    }))
+
+    this.readyTimeout = setTimeout(() => {
+      if (this.black.state.ready && this.white.state.ready) return
+      else if (this.black.state.ready) this.white.forfeit()
+      else if (this.white.state.ready) this.black.forfeit()
+      else {
+        const time = this.getCurrentTime()
+        this.history.moves.push({
+          move: 'timeout',
+          player: 'black',
+          time,
+        })
+        this.history.moves.push({
+          move: 'timeout',
+          player: 'white',
+          time,
+        })
+        this.history.winner = 'none'
+        this.processResult()
+      }
+    }, config.readyTimeout)
 
     whitePlayer.setOponent(blackPlayer)
 
-    this.players[white.uid] = whitePlayer
-    this.players[black.uid] = blackPlayer
+    this.playerMap[white.uid] = whitePlayer
+    this.playerMap[black.uid] = blackPlayer
 
     this.history = {
       _id: this.id,
@@ -67,7 +90,7 @@ export class Match {
         rating: white.glicko.rating,
         rv: 0,
       },
-      mode: config.ranked ? 'ranked' : 'casual',
+      mode: config.isRanked ? 'ranked' : 'casual',
       moves: [],
       winner: 'none',
       timestamp: new Date(),
@@ -75,16 +98,16 @@ export class Match {
   }
 
   getPlayer(id: string) {
-    return this.players[id] || null
+    return this.playerMap[id] || null
   }
 
-  getTime(): number {
+  getCurrentTime(): number {
     return 2 * this.config.timelimit - this.white.state.timer.getRemaining() - this.black.state.timer.getRemaining()
   }
 
   emitState() {
-    for (const uid of Object.keys(this.players)) {
-      this.players[uid].emitState()
+    for (const uid of Object.keys(this.playerMap)) {
+      this.playerMap[uid].emitState()
     }
   }
 
@@ -93,8 +116,6 @@ export class Match {
     this.finished = true
 
     const history = this.history
-    const white = this.white
-    const black = this.black
 
     const whiteStatus = this.white.getStatus()
 
@@ -105,29 +126,30 @@ export class Match {
     }
 
     history.winner = statusMap[whiteStatus]
+    await this.processResult()
+    this.publish('onFinish')
+  }
 
-    // Saves the match in the history.
-    const historyPromise = models.matches.save(this.history)
-
-    // Calculate and update ratings, if the match is ranked
-    if (this.config.ranked) {
+  async processResult() {
+    const white = this.white
+    const black = this.black
+    if (this.config.isRanked) {
       const whiteResult = this.history.winner === 'white' ? 1 : this.history.winner === 'black' ? 0 : 0.5
 
-      const [whiteRating, blackRating] = getNewRatings(
+      const [whiteGlicko, blackGlicko] = getNewRatings(
         this.white.profile.glicko,
         this.black.profile.glicko,
         whiteResult,
       )
 
-      this.history.white.rv = whiteRating.rating - white.profile.glicko.rating
-      this.history.black.rv = blackRating.rating - black.profile.glicko.rating
+      this.history.white.rv = whiteGlicko.rating - white.profile.glicko.rating
+      this.history.black.rv = blackGlicko.rating - black.profile.glicko.rating
 
       await Promise.all([
-        models.users.updateGlicko(white.profile.uid, whiteRating),
-        models.users.updateGlicko(black.profile.uid, blackRating),
+        models.users.updateGlicko(white.profile.uid, whiteGlicko),
+        models.users.updateGlicko(black.profile.uid, blackGlicko),
       ])
     }
-
-    await historyPromise
+    await models.matches.save(this.history)
   }
 }
