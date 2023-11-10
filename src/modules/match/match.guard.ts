@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { PlayerSocket } from './types/PlayerSocket'
 import { MatchService } from './match.service'
 import { firebaseAuth } from '@/firebase/services'
@@ -15,7 +15,7 @@ export class MatchGuard implements CanActivate {
 
     const match = this.matchService.getMatch(matchId)
     if (!match) {
-      Logger.error('Invalid matchId', 'MatchGuard')
+      console.error(`Bad match id: ${matchId}`)
       return false
     }
 
@@ -24,17 +24,17 @@ export class MatchGuard implements CanActivate {
 
       const player = match.playerMap[authData.uid]
       if (!player) {
-        Logger.error('Invalid player uid.', 'MatchGuard')
+        console.error(`Bad player uid: ${authData.uid}`)
         return false
       }
 
       socket.data.match = match
       socket.data.player = player
       player.socket = socket
-      Logger.log('Connection accepted', 'MatchGuard')
+      console.log(`${player.profile.name} connected to the game.`)
       return true
     } catch (e) {
-      Logger.error(e.message, 'MatchGuard')
+      console.error(e.message)
       return false
     }
   }

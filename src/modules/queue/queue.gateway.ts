@@ -1,69 +1,26 @@
 import {
   ConnectedSocket,
+  MessageBody,
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
 import { MatchService } from '../match/match.service'
-import { Logger, UseGuards } from '@nestjs/common'
+import { UseGuards } from '@nestjs/common'
 import { CurrentUser } from './decorators/currentUser.decorator'
 import { GamePlayerProfile } from './types/GamePlayerProfile'
 import { QueueGuard } from './queue.guard'
-import { Queue } from './lib/Queue'
-import { SimpleQueue } from './lib/SimpleQueue'
 import { QueueServer, QueueSocket } from './types/QueueSocket'
+import { QueueService } from './queue.service'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: QueueServer
-  casualQueue: Queue
-  rankedQueue: Queue
 
-  constructor(private matchService: MatchService) {
-    this.casualQueue = new SimpleQueue((entry1, entry2) => {
-      const match = this.matchService.createMatch({
-        white: entry1.user,
-        black: entry2.user,
-        config: {
-          isRanked: false,
-          readyTimeout: 2000,
-          timelimit: 1000 * 105,
-        },
-      })
-      entry1.socket.emit('matchFound', {
-        matchId: match.id,
-      })
-      entry2.socket.emit('matchFound', {
-        matchId: match.id,
-      })
-      // entry1.socket.disconnect()
-      // entry2.socket.disconnect()
-    })
-
-    this.rankedQueue = new SimpleQueue((player1, player2) => {
-      const match = this.matchService.createMatch({
-        white: player1.user,
-        black: player2.user,
-        config: {
-          isRanked: true,
-          readyTimeout: 2000,
-          timelimit: 1000 * 90,
-        },
-      })
-
-      player1.socket.emit('matchFound', {
-        matchId: match.id,
-      })
-      player2.socket.emit('matchFound', {
-        matchId: match.id,
-      })
-      // player1.socket.disconnect()
-      // player2.socket.disconnect()
-    })
-
+  constructor(private matchService: MatchService, private queueService: QueueService) {
     setInterval(() => {
       this.server.emit('udpateUserCount', {
         casual: {
@@ -76,59 +33,85 @@ export class QueueGateway implements OnGatewayDisconnect {
           queue: 0,
         },
       })
-    }, 2000)
+    }, 5000)
   }
 
   @SubscribeMessage('casual')
   handleCasual(@ConnectedSocket() client: QueueSocket, @CurrentUser() user: GamePlayerProfile) {
-    this.rankedQueue.dequeue(user.uid)
-    if (!this.isAvailable(user.uid)) {
-      Logger.error('Player unavailable', 'QueueGateway')
-      client.emit('queueFailed')
+    if (!this.matchService.isAvailable(user.uid)) {
+      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
+      client.emit('queueRejected')
       return
     }
 
-    Logger.log('Player enqueued on casual gameMode', 'QueueGateway')
-    this.casualQueue.enqueue({
-      socket: client,
-      user: {
-        name: user.name,
-        uid: user.uid,
-        glicko: user.glicko,
+    this.queueService.enqueue(
+      {
+        socket: client,
+        user: {
+          name: user.name,
+          uid: user.uid,
+          glicko: user.glicko,
+        },
       },
-    })
+      'casual',
+    )
+
+    const userQueueModes = this.queueService.getQueueModes(user.uid)
+    client.emit('queueModes', userQueueModes)
+
+    console.log(`Player "${user.name}" enqueued on casual mode.`)
+    client.emit('queueAcepted', { mode: 'casual' })
   }
 
   @SubscribeMessage('ranked')
   handleRanked(@ConnectedSocket() client: QueueSocket, @CurrentUser() user: GamePlayerProfile) {
-    this.casualQueue.dequeue(user.uid)
-    if (!this.isAvailable(user.uid)) {
-      Logger.error('Player unavailable', 'QueueGateway')
-      client.emit('queueFailed')
+    if (!this.matchService.isAvailable(user.uid)) {
+      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
+      client.emit('queueRejected')
       return
     }
 
-    Logger.log('Player enqueued on ranked gameMode', 'QueueGateway')
-
-    this.rankedQueue.enqueue({
-      socket: client,
-      user: {
-        name: user.name,
-        uid: user.uid,
-        glicko: user.glicko,
+    this.queueService.enqueue(
+      {
+        socket: client,
+        user: {
+          name: user.name,
+          uid: user.uid,
+          glicko: user.glicko,
+        },
       },
-    })
+      'ranked',
+    )
+
+    const userQueueModes = this.queueService.getQueueModes(user.uid)
+    client.emit('queueModes', userQueueModes)
+
+    console.log(`User "${user.name}" enqueued on ranked mode.`)
+    client.emit('queueAcepted', { mode: 'ranked' })
+  }
+
+  @SubscribeMessage('dequeue')
+  handleDequeue(
+    @ConnectedSocket() client: QueueSocket,
+    @CurrentUser() user: GamePlayerProfile,
+    @MessageBody() message: 'ranked' | 'casual',
+  ) {
+    this.queueService.dequeue(user.uid, message)
+
+    const userQueueModes = this.queueService.getQueueModes(user.uid)
+    client.emit('queueModes', userQueueModes)
+
+    console.log(`User "${user.name}" dequeued from mode "${message}".`)
   }
 
   isAvailable(uid: string) {
-    return this.casualQueue.isAvailable(uid) && this.rankedQueue.isAvailable(uid) && this.matchService.isAvailable(uid)
+    return this.queueService.isAvailable(uid) && this.matchService.isAvailable(uid)
   }
 
   handleDisconnect(client: QueueSocket) {
     const user = client.data.user
     if (user) {
-      this.rankedQueue.dequeue(user.uid)
-      this.casualQueue.dequeue(user.uid)
+      this.queueService.dequeue(user.uid)
     }
   }
 }

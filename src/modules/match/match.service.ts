@@ -15,6 +15,9 @@ export class MatchService {
     })
     this.playerMatchMap[params.black.uid] = match
     this.playerMatchMap[params.white.uid] = match
+
+    console.log(`Match created for "${match.white.profile.name}" vs "${match.black.profile.name}".`)
+
     return (this.matches[match.id] = match)
   }
 

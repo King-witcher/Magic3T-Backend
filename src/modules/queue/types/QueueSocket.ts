@@ -7,7 +7,9 @@ export type QueueSocketData = {
 }
 
 type EmitEvents = {
-  queueFailed: (reason?: string) => void
+  queueRejected: (reason?: string) => void
+  queueAcepted: (payload: { mode: 'casual' | 'ranked' }) => void
+  queueModes: (payload: { casual: boolean; ranked: boolean }) => void
   matchFound: (data: { matchId: string }) => void
   udpateUserCount: (data: {
     connected: number
