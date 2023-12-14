@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { PlayerSocket } from './types/PlayerSocket'
 import { MatchService } from './match.service'
 import { firebaseAuth } from '@/firebase/services'
+import { SocketPlayerChannel } from './lib/PlayerChannel'
 
 @Injectable()
 export class MatchGuard implements CanActivate {
@@ -30,7 +31,7 @@ export class MatchGuard implements CanActivate {
 
       socket.data.match = match
       socket.data.player = player
-      player.socket = socket
+      player.channel = new SocketPlayerChannel(socket)
       console.log(`${player.profile.name} connected to the game.`)
       return true
     } catch (e) {

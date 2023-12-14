@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -13,6 +14,7 @@ import { QueueGuard } from './queue.guard'
 import { QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
 import { SocketsService } from './sockets.service'
+import { RandomBot } from '@/lib/RandomBot'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -44,6 +46,41 @@ export class QueueGateway implements OnGatewayDisconnect {
   @SubscribeMessage('interact')
   handleInteract() {
     return
+  }
+
+  @SubscribeMessage('bot')
+  handleBot(@CurrentUser() user: GamePlayerProfile) {
+    if (!this.matchService.isAvailable(user.uid)) {
+      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
+      this.socketsService.emit(user.uid, 'queueRejected')
+      return
+    }
+
+    const match = this.matchService.createMatch({
+      white: user,
+      black: {
+        glicko: {
+          deviation: 0,
+          rating: 1500,
+          timestamp: new Date(),
+        },
+        name: 'Random Bot',
+        uid: 'randombot',
+        isAnonymous: false,
+      },
+      config: {
+        isRanked: false,
+        readyTimeout: 2000,
+        timelimit: 1000 * 105,
+      },
+    })
+
+    const bot = new RandomBot(match.black)
+    match.black.channel = bot.getChannel()
+    match.black.onReady()
+    this.socketsService.emit(user.uid, 'matchFound', {
+      matchId: match.id,
+    })
   }
 
   @SubscribeMessage('casual')

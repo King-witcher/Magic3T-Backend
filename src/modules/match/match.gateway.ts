@@ -15,7 +15,7 @@ import { GamePlayerProfile } from '../queue/types/GamePlayerProfile'
 export class MatchGateway implements OnGatewayDisconnect {
   @SubscribeMessage('message')
   handleMessage(@CurrentPlayer() player: Player, @MessageBody() message: string) {
-    player.oponent.socket?.emit('message', message)
+    player.oponent.channel.sendMessage(message)
   }
 
   @SubscribeMessage('ready')
@@ -34,20 +34,12 @@ export class MatchGateway implements OnGatewayDisconnect {
 
   @SubscribeMessage('getOponentProfile')
   getOponentProfile(@CurrentPlayer() player: Player) {
-    if (player.oponent.profile.isAnonymous) {
-      player.socket?.emit('oponentProfile', null)
-    } else {
-      const payload: Partial<GamePlayerProfile> = {
-        ...player.oponent.profile,
-        isAnonymous: undefined,
-      }
-
-      player.socket?.emit('oponentProfile', payload)
-    }
+    player.channel.sendOponent(player.oponent.profile)
   }
 
   @SubscribeMessage('choice')
   handleChoice(@CurrentPlayer() player: Player, @CurrentMatch() match: Match, @MessageBody(ChoicePipe) choice: Choice) {
+    console.log('choice')
     player.onChoose(choice)
     match.emitState()
   }
@@ -56,7 +48,6 @@ export class MatchGateway implements OnGatewayDisconnect {
     if (client.data.player && client.data.player.getStatus() !== null) {
       Logger.log('Player forfeits by disconnection', 'MatchGateway')
       client.data.player.forfeit()
-      client.data.player.socket?.emit('enemyForfeits', {})
     }
   }
 }

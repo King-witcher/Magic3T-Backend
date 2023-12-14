@@ -1,11 +1,11 @@
 import Timer from 'src/lib/Timer'
 import { PlayerStatus } from '../types/PlayerStatus'
-import { Socket } from 'socket.io'
 import { Logger } from '@nestjs/common'
 import { Choice } from '../../../types/Choice'
 import { GamePlayerProfile as GamePlayerProfile } from '../../queue/types/GamePlayerProfile'
 import { Match } from './Match'
 import { GameState as POVGameState } from '../types/POVGameState'
+import { NullPlayerChannel, PlayerChannel } from './PlayerChannel'
 
 interface PlayerParams {
   profile: GamePlayerProfile
@@ -31,7 +31,7 @@ type PlayerState = {
 export class Player {
   profile: GamePlayerProfile
   match: Match
-  socket: Socket | null = null
+  channel: PlayerChannel = new NullPlayerChannel()
   oponent: Player
   state: PlayerState
   side: 'white' | 'black'
@@ -170,7 +170,7 @@ export class Player {
   }
 
   emitState() {
-    this.socket?.emit('gameState', JSON.stringify(this.getState())) // pq esse stringify?
+    this.channel.sendState(this.getState())
   }
 
   forfeit() {
