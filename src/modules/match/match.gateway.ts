@@ -1,5 +1,10 @@
 import { Logger, UseGuards } from '@nestjs/common'
-import { MessageBody, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
+import {
+  MessageBody,
+  OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+} from '@nestjs/websockets'
 import { PlayerSocket } from './types/PlayerSocket'
 import { CurrentPlayer } from './decorators/currentPlayer.decorator'
 import { Player } from './lib/Player'
@@ -8,13 +13,15 @@ import { Match } from './lib/Match'
 import { ChoicePipe } from './choice.pipe'
 import { Choice } from '../../types/Choice'
 import { MatchGuard } from './match.guard'
-import { GamePlayerProfile } from '../queue/types/GamePlayerProfile'
 
 @UseGuards(MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
 export class MatchGateway implements OnGatewayDisconnect {
   @SubscribeMessage('message')
-  handleMessage(@CurrentPlayer() player: Player, @MessageBody() message: string) {
+  handleMessage(
+    @CurrentPlayer() player: Player,
+    @MessageBody() message: string,
+  ) {
     player.oponent.channel.sendMessage(message)
   }
 
@@ -38,8 +45,11 @@ export class MatchGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('choice')
-  handleChoice(@CurrentPlayer() player: Player, @CurrentMatch() match: Match, @MessageBody(ChoicePipe) choice: Choice) {
-    console.log('choice')
+  handleChoice(
+    @CurrentPlayer() player: Player,
+    @CurrentMatch() match: Match,
+    @MessageBody(ChoicePipe) choice: Choice,
+  ) {
     player.onChoose(choice)
     match.emitState()
   }

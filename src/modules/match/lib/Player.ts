@@ -58,15 +58,18 @@ export class Player {
 
     // Timeout
     if (this.state.timer.getRemaining() === 0) return PlayerStatus.Defeat
-    if (this.oponent.state.timer.getRemaining() === 0) return PlayerStatus.Victory
+    if (this.oponent.state.timer.getRemaining() === 0)
+      return PlayerStatus.Victory
 
     // Choices
     if (this.isWinner()) return PlayerStatus.Victory
     if (this.oponent.isWinner()) return PlayerStatus.Defeat
-    if (this.state.choices.length + this.oponent.state.choices.length === 9) return PlayerStatus.Draw
+    if (this.state.choices.length + this.oponent.state.choices.length === 9)
+      return PlayerStatus.Draw
 
     // Waiting the game to start
-    if (!this.state.ready || !this.oponent.state.ready) return PlayerStatus.Waiting
+    if (!this.state.ready || !this.oponent.state.ready)
+      return PlayerStatus.Waiting
 
     // Playing
     return PlayerStatus.Playing
@@ -104,7 +107,8 @@ export class Player {
     for (let i = 0; i < choices.length; i++)
       for (let j = i + 1; j < choices.length; j++)
         for (let k = j + 1; k < choices.length; k++)
-          if (choices[i] + choices[j] + choices[k] === 15) return [choices[i], choices[j], choices[k]]
+          if (choices[i] + choices[j] + choices[k] === 15)
+            return [choices[i], choices[j], choices[k]]
     return false
   }
 
@@ -129,7 +133,8 @@ export class Player {
   onChoose(choice: Choice) {
     if (!this.oponent) return
     if (!this.state.turn) return this.emitState()
-    if ([...this.state.choices, ...this.oponent.state.choices].includes(choice)) return this.emitState()
+    if ([...this.state.choices, ...this.oponent.state.choices].includes(choice))
+      return this.emitState()
     if (choice % 1 !== 0 || choice < 1 || choice > 9) return
     if (this.getStatus() !== PlayerStatus.Playing) return this.emitState()
     if (!this.state.ready || !this.oponent.state.ready) return this.emitState()
@@ -175,7 +180,8 @@ export class Player {
 
   forfeit() {
     const status = this.getStatus()
-    if (status !== PlayerStatus.Playing && status !== PlayerStatus.Waiting) return
+    if (status !== PlayerStatus.Playing && status !== PlayerStatus.Waiting)
+      return
 
     this.state.turn = this.oponent.state.turn = false
     this.state.forfeit = true

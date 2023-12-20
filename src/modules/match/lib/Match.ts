@@ -102,7 +102,11 @@ export class Match extends Publisher<'onFinish'> {
   }
 
   getCurrentTime(): number {
-    return 2 * this.config.timelimit - this.white.state.timer.getRemaining() - this.black.state.timer.getRemaining()
+    return (
+      2 * this.config.timelimit -
+      this.white.state.timer.getRemaining() -
+      this.black.state.timer.getRemaining()
+    )
   }
 
   emitState() {
@@ -134,7 +138,12 @@ export class Match extends Publisher<'onFinish'> {
     const white = this.white
     const black = this.black
     if (this.config.isRanked) {
-      const whiteResult = this.history.winner === 'white' ? 1 : this.history.winner === 'black' ? 0 : 0.5
+      const whiteResult =
+        this.history.winner === 'white'
+          ? 1
+          : this.history.winner === 'black'
+          ? 0
+          : 0.5
 
       const [whiteGlicko, blackGlicko] = getNewRatings(
         this.white.profile.glicko,

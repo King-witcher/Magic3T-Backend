@@ -14,7 +14,8 @@ import { QueueGuard } from './queue.guard'
 import { QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
 import { SocketsService } from './sockets.service'
-import { RandomBot } from '@/lib/RandomBot'
+import { RandomBot } from '@/lib/bots/RandomBot'
+import { LMMBot } from '@/lib/bots/LMMBot'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -56,18 +57,22 @@ export class QueueGateway implements OnGatewayDisconnect {
       return
     }
 
-    const match = this.matchService.createMatch({
-      white: user,
-      black: {
-        glicko: {
-          deviation: 0,
-          rating: 1500,
-          timestamp: new Date(),
-        },
-        name: 'Random Bot',
-        uid: 'randombot',
-        isAnonymous: false,
+    const botProfile = {
+      glicko: {
+        deviation: 0,
+        rating: 1500,
+        timestamp: new Date(),
       },
+      name: 'Magic3t Bot',
+      uid: 'randombot',
+      isAnonymous: false,
+    }
+
+    const botSide = Math.random() < 0.5 ? 'white' : 'black'
+
+    const match = this.matchService.createMatch({
+      white: botSide === 'black' ? user : botProfile,
+      black: botSide === 'black' ? botProfile : user,
       config: {
         isRanked: false,
         readyTimeout: 2000,
@@ -75,9 +80,9 @@ export class QueueGateway implements OnGatewayDisconnect {
       },
     })
 
-    const bot = new RandomBot(match.black)
-    match.black.channel = bot.getChannel()
-    match.black.onReady()
+    const bot = new LMMBot(match[botSide], 9)
+    match[botSide].channel = bot.getChannel()
+    match[botSide].onReady()
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
     })
@@ -136,7 +141,10 @@ export class QueueGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('dequeue')
-  handleDequeue(@CurrentUser() user: GamePlayerProfile, @MessageBody() message: 'ranked' | 'casual') {
+  handleDequeue(
+    @CurrentUser() user: GamePlayerProfile,
+    @MessageBody() message: 'ranked' | 'casual',
+  ) {
     this.queueService.dequeue(user.uid, message)
 
     const userQueueModes = this.queueService.getQueueModes(user.uid)
@@ -146,7 +154,9 @@ export class QueueGateway implements OnGatewayDisconnect {
   }
 
   isAvailable(uid: string) {
-    return this.queueService.isAvailable(uid) && this.matchService.isAvailable(uid)
+    return (
+      this.queueService.isAvailable(uid) && this.matchService.isAvailable(uid)
+    )
   }
 
   handleDisconnect(client: QueueSocket) {
