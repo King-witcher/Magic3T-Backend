@@ -28,7 +28,7 @@ export class LMMBot {
       sendMessage() {
         // dn
       },
-      sendOponent() {
+      sendOponentUid() {
         //dn
       },
       sendState(state) {

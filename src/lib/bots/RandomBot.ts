@@ -14,7 +14,7 @@ export class RandomBot {
       sendMessage() {
         // dn
       },
-      sendOponent() {
+      sendOponentUid() {
         //dn
       },
       sendState(state) {

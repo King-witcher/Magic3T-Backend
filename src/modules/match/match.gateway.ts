@@ -41,7 +41,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
   @SubscribeMessage('getOponentProfile')
   getOponentProfile(@CurrentPlayer() player: Player) {
-    player.channel.sendOponent(player.oponent.profile)
+    player.channel.sendOponentUid(player.oponent.profile.uid)
   }
 
   @SubscribeMessage('choice')

@@ -8,4 +8,15 @@ export type PlayerSocketData = {
   player: Player
 }
 
-export type PlayerSocket = Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, PlayerSocketData>
+export type MatchEmitEvents = {
+  message(message: string)
+  oponentUid(uid: string)
+  gameState(state: string)
+}
+
+export type PlayerSocket = Socket<
+  DefaultEventsMap,
+  MatchEmitEvents,
+  DefaultEventsMap,
+  PlayerSocketData
+>

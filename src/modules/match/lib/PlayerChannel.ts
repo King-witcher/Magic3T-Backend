@@ -5,7 +5,7 @@ import { PlayerSocket } from '../types/PlayerSocket'
 export interface PlayerChannel {
   sendState(state: GameState): void
   sendMessage(message: string): void
-  sendOponent(profile: GamePlayerProfile): void
+  sendOponentUid(uid: string): void
 }
 
 export class SocketPlayerChannel implements PlayerChannel {
@@ -19,8 +19,8 @@ export class SocketPlayerChannel implements PlayerChannel {
     this.socket.emit('message', message)
   }
 
-  sendOponent(profile: GamePlayerProfile): void {
-    this.socket.emit('oponentProfile', profile)
+  sendOponentUid(uid: string): void {
+    this.socket.emit('oponentUid', uid)
   }
 }
 
@@ -33,7 +33,7 @@ export class NullPlayerChannel implements PlayerChannel {
     // Do nothing
   }
 
-  sendOponent(): void {
+  sendOponentUid(): void {
     // dn
   }
 }

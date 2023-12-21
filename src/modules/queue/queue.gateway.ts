@@ -81,11 +81,12 @@ export class QueueGateway implements OnGatewayDisconnect {
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
+      oponentId: 'randombot',
     })
-    match.emitState()
 
     const bot = new LMMBot(match[botSide], 9)
     match[botSide].channel = bot.getChannel()
+    match.emitState()
     match[botSide].onReady()
   }
 

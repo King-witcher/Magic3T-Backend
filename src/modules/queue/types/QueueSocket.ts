@@ -10,7 +10,7 @@ export type EmitEvents = {
   queueRejected: (reason?: string) => void
   queueAcepted: (payload: { mode: 'casual' | 'ranked' }) => void
   queueModes: (payload: { casual: boolean; ranked: boolean }) => void
-  matchFound: (data: { matchId: string }) => void
+  matchFound(data: { matchId: string; oponentId: string })
   updateUserCount: (data: {
     connected: number
     casual: { queue: number; inGame: number }
@@ -18,5 +18,15 @@ export type EmitEvents = {
   }) => void
 }
 
-export type QueueSocket = Socket<DefaultEventsMap, EmitEvents, DefaultEventsMap, QueueSocketData>
-export type QueueServer = Server<DefaultEventsMap, EmitEvents, DefaultEventsMap, QueueSocketData>
+export type QueueSocket = Socket<
+  DefaultEventsMap,
+  EmitEvents,
+  DefaultEventsMap,
+  QueueSocketData
+>
+export type QueueServer = Server<
+  DefaultEventsMap,
+  EmitEvents,
+  DefaultEventsMap,
+  QueueSocketData
+>

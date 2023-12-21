@@ -8,10 +8,16 @@ export class QueueService {
   casualPendingEntry: QueueEntry | null = null
   rankedPendingEntry: QueueEntry | null = null
 
-  constructor(private matchService: MatchService, private socketsService: SocketsService) {}
+  constructor(
+    private matchService: MatchService,
+    private socketsService: SocketsService,
+  ) {}
 
   isAvailable(uid: string) {
-    return !(this.casualPendingEntry?.user.uid === uid || this.rankedPendingEntry?.user.uid === uid)
+    return !(
+      this.casualPendingEntry?.user.uid === uid ||
+      this.rankedPendingEntry?.user.uid === uid
+    )
   }
 
   enqueue(entry: QueueEntry, mode: 'casual' | 'ranked') {
@@ -45,10 +51,14 @@ export class QueueService {
 
   dequeue(uid: string, mode?: 'casual' | 'ranked') {
     if (!mode) {
-      if (this.casualPendingEntry?.user.uid === uid) this.casualPendingEntry = null
-      if (this.rankedPendingEntry?.user.uid === uid) this.rankedPendingEntry = null
-    } else if (mode === 'casual' && this.casualPendingEntry?.user.uid === uid) this.casualPendingEntry = null
-    else if (mode === 'ranked' && this.rankedPendingEntry?.user.uid === uid) this.rankedPendingEntry = null
+      if (this.casualPendingEntry?.user.uid === uid)
+        this.casualPendingEntry = null
+      if (this.rankedPendingEntry?.user.uid === uid)
+        this.rankedPendingEntry = null
+    } else if (mode === 'casual' && this.casualPendingEntry?.user.uid === uid)
+      this.casualPendingEntry = null
+    else if (mode === 'ranked' && this.rankedPendingEntry?.user.uid === uid)
+      this.rankedPendingEntry = null
   }
 
   getUserCount() {
@@ -71,9 +81,12 @@ export class QueueService {
 
     this.socketsService.emit(entry1.user.uid, 'matchFound', {
       matchId: match.id,
+      oponentId: entry2.user.uid,
     })
+
     this.socketsService.emit(entry2.user.uid, 'matchFound', {
       matchId: match.id,
+      oponentId: entry1.user.uid,
     })
   }
 }
