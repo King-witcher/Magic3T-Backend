@@ -1,5 +1,4 @@
 import {
-  ConnectedSocket,
   MessageBody,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -27,6 +26,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     private queueService: QueueService,
     public socketsService: SocketsService,
   ) {
+    // Counts how many users are online and update everyone
     setInterval(() => {
       const queueCount = this.queueService.getUserCount()
       this.server.emit('updateUserCount', {
@@ -49,7 +49,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('bot')
-  handleBot(@CurrentUser() user: GamePlayerProfile) {
+  async handleBot(@CurrentUser() user: GamePlayerProfile) {
     if (!this.matchService.isAvailable(user.uid)) {
       console.error(`Player "${user.name}" unavailable for queue: ingame.`)
       this.socketsService.emit(user.uid, 'queueRejected')
@@ -79,14 +79,14 @@ export class QueueGateway implements OnGatewayDisconnect {
       },
     })
 
+    this.socketsService.emit(user.uid, 'matchFound', {
+      matchId: match.id,
+    })
     match.emitState()
 
     const bot = new LMMBot(match[botSide], 9)
     match[botSide].channel = bot.getChannel()
     match[botSide].onReady()
-    this.socketsService.emit(user.uid, 'matchFound', {
-      matchId: match.id,
-    })
   }
 
   @SubscribeMessage('casual')

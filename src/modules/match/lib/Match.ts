@@ -1,10 +1,10 @@
 import { Player } from './Player'
-import { v4 } from 'uuid'
 import { GamePlayerProfile } from '../../queue/types/GamePlayerProfile'
 import { getNewRatings } from '@/lib/Glicko'
 import { models } from '@/firebase/models'
 import { MatchRegistry } from '@/firebase/models/matches/MatchRegistry'
 import Publisher from '@/lib/Publisher'
+import { getId } from '@/lib/GetId'
 
 export type ForfeitSchedule = {
   player: Player
@@ -26,7 +26,7 @@ export interface MatchParams {
 
 export class Match extends Publisher<'onFinish'> {
   finished = false
-  id: string = v4()
+  id: string = getId(28)
   config: MatchConfig
   playerMap: Record<string, Player> = {}
   white: Player
