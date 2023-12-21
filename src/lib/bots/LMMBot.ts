@@ -26,7 +26,9 @@ export class LMMBot {
     const depth = this.depth
     return {
       sendMessage() {
-        // dn
+        player.oponent.channel.sendMessage(
+          'Eu não sou capaz de entender a sua língua (ainda).',
+        )
       },
       sendOponentUid() {
         //dn
