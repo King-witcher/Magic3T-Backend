@@ -14,7 +14,6 @@ import { QueueGuard } from './queue.guard'
 import { QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
 import { SocketsService } from './sockets.service'
-import { RandomBot } from '@/lib/bots/RandomBot'
 import { LMMBot } from '@/lib/bots/LMMBot'
 
 @UseGuards(QueueGuard)
@@ -76,9 +75,11 @@ export class QueueGateway implements OnGatewayDisconnect {
       config: {
         isRanked: false,
         readyTimeout: 2000,
-        timelimit: 1000 * 105,
+        timelimit: 1000 * 60 * 3 + 1000 * 30,
       },
     })
+
+    match.emitState()
 
     const bot = new LMMBot(match[botSide], 9)
     match[botSide].channel = bot.getChannel()
