@@ -30,6 +30,10 @@ export default class Timer {
     return this.remaining
   }
 
+  setRemaining(remaining: number) {
+    this.remaining = remaining
+  }
+
   private handleTimeout() {
     this.pause()
     this.remaining = 0

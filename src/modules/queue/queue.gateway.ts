@@ -14,6 +14,7 @@ import { QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
 import { SocketsService } from './sockets.service'
 import { LMMBot } from '@/lib/bots/LMMBot'
+import Timer from '@/lib/Timer'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -78,6 +79,8 @@ export class QueueGateway implements OnGatewayDisconnect {
         timelimit: 1000 * 60 * 3 + 1000 * 30,
       },
     })
+
+    match[botSide].state.timer.setRemaining(15000)
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
