@@ -91,7 +91,6 @@ export class QueueGateway implements OnGatewayDisconnect {
 
     const bot = new RandomBot(match[botSide])
     match[botSide].channel = bot.getChannel()
-    match.emitState()
     match[botSide].onReady()
   }
 
@@ -115,7 +114,6 @@ export class QueueGateway implements OnGatewayDisconnect {
     }
 
     const botSide = Math.random() < 0.5 ? 'white' : 'black'
-    const playerSide = botSide === 'white' ? 'black' : 'white'
 
     const match = this.matchService.createMatch({
       white: botSide === 'black' ? user : botProfile,
@@ -179,7 +177,6 @@ export class QueueGateway implements OnGatewayDisconnect {
 
     const bot = new LMMBot(match[botSide], 9)
     match[botSide].channel = bot.getChannel()
-    match.emitState()
     match[botSide].onReady()
   }
 

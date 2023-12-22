@@ -1,4 +1,3 @@
-import { GamePlayerProfile } from '@/modules/queue/types/GamePlayerProfile'
 import { GameState } from '../types/POVGameState'
 import { PlayerSocket } from '../types/PlayerSocket'
 
