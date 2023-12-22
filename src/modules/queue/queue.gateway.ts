@@ -165,7 +165,7 @@ export class QueueGateway implements OnGatewayDisconnect {
       config: {
         isRanked: false,
         readyTimeout: 2000,
-        timelimit: Infinity,
+        timelimit: 1000 * 60 * 60,
       },
     })
 
