@@ -15,6 +15,7 @@ import { QueueService } from './queue.service'
 import { SocketsService } from './sockets.service'
 import { LMMBot } from '@/lib/bots/LMMBot'
 import Timer from '@/lib/Timer'
+import { RandomBot } from '@/lib/bots/RandomBot'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -49,8 +50,96 @@ export class QueueGateway implements OnGatewayDisconnect {
     return
   }
 
-  @SubscribeMessage('bot')
-  async handleBot(@CurrentUser() user: GamePlayerProfile) {
+  @SubscribeMessage('bot-1')
+  async handleBot1(@CurrentUser() user: GamePlayerProfile) {
+    if (!this.matchService.isAvailable(user.uid)) {
+      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
+      this.socketsService.emit(user.uid, 'queueRejected')
+      return
+    }
+
+    const botProfile = {
+      glicko: {
+        deviation: 0,
+        rating: 1500,
+        timestamp: new Date(),
+      },
+      name: 'Magic3t Bot',
+      uid: 'randombot',
+      isAnonymous: false,
+    }
+
+    const botSide = Math.random() < 0.5 ? 'white' : 'black'
+
+    const match = this.matchService.createMatch({
+      white: botSide === 'black' ? user : botProfile,
+      black: botSide === 'black' ? botProfile : user,
+      config: {
+        isRanked: false,
+        readyTimeout: 2000,
+        timelimit: 1000 * 60 * 3 + 1000 * 30,
+      },
+    })
+
+    match[botSide].state.timer.setRemaining(15000)
+
+    this.socketsService.emit(user.uid, 'matchFound', {
+      matchId: match.id,
+      oponentId: 'randombot',
+    })
+
+    const bot = new RandomBot(match[botSide])
+    match[botSide].channel = bot.getChannel()
+    match.emitState()
+    match[botSide].onReady()
+  }
+
+  @SubscribeMessage('bot-2')
+  async handleBot2(@CurrentUser() user: GamePlayerProfile) {
+    if (!this.matchService.isAvailable(user.uid)) {
+      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
+      this.socketsService.emit(user.uid, 'queueRejected')
+      return
+    }
+
+    const botProfile = {
+      glicko: {
+        deviation: 0,
+        rating: 1500,
+        timestamp: new Date(),
+      },
+      name: 'Magic3t Bot',
+      uid: 'randombot',
+      isAnonymous: false,
+    }
+
+    const botSide = Math.random() < 0.5 ? 'white' : 'black'
+
+    const match = this.matchService.createMatch({
+      white: botSide === 'black' ? user : botProfile,
+      black: botSide === 'black' ? botProfile : user,
+      config: {
+        isRanked: false,
+        readyTimeout: 2000,
+        timelimit: 1000 * 60 * 3 + 1000 * 30,
+      },
+    })
+
+    match[botSide].state.timer.setRemaining(15000)
+
+    this.socketsService.emit(user.uid, 'matchFound', {
+      matchId: match.id,
+      oponentId: 'randombot',
+    })
+
+    const bot = new LMMBot(match[botSide], 5)
+    match[botSide].channel = bot.getChannel()
+    match.emitState()
+    match[botSide].onReady()
+  }
+
+  @SubscribeMessage('bot-3')
+  async handleBot3(@CurrentUser() user: GamePlayerProfile) {
     if (!this.matchService.isAvailable(user.uid)) {
       console.error(`Player "${user.name}" unavailable for queue: ingame.`)
       this.socketsService.emit(user.uid, 'queueRejected')
