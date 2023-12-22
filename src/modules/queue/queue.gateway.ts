@@ -81,7 +81,7 @@ export class QueueGateway implements OnGatewayDisconnect {
       },
     })
 
-    match[botSide].state.timer.setRemaining(15000)
+    match[botSide].state.timer.setRemaining(1000)
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
@@ -125,7 +125,7 @@ export class QueueGateway implements OnGatewayDisconnect {
       },
     })
 
-    match[botSide].state.timer.setRemaining(15000)
+    match[botSide].state.timer.setRemaining(5000)
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
@@ -165,11 +165,11 @@ export class QueueGateway implements OnGatewayDisconnect {
       config: {
         isRanked: false,
         readyTimeout: 2000,
-        timelimit: 1000 * 60 * 3 + 1000 * 30,
+        timelimit: Infinity,
       },
     })
 
-    match[botSide].state.timer.setRemaining(15000)
+    match[botSide].state.timer.setRemaining(5000)
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
