@@ -76,7 +76,7 @@ export class Player {
   }
 
   getState(): POVGameState {
-    return {
+    const result = {
       playerChoices: this.state.choices,
       oponentChoices: this.oponent.state.choices,
       status: this.getStatus(),
@@ -84,6 +84,8 @@ export class Player {
       playerTimeLeft: this.state.timer.getRemaining(),
       turn: this.state.turn,
     }
+
+    return result
   }
 
   handleTimeout() {

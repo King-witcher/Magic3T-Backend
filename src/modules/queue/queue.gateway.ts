@@ -16,6 +16,7 @@ import { SocketsService } from './sockets.service'
 import { LMMBot } from '@/lib/bots/LMMBot'
 import Timer from '@/lib/Timer'
 import { RandomBot } from '@/lib/bots/RandomBot'
+import { CurrentPlayer } from '../match/decorators/currentPlayer.decorator'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -114,6 +115,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     }
 
     const botSide = Math.random() < 0.5 ? 'white' : 'black'
+    const playerSide = botSide === 'white' ? 'black' : 'white'
 
     const match = this.matchService.createMatch({
       white: botSide === 'black' ? user : botProfile,
@@ -134,7 +136,6 @@ export class QueueGateway implements OnGatewayDisconnect {
 
     const bot = new LMMBot(match[botSide], 5)
     match[botSide].channel = bot.getChannel()
-    match.emitState()
     match[botSide].onReady()
   }
 

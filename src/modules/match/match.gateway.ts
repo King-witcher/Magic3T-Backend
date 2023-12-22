@@ -29,6 +29,7 @@ export class MatchGateway implements OnGatewayDisconnect {
   handleReady(@CurrentPlayer() player: Player, @CurrentMatch() match: Match) {
     Logger.log('Player ready', 'GameGateway')
     player.onReady()
+    player.channel.sendOponentUid(player.oponent.profile.uid)
     match.emitState()
   }
 

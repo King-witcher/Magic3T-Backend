@@ -25,10 +25,16 @@ export class LMMBot {
     const player = this.player
     const depth = this.depth
     return {
-      sendMessage() {
-        player.oponent.channel.sendMessage(
-          'Eu não sou capaz de entender a sua língua (ainda).',
-        )
+      sendMessage(message: string) {
+        function respond(message: string) {
+          player.oponent.channel.sendMessage(message)
+        }
+
+        switch (message) {
+          case 'oi':
+            respond('oi')
+            break
+        }
       },
       sendOponentUid() {
         //dn
