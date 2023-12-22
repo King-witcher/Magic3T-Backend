@@ -76,12 +76,12 @@ export class QueueGateway implements OnGatewayDisconnect {
       black: botSide === 'black' ? botProfile : user,
       config: {
         isRanked: false,
-        readyTimeout: 50,
+        readyTimeout: 2000,
         timelimit: 1000 * 60 * 3 + 1000 * 30,
       },
     })
 
-    match[botSide].state.timer.setRemaining(5000)
+    match[botSide].state.timer.setRemaining(10)
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
@@ -120,12 +120,12 @@ export class QueueGateway implements OnGatewayDisconnect {
       black: botSide === 'black' ? botProfile : user,
       config: {
         isRanked: false,
-        readyTimeout: 100,
+        readyTimeout: 2000,
         timelimit: 1000 * 60 * 3 + 1000 * 30,
       },
     })
 
-    match[botSide].state.timer.setRemaining(5000)
+    match[botSide].state.timer.setRemaining(100)
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
@@ -164,12 +164,12 @@ export class QueueGateway implements OnGatewayDisconnect {
       black: botSide === 'black' ? botProfile : user,
       config: {
         isRanked: false,
-        readyTimeout: 3000,
+        readyTimeout: 2000,
         timelimit: 1000 * 60 * 60,
       },
     })
 
-    match[botSide].state.timer.setRemaining(5000)
+    match[botSide].state.timer.setRemaining(3000)
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
