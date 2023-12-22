@@ -64,7 +64,7 @@ export class QueueGateway implements OnGatewayDisconnect {
         rating: 1500,
         timestamp: new Date(),
       },
-      name: 'Magic3t Bot',
+      name: 'Random Bot',
       uid: 'randombot',
       isAnonymous: false,
     }
@@ -108,8 +108,8 @@ export class QueueGateway implements OnGatewayDisconnect {
         rating: 1500,
         timestamp: new Date(),
       },
-      name: 'Magic3t Bot',
-      uid: 'randombot',
+      name: 'Bot LMM 5',
+      uid: 'botlmm5',
       isAnonymous: false,
     }
 
@@ -129,7 +129,7 @@ export class QueueGateway implements OnGatewayDisconnect {
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
-      oponentId: 'randombot',
+      oponentId: 'botlmm5',
     })
 
     const bot = new LMMBot(match[botSide], 5)
@@ -152,8 +152,8 @@ export class QueueGateway implements OnGatewayDisconnect {
         rating: 1500,
         timestamp: new Date(),
       },
-      name: 'Magic3t Bot',
-      uid: 'randombot',
+      name: 'Bot LMM 9',
+      uid: 'botlmm9',
       isAnonymous: false,
     }
 
@@ -173,7 +173,7 @@ export class QueueGateway implements OnGatewayDisconnect {
 
     this.socketsService.emit(user.uid, 'matchFound', {
       matchId: match.id,
-      oponentId: 'randombot',
+      oponentId: 'botlmm9',
     })
 
     const bot = new LMMBot(match[botSide], 9)
