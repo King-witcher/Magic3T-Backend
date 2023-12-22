@@ -76,7 +76,7 @@ export class QueueGateway implements OnGatewayDisconnect {
       black: botSide === 'black' ? botProfile : user,
       config: {
         isRanked: false,
-        readyTimeout: 2000,
+        readyTimeout: 50,
         timelimit: 1000 * 60 * 3 + 1000 * 30,
       },
     })
@@ -120,7 +120,7 @@ export class QueueGateway implements OnGatewayDisconnect {
       black: botSide === 'black' ? botProfile : user,
       config: {
         isRanked: false,
-        readyTimeout: 2000,
+        readyTimeout: 100,
         timelimit: 1000 * 60 * 3 + 1000 * 30,
       },
     })
@@ -164,7 +164,7 @@ export class QueueGateway implements OnGatewayDisconnect {
       black: botSide === 'black' ? botProfile : user,
       config: {
         isRanked: false,
-        readyTimeout: 2000,
+        readyTimeout: 3000,
         timelimit: 1000 * 60 * 60,
       },
     })
