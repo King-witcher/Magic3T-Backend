@@ -10,7 +10,8 @@ export class ChoicePipe implements PipeTransform {
   }
 
   isChoice(value: unknown): value is Choice {
-    if (typeof value === 'number' && value % 1 === 0 && 0 < value && value < 10) return true
+    if (typeof value === 'number' && value % 1 === 0 && 0 < value && value < 10)
+      return true
     return false
   }
 }

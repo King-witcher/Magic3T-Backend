@@ -7,7 +7,7 @@ import {
 import { QueueSocket } from './types/QueueSocket'
 import { models } from '@/firebase/models'
 import { firebaseAuth } from '@/firebase/services'
-import { SocketsService } from './sockets.service'
+import { SocketsService } from '../sockets.service'
 
 @Injectable()
 export class QueueGuard implements CanActivate {

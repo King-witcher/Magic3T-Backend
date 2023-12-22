@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { QueueEntry } from './types/QueueEntry'
 import { MatchService } from '../match/match.service'
-import { SocketsService } from './sockets.service'
+import { SocketsService } from '../sockets.service'
 
 @Injectable()
 export class QueueService {

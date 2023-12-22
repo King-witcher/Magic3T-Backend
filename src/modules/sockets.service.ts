@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { EmitEvents, QueueSocket } from './types/QueueSocket'
+import { EmitEvents, QueueSocket } from './queue/types/QueueSocket'
 import { EventNames, EventParams } from 'socket.io/dist/typed-events'
 
 @Injectable()
@@ -24,9 +24,16 @@ export class SocketsService {
     if (this.socketMap[uid].length === 0) delete this.socketMap[uid]
   }
 
-  emit<Ev extends EventNames<EmitEvents>>(uid: string, event: Ev, ...data: EventParams<EmitEvents, Ev>) {
+  emit<Ev extends EventNames<EmitEvents>>(
+    uid: string,
+    event: Ev,
+    ...data: EventParams<EmitEvents, Ev>
+  ) {
     const sockets = this.socketMap[uid]
-    if (!sockets) return
+    if (!sockets) {
+      console.error(`Socket uid ${uid} not found.`)
+      return
+    }
 
     for (const socket of sockets) {
       socket.emit(event, ...data)

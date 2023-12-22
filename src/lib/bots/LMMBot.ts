@@ -20,10 +20,12 @@ export class LMMBot {
   constructor(private player: Player, private depth: number = 2) {}
 
   private state: GameState
+  private saidGG = false
 
   getChannel(): PlayerChannel {
     const player = this.player
     const depth = this.depth
+    let saidGG = false
     return {
       sendMessage(message: string) {
         function respond(message: string) {
@@ -82,6 +84,10 @@ export class LMMBot {
             player.onChoose(
               values.loses[Math.floor(Math.random() * values.loses.length)],
             )
+            if (!saidGG) {
+              saidGG = true
+              player.oponent.channel.sendMessage('gg')
+            }
           }
 
           player.match.emitState()

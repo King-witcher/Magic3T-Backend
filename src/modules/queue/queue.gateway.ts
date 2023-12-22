@@ -12,17 +12,20 @@ import { GamePlayerProfile } from './types/GamePlayerProfile'
 import { QueueGuard } from './queue.guard'
 import { QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
-import { SocketsService } from './sockets.service'
+import { SocketsService } from '../sockets.service'
 import { LMMBot } from '@/lib/bots/LMMBot'
-import Timer from '@/lib/Timer'
-import { RandomBot } from '@/lib/bots/RandomBot'
-import { CurrentPlayer } from '../match/decorators/currentPlayer.decorator'
+import { firestore } from 'firebase-admin'
+import { database } from '@/firebase/services'
+
+const BOT_TIMELIMIT = 1000 * 60 * 3
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: QueueServer
+
+  botConfig = database.doc('config/bots').get()
 
   constructor(
     private matchService: MatchService,
@@ -51,6 +54,30 @@ export class QueueGateway implements OnGatewayDisconnect {
     return
   }
 
+  @SubscribeMessage('bot-0')
+  async handleBot0(@CurrentUser() user: GamePlayerProfile) {
+    if (!this.matchService.isAvailable(user.uid)) {
+      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
+      this.socketsService.emit(user.uid, 'queueRejected')
+      return
+    }
+
+    const configSnapshot = await this.botConfig
+    const configs = configSnapshot.data()
+    if (!configs) return
+    const config = configs.bot0
+
+    if (config.model === 'random')
+      await this.matchService.createWithRandom(user, BOT_TIMELIMIT, true)
+    else if (config.model === 'lmm')
+      await this.matchService.createWithLMM(
+        user,
+        config.depth,
+        BOT_TIMELIMIT,
+        true,
+      )
+  }
+
   @SubscribeMessage('bot-1')
   async handleBot1(@CurrentUser() user: GamePlayerProfile) {
     if (!this.matchService.isAvailable(user.uid)) {
@@ -59,39 +86,22 @@ export class QueueGateway implements OnGatewayDisconnect {
       return
     }
 
-    const botProfile = {
-      glicko: {
-        deviation: 0,
-        rating: 300,
-        timestamp: new Date(),
-      },
-      name: 'Random Bot',
-      uid: 'randombot',
-      isAnonymous: false,
-    }
+    const configSnapshot = await this.botConfig
+    const configs = configSnapshot.data()
+    if (!configs) return
+    const config = configs.bot1
 
-    const botSide = Math.random() < 0.5 ? 'white' : 'black'
+    console.log(config)
 
-    const match = this.matchService.createMatch({
-      white: botSide === 'black' ? user : botProfile,
-      black: botSide === 'black' ? botProfile : user,
-      config: {
-        isRanked: false,
-        readyTimeout: 2000,
-        timelimit: 1000 * 60 * 3 + 1000 * 30,
-      },
-    })
-
-    match[botSide].state.timer.setRemaining(10)
-
-    this.socketsService.emit(user.uid, 'matchFound', {
-      matchId: match.id,
-      oponentId: 'randombot',
-    })
-
-    const bot = new RandomBot(match[botSide])
-    match[botSide].channel = bot.getChannel()
-    match[botSide].onReady()
+    if (config.model === 'random')
+      await this.matchService.createWithRandom(user, BOT_TIMELIMIT, true)
+    else if (config.model === 'lmm')
+      await this.matchService.createWithLMM(
+        user,
+        config.depth,
+        BOT_TIMELIMIT,
+        true,
+      )
   }
 
   @SubscribeMessage('bot-2')
@@ -102,39 +112,20 @@ export class QueueGateway implements OnGatewayDisconnect {
       return
     }
 
-    const botProfile = {
-      glicko: {
-        deviation: 0,
-        rating: 1800,
-        timestamp: new Date(),
-      },
-      name: 'Bot LMM 5',
-      uid: 'botlmm5',
-      isAnonymous: false,
-    }
+    const configSnapshot = await this.botConfig
+    const configs = configSnapshot.data()
+    if (!configs) return
+    const config = configs.bot2
 
-    const botSide = Math.random() < 0.5 ? 'white' : 'black'
-
-    const match = this.matchService.createMatch({
-      white: botSide === 'black' ? user : botProfile,
-      black: botSide === 'black' ? botProfile : user,
-      config: {
-        isRanked: false,
-        readyTimeout: 2000,
-        timelimit: 1000 * 60 * 3 + 1000 * 30,
-      },
-    })
-
-    match[botSide].state.timer.setRemaining(100)
-
-    this.socketsService.emit(user.uid, 'matchFound', {
-      matchId: match.id,
-      oponentId: 'botlmm5',
-    })
-
-    const bot = new LMMBot(match[botSide], 5)
-    match[botSide].channel = bot.getChannel()
-    match[botSide].onReady()
+    if (config.model === 'random')
+      await this.matchService.createWithRandom(user, BOT_TIMELIMIT, true)
+    else if (config.model === 'lmm')
+      await this.matchService.createWithLMM(
+        user,
+        config.depth,
+        BOT_TIMELIMIT,
+        true,
+      )
   }
 
   @SubscribeMessage('bot-3')
@@ -145,39 +136,20 @@ export class QueueGateway implements OnGatewayDisconnect {
       return
     }
 
-    const botProfile = {
-      glicko: {
-        deviation: 0,
-        rating: Infinity,
-        timestamp: new Date(),
-      },
-      name: 'Bot LMM 9',
-      uid: 'botlmm9',
-      isAnonymous: false,
-    }
+    const configSnapshot = await this.botConfig
+    const configs = configSnapshot.data()
+    if (!configs) return
+    const config = configs.bot3
 
-    const botSide = Math.random() < 0.5 ? 'white' : 'black'
-
-    const match = this.matchService.createMatch({
-      white: botSide === 'black' ? user : botProfile,
-      black: botSide === 'black' ? botProfile : user,
-      config: {
-        isRanked: false,
-        readyTimeout: 2000,
-        timelimit: 1000 * 60 * 60,
-      },
-    })
-
-    match[botSide].state.timer.setRemaining(3000)
-
-    this.socketsService.emit(user.uid, 'matchFound', {
-      matchId: match.id,
-      oponentId: 'botlmm9',
-    })
-
-    const bot = new LMMBot(match[botSide], 9)
-    match[botSide].channel = bot.getChannel()
-    match[botSide].onReady()
+    if (config.model === 'random')
+      await this.matchService.createWithRandom(user, BOT_TIMELIMIT, true)
+    else if (config.model === 'lmm')
+      await this.matchService.createWithLMM(
+        user,
+        config.depth,
+        BOT_TIMELIMIT,
+        true,
+      )
   }
 
   @SubscribeMessage('casual')
