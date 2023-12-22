@@ -61,7 +61,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     const botProfile = {
       glicko: {
         deviation: 0,
-        rating: 1500,
+        rating: 300,
         timestamp: new Date(),
       },
       name: 'Random Bot',
@@ -105,7 +105,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     const botProfile = {
       glicko: {
         deviation: 0,
-        rating: 1500,
+        rating: 1800,
         timestamp: new Date(),
       },
       name: 'Bot LMM 5',
@@ -149,7 +149,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     const botProfile = {
       glicko: {
         deviation: 0,
-        rating: 1500,
+        rating: Infinity,
         timestamp: new Date(),
       },
       name: 'Bot LMM 9',
