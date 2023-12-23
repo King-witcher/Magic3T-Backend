@@ -145,7 +145,7 @@ export class Match extends Publisher<'onFinish'> {
           ? 0
           : 0.5
 
-      const [whiteGlicko, blackGlicko] = getNewRatings(
+      const [whiteGlicko, blackGlicko] = await getNewRatings(
         this.white.profile.glicko,
         this.black.profile.glicko,
         whiteResult,

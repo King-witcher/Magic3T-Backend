@@ -2,7 +2,8 @@ import { cert, getApps, initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 import { getFirestore } from 'firebase-admin/firestore'
 
-if (!process.env.FIREBASE_ADMIN_CREDENTIALS) throw new Error('No Firebase Admin credentials')
+if (!process.env.FIREBASE_ADMIN_CREDENTIALS)
+  throw new Error('No Firebase Admin credentials')
 
 const firebase =
   getApps()[0] ||

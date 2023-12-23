@@ -1,5 +1,9 @@
 import { WithId } from '@/firebase/models/types/WithId'
-import { FirestoreDataConverter, QueryDocumentSnapshot, Timestamp } from 'firebase-admin/firestore'
+import {
+  FirestoreDataConverter,
+  QueryDocumentSnapshot,
+  Timestamp,
+} from 'firebase-admin/firestore'
 import { Firestorify } from './types/Firestorify'
 import { OptionalProp } from '@/types/OptionalProp'
 
