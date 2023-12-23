@@ -7,7 +7,11 @@ const pisqr = Math.PI ** 2
 async function getC() {
   const configSnap = await database.doc('config/rating').get()
   const configs = configSnap.data()
-  return configs?.deviationInflation || 0
+  const inflationTime = configs?.deviationInflationTime || 180
+  const c = Math.sqrt(
+    (350 ** 2 - 40 ** 2) / (inflationTime * 24 * 60 * 60 * 1000),
+  )
+  return c
 }
 
 function getAge(glicko: Glicko) {
