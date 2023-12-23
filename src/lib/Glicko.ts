@@ -20,7 +20,6 @@ async function getRD(player: Glicko, c: number) {
 
   const t = getAge(player)
   const candidate = Math.sqrt(player.deviation ** 2 + c ** 2 * t)
-  console.log(player.deviation, candidate)
   return Math.min(candidate, 350)
 }
 
