@@ -58,7 +58,11 @@ export class MatchGateway implements OnGatewayDisconnect {
   handleDisconnect(client: PlayerSocket) {
     if (client.data.player && client.data.player.getStatus() !== null) {
       Logger.log('Player forfeits by disconnection', 'MatchGateway')
-      client.data.player.forfeit()
+      setTimeout(() => {
+        if (!client.connected) {
+          client.data.player.forfeit()
+        }
+      }, 5000)
     }
   }
 }
