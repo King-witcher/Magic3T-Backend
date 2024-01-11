@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Match, MatchParams } from './lib/Match'
-import { GamePlayerProfile } from '../queue/types/GamePlayerProfile'
 import { SocketsService } from '../sockets.service'
-import { LMMBot } from '@/lib/bots/LMMBot'
-import { models } from '@/firebase/models'
-import { RandomBot } from '@/lib/bots/RandomBot'
 import { PlayerSocket } from './types/PlayerSocket'
 
 @Injectable()
@@ -30,78 +26,6 @@ export class MatchService {
     )
 
     return (this.matches[match.id] = match)
-  }
-
-  async createWithRandom(
-    player: GamePlayerProfile,
-    timelimit: number,
-    isRanked = false,
-  ) {
-    const { glicko, nickname, _id } = await models.users.getById('randombot')
-
-    const botProfile = {
-      glicko,
-      name: nickname,
-      uid: _id,
-      isAnonymous: false,
-    }
-
-    const botSide = Math.random() < 0.5 ? 'white' : 'black'
-
-    const match = this.createMatch({
-      white: botSide === 'black' ? player : botProfile,
-      black: botSide === 'black' ? botProfile : player,
-      config: {
-        isRanked,
-        readyTimeout: 2000,
-        timelimit,
-      },
-    })
-
-    match[botSide].state.timer.setRemaining(10000)
-
-    const bot = new RandomBot(match[botSide])
-    match[botSide].channel = bot.getChannel()
-    match[botSide].onReady()
-
-    return match
-  }
-
-  async createWithLMM(
-    player: GamePlayerProfile,
-    depth: 2 | 5 | 9,
-    timelimit: number,
-    isRanked = false,
-  ) {
-    const { glicko, nickname, _id } = await models.users.getById(
-      `botlmm${depth}`,
-    )
-
-    const botProfile = {
-      glicko,
-      name: nickname,
-      uid: _id,
-      isAnonymous: false,
-    }
-
-    const botSide = Math.random() < 0.5 ? 'white' : 'black'
-
-    const match = this.createMatch({
-      white: botSide === 'black' ? player : botProfile,
-      black: botSide === 'black' ? botProfile : player,
-      config: {
-        isRanked,
-        readyTimeout: 2000,
-        timelimit,
-      },
-    })
-
-    match[botSide].state.timer.setRemaining(10000)
-
-    const bot = new LMMBot(match[botSide], depth)
-    match[botSide].channel = bot.getChannel()
-    match[botSide].onReady()
-    return match
   }
 
   deleteMatch(id: string) {
