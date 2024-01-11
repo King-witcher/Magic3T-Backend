@@ -5,7 +5,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
-import { PlayerSocket } from './types/PlayerSocket'
+import { PlayerEmitType, PlayerSocket } from './types/PlayerSocket'
 import { CurrentPlayer } from './decorators/currentPlayer.decorator'
 import { Player } from './lib/Player'
 import { CurrentMatch } from './decorators/currentMatch.decorator'
@@ -13,10 +13,13 @@ import { Match } from './lib/Match'
 import { ChoicePipe } from './choice.pipe'
 import { Choice } from '../../types/Choice'
 import { MatchGuard } from './match.guard'
+import { SocketsService } from '../sockets.service'
 
 @UseGuards(MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
 export class MatchGateway implements OnGatewayDisconnect {
+  constructor(private socketsService: SocketsService<PlayerEmitType>) {}
+
   @SubscribeMessage('message')
   handleMessage(
     @CurrentPlayer() player: Player,
@@ -56,13 +59,10 @@ export class MatchGateway implements OnGatewayDisconnect {
   }
 
   handleDisconnect(client: PlayerSocket) {
-    if (client.data.player && client.data.player.getStatus() !== null) {
-      Logger.log('Player forfeits by disconnection', 'MatchGateway')
-      setTimeout(() => {
-        if (!client.connected) {
-          client.data.player.forfeit()
-        }
-      }, 5000)
+    const player = client.data.player
+    if (player) {
+      console.log(`Player ${player.profile.name} has lost connection.`)
+      this.socketsService.remove(player.profile.uid, client)
     }
   }
 }

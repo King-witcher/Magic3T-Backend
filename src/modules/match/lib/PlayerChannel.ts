@@ -1,5 +1,7 @@
+import { SocketsService } from '@/modules/sockets.service'
 import { GameState } from '../types/POVGameState'
-import { PlayerSocket } from '../types/PlayerSocket'
+import { PlayerEmitType } from '../types/PlayerSocket'
+import { Player } from './Player'
 
 export interface PlayerChannel {
   sendState(state: GameState): void
@@ -8,18 +10,25 @@ export interface PlayerChannel {
 }
 
 export class SocketPlayerChannel implements PlayerChannel {
-  constructor(private socket: PlayerSocket) {}
+  constructor(
+    private player: Player,
+    private socketsService: SocketsService<PlayerEmitType>,
+  ) {}
 
   sendState(state: GameState): void {
-    this.socket.emit('gameState', JSON.stringify(state))
+    this.socketsService.emit(
+      this.player.profile.uid,
+      'gameState',
+      JSON.stringify(state),
+    )
   }
 
   sendMessage(message: string) {
-    this.socket.emit('message', message)
+    this.socketsService.emit(this.player.profile.uid, 'message', message)
   }
 
   sendOponentUid(uid: string): void {
-    this.socket.emit('oponentUid', uid)
+    this.socketsService.emit(this.player.profile.uid, 'oponentUid', uid)
   }
 }
 

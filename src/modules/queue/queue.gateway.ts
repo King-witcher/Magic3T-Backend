@@ -10,14 +10,9 @@ import { UseGuards } from '@nestjs/common'
 import { CurrentUser } from './decorators/currentUser.decorator'
 import { GamePlayerProfile } from './types/GamePlayerProfile'
 import { QueueGuard } from './queue.guard'
-import { QueueServer, QueueSocket } from './types/QueueSocket'
+import { QueueEmitType, QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
 import { SocketsService } from '../sockets.service'
-import { LMMBot } from '@/lib/bots/LMMBot'
-import { firestore } from 'firebase-admin'
-import { database } from '@/firebase/services'
-
-const BOT_TIMELIMIT = 1000 * 60 * 3
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -25,12 +20,10 @@ export class QueueGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: QueueServer
 
-  botConfig = database.doc('config/bots').get()
-
   constructor(
     private matchService: MatchService,
     private queueService: QueueService,
-    public socketsService: SocketsService,
+    public socketsService: SocketsService<QueueEmitType>,
   ) {
     // Counts how many users are online and update everyone
     setInterval(() => {
@@ -56,100 +49,22 @@ export class QueueGateway implements OnGatewayDisconnect {
 
   @SubscribeMessage('bot-0')
   async handleBot0(@CurrentUser() user: GamePlayerProfile) {
-    if (!this.matchService.isAvailable(user.uid)) {
-      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
-      this.socketsService.emit(user.uid, 'queueRejected')
-      return
-    }
-
-    const configSnapshot = await this.botConfig
-    const configs = configSnapshot.data()
-    if (!configs) return
-    const config = configs.bot0
-
-    if (config.model === 'random')
-      await this.matchService.createWithRandom(user, BOT_TIMELIMIT, true)
-    else if (config.model === 'lmm')
-      await this.matchService.createWithLMM(
-        user,
-        config.depth,
-        BOT_TIMELIMIT,
-        true,
-      )
+    await this.queueService.createMatchVsCPU(user, 'bot0')
   }
 
   @SubscribeMessage('bot-1')
   async handleBot1(@CurrentUser() user: GamePlayerProfile) {
-    if (!this.matchService.isAvailable(user.uid)) {
-      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
-      this.socketsService.emit(user.uid, 'queueRejected')
-      return
-    }
-
-    const configSnapshot = await this.botConfig
-    const configs = configSnapshot.data()
-    if (!configs) return
-    const config = configs.bot1
-
-    console.log(config)
-
-    if (config.model === 'random')
-      await this.matchService.createWithRandom(user, BOT_TIMELIMIT, true)
-    else if (config.model === 'lmm')
-      await this.matchService.createWithLMM(
-        user,
-        config.depth,
-        BOT_TIMELIMIT,
-        true,
-      )
+    await this.queueService.createMatchVsCPU(user, 'bot1')
   }
 
   @SubscribeMessage('bot-2')
   async handleBot2(@CurrentUser() user: GamePlayerProfile) {
-    if (!this.matchService.isAvailable(user.uid)) {
-      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
-      this.socketsService.emit(user.uid, 'queueRejected')
-      return
-    }
-
-    const configSnapshot = await this.botConfig
-    const configs = configSnapshot.data()
-    if (!configs) return
-    const config = configs.bot2
-
-    if (config.model === 'random')
-      await this.matchService.createWithRandom(user, BOT_TIMELIMIT, true)
-    else if (config.model === 'lmm')
-      await this.matchService.createWithLMM(
-        user,
-        config.depth,
-        BOT_TIMELIMIT,
-        true,
-      )
+    await this.queueService.createMatchVsCPU(user, 'bot2')
   }
 
   @SubscribeMessage('bot-3')
   async handleBot3(@CurrentUser() user: GamePlayerProfile) {
-    if (!this.matchService.isAvailable(user.uid)) {
-      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
-      this.socketsService.emit(user.uid, 'queueRejected')
-      return
-    }
-
-    const configSnapshot = await this.botConfig
-    const configs = configSnapshot.data()
-    if (!configs) return
-    const config = configs.bot3
-
-    if (config.model === 'random')
-      await this.matchService.createWithRandom(user, BOT_TIMELIMIT, true)
-    else if (config.model === 'lmm')
-      await this.matchService.createWithLMM(
-        user,
-        config.depth,
-        BOT_TIMELIMIT,
-        true,
-      )
+    await this.queueService.createMatchVsCPU(user, 'bot3')
   }
 
   @SubscribeMessage('casual')

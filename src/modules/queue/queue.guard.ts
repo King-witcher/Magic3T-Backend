@@ -11,7 +11,7 @@ import { SocketsService } from '../sockets.service'
 
 @Injectable()
 export class QueueGuard implements CanActivate {
-  constructor(public socketsService: SocketsService) {}
+  constructor(public socketsService: SocketsService<QueueSocket>) {}
 
   async canActivate(context: ExecutionContext) {
     const socket = context.switchToWs().getClient<QueueSocket>()

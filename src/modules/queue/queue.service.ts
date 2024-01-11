@@ -2,6 +2,15 @@ import { Injectable } from '@nestjs/common'
 import { QueueEntry } from './types/QueueEntry'
 import { MatchService } from '../match/match.service'
 import { SocketsService } from '../sockets.service'
+import { QueueEmitType } from './types/QueueSocket'
+import { GamePlayerProfile } from './types/GamePlayerProfile'
+import { database } from '@/firebase/services'
+import { models } from '@/firebase/models'
+import { RandomBot } from '@/lib/bots/RandomBot'
+import { LMMBot } from '@/lib/bots/LMMBot'
+
+const botConfig = database.doc('config/bots').get()
+const BOT_TIMELIMIT = 1000 * 60 * 3
 
 @Injectable()
 export class QueueService {
@@ -10,7 +19,7 @@ export class QueueService {
 
   constructor(
     private matchService: MatchService,
-    private socketsService: SocketsService,
+    private socketsService: SocketsService<QueueEmitType>,
   ) {}
 
   isAvailable(uid: string) {
@@ -66,6 +75,56 @@ export class QueueService {
       casual: this.casualPendingEntry ? 1 : 0,
       ranked: this.rankedPendingEntry ? 1 : 0,
     }
+  }
+
+  async createMatchVsCPU(user: GamePlayerProfile, botName: string) {
+    if (!this.matchService.isAvailable(user.uid)) {
+      console.error(
+        `Player "${user.name}" unavailable for queue: already in game.`,
+      )
+      this.socketsService.emit(user.uid, 'queueRejected')
+      return
+    }
+
+    // Get the bot specific config
+    const configSnapshot = await botConfig
+    const configs = configSnapshot.data()
+    if (!configs) return
+    const config = configs[botName]
+    const { glicko, nickname, _id } = await models.users.getById(config.uid)
+
+    const botProfile: GamePlayerProfile = {
+      glicko,
+      name: nickname,
+      uid: _id,
+      isAnonymous: false,
+    }
+
+    // Create a match
+    const botSide = Math.random() < 0.5 ? 'white' : 'black'
+    const match = this.matchService.createMatch({
+      white: botSide === 'black' ? user : botProfile,
+      black: botSide === 'black' ? botProfile : user,
+      config: {
+        isRanked: true,
+        readyTimeout: 2000,
+        timelimit: BOT_TIMELIMIT,
+      },
+    })
+
+    // Create and inject the bot into the match
+    const bot =
+      config.model === 'random'
+        ? new RandomBot(match[botSide])
+        : new LMMBot(match[botSide], config.depth)
+
+    match[botSide].channel = bot.getChannel()
+    match[botSide].onReady()
+
+    this.socketsService.emit(user.uid, 'matchFound', {
+      matchId: match.id,
+      oponentId: match.playerMap[user.uid].oponent.profile.uid,
+    })
   }
 
   createMatch(entry1: QueueEntry, entry2: QueueEntry, ranked?: boolean) {

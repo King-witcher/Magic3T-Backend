@@ -5,13 +5,15 @@ import { SocketsService } from '../sockets.service'
 import { LMMBot } from '@/lib/bots/LMMBot'
 import { models } from '@/firebase/models'
 import { RandomBot } from '@/lib/bots/RandomBot'
+import { PlayerSocket } from './types/PlayerSocket'
 
 @Injectable()
 export class MatchService {
   matches: Record<string, Match> = {}
+  //** Maps player ids to matches */
   playerMatchMap: Record<string, Match> = {}
 
-  constructor(private socketsService: SocketsService) {}
+  constructor(private socketsService: SocketsService<PlayerSocket>) {}
 
   createMatch(params: MatchParams) {
     const match = new Match(params)
@@ -58,14 +60,11 @@ export class MatchService {
 
     match[botSide].state.timer.setRemaining(10000)
 
-    this.socketsService.emit(player.uid, 'matchFound', {
-      matchId: match.id,
-      oponentId: 'randombot',
-    })
-
     const bot = new RandomBot(match[botSide])
     match[botSide].channel = bot.getChannel()
     match[botSide].onReady()
+
+    return match
   }
 
   async createWithLMM(
@@ -74,43 +73,35 @@ export class MatchService {
     timelimit: number,
     isRanked = false,
   ) {
-    try {
-      const { glicko, nickname, _id } = await models.users.getById(
-        `botlmm${depth}`,
-      )
+    const { glicko, nickname, _id } = await models.users.getById(
+      `botlmm${depth}`,
+    )
 
-      const botProfile = {
-        glicko,
-        name: nickname,
-        uid: _id,
-        isAnonymous: false,
-      }
-
-      const botSide = Math.random() < 0.5 ? 'white' : 'black'
-
-      const match = this.createMatch({
-        white: botSide === 'black' ? player : botProfile,
-        black: botSide === 'black' ? botProfile : player,
-        config: {
-          isRanked,
-          readyTimeout: 2000,
-          timelimit,
-        },
-      })
-
-      match[botSide].state.timer.setRemaining(10000)
-
-      this.socketsService.emit(player.uid, 'matchFound', {
-        matchId: match.id,
-        oponentId: `botlmm${depth}`,
-      })
-
-      const bot = new LMMBot(match[botSide], depth)
-      match[botSide].channel = bot.getChannel()
-      match[botSide].onReady()
-    } catch (e) {
-      console.error(e)
+    const botProfile = {
+      glicko,
+      name: nickname,
+      uid: _id,
+      isAnonymous: false,
     }
+
+    const botSide = Math.random() < 0.5 ? 'white' : 'black'
+
+    const match = this.createMatch({
+      white: botSide === 'black' ? player : botProfile,
+      black: botSide === 'black' ? botProfile : player,
+      config: {
+        isRanked,
+        readyTimeout: 2000,
+        timelimit,
+      },
+    })
+
+    match[botSide].state.timer.setRemaining(10000)
+
+    const bot = new LMMBot(match[botSide], depth)
+    match[botSide].channel = bot.getChannel()
+    match[botSide].onReady()
+    return match
   }
 
   deleteMatch(id: string) {
