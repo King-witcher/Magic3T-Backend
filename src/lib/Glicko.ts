@@ -1,65 +1,16 @@
+import { getRatingConfig } from '@/firebase/models/config'
 import { Glicko } from '@/firebase/models/users/User'
-import { database } from '@/firebase/services'
 
 const q = Math.LN10 / 400
-const pisqr = Math.PI ** 2
-
-async function getC() {
-  const configSnap = await database.doc('config/rating').get()
-  const configs = configSnap.data()
-  const inflationTime = configs?.deviationInflationTime || 180
-  const c = Math.sqrt(
-    (350 ** 2 - 40 ** 2) / (inflationTime * 24 * 60 * 60 * 1000),
-  )
-  return c
-}
+const piSquare = Math.PI ** 2
 
 function getAge(glicko: Glicko) {
   const now = Date.now()
   return now - glicko.timestamp.getTime()
 }
 
-async function getRD(player: Glicko, c: number) {
-  if (player.deviation === 0) return 0 // Tapa-buracos para prevenir que o Glicko do lmm2 infle com o tempo
-
-  const t = getAge(player)
-  const candidate = Math.sqrt(player.deviation ** 2 + c ** 2 * t)
-  return Math.min(candidate, 350)
-}
-
-async function E(player: Glicko, oponent: Glicko, c: number) {
-  const rdi = await getRD(oponent, c)
-  return 1 / (1 + 10 ** ((g(rdi) * (oponent.rating - player.rating)) / 400))
-}
-
 function g(rd: number) {
-  return 1 / Math.sqrt(1 + (3 * q ** 2 * rd ** 2) / pisqr)
-}
-
-async function newRating(
-  player: Glicko,
-  oponent: Glicko,
-  s: number,
-  c: number,
-) {
-  const rd = await getRD(player, c)
-  const rdi = await getRD(oponent, c)
-  const estimatedScore = await E(player, oponent, c)
-  const dsqr =
-    1 / (q ** 2 * g(rdi) ** 2 * estimatedScore * (1 - estimatedScore))
-  return (
-    player.rating +
-    (q / (1 / rd ** 2 + 1 / dsqr)) * g(rdi) * (s - estimatedScore)
-  )
-}
-
-async function newDeviation(player: Glicko, oponent: Glicko, c: number) {
-  const rd = await getRD(player, c)
-  const rdi = await getRD(oponent, c)
-  const estimatedScore = await E(player, oponent, c) // Repeated calculations. Refactor.
-  const dsqr =
-    1 / (q ** 2 * g(rdi) ** 2 * estimatedScore * (1 - estimatedScore))
-  return Math.sqrt(1 / (1 / rd ** 2 + 1 / dsqr))
+  return 1 / Math.sqrt(1 + (3 * q ** 2 * rd ** 2) / piSquare)
 }
 
 export async function getNewRatings(
@@ -67,24 +18,73 @@ export async function getNewRatings(
   player2: Glicko,
   player1Score: number,
 ): Promise<[Glicko, Glicko]> {
-  const c = await getC()
+  const config = await getRatingConfig()
 
-  const rating1 = await newRating(player1, player2, player1Score, c)
-  const rd1 = await newDeviation(player1, player2, c)
+  const inflationConstant = Math.sqrt(
+    (config.initialRD ** 2 - 40 ** 2) /
+      (config.deviationInflationTime * 24 * 60 * 60 * 1000),
+  )
 
-  const rating2 = await newRating(player2, player1, 1 - player1Score, c)
-  const rd2 = await newDeviation(player2, player1, c)
+  const rating1 = newRating(player1, player2, player1Score)
+  const deviation1 = newDeviation(player1, player2)
+
+  const rating2 = newRating(player2, player1, 1 - player1Score)
+  const deviation2 = newDeviation(player2, player1)
 
   return [
     {
       rating: rating1,
-      deviation: rd1,
+      deviation: deviation1,
       timestamp: new Date(),
     },
     {
       rating: rating2,
-      deviation: rd2,
+      deviation: deviation2,
       timestamp: new Date(),
     },
   ]
+
+  function getCurrentDeviation(player: Glicko) {
+    if (player.deviation === 0) return 0 // Tapa-buracos para prevenir que o Glicko do lmm2 infle com o tempo
+
+    const age = getAge(player)
+    const agedDeviation = Math.sqrt(
+      player.deviation ** 2 + inflationConstant ** 2 * age,
+    )
+    return Math.min(agedDeviation, config.initialRating)
+  }
+
+  function getExpectedScore(player: Glicko, oponent: Glicko) {
+    const oponentDeviation = getCurrentDeviation(oponent)
+    return (
+      1 /
+      (1 +
+        10 ** ((g(oponentDeviation) * (oponent.rating - player.rating)) / 400))
+    )
+  }
+
+  function newRating(player: Glicko, oponent: Glicko, s: number) {
+    const playerDeviation = getCurrentDeviation(player)
+    const oponentDeviation = getCurrentDeviation(oponent)
+    const expectedScore = getExpectedScore(player, oponent)
+    const dSquare =
+      1 /
+      (q ** 2 * g(oponentDeviation) ** 2 * expectedScore * (1 - expectedScore))
+    return (
+      player.rating +
+      (q / (1 / playerDeviation ** 2 + 1 / dSquare)) *
+        g(oponentDeviation) *
+        (s - expectedScore)
+    )
+  }
+
+  function newDeviation(player: Glicko, oponent: Glicko) {
+    const playerDeviation = getCurrentDeviation(player)
+    const oponentDeviation = getCurrentDeviation(oponent)
+    const expectedScore = getExpectedScore(player, oponent) // Repeated calculations. Refactor.
+    const dSquare =
+      1 /
+      (q ** 2 * g(oponentDeviation) ** 2 * expectedScore * (1 - expectedScore))
+    return Math.sqrt(1 / (1 / playerDeviation ** 2 + 1 / dSquare))
+  }
 }
