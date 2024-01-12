@@ -36,6 +36,9 @@ export class LMMBot {
           case 'oi':
             respond('oi')
             break
+          case 'ping':
+            respond('pong')
+            break
         }
       },
       sendOponentUid() {
