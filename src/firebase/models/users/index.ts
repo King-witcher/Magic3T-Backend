@@ -4,10 +4,10 @@ import { Glicko, User } from './User'
 import { NotFoundError } from '../errors/NotFoundError'
 
 const converter = getConverter<User>()
-const usersCollection = database.collection('users').withConverter(converter)
+const collection = database.collection('users').withConverter(converter)
 
 async function getById(id: string): Promise<User> {
-  const doc = await usersCollection.doc(id).get()
+  const doc = await collection.doc(id).get()
   const data = doc.data()
 
   if (!data) throw new NotFoundError('users', id)
@@ -16,9 +16,9 @@ async function getById(id: string): Promise<User> {
 }
 
 async function updateGlicko(id: string, glicko: Glicko) {
-  await usersCollection.doc(id).update({
+  await collection.doc(id).update({
     glicko: glicko,
   })
 }
 
-export const users = { getById, updateGlicko }
+export const users = { collection, getById, updateGlicko }

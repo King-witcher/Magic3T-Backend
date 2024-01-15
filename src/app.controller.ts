@@ -1,11 +1,10 @@
-import { Controller, Get, ImATeapotException, Req } from '@nestjs/common'
-import { Request } from 'express'
+import { Controller, Get, ImATeapotException } from '@nestjs/common'
 const Package = require('../package.json')
 
 @Controller()
 export class AppController {
   @Get('teapot')
-  teapot() {
+  async teapot() {
     throw new ImATeapotException()
   }
 

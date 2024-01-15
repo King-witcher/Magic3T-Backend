@@ -1,5 +1,4 @@
 import { Choice } from '@/types/Choice'
-import { create } from 'domain'
 
 export type Tree = {
   branches: {

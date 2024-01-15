@@ -5,6 +5,8 @@ import { models } from '@/firebase/models'
 import { MatchRegistry } from '@/firebase/models/matches/MatchRegistry'
 import Publisher from '@/lib/Publisher'
 import { getId } from '@/lib/GetId'
+import { FieldValue, UpdateData } from 'firebase-admin/firestore'
+import { User } from '@/firebase/models/users/User'
 
 export type ForfeitSchedule = {
   player: Player
@@ -134,9 +136,29 @@ export class Match extends Publisher<'onFinish'> {
     this.publish('onFinish')
   }
 
+  // REFACT!
   async processResult() {
     const white = this.white
     const black = this.black
+
+    const whiteUpdate: UpdateData<User> = {}
+    const blackUpdate: UpdateData<User> = {}
+
+    switch (this.history.winner) {
+      case 'white':
+        whiteUpdate['stats.wins'] = FieldValue.increment(1)
+        blackUpdate['stats.loses'] = FieldValue.increment(1)
+        break
+      case 'black':
+        whiteUpdate['stats.loses'] = FieldValue.increment(1)
+        blackUpdate['stats.wins'] = FieldValue.increment(1)
+        break
+      case 'none':
+        whiteUpdate['stats.draws'] = FieldValue.increment(1)
+        blackUpdate['stats.draws'] = FieldValue.increment(1)
+        break
+    }
+
     if (this.config.isRanked) {
       const whiteResult =
         this.history.winner === 'white'
@@ -154,11 +176,14 @@ export class Match extends Publisher<'onFinish'> {
       this.history.white.rv = whiteGlicko.rating - white.profile.glicko.rating
       this.history.black.rv = blackGlicko.rating - black.profile.glicko.rating
 
-      await Promise.all([
-        models.users.updateGlicko(white.profile.uid, whiteGlicko),
-        models.users.updateGlicko(black.profile.uid, blackGlicko),
-      ])
+      whiteUpdate.glicko = whiteGlicko
+      blackUpdate.glicko = blackGlicko
     }
-    await models.matches.save(this.history)
+
+    await Promise.all([
+      models.matches.save(this.history),
+      models.users.collection.doc(black.profile.uid).update(blackUpdate),
+      models.users.collection.doc(white.profile.uid).update(whiteUpdate),
+    ])
   }
 }

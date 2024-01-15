@@ -8,6 +8,11 @@ export interface Glicko {
 
 export interface User extends WithId {
   nickname: string
-  role: 'admin' | 'player'
+  role: 'player' | 'bot' | 'creator'
   glicko: Glicko
+  stats: {
+    wins: number
+    draws: number
+    defeats: number
+  }
 }
