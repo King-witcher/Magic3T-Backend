@@ -173,11 +173,22 @@ export class Match extends Publisher<'onFinish'> {
         whiteResult,
       )
 
-      this.history.white.rv = whiteGlicko.rating - white.profile.glicko.rating
-      this.history.black.rv = blackGlicko.rating - black.profile.glicko.rating
+      const whiteRV = (this.history.white.rv =
+        whiteGlicko.rating - white.profile.glicko.rating)
+      const blackRV = (this.history.black.rv =
+        blackGlicko.rating - black.profile.glicko.rating)
 
       whiteUpdate.glicko = whiteGlicko
       blackUpdate.glicko = blackGlicko
+
+      this.white.channel.sendRatingsVariation({
+        player: whiteRV,
+        oponent: blackRV,
+      })
+      this.black.channel.sendRatingsVariation({
+        player: blackRV,
+        oponent: whiteRV,
+      })
     }
 
     await Promise.all([

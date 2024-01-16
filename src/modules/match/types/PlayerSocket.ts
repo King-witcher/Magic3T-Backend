@@ -12,6 +12,7 @@ export type PlayerEmitType = {
   message(message: string)
   oponentUid(uid: string)
   gameState(state: string)
+  ratingsVariation(data: { player: number; oponent: number })
 }
 
 export type PlayerSocket = Socket<

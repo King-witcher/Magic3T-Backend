@@ -7,6 +7,7 @@ export interface PlayerChannel {
   sendState(state: GameState): void
   sendMessage(message: string): void
   sendOponentUid(uid: string): void
+  sendRatingsVariation(data: { player: number; oponent: number }): void
 }
 
 export class SocketPlayerChannel implements PlayerChannel {
@@ -14,6 +15,9 @@ export class SocketPlayerChannel implements PlayerChannel {
     private player: Player,
     private socketsService: SocketsService<PlayerEmitType>,
   ) {}
+  sendRatingsVariation(data: { player: number; oponent: number }): void {
+    this.socketsService.emit(this.player.profile.uid, 'ratingsVariation', data)
+  }
 
   sendState(state: GameState): void {
     this.socketsService.emit(
@@ -33,6 +37,9 @@ export class SocketPlayerChannel implements PlayerChannel {
 }
 
 export class NullPlayerChannel implements PlayerChannel {
+  sendRatingsVariation(data: { player: number; oponent: number }): void {
+    throw new Error('Method not implemented.')
+  }
   sendState(): void {
     // Do nothing
   }

@@ -14,6 +14,9 @@ export class RandomBot {
       sendMessage() {
         // dn
       },
+      sendRatingsVariation() {
+        //dn
+      },
       sendOponentUid() {
         //dn
       },

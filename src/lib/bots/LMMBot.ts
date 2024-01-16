@@ -44,6 +44,9 @@ export class LMMBot {
       sendOponentUid() {
         //dn
       },
+      sendRatingsVariation() {
+        //dn
+      },
       sendState(state) {
         if (state.turn) {
           const matchChoices = getMatchChoices(state, player.side)
