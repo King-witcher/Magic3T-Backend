@@ -128,12 +128,14 @@ export class QueueService {
   }
 
   createMatch(entry1: QueueEntry, entry2: QueueEntry, ranked?: boolean) {
+    const rnd = Math.random() < 0.5
+
     const match = this.matchService.createMatch({
-      white: entry1.user,
-      black: entry2.user,
+      white: rnd ? entry1.user : entry2.user,
+      black: rnd ? entry2.user : entry1.user,
       config: {
         isRanked: ranked || false,
-        readyTimeout: 2000,
+        readyTimeout: 1000 * 5,
         timelimit: 1000 * 105,
       },
     })

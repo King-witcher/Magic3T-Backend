@@ -53,24 +53,26 @@ export class Match extends Publisher<'onFinish'> {
     }))
 
     this.readyTimeout = setTimeout(() => {
-      if (this.black.state.ready && this.white.state.ready) return
-      else if (this.black.state.ready) this.white.forfeit()
-      else if (this.white.state.ready) this.black.forfeit()
-      else {
-        const time = this.getCurrentTime()
-        this.history.moves.push({
-          move: 'timeout',
-          player: 'black',
-          time,
-        })
-        this.history.moves.push({
-          move: 'timeout',
-          player: 'white',
-          time,
-        })
-        this.history.winner = 'none'
-        this.processResult()
-      }
+      this.black.onReady()
+      this.white.onReady()
+      // if (this.black.state.ready && this.white.state.ready) return
+      // else if (this.black.state.ready) this.white.forfeit()
+      // else if (this.white.state.ready) this.black.forfeit()
+      // else {
+      //   const time = this.getCurrentTime()
+      //   this.history.moves.push({
+      //     move: 'timeout',
+      //     player: 'black',
+      //     time,
+      //   })
+      //   this.history.moves.push({
+      //     move: 'timeout',
+      //     player: 'white',
+      //     time,
+      //   })
+      //   this.history.winner = 'none'
+      //   this.processResult()
+      // }
     }, config.readyTimeout)
 
     whitePlayer.setOponent(blackPlayer)
