@@ -147,10 +147,10 @@ export class Match extends Publisher<'onFinish'> {
     switch (this.history.winner) {
       case 'white':
         whiteUpdate['stats.wins'] = FieldValue.increment(1)
-        blackUpdate['stats.loses'] = FieldValue.increment(1)
+        blackUpdate['stats.defeats'] = FieldValue.increment(1)
         break
       case 'black':
-        whiteUpdate['stats.loses'] = FieldValue.increment(1)
+        whiteUpdate['stats.defeats'] = FieldValue.increment(1)
         blackUpdate['stats.wins'] = FieldValue.increment(1)
         break
       case 'none':
