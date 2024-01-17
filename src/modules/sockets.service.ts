@@ -11,6 +11,12 @@ import { Socket } from 'socket.io'
 export class SocketsService<EmitType extends EventsMap> {
   private socketMap: Record<string, Socket<DefaultEventsMap, EmitType>[]> = {}
 
+  constructor() {
+    setInterval(() => {
+      console.log(this.socketMap)
+    }, 1000 * 10)
+  }
+
   add(uid: string, socket: Socket<DefaultEventsMap, EmitType>) {
     if (this.socketMap[uid] && this.socketMap[uid].includes(socket)) return
 
