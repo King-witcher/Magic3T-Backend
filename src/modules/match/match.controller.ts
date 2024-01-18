@@ -5,6 +5,7 @@ import {
   Get,
   Headers,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { MatchService } from './match.service'
 import { DecodedIdToken } from 'firebase-admin/auth'
@@ -16,6 +17,10 @@ export class MatchController {
   @Get('matchId')
   async handleGetMatch(@Headers('Authorization') authorization: string) {
     let authData: DecodedIdToken
+    if (!authorization) {
+      throw new UnauthorizedException('No Authorization header')
+    }
+
     try {
       authData = await firebaseAuth.verifyIdToken(
         authorization.replace('Bearer ', ''),
