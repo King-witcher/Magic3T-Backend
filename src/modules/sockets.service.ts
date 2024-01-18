@@ -13,7 +13,9 @@ export class SocketsService<EmitType extends EventsMap> {
 
   constructor() {
     setInterval(() => {
-      console.log(this.socketMap)
+      console.log(
+        Object.keys(this.socketMap).map((id) => this.socketMap[id][0]?.data),
+      )
     }, 1000 * 10)
   }
 
