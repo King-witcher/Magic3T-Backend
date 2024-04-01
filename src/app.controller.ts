@@ -5,7 +5,7 @@ const Package = require('../package.json')
 @Controller()
 export class AppController {
   @Get('teapot')
-  async teapot() {
+  teapot(): never {
     throw new ImATeapotException()
   }
 

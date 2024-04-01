@@ -37,7 +37,7 @@ export class SocketPlayerChannel implements PlayerChannel {
 }
 
 export class NullPlayerChannel implements PlayerChannel {
-  sendRatingsVariation(data: { player: number; oponent: number }): void {
+  sendRatingsVariation(): void {
     throw new Error('Method not implemented.')
   }
   sendState(): void {

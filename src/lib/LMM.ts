@@ -17,13 +17,13 @@ export type Tree = {
 
 const allChoices: Choice[] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-function getSide(side: 0 | 1, choices: Choice[]): Choice[] {
-  const result: Choice[] = []
-  for (let i = side; (i += 2); i < choices.length) {
-    result.push(choices[i])
-  }
-  return result
-}
+// function getSide(side: 0 | 1, choices: Choice[]): Choice[] {
+//   const result: Choice[] = []
+//   for (let i = side; (i += 2); i < choices.length) {
+//     result.push(choices[i])
+//   }
+//   return result
+// }
 
 function evaluateSet(set: Choice[]): 1 | 0 {
   if (set.length < 3) return 0
