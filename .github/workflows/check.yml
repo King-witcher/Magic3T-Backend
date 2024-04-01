@@ -2,11 +2,11 @@ name: Lint, build and run tests
 
 on:
   push:
-  workflow_call:
+  workflow_dispatch:
 
 jobs:
   lint:
-    name: Run linter
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +20,7 @@ jobs:
         run: yarn lint
 
   test:
-    name: Run unit tests
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
