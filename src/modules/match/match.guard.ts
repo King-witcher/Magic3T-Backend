@@ -1,15 +1,16 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { PlayerEmitType, PlayerSocket } from './types/PlayerSocket'
 import { MatchService } from './match.service'
-import { firebaseAuth } from '@/firebase/services'
 import { SocketPlayerChannel } from './lib/PlayerChannel'
 import { SocketsService } from '../sockets.service'
+import { FirebaseService } from '@modules/firebase/firebase.service'
 
 @Injectable()
 export class MatchGuard implements CanActivate {
   constructor(
     private matchService: MatchService,
     private socketsService: SocketsService<PlayerEmitType>,
+    private firebaseService: FirebaseService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -25,7 +26,9 @@ export class MatchGuard implements CanActivate {
     }
 
     try {
-      const authData = await firebaseAuth.verifyIdToken(token)
+      const authData = await this.firebaseService.firebaseAuth.verifyIdToken(
+        token,
+      )
 
       const player = match.playerMap[authData.uid]
       if (!player) {

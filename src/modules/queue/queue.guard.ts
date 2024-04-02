@@ -5,22 +5,34 @@ import {
   Logger,
 } from '@nestjs/common'
 import { QueueSocket } from './types/QueueSocket'
-import { models } from '@/firebase/models'
 import { firebaseAuth } from '@/firebase/services'
 import { SocketsService } from '../sockets.service'
+import { UsersService } from '@modules/database/users/users.service'
+import { FirebaseModule } from '@modules/firebase/firebase.module'
+import { FirebaseService } from '@modules/firebase/firebase.service'
 
 @Injectable()
 export class QueueGuard implements CanActivate {
-  constructor(public socketsService: SocketsService<QueueSocket>) {}
+  constructor(
+    private socketsService: SocketsService<QueueSocket>,
+    private usersService: UsersService,
+    private firebaseService: FirebaseService,
+  ) {}
 
   async canActivate(context: ExecutionContext) {
     const socket = context.switchToWs().getClient<QueueSocket>()
     const token = socket.handshake.auth.token
 
-    // if (socket.data.user) return true
     try {
-      const authData = await firebaseAuth.verifyIdToken(token)
-      const userData = await models.users.getById(authData.uid)
+      const authData = await this.firebaseService.firebaseAuth.verifyIdToken(
+        token,
+      )
+      const userData = await this.usersService.get(authData.uid)
+
+      if (!userData) {
+        Logger.error(`User with id ${authData.uid} not found`)
+        return false
+      }
 
       socket.data.user = {
         name: userData.nickname,
@@ -32,7 +44,8 @@ export class QueueGuard implements CanActivate {
 
       return true
     } catch (e) {
-      Logger.error(e.message, 'QueueGuard')
+      console.error(e)
+      Logger.error('Error caught on QueueGuard')
       return false
     }
   }

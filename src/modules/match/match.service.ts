@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { Match, MatchParams } from './lib/Match'
-import { SocketsService } from '../sockets.service'
-import { PlayerSocket } from './types/PlayerSocket'
 
 @Injectable()
 export class MatchService {
   matches: Record<string, Match> = {}
   //** Maps player ids to matches */
   playerMatchMap: Record<string, Match> = {}
-
-  constructor(private socketsService: SocketsService<PlayerSocket>) {}
 
   createMatch(params: MatchParams) {
     const match = new Match(params)

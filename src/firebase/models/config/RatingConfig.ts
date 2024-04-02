@@ -1,4 +1,4 @@
-import { WithId } from '../types/WithId'
+import { WithId } from '@modules/database/types/withId'
 
 export interface RatingConfig extends WithId {
   deviationInflationTime: number

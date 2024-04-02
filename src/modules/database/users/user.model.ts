@@ -6,7 +6,7 @@ export interface Glicko {
   timestamp: Date
 }
 
-export interface User extends WithId {
+export interface UserModel extends WithId {
   nickname: string
   role: 'player' | 'bot' | 'creator'
   glicko: Glicko

@@ -1,4 +1,3 @@
-import { firebaseAuth } from '@/firebase/services'
 import {
   BadRequestException,
   Controller,
@@ -9,10 +8,14 @@ import {
 } from '@nestjs/common'
 import { MatchService } from './match.service'
 import { DecodedIdToken } from 'firebase-admin/auth'
+import { FirebaseService } from '@modules/firebase/firebase.service'
 
 @Controller('')
 export class MatchController {
-  constructor(private matchService: MatchService) {}
+  constructor(
+    private matchService: MatchService,
+    private firebaseService: FirebaseService,
+  ) {}
 
   @Get('matchId')
   async handleGetMatch(@Headers('Authorization') authorization: string) {
@@ -22,7 +25,7 @@ export class MatchController {
     }
 
     try {
-      authData = await firebaseAuth.verifyIdToken(
+      authData = await this.firebaseService.firebaseAuth.verifyIdToken(
         authorization.replace('Bearer ', ''),
       )
     } catch (e) {

@@ -11,7 +11,7 @@ import { Player } from './lib/Player'
 import { CurrentMatch } from './decorators/currentMatch.decorator'
 import { Match } from './lib/Match'
 import { ChoicePipe } from './choice.pipe'
-import { Choice } from '../../types/Choice'
+import { Choice } from '@/types/Choice'
 import { MatchGuard } from './match.guard'
 import { SocketsService } from '../sockets.service'
 

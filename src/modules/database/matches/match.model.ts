@@ -1,24 +1,24 @@
 import { Choice } from '@/types/Choice'
 import { WithId } from '@modules/database/types/withId'
 
-export interface Player {
+export interface MatchPlayer {
   uid: string
   name: string
   rating: number
   rv: number
 }
 
-export interface Move {
+export interface Movement {
   player: 'white' | 'black'
   move: Choice | 'forfeit' | 'timeout'
   time: number
 }
 
 /** Represents a match registry in the History. */
-export interface MatchRegistry extends WithId {
-  white: Player
-  black: Player
-  moves: Move[]
+export interface MatchModel extends WithId {
+  white: MatchPlayer
+  black: MatchPlayer
+  moves: Movement[]
   winner: 'white' | 'black' | 'none'
   mode: 'casual' | 'ranked'
   timestamp: Date
