@@ -1,4 +1,3 @@
-import Timer from 'src/lib/Timer'
 import { PlayerStatus } from '../types/PlayerStatus'
 import { Logger } from '@nestjs/common'
 import { Choice } from '../../../types/Choice'
@@ -6,6 +5,7 @@ import { GamePlayerProfile as GamePlayerProfile } from '../../queue/types/GamePl
 import { Match } from './Match'
 import { GameState as POVGameState } from '../types/POVGameState'
 import { NullPlayerChannel, PlayerChannel } from './PlayerChannel'
+import { Timer } from '@/lib/Timer'
 
 interface PlayerParams {
   profile: GamePlayerProfile
@@ -57,9 +57,8 @@ export class Player {
     if (this.oponent.state.forfeit) return PlayerStatus.Victory
 
     // Timeout
-    if (this.state.timer.getRemaining() === 0) return PlayerStatus.Defeat
-    if (this.oponent.state.timer.getRemaining() === 0)
-      return PlayerStatus.Victory
+    if (this.state.timer.remaining === 0) return PlayerStatus.Defeat
+    if (this.oponent.state.timer.remaining === 0) return PlayerStatus.Victory
 
     // Choices
     if (this.isWinner()) return PlayerStatus.Victory
@@ -80,8 +79,8 @@ export class Player {
       playerChoices: this.state.choices,
       oponentChoices: this.oponent.state.choices,
       status: this.getStatus(),
-      oponentTimeLeft: this.oponent.state.timer.getRemaining(),
-      playerTimeLeft: this.state.timer.getRemaining(),
+      oponentTimeLeft: this.oponent.state.timer.remaining,
+      playerTimeLeft: this.state.timer.remaining,
       turn: this.state.turn,
     }
 

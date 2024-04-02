@@ -108,8 +108,8 @@ export class Match extends Publisher<'onFinish'> {
   getCurrentTime(): number {
     return (
       2 * this.config.timelimit -
-      this.white.state.timer.getRemaining() -
-      this.black.state.timer.getRemaining()
+      this.white.state.timer.remaining -
+      this.black.state.timer.remaining
     )
   }
 
