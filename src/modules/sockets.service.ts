@@ -11,6 +11,11 @@ import { Socket } from 'socket.io'
 export class SocketsService<EmitType extends EventsMap> {
   private socketMap: Record<string, Socket<DefaultEventsMap, EmitType>[]> = {}
 
+  /**
+   * Binds a socket to a specific uid. More than one socket can be bound to the same uid.
+   * @param uid
+   * @param socket
+   */
   add(uid: string, socket: Socket<DefaultEventsMap, EmitType>) {
     if (this.socketMap[uid] && this.socketMap[uid].includes(socket)) return
 
@@ -22,6 +27,11 @@ export class SocketsService<EmitType extends EventsMap> {
     return Object.keys(this.socketMap).length
   }
 
+  /**
+   * Unbinds a socket from a uid.
+   * @param uid
+   * @param socket
+   */
   remove(uid: string, socket: Socket<DefaultEventsMap, EmitType>) {
     const sockets = this.socketMap[uid]
     if (!sockets) throw new Error('Uid not found')
@@ -29,6 +39,12 @@ export class SocketsService<EmitType extends EventsMap> {
     if (this.socketMap[uid].length === 0) delete this.socketMap[uid]
   }
 
+  /**
+   * Emits an event to each socket bound to an uid.
+   * @param uid
+   * @param event
+   * @param data
+   */
   emit<Ev extends EventNames<EmitType>>(
     uid: string,
     event: Ev,
