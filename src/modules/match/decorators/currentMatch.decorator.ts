@@ -1,5 +1,5 @@
 import { ExecutionContext, createParamDecorator } from '@nestjs/common'
-import { Match } from '../lib/Match'
+import { Match } from '../lib/match'
 import { PlayerSocket } from '../types/PlayerSocket'
 
 export const CurrentMatch = createParamDecorator(

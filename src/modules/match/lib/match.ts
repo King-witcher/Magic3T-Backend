@@ -1,4 +1,4 @@
-import { Player } from './Player'
+import { Player } from './player'
 import { GamePlayerProfile } from '../../queue/types/GamePlayerProfile'
 import { getNewRatings } from '@/lib/Glicko'
 import { models } from '@/firebase/models'

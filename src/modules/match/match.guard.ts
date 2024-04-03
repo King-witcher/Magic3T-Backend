@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { PlayerEmitType, PlayerSocket } from './types/PlayerSocket'
 import { MatchService } from './match.service'
-import { SocketPlayerChannel } from './lib/PlayerChannel'
+import { SocketPlayerChannel } from './lib/playerChannel'
 import { SocketsService } from '../sockets.service'
 import { FirebaseService } from '@modules/firebase/firebase.service'
 

@@ -1,5 +1,5 @@
-import { Player } from '@/modules/match/lib/Player'
-import { PlayerChannel } from '@/modules/match/lib/PlayerChannel'
+import { Player } from '@modules/match/lib/player'
+import { PlayerChannel } from '@modules/match/lib/playerChannel'
 import { GameState } from '@/modules/match/types/POVGameState'
 import { Choice } from '@/types/Choice'
 import { createTree } from '../LMM'

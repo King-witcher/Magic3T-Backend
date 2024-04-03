@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Match, MatchParams } from './lib/Match'
+import { Match, MatchParams } from './lib/match'
 
 @Injectable()
 export class MatchService {

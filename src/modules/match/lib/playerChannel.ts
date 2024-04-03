@@ -1,7 +1,7 @@
 import { SocketsService } from '@/modules/sockets.service'
 import { GameState } from '../types/POVGameState'
 import { PlayerEmitType } from '../types/PlayerSocket'
-import { Player } from './Player'
+import { Player } from './player'
 
 export interface PlayerChannel {
   sendState(state: GameState): void
