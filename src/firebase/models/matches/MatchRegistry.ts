@@ -1,6 +1,7 @@
 import { Choice } from '@/types/Choice'
 import { WithId } from '@modules/database/types/withId'
 
+/** @deprecated */
 export interface Player {
   uid: string
   name: string
@@ -8,13 +9,15 @@ export interface Player {
   rv: number
 }
 
+/** @deprecated */
 export interface Move {
   player: 'white' | 'black'
   move: Choice | 'forfeit' | 'timeout'
   time: number
 }
 
-/** Represents a match registry in the History. */
+/** Represents a match registry in the History.
+ * @deprecated */
 export interface MatchRegistry extends WithId {
   white: Player
   black: Player

@@ -1,21 +1,19 @@
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
   Logger,
 } from '@nestjs/common'
-import { QueueSocket } from './types/QueueSocket'
-import { firebaseAuth } from '@/firebase/services'
+import { QueueEmitType, QueueSocket } from './types/QueueSocket'
 import { SocketsService } from '../sockets.service'
-import { UsersService } from '@modules/database/users/users.service'
-import { FirebaseModule } from '@modules/firebase/firebase.module'
 import { FirebaseService } from '@modules/firebase/firebase.service'
 
 @Injectable()
 export class QueueGuard implements CanActivate {
   constructor(
-    private socketsService: SocketsService<QueueSocket>,
-    private usersService: UsersService,
+    @Inject('QueueSocketsService')
+    private queueSocketsService: SocketsService<QueueEmitType>,
     private firebaseService: FirebaseService,
   ) {}
 
@@ -24,23 +22,13 @@ export class QueueGuard implements CanActivate {
     const token = socket.handshake.auth.token
 
     try {
-      const authData = await this.firebaseService.firebaseAuth.verifyIdToken(
+      const { uid } = await this.firebaseService.firebaseAuth.verifyIdToken(
         token,
       )
-      const userData = await this.usersService.get(authData.uid)
 
-      if (!userData) {
-        Logger.error(`User with id ${authData.uid} not found`)
-        return false
-      }
+      socket.data.uid = uid
 
-      socket.data.user = {
-        name: userData.nickname,
-        uid: userData._id,
-        glicko: userData.glicko,
-      }
-
-      this.socketsService.add(userData._id, socket)
+      this.queueSocketsService.add(uid, socket)
 
       return true
     } catch (e) {

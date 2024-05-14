@@ -1,5 +1,4 @@
 import { Player } from './player'
-import { GamePlayerProfile } from '../../queue/types/GamePlayerProfile'
 import { getNewRatings } from '@/lib/Glicko'
 import { models } from '@/firebase/models'
 import { MatchRegistry } from '@/firebase/models/matches/MatchRegistry'
@@ -16,13 +15,15 @@ export type ForfeitSchedule = {
 export interface MatchConfig {
   timelimit: number
   isRanked: boolean
-  /** Amount of time after which the match will be cancelled if both players didn't ready. If one player has set ready, the match is considered a win for this player. */
+  /** Amount of time after which the match will be cancelled if both players
+   * didn't ready. If one player has set ready, the match is considered a win
+   * for this player. */
   readyTimeout: number
 }
 
 export interface MatchParams {
-  white: GamePlayerProfile
-  black: GamePlayerProfile
+  white: any
+  black: any
   config: MatchConfig
 }
 

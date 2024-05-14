@@ -8,18 +8,52 @@ export interface MatchPlayer {
   rv: number
 }
 
-export interface Movement {
-  player: 'white' | 'black'
-  move: Choice | 'forfeit' | 'timeout'
+export enum SidesEnum {
+  White = 0,
+  Black = 1,
+}
+
+export enum GameModesEnum {
+  CasualPvP,
+  RankedPvP,
+  CasualPvC,
+  RankedPvC,
+}
+
+export enum HistoryMatchEventsEnum {
+  Choice,
+  Forfeit,
+  Timeout,
+  Message,
+}
+
+type BaseMatchEvent = {
+  event: HistoryMatchEventsEnum
+  side: SidesEnum
   time: number
 }
+
+export type HistoryMatchEvent = BaseMatchEvent &
+  (
+    | {
+        event: HistoryMatchEventsEnum.Choice
+        choice: Choice
+      }
+    | {
+        event: HistoryMatchEventsEnum.Message
+        message: string
+      }
+    | {
+        event: HistoryMatchEventsEnum.Timeout | HistoryMatchEventsEnum.Forfeit
+      }
+  )
 
 /** Represents a match registry in the History. */
 export interface MatchModel extends WithId {
   white: MatchPlayer
   black: MatchPlayer
-  moves: Movement[]
-  winner: 'white' | 'black' | 'none'
-  mode: 'casual' | 'ranked'
+  events: HistoryMatchEvent[]
+  winner: SidesEnum | null
+  gameMode: GameModesEnum
   timestamp: Date
 }

@@ -1,10 +1,9 @@
 import { ExecutionContext, createParamDecorator } from '@nestjs/common'
 import { QueueSocket } from '../types/QueueSocket'
-import { GamePlayerProfile } from '../types/GamePlayerProfile'
 
-export const CurrentUser = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): GamePlayerProfile => {
+export const Uid = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext): string => {
     const client = ctx.switchToWs().getClient<QueueSocket>()
-    return client.data.user
+    return client.data.uid
   },
 )

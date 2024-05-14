@@ -1,29 +1,18 @@
-enum SnapshotState {
-  Paused = 'paused',
-  Counting = 'counting',
-  Finished = 'finished',
-}
-
-type TimeSnapshot = {
-  /** When the snapshot was created */
-  at: number
-  /** The value when the snapshot was created */
-  value: number
-  /** The state of the snapshot at that moment */
-  state: SnapshotState
-}
+import { TimeSnapshot, TimeSnapshotState } from '@/lib/time/stopwatchSnapshot'
 
 export class Timer {
   private lastSnapshot: TimeSnapshot
   private callbackCaller: NodeJS.Timeout
   private readonly callback: () => void
+  public readonly initial: number
 
   constructor(timeMs: number, callback: () => void) {
     this.lastSnapshot = {
       at: Date.now(),
       value: timeMs,
-      state: SnapshotState.Paused,
+      state: TimeSnapshotState.Paused,
     }
+    this.initial = timeMs
     this.callback = callback
   }
 
@@ -31,20 +20,24 @@ export class Timer {
     this.lastSnapshot = {
       at: Date.now(),
       value: 0,
-      state: SnapshotState.Finished,
+      state: TimeSnapshotState.Finished,
     }
 
     this.callback()
   }
 
+  public get state(): TimeSnapshotState {
+    return this.lastSnapshot.state
+  }
+
   public get remaining(): number {
     switch (this.lastSnapshot.state) {
-      case SnapshotState.Counting: {
+      case TimeSnapshotState.Counting: {
         const now = Date.now()
         const timeSinceSnapshot = now - this.lastSnapshot.at
         return this.lastSnapshot.value - timeSinceSnapshot
       }
-      case SnapshotState.Paused:
+      case TimeSnapshotState.Paused:
         return this.lastSnapshot.value
       default:
         return 0
@@ -52,7 +45,7 @@ export class Timer {
   }
 
   public set remaining(value: number) {
-    if (this.lastSnapshot.state === SnapshotState.Finished) return
+    if (this.lastSnapshot.state === TimeSnapshotState.Finished) return
 
     this.lastSnapshot = {
       at: Date.now(),
@@ -60,30 +53,30 @@ export class Timer {
       state: this.lastSnapshot.state,
     }
 
-    if (this.lastSnapshot.state === SnapshotState.Counting) {
+    if (this.lastSnapshot.state === TimeSnapshotState.Counting) {
       clearTimeout(this.callbackCaller)
       this.callbackCaller = setTimeout(this.handleTimeout.bind(this), value)
     }
   }
 
   public pause() {
-    if (this.lastSnapshot.state !== SnapshotState.Counting) return
+    if (this.lastSnapshot.state !== TimeSnapshotState.Counting) return
 
     clearTimeout(this.callbackCaller)
     this.lastSnapshot = {
       at: Date.now(),
       value: this.remaining,
-      state: SnapshotState.Paused,
+      state: TimeSnapshotState.Paused,
     }
   }
 
   public start() {
-    if (this.lastSnapshot.state !== SnapshotState.Paused) return
+    if (this.lastSnapshot.state !== TimeSnapshotState.Paused) return
 
     this.lastSnapshot = {
       at: Date.now(),
       value: this.remaining,
-      state: SnapshotState.Counting,
+      state: TimeSnapshotState.Counting,
     }
     this.callbackCaller = setTimeout(
       this.handleTimeout.bind(this),

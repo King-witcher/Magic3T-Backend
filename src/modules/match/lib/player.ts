@@ -1,14 +1,13 @@
 import { PlayerStatus } from '../types/PlayerStatus'
 import { Logger } from '@nestjs/common'
 import { Choice } from '../../../types/Choice'
-import { GamePlayerProfile as GamePlayerProfile } from '../../queue/types/GamePlayerProfile'
 import { Match } from './match'
-import { GameState as POVGameState } from '../types/POVGameState'
-import { NullPlayerChannel, PlayerChannel } from './playerChannel'
-import { Timer } from '@/lib/Timer'
+import { PerspectiveGameState as POVGameState } from '../types/perspective.game.state'
+import { IClientAdapter } from './adapters/client.adapter'
+import { Timer } from '@/lib/time/timer'
 
 interface PlayerParams {
-  profile: GamePlayerProfile
+  profile: any
   match: Match
   side: 'white' | 'black'
 }
@@ -29,9 +28,9 @@ type PlayerState = {
 )
 
 export class Player {
-  profile: GamePlayerProfile
+  profile: any
   match: Match
-  channel: PlayerChannel = new NullPlayerChannel()
+  channel: IClientAdapter
   oponent: Player
   state: PlayerState
   side: 'white' | 'black'

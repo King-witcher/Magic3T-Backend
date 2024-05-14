@@ -1,7 +1,11 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
-import { PlayerEmitType, PlayerSocket } from './types/PlayerSocket'
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+} from '@nestjs/common'
+import { MatchSocketEmitMap, MatchSocket } from './types/MatchSocket'
 import { MatchService } from './match.service'
-import { SocketPlayerChannel } from './lib/playerChannel'
 import { SocketsService } from '../sockets.service'
 import { FirebaseService } from '@modules/firebase/firebase.service'
 
@@ -9,38 +13,30 @@ import { FirebaseService } from '@modules/firebase/firebase.service'
 export class MatchGuard implements CanActivate {
   constructor(
     private matchService: MatchService,
-    private socketsService: SocketsService<PlayerEmitType>,
+    @Inject('MatchSocketsService')
+    private matchSocketsService: SocketsService<MatchSocketEmitMap>,
     private firebaseService: FirebaseService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
-    const socket = context.switchToWs().getClient<PlayerSocket>()
-    const { token, matchId } = socket.handshake.auth
-
-    if (socket.data.player && socket.data.match) return true
-
-    const match = this.matchService.getMatch(matchId)
-    if (!match) {
-      console.error(`Bad match id: ${matchId}`)
-      return false
-    }
+    const socket = context.switchToWs().getClient<MatchSocket>()
+    if (socket.data.matchAdapter && socket.data.uid) return true
 
     try {
+      const { token } = socket.handshake.auth
       const authData = await this.firebaseService.firebaseAuth.verifyIdToken(
         token,
       )
 
-      const player = match.playerMap[authData.uid]
-      if (!player) {
+      const matchAdapter = this.matchService.getAdapter(authData.uid)
+      if (!matchAdapter) {
         console.error(`Bad player uid: ${authData.uid}`)
         return false
       }
 
-      socket.data.match = match
-      socket.data.player = player
-      this.socketsService.add(authData.uid, socket)
-      player.channel = new SocketPlayerChannel(player, this.socketsService)
-      console.log(`${player.profile.name} connected to the game.`)
+      socket.data.matchAdapter = matchAdapter
+      socket.data.uid = authData.uid
+      this.matchSocketsService.add(authData.uid, socket)
       return true
     } catch (e) {
       console.error(e.message)

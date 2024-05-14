@@ -6,13 +6,13 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 import { MatchService } from '../match/match.service'
-import { UseGuards } from '@nestjs/common'
-import { CurrentUser } from './decorators/currentUser.decorator'
-import { GamePlayerProfile } from './types/GamePlayerProfile'
+import { Inject, UseGuards } from '@nestjs/common'
+import { Uid } from './decorators/currentUser.decorator'
 import { QueueGuard } from './queue.guard'
 import { QueueEmitType, QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
 import { SocketsService } from '../sockets.service'
+import { BotNames } from '@modules/database/config/bot-config.model'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -23,7 +23,8 @@ export class QueueGateway implements OnGatewayDisconnect {
   constructor(
     private matchService: MatchService,
     private queueService: QueueService,
-    public socketsService: SocketsService<QueueEmitType>,
+    @Inject('QueueSocketsService')
+    private queueSocketsService: SocketsService<QueueEmitType>,
   ) {
     // Counts how many users are online and update everyone
     setInterval(() => {
@@ -33,7 +34,7 @@ export class QueueGateway implements OnGatewayDisconnect {
           inGame: NaN,
           queue: queueCount.casual,
         },
-        connected: this.socketsService.getUserCount(),
+        connected: this.queueSocketsService.getUserCount(),
         ranked: {
           inGame: NaN,
           queue: queueCount.ranked,
@@ -48,101 +49,77 @@ export class QueueGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('bot-0')
-  async handleBot0(@CurrentUser() user: GamePlayerProfile) {
-    await this.queueService.createMatchVsCPU(user, 'bot0')
+  async handleBot0(@Uid() uid: string) {
+    await this.queueService.createBotMatch(uid, BotNames.Bot0)
   }
 
   @SubscribeMessage('bot-1')
-  async handleBot1(@CurrentUser() user: GamePlayerProfile) {
-    await this.queueService.createMatchVsCPU(user, 'bot1')
+  async handleBot1(@Uid() uid: string) {
+    await this.queueService.createBotMatch(uid, BotNames.Bot1)
   }
 
   @SubscribeMessage('bot-2')
-  async handleBot2(@CurrentUser() user: GamePlayerProfile) {
-    await this.queueService.createMatchVsCPU(user, 'bot2')
+  async handleBot2(@Uid() uid: string) {
+    await this.queueService.createBotMatch(uid, BotNames.Bot2)
   }
 
   @SubscribeMessage('bot-3')
-  async handleBot3(@CurrentUser() user: GamePlayerProfile) {
-    await this.queueService.createMatchVsCPU(user, 'bot3')
+  async handleBot3(@Uid() uid: string) {
+    await this.queueService.createBotMatch(uid, BotNames.Bot3)
   }
 
   @SubscribeMessage('casual')
-  handleCasual(@CurrentUser() user: GamePlayerProfile) {
-    if (!this.matchService.isAvailable(user.uid)) {
-      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
-      this.socketsService.emit(user.uid, 'queueRejected')
+  handleCasual(@Uid() uid: string) {
+    if (!this.matchService.isAvailable(uid)) {
+      console.error(`Player "${uid}" unavailable for queue: in game.`)
+      this.queueSocketsService.emit(uid, 'queueRejected')
       return
     }
 
-    this.queueService.enqueue(
-      {
-        user: {
-          name: user.name,
-          uid: user.uid,
-          glicko: user.glicko,
-        },
-      },
-      'casual',
-    )
+    this.queueService.enqueue(uid, 'casual')
 
-    const userQueueModes = this.queueService.getQueueModes(user.uid)
-    this.socketsService.emit(user.uid, 'queueModes', userQueueModes)
+    const userQueueModes = this.queueService.getQueueModes(uid)
+    this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
 
-    console.log(`Player "${user.name}" enqueued on casual mode.`)
-    this.socketsService.emit(user.uid, 'queueAcepted', { mode: 'casual' })
+    console.log(`Player "${uid}" enqueued on casual mode.`)
+    this.queueSocketsService.emit(uid, 'queueAcepted', { mode: 'casual' })
   }
 
   @SubscribeMessage('ranked')
-  handleRanked(@CurrentUser() user: GamePlayerProfile) {
-    if (!this.matchService.isAvailable(user.uid)) {
-      console.error(`Player "${user.name}" unavailable for queue: ingame.`)
-      this.socketsService.emit(user.uid, 'queueRejected')
+  handleRanked(@Uid() uid: string) {
+    if (!this.matchService.isAvailable(uid)) {
+      console.error(`Player "${uid}" unavailable for queue: in game.`)
+      this.queueSocketsService.emit(uid, 'queueRejected')
       return
     }
 
-    this.queueService.enqueue(
-      {
-        user: {
-          name: user.name,
-          uid: user.uid,
-          glicko: user.glicko,
-        },
-      },
-      'ranked',
-    )
+    this.queueService.enqueue(uid, 'ranked')
 
-    const userQueueModes = this.queueService.getQueueModes(user.uid)
-    this.socketsService.emit(user.uid, 'queueModes', userQueueModes)
+    const userQueueModes = this.queueService.getQueueModes(uid)
+    this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
 
-    console.log(`User "${user.name}" enqueued on ranked mode.`)
-    this.socketsService.emit(user.uid, 'queueAcepted', { mode: 'ranked' })
+    console.log(`User "${uid}" enqueued on ranked mode.`)
+    this.queueSocketsService.emit(uid, 'queueAcepted', { mode: 'ranked' })
   }
 
   @SubscribeMessage('dequeue')
   handleDequeue(
-    @CurrentUser() user: GamePlayerProfile,
+    @Uid() uid: string,
     @MessageBody() message: 'ranked' | 'casual',
   ) {
-    this.queueService.dequeue(user.uid, message)
+    this.queueService.dequeue(uid, message)
 
-    const userQueueModes = this.queueService.getQueueModes(user.uid)
-    this.socketsService.emit(user.uid, 'queueModes', userQueueModes)
+    const userQueueModes = this.queueService.getQueueModes(uid)
+    this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
 
-    console.log(`User "${user.name}" dequeued from mode "${message}".`)
-  }
-
-  isAvailable(uid: string) {
-    return (
-      this.queueService.isAvailable(uid) && this.matchService.isAvailable(uid)
-    )
+    console.log(`User "${uid}" dequeued from mode "${message}".`)
   }
 
   handleDisconnect(client: QueueSocket) {
-    const user = client.data.user
-    if (user) {
-      this.queueService.dequeue(user.uid)
-      this.socketsService.remove(user.uid, client)
+    const { uid } = client.data
+    if (uid) {
+      this.queueService.dequeue(uid)
+      this.queueSocketsService.remove(uid, client)
     }
   }
 }

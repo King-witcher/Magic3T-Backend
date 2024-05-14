@@ -17,7 +17,9 @@ export class SocketsService<EmitType extends EventsMap> {
    * @param socket
    */
   add(uid: string, socket: Socket<DefaultEventsMap, EmitType>) {
-    if (this.socketMap[uid] && this.socketMap[uid].includes(socket)) return
+    if (this.socketMap[uid]?.includes(socket)) return
+
+    console.log(`pushing ${uid} into sockets service`)
 
     if (this.socketMap[uid]) this.socketMap[uid].push(socket)
     else this.socketMap[uid] = [socket]
@@ -52,7 +54,7 @@ export class SocketsService<EmitType extends EventsMap> {
   ) {
     const sockets = this.socketMap[uid]
     if (!sockets) {
-      console.log(this.socketMap)
+      console.log(event)
       console.error(`Socket uid ${uid} not found.`)
       return
     }

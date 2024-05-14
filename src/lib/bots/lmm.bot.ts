@@ -1,10 +1,11 @@
-import { Player } from '@modules/match/lib/player'
-import { PlayerChannel } from '@modules/match/lib/playerChannel'
-import { GameState } from '@/modules/match/types/POVGameState'
+import { IClientAdapter } from '@modules/match/lib/adapters/client.adapter'
+import { PerspectiveGameState } from '@modules/match/types/perspective.game.state'
 import { Choice } from '@/types/Choice'
 import { createTree } from '../LMM'
+import { BaseBot } from '@/lib/bots/base.bot'
+import { MatchHandler } from '@modules/match/lib/match.handler'
 
-function getMatchChoices(state: GameState, side: 'white' | 'black') {
+function getMatchChoices(state: PerspectiveGameState, side: 'white' | 'black') {
   const white = side === 'white' ? state.playerChoices : state.oponentChoices
   const black = side === 'black' ? state.playerChoices : state.oponentChoices
 
@@ -16,30 +17,23 @@ function getMatchChoices(state: GameState, side: 'white' | 'black') {
   return result
 }
 
-export class LMMBot {
-  constructor(private player: Player, private depth: number = 2) {}
+export class LmmBot extends BaseBot {
+  private state: PerspectiveGameState
 
-  private state: GameState
-  private saidGG = false
+  constructor(private depth: number = 2) {
+    super()
+  }
 
-  getChannel(): PlayerChannel {
-    const player = this.player
-    const depth = this.depth
-    let saidGG = false
+  observe(match: MatchHandler) {
+    // dn
+  }
+
+  getClientAdapter(): IClientAdapter {
+    const self = this
     return {
+      // TODO: Test arrow functions
       sendMessage(message: string) {
-        function respond(message: string) {
-          player.oponent.channel.sendMessage(message)
-        }
-
-        switch (message) {
-          case 'oi':
-            respond('oi')
-            break
-          case 'ping':
-            respond('pong')
-            break
-        }
+        //dn
       },
       sendOponentUid() {
         //dn
@@ -48,10 +42,17 @@ export class LMMBot {
         //dn
       },
       sendState(state) {
+        if (!self.matchHandlerAdapter)
+          throw new Error('Match adapter not found')
         if (state.turn) {
-          const matchChoices = getMatchChoices(state, player.side)
+          const side =
+            state.oponentChoices.length > state.playerChoices.length
+              ? 'black'
+              : 'white'
+
+          const matchChoices = getMatchChoices(state, side)
           const tree = createTree(
-            Math.min(depth, 9 - matchChoices.length),
+            Math.min(self.depth, 9 - matchChoices.length),
             matchChoices,
           )
 
@@ -65,7 +66,7 @@ export class LMMBot {
             wins: [],
           }
 
-          const winNumber = player.side === 'white' ? 1 : -1
+          const winNumber = side === 'white' ? 1 : -1
 
           for (const branchId of Object.keys(tree.branches)) {
             if (!tree.branches[branchId]) continue
@@ -79,24 +80,18 @@ export class LMMBot {
           }
 
           if (values.wins.length) {
-            player.onChoose(
+            self.matchHandlerAdapter.makeChoice(
               values.wins[Math.floor(Math.random() * values.wins.length)],
             )
           } else if (values.draws.length) {
-            player.onChoose(
+            self.matchHandlerAdapter.makeChoice(
               values.draws[Math.floor(Math.random() * values.draws.length)],
             )
           } else if (values.loses.length) {
-            player.onChoose(
+            self.matchHandlerAdapter.makeChoice(
               values.loses[Math.floor(Math.random() * values.loses.length)],
             )
-            if (!saidGG) {
-              saidGG = true
-              player.oponent.channel.sendMessage('gg')
-            }
           }
-
-          player.match.emitState()
         }
       },
     }

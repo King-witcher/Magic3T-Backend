@@ -1,4 +1,4 @@
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+const chars = 'BCDEFGHIJKMOPQRSTUVWXYZbcdefghijkmopqrstuvwxyz0123456789'
 
 export function getId(size: number) {
   let result = ''

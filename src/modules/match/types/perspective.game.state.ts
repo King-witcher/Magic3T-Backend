@@ -1,8 +1,8 @@
-import { Choice } from '../../../types/Choice'
+import { Choice } from '@/types/Choice'
 import { PlayerStatus } from './PlayerStatus'
 
 /** Represents the game state from a specific player's point of view. */
-export type GameState = {
+export type PerspectiveGameState = {
   playerChoices: Choice[]
   oponentChoices: Choice[]
   status: PlayerStatus
