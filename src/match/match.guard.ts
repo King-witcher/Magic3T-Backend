@@ -4,10 +4,11 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common'
-import { MatchSocketEmitMap, MatchSocket } from './types/MatchSocket'
-import { MatchService } from './services/match.service'
-import { SocketsService } from '../common/services/sockets.service'
-import { FirebaseService } from '@/firebase/firebase.service'
+
+import { SocketsService } from '@/common'
+import { FirebaseService } from '@/firebase'
+import { MatchService } from './services'
+import { MatchSocket, MatchSocketEmitMap } from './types'
 
 @Injectable()
 export class MatchGuard implements CanActivate {

@@ -1,11 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { MatchEventsEnum } from '../lib/match'
+
+import { SocketsService } from '@/common'
 import {
+  MatchSideAdapter,
   MatchSocketEmitMap,
   MatchSocketEmittedEvent,
-} from '../types/MatchSocket'
-import { SocketsService } from '@/common/services/sockets.service'
-import { MatchSideAdapter } from '../types/match-side-adapter'
+} from '../types'
+import { MatchEventsEnum } from '../lib'
 
 @Injectable()
 export class ClientSyncService {

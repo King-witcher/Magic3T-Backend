@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common'
-import { MatchService } from './services/match.service'
-import { FirebaseService } from '@/firebase/firebase.service'
+
+import { FirebaseService } from '@/firebase'
+import { MatchService } from './services'
 
 @Controller('')
 export class MatchController {

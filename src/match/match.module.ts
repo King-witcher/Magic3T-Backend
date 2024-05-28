@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common'
-import { MatchGateway } from './match.gateway'
-import { SocketsService } from '../common/services/sockets.service'
-import { MatchSocketEmitMap } from './types/MatchSocket'
-import { MatchController } from './match.controller'
-import { DatabaseModule } from '@/database/database.module'
-import { RatingModule } from '../rating/rating.module'
-import { GlickoRatingStrategy } from '../rating/strategies/glicko-rating-strategy'
-import { FirebaseModule } from '../firebase/firebase.module'
 
+import { DatabaseModule } from '@/database'
+import { FirebaseModule } from '@/firebase'
+import { SocketsService } from '@/common'
+import { GlickoRatingStrategy, RatingModule } from '@/rating'
+import { MatchController } from './match.controller'
+import { MatchGateway } from './match.gateway'
+import { MatchSocketEmitMap } from './types'
 import * as services from './services'
 
 @Module({

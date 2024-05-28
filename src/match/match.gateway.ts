@@ -6,20 +6,20 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
+import { ChoicePipe, SocketsService } from '@/common'
+
+import { Uid } from '@/queue/decorators'
+import { Choice } from '@/types/Choice'
+import { MatchGuard } from './match.guard'
 import {
+  MatchSideAdapter,
   MatchSocket,
   MatchSocketEmitMap,
   MatchSocketEmittedEvent,
   MatchSocketListenedEvent,
-} from './types/MatchSocket'
-import { CurrentMatchAdapter } from './decorators/current-match.decorator'
-import { ChoicePipe } from '../common/pipes/choice.pipe'
-import { Choice } from '@/types/Choice'
-import { MatchGuard } from './match.guard'
-import { SocketsService } from '../common/services/sockets.service'
-import { Uid } from '@/queue/decorators/currentUser.decorator'
-import { MatchService } from '@/match/services/match.service'
-import { MatchSideAdapter } from './types/match-side-adapter'
+} from './types'
+import { MatchService } from './services'
+import { CurrentMatchAdapter } from './decorators'
 
 @UseGuards(MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })

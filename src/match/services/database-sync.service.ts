@@ -1,16 +1,17 @@
-import { UserModel } from './../../database/users/user.model'
-import { Observable } from '@/lib/observable'
 import { Injectable } from '@nestjs/common'
-import { MatchEventsEnum, MatchEventsMap } from '../lib/match'
-import { RatingService } from '@/rating/rating.service'
+
 import {
   GameMode,
   HistoryMatchEvent,
   HistoryMatchEventsEnum,
+  MatchesService,
   MatchModel,
-} from '@/database/matches/match.model'
-import { MatchesService } from '@/database/matches/matches.service'
-import { UsersService } from '@/database/users/users.service'
+  UserModel,
+  UsersService,
+} from '@/database'
+import { RatingService } from '@/rating'
+import { Observable } from '@/lib'
+import { MatchEventsEnum, MatchEventsMap } from '../lib'
 
 @Injectable()
 export class DatabaseSyncService {

@@ -1,20 +1,23 @@
-import { ClientSyncService } from './client-sync.service'
-import { UsersService } from '../../database/users/users.service'
 import { Inject, Injectable } from '@nestjs/common'
-import { MatchEventsEnum, Match } from '@/match/lib/match'
-import { DatabaseService } from '@/database/database.service'
-import { BotConfig, BotName } from '@/database/config/models'
-import { ConfigService } from '@/database/config/config.service'
-import { SocketsService } from '@/common/services/sockets.service'
-import { MatchSocketEmitMap } from '@/match/types/MatchSocket'
-import { RandomBot } from '@/match/bots/random-bot'
 import { WsException } from '@nestjs/websockets'
-import { LmmBot } from '@/match/bots/lmm-bot'
-import { BaseBot } from '@/match/bots/base-bot'
-import { Glicko, UserModel } from '@/database/users/user.model'
-import { GameMode, SidesEnum } from '@/database/matches/match.model'
+
+import { SocketsService } from '@/common'
+import {
+  BotConfig,
+  BotName,
+  ConfigService,
+  DatabaseService,
+  GameMode,
+  Glicko,
+  SidesEnum,
+  UserModel,
+  UsersService,
+} from '@/database'
+import { Match, MatchEventsEnum } from '../lib'
+import { MatchSideAdapter, MatchSocketEmitMap } from '../types'
 import { DatabaseSyncService } from './database-sync.service'
-import { MatchSideAdapter } from '../types/match-side-adapter'
+import { ClientSyncService } from './client-sync.service'
+import { BaseBot, LmmBot, RandomBot } from '../bots'
 
 export type MatchPlayerProfile = {
   uid: string
