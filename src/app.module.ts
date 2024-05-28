@@ -1,8 +1,8 @@
 import { Global, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
-import { QueueModule } from '@modules/queue/queue.module'
-import { DatabaseModule } from '@modules/database/database.module'
-import { FirebaseModule } from '@modules/firebase/firebase.module'
+import { QueueModule } from '@/queue/queue.module'
+import { DatabaseModule } from '@/database/database.module'
+import { FirebaseModule } from '@/firebase/firebase.module'
 import { ConfigModule } from '@nestjs/config'
 
 @Global()
