@@ -16,9 +16,12 @@ export const CacheMethod = (ttlSecs: number): MethodDecorator => {
 
       cached = originalMethod.apply(this, args) // this = the method where the decorator is being applied.
       valid = true
+
       setTimeout(() => {
         valid = false
       }, ttlSecs * 1000)
+
+      return cached
     }
   }
 }

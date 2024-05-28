@@ -12,8 +12,8 @@ export abstract class ModelService<T extends WithId> {
 
   protected constructor(
     firestore: Firestore,
-    private databaseService: DatabaseService,
-    collectionName: string,
+    private readonly databaseService: DatabaseService,
+    private readonly collectionName: string,
   ) {
     this.converter = databaseService.getConverter<T>()
     this.collection = firestore
@@ -22,6 +22,11 @@ export abstract class ModelService<T extends WithId> {
   }
 
   async get(id: string) {
+    console.info(
+      `%cFirestore: Read "${id}" from ${this.collection.id}.`,
+      'color: #FFCA28',
+    )
+
     const snapshot = await this.collection.doc(id).get()
     return snapshot.data() || null
   }
@@ -31,6 +36,11 @@ export abstract class ModelService<T extends WithId> {
    * @param doc Document to be saved. _id field is considered to identify the document to be saved.
    */
   async save(doc: T) {
+    console.info(
+      `%cFirestore: Update "${doc._id}" on ${this.collection.id}.`,
+      'color: #FFCA28',
+    )
+
     await this.collection.doc(doc._id).set(doc)
   }
 
@@ -40,6 +50,12 @@ export abstract class ModelService<T extends WithId> {
    */
   async create(doc: T) {
     const id = this.databaseService.getId()
+
+    console.info(
+      `%cFirestore: Create "${id}" on ${this.collection.id}.`,
+      'color: #FFCA28',
+    )
+
     await this.collection.doc(id).set(doc)
     return id
   }
@@ -49,6 +65,10 @@ export abstract class ModelService<T extends WithId> {
    * @param doc Document to be updated. _id field is considered to identify the document to be updated.
    */
   async update(doc: UpdateData<T> & WithId) {
+    console.info(
+      `%cFirestore: Update "${doc._id}" on ${this.collection.id}.`,
+      'color: #FFCA28',
+    )
     await this.collection.doc(doc._id).update(doc)
   }
 }

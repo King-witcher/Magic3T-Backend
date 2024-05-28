@@ -83,9 +83,7 @@ export class DatabaseSyncService {
     match: Observable<MatchEventsMap>,
     white: UserModel,
     black: UserModel,
-  ) {
-    console.log(white, black, match)
-  }
+  ) {}
 
   sync(
     match: Observable<MatchEventsMap>,
