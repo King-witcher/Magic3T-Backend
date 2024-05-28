@@ -5,9 +5,10 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common'
-import { QueueEmitType, QueueSocket } from './types/QueueSocket'
-import { SocketsService } from '../common/services/sockets.service'
-import { FirebaseService } from '@/firebase/firebase.service'
+
+import { SocketsService } from '@/common'
+import { QueueEmitType, QueueSocket } from './types'
+import { FirebaseService } from '@/firebase'
 
 @Injectable()
 export class QueueGuard implements CanActivate {

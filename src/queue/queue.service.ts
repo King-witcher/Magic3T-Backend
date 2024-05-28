@@ -1,13 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { MatchService } from '../match/services/match.service'
-import { SocketsService } from '../common/services/sockets.service'
-import { QueueEmitType } from './types/QueueSocket'
-import { ConfigService } from '@/database/config/config.service'
-import { BotName } from '@/database/config/models'
-import { UsersService } from '@/database/users/users.service'
-import { MatchSocketEmitMap } from '@/match/types/MatchSocket'
 
-const BOT_TIMELIMIT = 1000 * 60 * 3
+import { SocketsService } from '@/common'
+import { MatchService } from '@/match'
+import { QueueEmitType } from './types'
+import { BotName } from '@/database'
 
 @Injectable()
 export class QueueService {
@@ -18,10 +14,6 @@ export class QueueService {
     private matchService: MatchService,
     @Inject('QueueSocketsService')
     private queueSocketsService: SocketsService<QueueEmitType>,
-    @Inject('MatchSocketsService')
-    private matchSocketsService: SocketsService<MatchSocketEmitMap>,
-    private configService: ConfigService,
-    private userService: UsersService,
   ) {}
 
   enqueue(uid: string, mode: 'casual' | 'ranked') {

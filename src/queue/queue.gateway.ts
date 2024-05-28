@@ -1,3 +1,4 @@
+import { Inject, UseGuards } from '@nestjs/common'
 import {
   MessageBody,
   OnGatewayDisconnect,
@@ -5,14 +6,14 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets'
-import { MatchService } from '../match/services/match.service'
-import { Inject, UseGuards } from '@nestjs/common'
-import { Uid } from './decorators/currentUser.decorator'
+
 import { QueueGuard } from './queue.guard'
-import { QueueEmitType, QueueServer, QueueSocket } from './types/QueueSocket'
+import { MatchService } from '@/match'
+import { QueueEmitType, QueueServer, QueueSocket } from './types'
+import { SocketsService } from '@/common'
 import { QueueService } from './queue.service'
-import { SocketsService } from '../common/services/sockets.service'
-import { BotName } from '@/database/config/models'
+import { Uid } from './decorators'
+import { BotName } from '@/database'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
