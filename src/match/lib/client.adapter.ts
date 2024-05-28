@@ -1,4 +1,4 @@
-import { PerspectiveGameState } from '../types/perspective.game.state'
+import { PerspectiveGameState } from '../types'
 
 /** @deprecated Connects a PlayerHandler to an actual player that will process those state changes. */
 export interface IClientAdapter {

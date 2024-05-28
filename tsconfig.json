@@ -21,7 +21,13 @@
     "noUnusedLocals": false,
     "paths": {
       "@/*": ["./src/*"],
-      "@modules/*": ["./src/modules/*"]
+      "@common": ["./src/common"],
+      "@database": ["./src/database"],
+      "@firebase": ["./src/firebase"],
+      "@match": ["./src/match"],
+      "@queue": ["./src/queue"],
+      "@rating": ["./src/rating"],
+      "@types": ["./src/rating"],
     }
   }
 }

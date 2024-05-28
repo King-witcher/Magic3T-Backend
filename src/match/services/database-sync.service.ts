@@ -8,8 +8,8 @@ import {
   MatchModel,
   UserModel,
   UsersService,
-} from '@/database'
-import { RatingService } from '@/rating'
+} from '@database'
+import { RatingService } from '@rating'
 import { Observable } from '@/lib'
 import { MatchEventsEnum, MatchEventsMap } from '../lib'
 

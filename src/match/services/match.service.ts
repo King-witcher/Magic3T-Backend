@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { WsException } from '@nestjs/websockets'
 
-import { SocketsService } from '@/common'
 import {
   BotConfig,
   BotName,
@@ -12,7 +11,8 @@ import {
   SidesEnum,
   UserModel,
   UsersService,
-} from '@/database'
+} from '@database'
+import { SocketsService } from '@common'
 import { Match, MatchEventsEnum } from '../lib'
 import { MatchSideAdapter, MatchSocketEmitMap } from '../types'
 import { DatabaseSyncService } from './database-sync.service'

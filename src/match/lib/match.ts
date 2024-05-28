@@ -1,11 +1,8 @@
-import { Stopwatch } from '@/lib/time/stopwatch'
-import { IStateHandler, PlayerState } from '@/match/lib/player-state'
+import { SidesEnum } from '@database'
+import { Observable, Stopwatch } from '@/lib'
 import { Choice } from '@/types/Choice'
-import { Observable } from '@/lib/observable'
-import { PlayerStatus } from '@/match/types/PlayerStatus'
-import { PerspectiveGameState } from '@/match/types/perspective.game.state'
-import { SidesEnum } from '@/database/matches/match.model'
-import { MatchSideAdapter } from '../types/match-side-adapter'
+import { IStateHandler, PlayerState } from './player-state'
+import { MatchSideAdapter, PerspectiveGameState, PlayerStatus } from '../types'
 
 export enum MatchEventsEnum {
   Start,

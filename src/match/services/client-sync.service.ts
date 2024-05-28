@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 
-import { SocketsService } from '@/common'
+import { SocketsService } from '@common'
 import {
   MatchSideAdapter,
   MatchSocketEmitMap,
