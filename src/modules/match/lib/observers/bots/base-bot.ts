@@ -1,4 +1,4 @@
-import { IMatchObserver } from '@modules/match/lib/observers/match.observer.interface'
+import { IMatchObserver } from '@modules/match/lib/observers/match-observer.interface'
 import { PerspectiveGameState } from '@modules/match/types/perspective.game.state'
 import { Choice } from '@/types/Choice'
 import { IMatchAdapter } from '@modules/match/lib/adapters/matchAdapter'

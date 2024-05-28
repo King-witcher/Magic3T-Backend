@@ -1,11 +1,11 @@
 import { Choice } from '@/types/Choice'
 import { WithId } from '@modules/database/types/withId'
 
-export interface MatchPlayer {
+export interface HistoryMatchPlayer {
   uid: string
   name: string
-  rating: number
-  rv: number
+  score: number
+  gain: number
 }
 
 export enum SidesEnum {
@@ -13,11 +13,11 @@ export enum SidesEnum {
   Black = 1,
 }
 
-export enum GameModesEnum {
-  CasualPvP,
-  RankedPvP,
-  CasualPvC,
-  RankedPvC,
+export enum GameMode {
+  Casual = 0b00,
+  Ranked = 0b10,
+  PvP = 0b00,
+  PvC = 0b01,
 }
 
 export enum HistoryMatchEventsEnum {
@@ -50,10 +50,10 @@ export type HistoryMatchEvent = BaseMatchEvent &
 
 /** Represents a match registry in the History. */
 export interface MatchModel extends WithId {
-  white: MatchPlayer
-  black: MatchPlayer
+  white: HistoryMatchPlayer
+  black: HistoryMatchPlayer
   events: HistoryMatchEvent[]
   winner: SidesEnum | null
-  gameMode: GameModesEnum
+  gameMode: GameMode
   timestamp: Date
 }

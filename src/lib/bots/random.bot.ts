@@ -27,7 +27,7 @@ export class RandomBot extends BaseBot {
       sendRatingsVariation() {
         //dn
       },
-      sendOponentUid() {
+      sendOpponentUid() {
         //dn
       },
       sendState(state) {

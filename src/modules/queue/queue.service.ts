@@ -3,11 +3,10 @@ import { MatchService } from '../match/match.service'
 import { SocketsService } from '../sockets.service'
 import { QueueEmitType } from './types/QueueSocket'
 import { ConfigService } from '@modules/database/config/config.service'
-import { BotNames } from '@modules/database/config/bot-config.model'
+import { BotName } from '@modules/database/config/models'
 import { UsersService } from '@modules/database/users/users.service'
 import { MatchSocketEmitMap } from '@modules/match/types/MatchSocket'
 
-// const botConfig = database.doc('config/bots').get()
 const BOT_TIMELIMIT = 1000 * 60 * 3
 
 @Injectable()
@@ -71,7 +70,7 @@ export class QueueService {
     }
   }
 
-  async createBotMatch(uid: string, botName: BotNames) {
+  async createBotMatch(uid: string, botName: BotName) {
     const matchId = await this.matchService.createPvCMatch(uid, botName)
 
     this.queueSocketsService.emit(uid, 'matchFound', {

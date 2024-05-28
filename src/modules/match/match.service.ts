@@ -1,20 +1,21 @@
+import { UsersService } from './../database/users/users.service'
 import { Inject, Injectable } from '@nestjs/common'
 import { MatchEventsEnum, MatchHandler } from '@modules/match/lib/match.handler'
 import { DatabaseService } from '@modules/database/database.service'
 import { IMatchAdapter } from '@modules/match/lib/adapters/matchAdapter'
-import { BotNames } from '@modules/database/config/bot-config.model'
+import { BotConfig, BotName } from '@modules/database/config/models'
 import { ConfigService } from '@modules/database/config/config.service'
-import { ClientNotifier } from '@modules/match/lib/observers/client.notifier'
+import { ClientNotifier } from '@modules/match/lib/observers/client-notifier'
 import { SocketsService } from '@modules/sockets.service'
 import { MatchSocketEmitMap } from '@modules/match/types/MatchSocket'
-import { RandomBot } from '@modules/match/lib/observers/bots/random.bot'
-import { UsersService } from '@modules/database/users/users.service'
+import { RandomBot } from '@modules/match/lib/observers/bots/random-bot'
 import { WsException } from '@nestjs/websockets'
-import { LocalMinMaxBot } from '@modules/match/lib/observers/bots/localMinMaxBot'
-import { BaseBot } from '@modules/match/lib/observers/bots/baseBot'
-import { Glicko } from '@modules/database/users/user.model'
-import { GameModesEnum, SidesEnum } from '@modules/database/matches/match.model'
-import { HistoryWriter } from '@modules/match/lib/observers/history.writer'
+import { LmmBot } from '@modules/match/lib/observers/bots/lmm-bot'
+import { BaseBot } from '@modules/match/lib/observers/bots/base-bot'
+import { Glicko, UserModel } from '@modules/database/users/user.model'
+import { GameMode, SidesEnum } from '@modules/database/matches/match.model'
+import { MatchesService } from '../database/matches/matches.service'
+import { DatabaseSyncService } from './services/database-sync.service'
 
 export type MatchPlayerProfile = {
   uid: string
@@ -29,9 +30,10 @@ export class MatchService {
   private opponents: Map<string, string>
 
   constructor(
-    private databaseService: DatabaseService,
-    private configService: ConfigService,
-    private usersService: UsersService,
+    private readonly databaseService: DatabaseService,
+    private readonly configService: ConfigService,
+    private readonly usersService: UsersService,
+    private readonly databaseSyncService: DatabaseSyncService,
     @Inject('MatchSocketsService')
     private matchSocketsService: SocketsService<MatchSocketEmitMap>,
   ) {
@@ -62,9 +64,8 @@ export class MatchService {
   private assignAdapters(
     match: MatchHandler,
     [uid1, uid2]: [string, string],
-    randomize = true,
+    sideOfFirst,
   ): [IMatchAdapter, IMatchAdapter] {
-    const sideOfFirst: SidesEnum = randomize ? Math.round(Math.random()) : 0
     const adapter1 = match.getAdapter(sideOfFirst)
     const adapter2 = match.getAdapter(1 - sideOfFirst)
 
@@ -72,6 +73,8 @@ export class MatchService {
     this.adapters.set(uid2, adapter2)
     this.opponents.set(uid1, uid2)
     this.opponents.set(uid2, uid1)
+
+    console.log(uid1, uid2)
 
     match.observe(MatchEventsEnum.Finish, () => {
       this.adapters.delete(uid1)
@@ -83,32 +86,16 @@ export class MatchService {
     return [adapter1, adapter2]
   }
 
-  private async getBot(botName: BotNames): Promise<{
-    bot: BaseBot
-    botProfile: MatchPlayerProfile
-  }> {
-    const botConfigs = await this.configService.botConfigs()
-    const botConfig = botConfigs[botName]
-    if (!botConfig)
-      throw new WsException(`Unable to find bot config for "${botName}".`)
+  private getBot(botConfig: BotConfig): BaseBot {
+    return botConfig.model === 'lmm'
+      ? new LmmBot(botConfig.depth)
+      : new RandomBot()
+  }
 
-    const bot: BaseBot =
-      botConfig.model === 'lmm'
-        ? new LocalMinMaxBot(botConfig.depth)
-        : new RandomBot()
-
-    const botUserData = await this.usersService.get(botConfig.uid)
-    if (!botUserData)
-      throw new WsException(`Could not find bot profile for "${botName}".`)
-
-    return {
-      bot,
-      botProfile: {
-        uid: botUserData._id,
-        glicko: botUserData.glicko,
-        nickname: botUserData.nickname,
-      },
-    }
+  private async getProfile(uid: string): Promise<UserModel> {
+    const profile = await this.usersService.get(uid)
+    if (!profile) throw new Error(`Could not find profile for bot ${uid}.`)
+    return profile
   }
 
   getOpponent(uid: string): string {
@@ -125,29 +112,39 @@ export class MatchService {
     return adapter
   }
 
-  async createPvCMatch(uid: string, botName: BotNames) {
-    const { bot, botProfile } = await this.getBot(botName)
+  async createPvCMatch(uid: string, botName: BotName) {
+    // Get profiles
+    const humanProfilePromise = this.getProfile(uid)
+    const botConfig = await this.configService.getBotConfig(botName)
+    if (!botConfig) throw new Error(`Could not find config for bot ${botName}.`)
+    const botProfile = await this.getProfile(botConfig.uid)
+    const humanProfile = await humanProfilePromise
 
+    const bot = this.getBot(botConfig)
     const [match, matchId] = this.createAndRegisterMatch(1000 * 105)
 
     // Declare observers
-    const historyWritter = new HistoryWriter(
-      null,
-      null,
-      GameModesEnum.RankedPvC,
-    )
+    const humanSide = Math.round(Math.random()) as SidesEnum
+
     const clientNotifier = new ClientNotifier(uid, this.matchSocketsService)
 
     // Get adapters
-    const [playerAdapter, botAdapter] = this.assignAdapters(match, [
-      uid,
-      botProfile.uid,
-    ])
+    const [playerAdapter, botAdapter] = this.assignAdapters(
+      match,
+      [uid, botProfile._id],
+      humanSide,
+    )
 
     // Observe
     bot.observe(botAdapter)
-    historyWritter.observe(match)
     clientNotifier.observe(playerAdapter)
+
+    this.databaseSyncService.sync(
+      match,
+      humanSide === SidesEnum.White ? humanProfile : botProfile,
+      humanSide === SidesEnum.White ? botProfile : humanProfile,
+      GameMode.Ranked | GameMode.PvC,
+    )
 
     // Start match
     match.start()
@@ -157,12 +154,17 @@ export class MatchService {
   createPvPMatch(profile1: MatchPlayerProfile, profile2: MatchPlayerProfile) {
     const [match, matchId] = this.createAndRegisterMatch(1000 * 240)
 
-    const historyWriter = new HistoryWriter(null, null, GameModesEnum.RankedPvP)
+    // const historyWriter = new HistoryWriter(
+    //   null,
+    //   null,
+    //   HistoryGameMode.Ranked | HistoryGameMode.PvP,
+    // )
 
-    const [adapter1, adapter2] = this.assignAdapters(match, [
-      profile1.uid,
-      profile2.uid,
-    ])
+    const [adapter1, adapter2] = this.assignAdapters(
+      match,
+      [profile1.uid, profile2.uid],
+      SidesEnum.White,
+    )
 
     const clientNotifier1 = new ClientNotifier(
       profile1.uid,
@@ -174,7 +176,7 @@ export class MatchService {
       this.matchSocketsService,
     )
 
-    historyWriter.observe(match)
+    // historyWriter.observe(match)
     clientNotifier1.observe(adapter1)
     clientNotifier2.observe(adapter2)
 

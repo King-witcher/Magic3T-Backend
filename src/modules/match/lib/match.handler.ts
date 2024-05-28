@@ -6,7 +6,6 @@ import { PlayerStatus } from '@modules/match/types/PlayerStatus'
 import { PerspectiveGameState } from '@modules/match/types/perspective.game.state'
 import { IMatchAdapter } from '@modules/match/lib/adapters/matchAdapter'
 import { SidesEnum } from '@modules/database/matches/match.model'
-import { MatchPlayerProfile } from '@modules/match/match.service'
 
 export enum MatchEventsEnum {
   Start,

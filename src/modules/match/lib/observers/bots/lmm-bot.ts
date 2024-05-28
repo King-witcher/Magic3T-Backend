@@ -1,7 +1,7 @@
 import { PerspectiveGameState } from '@modules/match/types/perspective.game.state'
 import { Choice } from '@/types/Choice'
 import { createTree } from '@/lib/LMM'
-import { BaseBot } from '@modules/match/lib/observers/bots/baseBot'
+import { BaseBot } from '@modules/match/lib/observers/bots/base-bot'
 
 function getMatchChoices(state: PerspectiveGameState, side: 'white' | 'black') {
   const white = side === 'white' ? state.playerChoices : state.oponentChoices
@@ -15,7 +15,7 @@ function getMatchChoices(state: PerspectiveGameState, side: 'white' | 'black') {
   return result
 }
 
-export class LocalMinMaxBot extends BaseBot {
+export class LmmBot extends BaseBot {
   constructor(private readonly depth: number) {
     super()
   }

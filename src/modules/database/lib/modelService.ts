@@ -23,7 +23,7 @@ export abstract class ModelService<T extends WithId> {
 
   async get(id: string) {
     const snapshot = await this.collection.doc(id).get()
-    return snapshot.data()
+    return snapshot.data() || null
   }
 
   /**

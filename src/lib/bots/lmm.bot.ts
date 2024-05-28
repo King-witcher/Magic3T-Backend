@@ -35,7 +35,7 @@ export class LmmBot extends BaseBot {
       sendMessage(message: string) {
         //dn
       },
-      sendOponentUid() {
+      sendOpponentUid() {
         //dn
       },
       sendRatingsVariation() {

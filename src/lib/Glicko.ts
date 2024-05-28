@@ -54,26 +54,27 @@ export async function getNewRatings(
     return Math.min(agedDeviation, config.initialRating)
   }
 
-  function getExpectedScore(player: Glicko, oponent: Glicko) {
-    const oponentDeviation = getCurrentDeviation(oponent)
+  function getExpectedScore(player: Glicko, opponent: Glicko) {
+    const opponentDeviation = getCurrentDeviation(opponent)
     return (
       1 /
       (1 +
-        10 ** ((g(oponentDeviation) * (oponent.rating - player.rating)) / 400))
+        10 **
+          ((g(opponentDeviation) * (opponent.rating - player.rating)) / 400))
     )
   }
 
-  function newRating(player: Glicko, oponent: Glicko, s: number) {
+  function newRating(player: Glicko, opponent: Glicko, s: number) {
     const playerDeviation = getCurrentDeviation(player)
-    const oponentDeviation = getCurrentDeviation(oponent)
-    const expectedScore = getExpectedScore(player, oponent)
+    const opponentDeviation = getCurrentDeviation(opponent)
+    const expectedScore = getExpectedScore(player, opponent)
     const dSquare =
       1 /
-      (q ** 2 * g(oponentDeviation) ** 2 * expectedScore * (1 - expectedScore))
+      (q ** 2 * g(opponentDeviation) ** 2 * expectedScore * (1 - expectedScore))
     return (
       player.rating +
       (q / (1 / playerDeviation ** 2 + 1 / dSquare)) *
-        g(oponentDeviation) *
+        g(opponentDeviation) *
         (s - expectedScore)
     )
   }

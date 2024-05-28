@@ -12,7 +12,7 @@ import { QueueGuard } from './queue.guard'
 import { QueueEmitType, QueueServer, QueueSocket } from './types/QueueSocket'
 import { QueueService } from './queue.service'
 import { SocketsService } from '../sockets.service'
-import { BotNames } from '@modules/database/config/bot-config.model'
+import { BotName } from '@modules/database/config/models'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -50,22 +50,22 @@ export class QueueGateway implements OnGatewayDisconnect {
 
   @SubscribeMessage('bot-0')
   async handleBot0(@Uid() uid: string) {
-    await this.queueService.createBotMatch(uid, BotNames.Bot0)
+    await this.queueService.createBotMatch(uid, BotName.Bot0)
   }
 
   @SubscribeMessage('bot-1')
   async handleBot1(@Uid() uid: string) {
-    await this.queueService.createBotMatch(uid, BotNames.Bot1)
+    await this.queueService.createBotMatch(uid, BotName.Bot1)
   }
 
   @SubscribeMessage('bot-2')
   async handleBot2(@Uid() uid: string) {
-    await this.queueService.createBotMatch(uid, BotNames.Bot2)
+    await this.queueService.createBotMatch(uid, BotName.Bot2)
   }
 
   @SubscribeMessage('bot-3')
   async handleBot3(@Uid() uid: string) {
-    await this.queueService.createBotMatch(uid, BotNames.Bot3)
+    await this.queueService.createBotMatch(uid, BotName.Bot3)
   }
 
   @SubscribeMessage('casual')

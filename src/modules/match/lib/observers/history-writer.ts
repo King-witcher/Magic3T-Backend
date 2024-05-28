@@ -1,16 +1,23 @@
+import { UsersService } from './../../../database/users/users.service'
 import {
   HistoryMatchEventsEnum,
   HistoryMatchEvent,
   MatchModel,
-  GameModesEnum,
+  GameMode,
 } from '@modules/database/matches/match.model'
 import { MatchEventsEnum, MatchHandler } from '@modules/match/lib/match.handler'
+import { UserModel } from '@modules/database/users/user.model'
+import { MatchesService } from '@/modules/database/matches/matches.service'
+
+// Problema em aberto: como guardar informação do rating aqui sem acoplar o history-writter ao rating service?
 
 export class HistoryWriter {
   constructor(
-    private readonly whiteProfile: any,
-    private readonly blackProfile: any,
-    private readonly gameMode: GameModesEnum,
+    private readonly matchesService: MatchesService,
+    private readonly usersService: UsersService,
+    private readonly whiteUser: UserModel,
+    private readonly blackUser: UserModel,
+    private readonly gameMode: GameMode,
   ) {}
 
   public observe(matchHandler: MatchHandler) {
@@ -41,18 +48,28 @@ export class HistoryWriter {
       })
     })
 
-    matchHandler.observe(MatchEventsEnum.Finish, (winner) => {
+    matchHandler.observe(MatchEventsEnum.Finish, async (winner) => {
       const historyMatch: MatchModel = {
         _id: '',
-        white: this.whiteProfile,
-        black: this.blackProfile,
+        white: {
+          uid: this.whiteUser._id,
+          name: this.whiteUser.nickname,
+          score: Math.floor(this.whiteUser.glicko.rating),
+          gain: 0,
+        },
+        black: {
+          uid: this.blackUser._id,
+          name: this.blackUser.nickname,
+          score: Math.floor(this.blackUser.glicko.rating),
+          gain: 0,
+        },
         gameMode: this.gameMode,
         timestamp: new Date(),
         events,
         winner,
       }
 
-      console.log(historyMatch)
+      await this.matchesService.create(historyMatch)
     })
   }
 }

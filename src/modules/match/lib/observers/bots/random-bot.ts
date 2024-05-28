@@ -1,4 +1,4 @@
-import { BaseBot } from '@modules/match/lib/observers/bots/baseBot'
+import { BaseBot } from '@modules/match/lib/observers/bots/base-bot'
 import { PerspectiveGameState } from '@modules/match/types/perspective.game.state'
 
 export class RandomBot extends BaseBot {

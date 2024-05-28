@@ -9,10 +9,38 @@ import { Firestorify } from '@modules/database/types/firestorify'
 import { OptionalProp } from '@/types/OptionalProp'
 import { Mutable } from '@/types/mutable'
 
+const epoch = new Date(2000, 7, 31).getTime()
+
+// This sequence is inverted to make Firestore automatically sort matches by the latest.
+const chars =
+  'zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA9876543210'.split('')
+
+function convertToBase62(number: number) {
+  let result = ''
+  while (number) {
+    result = chars[number % chars.length] + result
+    number = Math.floor(number / chars.length)
+  }
+  return result
+}
+
 @Injectable()
 export class DatabaseService {
-  private readonly ID_CHARS =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  private readonly nonceArray: string[]
+  private nonce = 0
+
+  constructor() {
+    this.nonceArray = [...chars]
+
+    let i = this.nonceArray.length - 1
+    while (i--) {
+      const rand = Math.floor(Math.random() * i)
+
+      const temp = this.nonceArray[i]
+      this.nonceArray[i] = this.nonceArray[rand]
+      this.nonceArray[rand] = temp
+    }
+  }
 
   // TODO: Remove extends WithId in later refactor
   getConverter<T extends WithId>(): FirestoreDataConverter<T> {
@@ -44,13 +72,14 @@ export class DatabaseService {
     }
   }
 
-  getId(size = 28) {
-    let result = ''
-    for (let i = 0; i < size; i++) {
-      result += this.ID_CHARS.charAt(
-        Math.floor(Math.random() * this.ID_CHARS.length),
-      )
-    }
-    return result
+  /**
+   * Gets a 6+ char time sortable unique id.
+   */
+  getId() {
+    const lannaDate = Math.floor((Date.now() - epoch) / 1000)
+    return (
+      convertToBase62(lannaDate) +
+      this.nonceArray[this.nonce++ % this.nonceArray.length]
+    )
   }
 }
