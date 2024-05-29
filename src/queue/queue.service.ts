@@ -16,7 +16,7 @@ export class QueueService {
     private queueSocketsService: SocketsService<QueueEmitType>,
   ) {}
 
-  enqueue(uid: string, mode: 'casual' | 'ranked') {
+  async enqueue(uid: string, mode: 'casual' | 'ranked') {
     if (!this.matchService.isAvailable(uid)) return
 
     if (mode === 'casual') {
@@ -25,7 +25,7 @@ export class QueueService {
         const pending = this.casualPendingUid
         this.dequeue(pending)
         this.dequeue(uid)
-        //this.createHumanMatch(pending, entry)
+        // this.createHumanMatch(pending, entry) // Refactor
       }
     } else if (mode === 'ranked') {
       if (!this.rankedPendingUid) this.rankedPendingUid = uid
@@ -33,7 +33,17 @@ export class QueueService {
         const pending = this.rankedPendingUid
         this.dequeue(pending)
         this.dequeue(uid)
-        //this.createHumanMatch(pending, entry, true)
+
+        const matchId = await this.matchService.createPvPMatch(pending, uid)
+
+        this.queueSocketsService.emit(pending, 'matchFound', {
+          matchId,
+          oponentId: uid,
+        })
+        this.queueSocketsService.emit(uid, 'matchFound', {
+          matchId,
+          oponentId: pending,
+        })
       }
     }
   }

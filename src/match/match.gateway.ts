@@ -35,13 +35,23 @@ export class MatchGateway implements OnGatewayDisconnect {
     matchAdapter.forfeit()
   }
 
-  // TODO: Introduce this pattern
   @SubscribeMessage(MatchSocketListenedEvent.GetState)
   handleGetStatus(
     @CurrentMatchAdapter() matchAdapter: MatchSideAdapter,
     @ConnectedSocket() client: MatchSocket,
   ) {
     client.emit(MatchSocketEmittedEvent.GameState, matchAdapter.state)
+  }
+
+  // Refactor this
+  @SubscribeMessage(MatchSocketListenedEvent.Message)
+  handleMessage(
+    @ConnectedSocket() client: MatchSocket,
+    @Uid() uid: string,
+    @MessageBody() body: string,
+  ) {
+    const opponent = this.matchService.getOpponent(uid)
+    this.socketsService.emit(opponent, MatchSocketEmittedEvent.Message, body)
   }
 
   @SubscribeMessage(MatchSocketListenedEvent.GetOpponent)

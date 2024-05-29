@@ -77,8 +77,6 @@ export class MatchService {
     this.opponents.set(uid1, uid2)
     this.opponents.set(uid2, uid1)
 
-    console.log(uid1, uid2)
-
     match.observe(MatchEventsEnum.Finish, () => {
       this.adapters.delete(uid1)
       this.adapters.delete(uid2)
@@ -116,6 +114,8 @@ export class MatchService {
   }
 
   async createPvCMatch(uid: string, botName: BotName) {
+    const [match, matchId] = this.createAndRegisterMatch(1000 * 105)
+
     // Get profiles
     const humanProfilePromise = this.getProfile(uid)
     const botConfig = await this.configService.getBotConfig(botName)
@@ -124,9 +124,8 @@ export class MatchService {
     const humanProfile = await humanProfilePromise
 
     const bot = this.getBot(botConfig)
-    const [match, matchId] = this.createAndRegisterMatch(1000 * 105)
 
-    // Get adapters
+    // Define sides and get adapters
     const humanSide = Math.round(Math.random()) as SidesEnum
     const [playerAdapter, botAdapter] = this.assignAdapters(
       match,
@@ -134,10 +133,9 @@ export class MatchService {
       humanSide,
     )
 
-    // Observe
+    // Sync
     bot.observe(botAdapter)
     this.clientMessageService.sync(playerAdapter, uid)
-
     this.databaseSyncService.sync(
       match,
       humanSide === SidesEnum.White ? humanProfile : botProfile,
@@ -150,35 +148,34 @@ export class MatchService {
     return matchId
   }
 
-  createPvPMatch(profile1: MatchPlayerProfile, profile2: MatchPlayerProfile) {
+  async createPvPMatch(uid1: string, uid2: string) {
     const [match, matchId] = this.createAndRegisterMatch(1000 * 240)
 
-    // const historyWriter = new HistoryWriter(
-    //   null,
-    //   null,
-    //   HistoryGameMode.Ranked | HistoryGameMode.PvP,
-    // )
+    // Get profiles
+    const [profile1, profile2] = await Promise.all([
+      this.getProfile(uid1),
+      this.getProfile(uid2),
+    ])
 
+    // Define sides and get adapters
+    const sideOfFirst = <SidesEnum>Math.round(Math.random())
     const [adapter1, adapter2] = this.assignAdapters(
       match,
-      [profile1.uid, profile2.uid],
-      SidesEnum.White,
+      [uid1, uid2],
+      sideOfFirst,
     )
 
-    // const clientNotifier1 = new ClientNotifier(
-    //   profile1.uid,
-    //   this.matchSocketsService,
-    // )
+    // Sync
+    this.clientMessageService.sync(adapter1, uid1)
+    this.clientMessageService.sync(adapter2, uid2)
+    this.databaseSyncService.sync(
+      match,
+      sideOfFirst === SidesEnum.White ? profile1 : profile2,
+      sideOfFirst === SidesEnum.White ? profile2 : profile1,
+      GameMode.Ranked | GameMode.PvP,
+    )
 
-    // const clientNotifier2 = new ClientNotifier(
-    //   profile2.uid,
-    //   this.matchSocketsService,
-    // )
-
-    // historyWriter.observe(match)
-    // clientNotifier1.observe(adapter1)
-    // clientNotifier2.observe(adapter2)
-
+    // Start match
     match.start()
     return matchId
   }

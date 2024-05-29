@@ -75,7 +75,6 @@ export class DatabaseSyncService {
         winner,
       }
 
-      console.log(historyMatch)
       await this.matchesService.create(historyMatch)
     })
   }
