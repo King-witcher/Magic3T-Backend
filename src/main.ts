@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core'
+
 import { ValidationPipe } from '@nestjs/common'
-import { config } from 'dotenv'
-config()
 import { AppModule } from './app.module'
 import './lib/LMM'
 

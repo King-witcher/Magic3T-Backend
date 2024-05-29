@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "target": "es2022",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -21,7 +21,13 @@
     "noUnusedLocals": false,
     "paths": {
       "@/*": ["./src/*"],
-      "@modules/*": ["./src/modules/*"]
+      "@common": ["./src/common"],
+      "@database": ["./src/database"],
+      "@firebase": ["./src/firebase"],
+      "@match": ["./src/match"],
+      "@queue": ["./src/queue"],
+      "@rating": ["./src/rating"],
+      "@types": ["./src/rating"],
     }
   }
 }

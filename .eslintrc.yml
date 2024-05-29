@@ -34,5 +34,9 @@ rules:
     - error
     - never
   no-unused-vars: off
+  "@typescript-eslint/no-this-alias":
+    - error
+    - allowedNames:
+        - self
   "@typescript-eslint/no-var-requires": off
 
