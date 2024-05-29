@@ -1,7 +1,8 @@
-import { SocketsService } from '@modules/sockets.service'
-import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import { Socket } from 'socket.io'
+
+import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import Mock = jest.Mock
+import { SocketsService } from './sockets.service'
 
 type MockedSocket = Socket & {
   emit: Mock
