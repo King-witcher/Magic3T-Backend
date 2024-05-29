@@ -43,7 +43,7 @@ export class DatabaseService {
 
   // TODO: Remove extends WithId in later refactor
   getConverter<T extends WithId>(): FirestoreDataConverter<T> {
-    function convert(data: Record<string, any>) {
+    function convert(data: object) {
       for (const [key, value] of Object.entries(data)) {
         if (value instanceof Timestamp) {
           data[key] = value.toDate()
