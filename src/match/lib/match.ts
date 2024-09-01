@@ -95,9 +95,9 @@ export class Match extends Observable<MatchEventsMap> {
     return {
       status: this.getPlayerStatus(side),
       playerChoices: player.choices,
-      oponentChoices: opponent.choices,
+      opponentChoices: opponent.choices,
       playerTimeLeft: player.timeLeft,
-      oponentTimeLeft: opponent.timeLeft,
+      opponentTimeLeft: opponent.timeLeft,
       turn: player.isTurn,
     }
   }

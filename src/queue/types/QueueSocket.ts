@@ -9,7 +9,7 @@ export type QueueEmitType = {
   queueRejected: (reason?: string) => void
   queueAcepted: (payload: { mode: 'casual' | 'ranked' }) => void
   queueModes: (payload: { casual: boolean; ranked: boolean }) => void
-  matchFound(data: { matchId: string; oponentId: string })
+  matchFound(data: { matchId: string; opponentId: string })
   updateUserCount: (data: {
     connected: number
     casual: { queue: number; inGame: number }

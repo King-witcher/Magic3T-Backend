@@ -5,7 +5,7 @@ export class RandomBot extends BaseBot {
   think(state: PerspectiveGameState) {
     const available = ([1, 2, 3, 4, 5, 6, 7, 8, 9] as const).filter(
       (choice) =>
-        !state.oponentChoices.includes(choice) &&
+        !state.opponentChoices.includes(choice) &&
         !state.playerChoices.includes(choice),
     )
 

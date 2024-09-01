@@ -4,8 +4,8 @@ import { createTree } from '@/lib/LMM'
 import { BaseBot } from '@/match/bots/base-bot'
 
 function getMatchChoices(state: PerspectiveGameState, side: 'white' | 'black') {
-  const white = side === 'white' ? state.playerChoices : state.oponentChoices
-  const black = side === 'black' ? state.playerChoices : state.oponentChoices
+  const white = side === 'white' ? state.playerChoices : state.opponentChoices
+  const black = side === 'black' ? state.playerChoices : state.opponentChoices
 
   const result: Choice[] = []
   for (let i = 0; i < black.length; i++) {
@@ -22,7 +22,7 @@ export class LmmBot extends BaseBot {
 
   think(state: PerspectiveGameState): Choice {
     const side =
-      state.oponentChoices.length > state.playerChoices.length
+      state.opponentChoices.length > state.playerChoices.length
         ? 'black'
         : 'white'
 

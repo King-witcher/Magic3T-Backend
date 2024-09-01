@@ -8,7 +8,7 @@ import {
 } from '@/database/config/models'
 import { firestore } from 'firebase-admin'
 import CollectionReference = firestore.CollectionReference
-import { CacheMethod } from '@/common'
+import { CacheMethod } from '@common'
 
 @Injectable()
 export class ConfigService {

@@ -23,3 +23,7 @@ export const QueueSocketsService = Symbol('QueueSocketsService')
   ],
 })
 export class QueueModule {}
+
+class TestService {
+  constructor(private queueService: QueueService) {}
+}

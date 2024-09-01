@@ -38,11 +38,11 @@ export class QueueService {
 
         this.queueSocketsService.emit(pending, 'matchFound', {
           matchId,
-          oponentId: uid,
+          opponentId: uid,
         })
         this.queueSocketsService.emit(uid, 'matchFound', {
           matchId,
-          oponentId: pending,
+          opponentId: pending,
         })
       }
     }
@@ -77,7 +77,7 @@ export class QueueService {
 
     this.queueSocketsService.emit(uid, 'matchFound', {
       matchId,
-      oponentId: uid,
+      opponentId: uid,
     })
   }
 }

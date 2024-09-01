@@ -79,7 +79,7 @@ export function newDeviation(
     inflation,
     maxRD,
   )
-  const oponentDeviation = getCurrentDeviation(
+  const opponentDeviation = getCurrentDeviation(
     opponent.deviation,
     opponent.timestamp,
     inflation,
@@ -94,7 +94,7 @@ export function newDeviation(
 
   const dSquare =
     1 /
-    (q ** 2 * g(oponentDeviation) ** 2 * expectedScore * (1 - expectedScore))
+    (q ** 2 * g(opponentDeviation) ** 2 * expectedScore * (1 - expectedScore))
   return Math.sqrt(1 / (1 / playerDeviation ** 2 + 1 / dSquare))
 }
 
