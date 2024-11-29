@@ -37,10 +37,10 @@ export class MatchGuard implements CanActivate {
         throw new Error(`user ${uid} is not currently in a match`)
       }
 
+      this.logger.log(`connection from user ${uid} accepted`)
       socket.data.matchAdapter = matchAdapter
       socket.data.uid = uid
       this.matchSocketsService.add(uid, socket)
-      this.logger.log(`connection from user ${uid} accepted`)
       return true
     } catch (e) {
       this.logger.error(`connection rejected: ${e.message}`)

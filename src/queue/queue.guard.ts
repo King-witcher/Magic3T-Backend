@@ -32,10 +32,9 @@ export class QueueGuard implements CanActivate {
         token,
       )
 
-      socket.data.uid = uid
-
-      this.queueSocketsService.add(uid, socket)
       this.logger.log(`connection from user ${uid} accepted`)
+      socket.data.uid = uid
+      this.queueSocketsService.add(uid, socket)
       return true
     } catch (e) {
       this.logger.error(`connection rejected: ${e.message}`)

@@ -20,10 +20,9 @@ export class SocketsService<EmitType extends EventsMap> {
   add(userId: string, socket: Socket<DefaultEventsMap, EmitType>) {
     if (this.socketMap[userId]?.includes(socket)) return
 
-    this.logger.log(`bound socket ${socket.id} to user id ${userId}`)
-
     if (this.socketMap[userId]) this.socketMap[userId].push(socket)
     else this.socketMap[userId] = [socket]
+    this.logger.log(`bound socket ${socket.id} to user id ${userId}`)
   }
 
   getUserCount() {
