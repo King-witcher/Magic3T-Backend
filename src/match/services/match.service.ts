@@ -28,7 +28,7 @@ export type MatchPlayerProfile = {
 @Injectable()
 export class MatchService {
   private matches: Map<string, Match> // Maps matchIds to matches
-  private adapters: Map<string, MatchSideAdapter> // Maps uids to matchAdapters
+  private adapters: Map<string, MatchSideAdapter> // Maps user ids to matchAdapters
   private opponents: Map<string, string>
 
   constructor(
@@ -105,8 +105,8 @@ export class MatchService {
     return opponentUid
   }
 
-  getAdapter(uid: string): MatchSideAdapter | null {
-    const adapter = this.adapters.get(uid)
+  getAdapter(userId: string): MatchSideAdapter | null {
+    const adapter = this.adapters.get(userId)
     return adapter || null
   }
 

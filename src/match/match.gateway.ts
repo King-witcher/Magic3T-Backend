@@ -1,4 +1,4 @@
-import { Inject, UseGuards } from '@nestjs/common'
+import { Inject, Logger, UseGuards } from '@nestjs/common'
 import {
   ConnectedSocket,
   MessageBody,
@@ -24,6 +24,8 @@ import { CurrentMatchAdapter } from './decorators'
 @UseGuards(MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
 export class MatchGateway implements OnGatewayDisconnect {
+  private readonly logger = new Logger(MatchGateway.name, { timestamp: true })
+
   constructor(
     @Inject('MatchSocketsService')
     private socketsService: SocketsService<MatchSocketEmitMap>,
@@ -55,8 +57,11 @@ export class MatchGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage(MatchSocketListenedEvent.GetOpponent)
-  getOpponent(@UserId() uid: string, @ConnectedSocket() client: MatchSocket) {
-    const opponentUid = this.matchService.getOpponent(uid)
+  getOpponent(
+    @UserId() userId: string,
+    @ConnectedSocket() client: MatchSocket,
+  ) {
+    const opponentUid = this.matchService.getOpponent(userId)
     client.emit(MatchSocketEmittedEvent.OpponentUid, opponentUid)
   }
 
@@ -71,7 +76,7 @@ export class MatchGateway implements OnGatewayDisconnect {
   handleDisconnect(client: MatchSocket) {
     const uid = client.data.uid
     if (uid) {
-      console.log(`[MatchGateway] ${uid} disconnected.`)
+      this.logger.log(`user ${uid} disconnected`)
       this.socketsService.remove(uid, client)
     }
   }

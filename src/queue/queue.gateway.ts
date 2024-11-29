@@ -1,4 +1,4 @@
-import { Inject, UseFilters, UseGuards } from '@nestjs/common'
+import { Inject, Logger, UseFilters, UseGuards } from '@nestjs/common'
 import {
   MessageBody,
   OnGatewayDisconnect,
@@ -20,6 +20,8 @@ import { GameModePipe } from './pipes/game-mode.pipe'
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayDisconnect {
+  private readonly logger = new Logger(QueueGateway.name, { timestamp: true })
+
   @WebSocketServer()
   server: QueueServer
 
@@ -96,6 +98,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   handleDisconnect(client: QueueSocket) {
     const { uid } = client.data
     if (uid) {
+      this.logger.log(`user ${uid} disconnected`)
       this.queueService.dequeue(uid)
       this.queueSocketsService.remove(uid, client)
     }

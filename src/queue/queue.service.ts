@@ -81,14 +81,12 @@ export class QueueService {
 
   /// Dequeues a user from whatever mode he could be in.
   dequeue(userId: string, mode?: 'casual' | 'ranked') {
-    if (!mode) {
-      if (this.casualPendingUid === userId) this.casualPendingUid = null
-      if (this.rankedPendingUid === userId) this.rankedPendingUid = null
-      this.logger.log(`userId ${userId} left all queues`)
-    } else if (mode === 'casual' && this.casualPendingUid === userId) {
+    if ((mode || 'casual') === 'casual' && this.casualPendingUid === userId) {
       this.casualPendingUid = null
       this.logger.log(`userId ${userId} left casual queue`)
-    } else if (mode === 'ranked' && this.rankedPendingUid === userId) {
+    }
+
+    if ((mode || 'ranked') === 'ranked' && this.rankedPendingUid === userId) {
       this.rankedPendingUid = null
       this.logger.log(`userId ${userId} left ranked queue`)
     }
