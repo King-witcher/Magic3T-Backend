@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets'
 import { ChoicePipe, SocketsService } from '@/common'
 
-import { Uid } from '@/queue/decorators'
+import { UserId } from '@/queue/decorators'
 import { Choice } from '@/types/Choice'
 import { MatchGuard } from './match.guard'
 import {
@@ -47,7 +47,7 @@ export class MatchGateway implements OnGatewayDisconnect {
   @SubscribeMessage(MatchSocketListenedEvent.Message)
   handleMessage(
     @ConnectedSocket() client: MatchSocket,
-    @Uid() uid: string,
+    @UserId() uid: string,
     @MessageBody() body: string,
   ) {
     const opponent = this.matchService.getOpponent(uid)
@@ -55,7 +55,7 @@ export class MatchGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage(MatchSocketListenedEvent.GetOpponent)
-  getOpponent(@Uid() uid: string, @ConnectedSocket() client: MatchSocket) {
+  getOpponent(@UserId() uid: string, @ConnectedSocket() client: MatchSocket) {
     const opponentUid = this.matchService.getOpponent(uid)
     client.emit(MatchSocketEmittedEvent.OpponentUid, opponentUid)
   }

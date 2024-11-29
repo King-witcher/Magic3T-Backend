@@ -37,13 +37,6 @@ export class QueueService {
         'casual mode is temporarily disabled',
         HttpStatus.INTERNAL_SERVER_ERROR,
       )
-      // if (!this.casualPendingUid) this.casualPendingUid = userId
-      // else if (this.casualPendingUid !== userId) {
-      //   const pending = this.casualPendingUid
-      //   this.dequeue(pending)
-      //   this.dequeue(userId)
-      //   this.createHumanMatch(pending, entry) // Refactor
-      // }
     } else if (mode === 'ranked') {
       if (!this.rankedPendingUid) {
         this.rankedPendingUid = userId
@@ -70,6 +63,7 @@ export class QueueService {
   enqueue(userId: string, mode: 'casual' | 'ranked') {
     this.enqueueInternal(userId, mode)
     const userQueueModes = this.getQueueModes(userId)
+    this.queueSocketsService.emit(userId, 'queueAcepted', { mode: 'casual' })
     this.queueSocketsService.emit(userId, 'queueModes', userQueueModes)
   }
 
@@ -98,6 +92,9 @@ export class QueueService {
       this.rankedPendingUid = null
       this.logger.log(`userId ${userId} left ranked queue`)
     }
+
+    const userQueueModes = this.getQueueModes(userId)
+    this.queueSocketsService.emit(userId, 'queueModes', userQueueModes)
   }
 
   getUserCount() {

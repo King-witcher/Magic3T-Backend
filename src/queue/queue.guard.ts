@@ -12,6 +12,8 @@ import { FirebaseService } from '@/firebase'
 
 @Injectable()
 export class QueueGuard implements CanActivate {
+  private readonly logger = new Logger(QueueGuard.name, { timestamp: true })
+
   constructor(
     @Inject('QueueSocketsService')
     private queueSocketsService: SocketsService<QueueEmitType>,
@@ -22,19 +24,20 @@ export class QueueGuard implements CanActivate {
     const socket = context.switchToWs().getClient<QueueSocket>()
     const token = socket.handshake.auth.token
 
+    // Socket has already been validated.
+    if (socket.data.uid) return true
+
     try {
-      const { uid } = await this.firebaseService.firebaseAuth.verifyIdToken(
-        token,
-      )
+      const { uid, email } =
+        await this.firebaseService.firebaseAuth.verifyIdToken(token)
 
       socket.data.uid = uid
 
       this.queueSocketsService.add(uid, socket)
-
+      this.logger.log(`connection accepted from ${email}`)
       return true
     } catch (e) {
-      console.error(e)
-      Logger.error('Error caught on QueueGuard')
+      this.logger.error(`failed to validate connection: ${e}`)
       return false
     }
   }
