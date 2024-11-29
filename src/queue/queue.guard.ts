@@ -28,16 +28,17 @@ export class QueueGuard implements CanActivate {
     if (socket.data.uid) return true
 
     try {
-      const { uid, email } =
-        await this.firebaseService.firebaseAuth.verifyIdToken(token)
+      const { uid } = await this.firebaseService.firebaseAuth.verifyIdToken(
+        token,
+      )
 
       socket.data.uid = uid
 
       this.queueSocketsService.add(uid, socket)
-      this.logger.log(`connection accepted from ${email}`)
+      this.logger.log(`connection from user ${uid} accepted`)
       return true
     } catch (e) {
-      this.logger.error(`failed to validate connection: ${e}`)
+      this.logger.error(`connection rejected: ${e.message}`)
       return false
     }
   }

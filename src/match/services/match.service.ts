@@ -105,12 +105,9 @@ export class MatchService {
     return opponentUid
   }
 
-  // Gets the adapter for an uid, if any. Otherwise, create one.
-  getAdapter(uid: string): MatchSideAdapter {
+  getAdapter(uid: string): MatchSideAdapter | null {
     const adapter = this.adapters.get(uid)
-    if (!adapter)
-      throw new WsException(`Player "${uid}" not currently in a match.`)
-    return adapter
+    return adapter || null
   }
 
   async createPvCMatch(uid: string, botName: BotName) {

@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
+  Logger,
 } from '@nestjs/common'
 
 import { SocketsService } from '@/common'
@@ -12,6 +13,8 @@ import { MatchSocket, MatchSocketEmitMap } from './types'
 
 @Injectable()
 export class MatchGuard implements CanActivate {
+  private readonly logger = new Logger(MatchGuard.name, { timestamp: true })
+
   constructor(
     private matchService: MatchService,
     @Inject('MatchSocketsService')
@@ -25,22 +28,22 @@ export class MatchGuard implements CanActivate {
 
     try {
       const { token } = socket.handshake.auth
-      const authData = await this.firebaseService.firebaseAuth.verifyIdToken(
+      const { uid } = await this.firebaseService.firebaseAuth.verifyIdToken(
         token,
       )
 
-      const matchAdapter = this.matchService.getAdapter(authData.uid)
+      const matchAdapter = this.matchService.getAdapter(uid)
       if (!matchAdapter) {
-        console.error(`Bad player uid: ${authData.uid}`)
-        return false
+        throw new Error(`user ${uid} is not currently in a match`)
       }
 
       socket.data.matchAdapter = matchAdapter
-      socket.data.uid = authData.uid
-      this.matchSocketsService.add(authData.uid, socket)
+      socket.data.uid = uid
+      this.matchSocketsService.add(uid, socket)
+      this.logger.log(`connection from user ${uid} accepted`)
       return true
     } catch (e) {
-      console.error(e.message)
+      this.logger.error(`connection rejected: ${e.message}`)
       return false
     }
   }
