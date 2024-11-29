@@ -27,8 +27,8 @@ export type MatchPlayerProfile = {
 
 @Injectable()
 export class MatchService {
-  private matches: Map<string, Match> // Connects matchIds to matches
-  private adapters: Map<string, MatchSideAdapter> // Connects uids to matchAdapters
+  private matches: Map<string, Match> // Maps matchIds to matches
+  private adapters: Map<string, MatchSideAdapter> // Maps uids to matchAdapters
   private opponents: Map<string, string>
 
   constructor(

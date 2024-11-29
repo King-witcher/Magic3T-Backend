@@ -1,4 +1,4 @@
-import { Inject, UseGuards } from '@nestjs/common'
+import { HttpStatus, Inject, UseFilters, UseGuards } from '@nestjs/common'
 import {
   MessageBody,
   OnGatewayDisconnect,
@@ -13,7 +13,9 @@ import { QueueEmitType, QueueServer, QueueSocket } from './types'
 import { SocketsService } from '@/common'
 import { QueueService } from './queue.service'
 import { Uid } from './decorators'
-import { BotName } from '@/database'
+import { BotName, UsersService } from '@/database'
+import { WsFilter } from '@/common/filters/ws.filter'
+import { BaseError } from '@/common/errors/base-error'
 
 @UseGuards(QueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
@@ -26,6 +28,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     private queueService: QueueService,
     @Inject('QueueSocketsService')
     private queueSocketsService: SocketsService<QueueEmitType>,
+    private usersService: UsersService,
   ) {
     // Counts how many users are online and update everyone
     setInterval(() => {
@@ -47,6 +50,11 @@ export class QueueGateway implements OnGatewayDisconnect {
   @SubscribeMessage('interact')
   handleInteract() {
     return
+  }
+
+  @SubscribeMessage('fair')
+  async handleFairBot(@Uid() userId: string) {
+    await this.queueService.createFairBotMatch(userId)
   }
 
   @SubscribeMessage('bot-0')
@@ -71,35 +79,14 @@ export class QueueGateway implements OnGatewayDisconnect {
 
   @SubscribeMessage('casual')
   handleCasual(@Uid() uid: string) {
-    if (!this.matchService.isAvailable(uid)) {
-      console.error(`Player "${uid}" unavailable for queue: in game.`)
-      this.queueSocketsService.emit(uid, 'queueRejected')
-      return
-    }
-
     this.queueService.enqueue(uid, 'casual')
-
-    const userQueueModes = this.queueService.getQueueModes(uid)
-    this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
-
-    console.log(`Player "${uid}" enqueued on casual mode.`)
     this.queueSocketsService.emit(uid, 'queueAcepted', { mode: 'casual' })
   }
 
   @SubscribeMessage('ranked')
+  @UseFilters(WsFilter)
   handleRanked(@Uid() uid: string) {
-    if (!this.matchService.isAvailable(uid)) {
-      console.error(`Player "${uid}" unavailable for queue: in game.`)
-      this.queueSocketsService.emit(uid, 'queueRejected')
-      return
-    }
-
     this.queueService.enqueue(uid, 'ranked')
-
-    const userQueueModes = this.queueService.getQueueModes(uid)
-    this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
-
-    console.log(`User "${uid}" enqueued on ranked mode.`)
     this.queueSocketsService.emit(uid, 'queueAcepted', { mode: 'ranked' })
   }
 
@@ -113,7 +100,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     const userQueueModes = this.queueService.getQueueModes(uid)
     this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
 
-    console.log(`User "${uid}" dequeued from mode "${message}".`)
+    // console.log(`User "${uid}" dequeued from mode "${message}".`)
   }
 
   handleDisconnect(client: QueueSocket) {
