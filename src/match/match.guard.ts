@@ -8,18 +8,18 @@ import {
 
 import { SocketsService } from '@/common'
 import { FirebaseService } from '@/firebase'
-import { MatchService } from './services'
 import { MatchSocket, MatchSocketEmitMap } from './types'
+import { MatchBank } from './lib/match-bank'
 
 @Injectable()
 export class MatchGuard implements CanActivate {
   private readonly logger = new Logger(MatchGuard.name, { timestamp: true })
 
   constructor(
-    private matchService: MatchService,
+    private readonly matchBank: MatchBank,
     @Inject('MatchSocketsService')
-    private matchSocketsService: SocketsService<MatchSocketEmitMap>,
-    private firebaseService: FirebaseService,
+    private readonly matchSocketsService: SocketsService<MatchSocketEmitMap>,
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   async canActivate(context: ExecutionContext) {
@@ -32,7 +32,7 @@ export class MatchGuard implements CanActivate {
         token,
       )
 
-      const matchAdapter = this.matchService.getAdapter(uid)
+      const matchAdapter = this.matchBank.getAdapter(uid)
       if (!matchAdapter) {
         throw new Error(`user ${uid} is not currently in a match`)
       }

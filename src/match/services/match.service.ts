@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { WsException } from '@nestjs/websockets'
 
 import {
   BotConfig,
@@ -13,11 +12,11 @@ import {
   UsersService,
 } from '@database'
 import { SocketsService } from '@common'
-import { Match, MatchEventsEnum } from '../lib'
-import { MatchSideAdapter, MatchSocketEmitMap } from '../types'
+import { MatchSocketEmitMap } from '../types'
 import { DatabaseSyncService } from './database-sync.service'
 import { ClientSyncService } from './client-sync.service'
 import { BaseBot, LmmBot, RandomBot } from '../bots'
+import { MatchBank } from '../lib/match-bank'
 
 export type MatchPlayerProfile = {
   uid: string
@@ -28,10 +27,6 @@ export type MatchPlayerProfile = {
 // Stores all matches that are currently in progress.
 @Injectable()
 export class MatchService {
-  private matches: Map<string, Match> // Maps matchIds to matches
-  private adapters: Map<string, MatchSideAdapter> // Maps user ids to matchAdapters
-  private opponents: Map<string, string>
-
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly configService: ConfigService,
@@ -40,53 +35,8 @@ export class MatchService {
     @Inject('MatchSocketsService')
     private readonly matchSocketsService: SocketsService<MatchSocketEmitMap>,
     private readonly clientMessageService: ClientSyncService,
-  ) {
-    this.matches = new Map()
-    this.adapters = new Map()
-    this.opponents = new Map()
-  }
-
-  private createAndRegisterMatch(
-    ...params: ConstructorParameters<typeof Match>
-  ): [Match, string] {
-    const matchId = this.databaseService.getId()
-    const match = new Match(...params)
-    this.matches.set(matchId, match)
-    match.observe(MatchEventsEnum.Finish, () => {
-      this.matches.delete(matchId)
-    })
-    return [match, matchId]
-  }
-
-  getMatch(matchId: string): Match {
-    const match = this.matches.get(matchId)
-    if (!match) throw new WsException('Match not found')
-    return match
-  }
-
-  // Assigns uids to a matchId
-  private assignAdapters(
-    match: Match,
-    [uid1, uid2]: [string, string],
-    sideOfFirst,
-  ): [MatchSideAdapter, MatchSideAdapter] {
-    const adapter1 = match.getAdapter(sideOfFirst)
-    const adapter2 = match.getAdapter(1 - sideOfFirst)
-
-    this.adapters.set(uid1, adapter1)
-    this.adapters.set(uid2, adapter2)
-    this.opponents.set(uid1, uid2)
-    this.opponents.set(uid2, uid1)
-
-    match.observe(MatchEventsEnum.Finish, () => {
-      this.adapters.delete(uid1)
-      this.adapters.delete(uid2)
-      this.opponents.delete(uid1)
-      this.opponents.delete(uid2)
-    })
-
-    return [adapter1, adapter2]
-  }
+    private readonly matchBank: MatchBank,
+  ) {}
 
   private getBot(botConfig: BotConfig): BaseBot {
     return botConfig.model === 'lmm'
@@ -100,19 +50,8 @@ export class MatchService {
     return profile
   }
 
-  getOpponent(uid: string): string {
-    const opponentUid = this.opponents.get(uid)
-    if (!opponentUid) throw new Error(`Bad uid ${uid}.`)
-    return opponentUid
-  }
-
-  getAdapter(userId: string): MatchSideAdapter | null {
-    const adapter = this.adapters.get(userId)
-    return adapter || null
-  }
-
   async createPvCMatch(uid: string, botName: BotName) {
-    const [match, matchId] = this.createAndRegisterMatch(1000 * 105)
+    const { match, id } = this.matchBank.createAndRegisterMatch(1000 * 105)
 
     // Get profiles
     const humanProfilePromise = this.getProfile(uid)
@@ -125,7 +64,7 @@ export class MatchService {
 
     // Define sides and get adapters
     const humanSide = Math.round(Math.random()) as SidesEnum
-    const [playerAdapter, botAdapter] = this.assignAdapters(
+    const [playerAdapter, botAdapter] = this.matchBank.assignAdapters(
       match,
       [uid, botProfile._id],
       humanSide,
@@ -143,11 +82,11 @@ export class MatchService {
 
     // Start match
     match.start()
-    return matchId
+    return id
   }
 
   async createPvPMatch(uid1: string, uid2: string) {
-    const [match, matchId] = this.createAndRegisterMatch(1000 * 240)
+    const { match, id } = this.matchBank.createAndRegisterMatch(1000 * 240)
 
     // Get profiles
     const [profile1, profile2] = await Promise.all([
@@ -157,7 +96,7 @@ export class MatchService {
 
     // Define sides and get adapters
     const sideOfFirst = <SidesEnum>Math.round(Math.random())
-    const [adapter1, adapter2] = this.assignAdapters(
+    const [adapter1, adapter2] = this.matchBank.assignAdapters(
       match,
       [uid1, uid2],
       sideOfFirst,
@@ -175,10 +114,15 @@ export class MatchService {
 
     // Start match
     match.start()
-    return matchId
+    return id
   }
 
-  isAvailable(uid: string) {
-    return !this.adapters.has(uid)
+  getOpponent(userId: string): string {
+    return this.matchBank.getOpponent(userId)
+  }
+
+  /// Tells if a user is available for creating a new match
+  isAvailable(userId: string) {
+    return !this.matchBank.containsUser(userId)
   }
 }

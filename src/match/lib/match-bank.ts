@@ -2,14 +2,15 @@ import { DatabaseService, SidesEnum } from '@/database'
 import { MatchSideAdapter } from '../types'
 import { Match, MatchEventsEnum } from './match'
 import { BaseError } from '@/common/errors/base-error'
-import { HttpStatus } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 
+@Injectable()
 export class MatchBank {
   private matches: Map<string, Match> = new Map() // Maps matchIds to matches
   private adapters: Map<string, MatchSideAdapter> = new Map() // Maps user ids to matchAdapters
   private opponents: Map<string, string> = new Map()
 
-  constructor(private databaseService: DatabaseService) {}
+  constructor(private readonly databaseService: DatabaseService) {}
 
   /// Creates a match that will be assigned to an id until it's finished.
   createAndRegisterMatch(...params: ConstructorParameters<typeof Match>): {
@@ -76,5 +77,10 @@ export class MatchBank {
   getAdapter(userId: string): MatchSideAdapter | null {
     const adapter = this.adapters.get(userId)
     return adapter || null
+  }
+
+  /// Gets if a user is currently in a match.
+  containsUser(userId: string): boolean {
+    return this.adapters.has(userId)
   }
 }

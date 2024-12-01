@@ -4,6 +4,7 @@ import { QueueModule } from '@/queue/queue.module'
 import { DatabaseModule } from '@/database/database.module'
 import { FirebaseModule } from '@/firebase/firebase.module'
 import { ConfigModule } from '@nestjs/config'
+import { AuthModule } from './auth/auth.module'
 
 @Global()
 @Module({
@@ -12,6 +13,7 @@ import { ConfigModule } from '@nestjs/config'
     QueueModule,
     DatabaseModule,
     FirebaseModule,
+    AuthModule,
   ],
   controllers: [AppController],
 })

@@ -1,4 +1,10 @@
-import { Inject, Logger, UseFilters, UseGuards } from '@nestjs/common'
+import {
+  Inject,
+  Logger,
+  UseFilters,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common'
 import {
   MessageBody,
   OnGatewayDisconnect,
@@ -7,17 +13,19 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 
-import { WsQueueGuard } from './guards/ws-queue.guard'
 import { QueueEmitType, QueueServer, QueueSocket } from './types'
 import { SocketsService } from '@/common'
 import { QueueService } from './queue.service'
-import { WsUserId } from './decorators'
 import { BotName } from '@/database'
 import { WsFilter } from '@/common/filters/ws.filter'
 import { GameModePipe } from './pipes/game-mode.pipe'
+import { AuthGuard } from '@/auth/auth.guard'
+import { QueueInterceptor } from './queue.interceptor'
+import { UserId } from '@/auth/user-id.decorator'
 
 @UseFilters(WsFilter)
-@UseGuards(WsQueueGuard)
+@UseInterceptors(QueueInterceptor)
+@UseGuards(AuthGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayDisconnect {
   private readonly logger = new Logger(QueueGateway.name, { timestamp: true })
@@ -53,54 +61,54 @@ export class QueueGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('fair')
-  async handleFairBot(@WsUserId() userId: string) {
+  async handleFairBot(@UserId() userId: string) {
     await this.queueService.createFairBotMatch(userId)
   }
 
   @SubscribeMessage('bot-0')
-  async handleBot0(@WsUserId() uid: string) {
+  async handleBot0(@UserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot0)
   }
 
   @SubscribeMessage('bot-1')
-  async handleBot1(@WsUserId() uid: string) {
+  async handleBot1(@UserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot1)
   }
 
   @SubscribeMessage('bot-2')
-  async handleBot2(@WsUserId() uid: string) {
+  async handleBot2(@UserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot2)
   }
 
   @SubscribeMessage('bot-3')
-  async handleBot3(@WsUserId() uid: string) {
+  async handleBot3(@UserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot3)
   }
 
   @SubscribeMessage('casual')
-  handleCasual(@WsUserId() uid: string) {
+  handleCasual(@UserId() uid: string) {
     this.queueService.enqueue(uid, 'casual')
   }
 
   @SubscribeMessage('ranked')
-  handleRanked(@WsUserId() uid: string) {
+  handleRanked(@UserId() uid: string) {
     this.queueService.enqueue(uid, 'ranked')
   }
 
   @SubscribeMessage('dequeue')
   handleDequeue(
-    @WsUserId() userId: string,
+    @UserId() userId: string,
     @MessageBody(GameModePipe) mode: 'ranked' | 'casual',
   ) {
     this.queueService.dequeue(userId, mode)
   }
 
   handleDisconnect(client: QueueSocket) {
-    const { uid } = client.data
-    if (uid) {
-      this.logger.log(`user ${uid} disconnected`)
-      this.queueService.dequeue(uid)
-      this.queueSocketsService.remove(uid, client)
+    const userId = client.data.userId
+    if (userId) {
+      this.logger.log(`user ${userId} disconnected`)
+      this.queueService.dequeue(userId)
+      this.queueSocketsService.remove(userId, client)
     }
   }
 }

@@ -1,16 +1,16 @@
 import { Controller, Logger, Post, UseGuards } from '@nestjs/common'
-import { HttpQueueGuard } from './guards/http-queue.guard'
-import { WsUserId } from './decorators'
+import { AuthGuard } from '@/auth/auth.guard'
+import { UserId } from '@/auth/user-id.decorator'
 
 @Controller('queue')
+@UseGuards(AuthGuard)
 export class QueueController {
   private readonly logger = new Logger(QueueController.name, {
     timestamp: true,
   })
 
-  @UseGuards(HttpQueueGuard)
   @Post('ranked')
-  handleRanked(@WsUserId() userId: string) {
-    return 1
+  handleRanked(@UserId() userId: string) {
+    return userId
   }
 }
