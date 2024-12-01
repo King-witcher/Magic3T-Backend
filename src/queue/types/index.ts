@@ -1,1 +1,1 @@
-export * from './QueueSocket'
+export * from './queue-socket'

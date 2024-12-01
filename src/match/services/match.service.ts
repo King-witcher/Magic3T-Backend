@@ -25,6 +25,7 @@ export type MatchPlayerProfile = {
   glicko: Glicko
 }
 
+// Stores all matches that are currently in progress.
 @Injectable()
 export class MatchService {
   private matches: Map<string, Match> // Maps matchIds to matches

@@ -7,12 +7,12 @@ import {
 } from '@nestjs/common'
 
 import { SocketsService } from '@/common'
-import { QueueEmitType, QueueSocket } from './types'
+import { QueueEmitType, QueueSocket } from '.././types'
 import { FirebaseService } from '@/firebase'
 
 @Injectable()
-export class QueueGuard implements CanActivate {
-  private readonly logger = new Logger(QueueGuard.name, { timestamp: true })
+export class WsQueueGuard implements CanActivate {
+  private readonly logger = new Logger(WsQueueGuard.name, { timestamp: true })
 
   constructor(
     @Inject('QueueSocketsService')
@@ -23,6 +23,8 @@ export class QueueGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const socket = context.switchToWs().getClient<QueueSocket>()
     const token = socket.handshake.auth.token
+
+    if (!token) throw new Error('auth token is missing')
 
     // Socket has already been validated.
     if (socket.data.uid) return true

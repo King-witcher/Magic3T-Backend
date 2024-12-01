@@ -7,17 +7,17 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 
-import { QueueGuard } from './queue.guard'
+import { WsQueueGuard } from './guards/ws-queue.guard'
 import { QueueEmitType, QueueServer, QueueSocket } from './types'
 import { SocketsService } from '@/common'
 import { QueueService } from './queue.service'
-import { UserId } from './decorators'
+import { WsUserId } from './decorators'
 import { BotName } from '@/database'
 import { WsFilter } from '@/common/filters/ws.filter'
 import { GameModePipe } from './pipes/game-mode.pipe'
 
 @UseFilters(WsFilter)
-@UseGuards(QueueGuard)
+@UseGuards(WsQueueGuard)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayDisconnect {
   private readonly logger = new Logger(QueueGateway.name, { timestamp: true })
@@ -53,43 +53,43 @@ export class QueueGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage('fair')
-  async handleFairBot(@UserId() userId: string) {
+  async handleFairBot(@WsUserId() userId: string) {
     await this.queueService.createFairBotMatch(userId)
   }
 
   @SubscribeMessage('bot-0')
-  async handleBot0(@UserId() uid: string) {
+  async handleBot0(@WsUserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot0)
   }
 
   @SubscribeMessage('bot-1')
-  async handleBot1(@UserId() uid: string) {
+  async handleBot1(@WsUserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot1)
   }
 
   @SubscribeMessage('bot-2')
-  async handleBot2(@UserId() uid: string) {
+  async handleBot2(@WsUserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot2)
   }
 
   @SubscribeMessage('bot-3')
-  async handleBot3(@UserId() uid: string) {
+  async handleBot3(@WsUserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot3)
   }
 
   @SubscribeMessage('casual')
-  handleCasual(@UserId() uid: string) {
+  handleCasual(@WsUserId() uid: string) {
     this.queueService.enqueue(uid, 'casual')
   }
 
   @SubscribeMessage('ranked')
-  handleRanked(@UserId() uid: string) {
+  handleRanked(@WsUserId() uid: string) {
     this.queueService.enqueue(uid, 'ranked')
   }
 
   @SubscribeMessage('dequeue')
   handleDequeue(
-    @UserId() userId: string,
+    @WsUserId() userId: string,
     @MessageBody(GameModePipe) mode: 'ranked' | 'casual',
   ) {
     this.queueService.dequeue(userId, mode)

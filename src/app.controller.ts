@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  ImATeapotException,
-  UseFilters,
-} from '@nestjs/common'
-import { BaseError } from './common/errors/base-error'
-import { HttpFilter } from './common/filters/http.filter'
+import { Controller, Get, ImATeapotException } from '@nestjs/common'
 
 const Package = require('../package.json')
 
