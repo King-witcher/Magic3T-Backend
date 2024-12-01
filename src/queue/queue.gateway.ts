@@ -23,9 +23,9 @@ import { AuthGuard } from '@/auth/auth.guard'
 import { QueueInterceptor } from './queue.interceptor'
 import { UserId } from '@/auth/user-id.decorator'
 
-@UseFilters(WsFilter)
-@UseInterceptors(QueueInterceptor)
 @UseGuards(AuthGuard)
+@UseInterceptors(QueueInterceptor)
+@UseFilters(WsFilter)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayDisconnect {
   private readonly logger = new Logger(QueueGateway.name, { timestamp: true })
