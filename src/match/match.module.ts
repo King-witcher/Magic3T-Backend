@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common'
 
-import { DatabaseModule } from '@/database'
-import { FirebaseModule } from '@/firebase'
 import { SocketsService } from '@/common'
 import { GlickoRatingStrategy, RatingModule } from '@/rating'
 import { MatchController } from './match.controller'
