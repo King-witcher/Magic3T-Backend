@@ -27,7 +27,7 @@ export class AuthGuard implements CanActivate {
           return await this.validateWs(socket)
         }
         default: {
-          throw new NotImplementedException('not implemented')
+          throw new NotImplementedException()
         }
       }
     } catch (e) {

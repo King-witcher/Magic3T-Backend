@@ -12,12 +12,7 @@ import { MatchBank } from './lib/match-bank'
 import { AuthModule } from '@/auth/auth.module'
 
 @Module({
-  imports: [
-    DatabaseModule,
-    FirebaseModule,
-    AuthModule,
-    RatingModule.register(GlickoRatingStrategy),
-  ],
+  imports: [AuthModule, RatingModule.register(GlickoRatingStrategy)],
   controllers: [MatchController],
   providers: [
     MatchGateway,

@@ -4,12 +4,13 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotImplementedException,
 } from '@nestjs/common'
 
 import { SocketsService } from '@/common'
-import { FirebaseService } from '@/firebase'
 import { MatchSocket, MatchSocketEmitMap } from './types'
 import { MatchBank } from './lib'
+import { MatchRequest } from './types/match-request'
 
 @Injectable()
 export class MatchGuard implements CanActivate {
@@ -19,32 +20,54 @@ export class MatchGuard implements CanActivate {
     private readonly matchBank: MatchBank,
     @Inject('MatchSocketsService')
     private readonly matchSocketsService: SocketsService<MatchSocketEmitMap>,
-    private readonly firebaseService: FirebaseService,
   ) {}
 
-  async canActivate(context: ExecutionContext) {
-    const socket = context.switchToWs().getClient<MatchSocket>()
-    if (socket.data.matchAdapter && socket.data.uid) return true
-
+  canActivate(context: ExecutionContext) {
     try {
-      const { token } = socket.handshake.auth
-      const { uid } = await this.firebaseService.firebaseAuth.verifyIdToken(
-        token,
-      )
-
-      const matchAdapter = this.matchBank.getAdapter(uid)
-      if (!matchAdapter) {
-        throw new Error(`user ${uid} is not currently in a match`)
+      switch (context.getType()) {
+        case 'http': {
+          const request = context.switchToHttp().getRequest<MatchRequest>()
+          return this.validateHttp(request)
+        }
+        case 'ws': {
+          const client = context.switchToWs().getClient<MatchSocket>()
+          return this.validateWs(client)
+        }
+        case 'rpc':
+          throw new NotImplementedException()
       }
-
-      this.logger.log(`connection from user ${uid} accepted`)
-      socket.data.matchAdapter = matchAdapter
-      socket.data.uid = uid
-      this.matchSocketsService.add(uid, socket)
-      return true
     } catch (e) {
-      this.logger.error(`connection rejected: ${e.message}`)
+      this.logger.error(`request rejected: ${e.message}`)
       return false
     }
+  }
+
+  private validateHttp(request: MatchRequest): boolean {
+    const userId = request.userId
+    if (!userId)
+      throw new Error(
+        'socket is not authenticated. auth guard must run before.',
+      )
+
+    const matchAdapter = this.matchBank.getAdapter(userId)
+    if (!matchAdapter) {
+      throw new Error(`user ${userId} is not currently in a match`)
+    }
+    return true
+  }
+
+  private validateWs(socket: MatchSocket): boolean {
+    const userId = socket.data.userId
+    if (!userId)
+      throw new Error(
+        'socket is not authenticated. auth guard must run before.',
+      )
+
+    const matchAdapter = this.matchBank.getAdapter(userId)
+    if (!matchAdapter) {
+      throw new Error(`user ${userId} is not currently in a match`)
+    }
+    this.matchSocketsService.add(userId, socket)
+    return true
   }
 }

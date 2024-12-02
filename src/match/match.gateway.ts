@@ -48,11 +48,7 @@ export class MatchGateway implements OnGatewayDisconnect {
 
   // Refactor this
   @SubscribeMessage(MatchSocketListenedEvent.Message)
-  handleMessage(
-    @ConnectedSocket() client: MatchSocket,
-    @UserId() uid: string,
-    @MessageBody() body: string,
-  ) {
+  handleMessage(@UserId() uid: string, @MessageBody() body: string) {
     const opponent = this.matchService.getOpponent(uid)
     this.socketsService.emit(opponent, MatchSocketEmittedEvent.Message, body)
   }
@@ -75,10 +71,10 @@ export class MatchGateway implements OnGatewayDisconnect {
   }
 
   handleDisconnect(client: MatchSocket) {
-    const uid = client.data.uid
-    if (uid) {
-      this.logger.log(`user ${uid} disconnected`)
-      this.socketsService.remove(uid, client)
+    const userId = client.data.userId
+    if (userId) {
+      this.logger.log(`user ${userId} disconnected`)
+      this.socketsService.remove(userId, client)
     }
   }
 }

@@ -1,14 +1,23 @@
-import { Controller } from '@nestjs/common'
+import { Controller, HttpCode, Post } from '@nestjs/common'
 
-import { FirebaseService } from '@/firebase'
 import { MatchService } from './services'
+import { CurrentMatchAdapter } from './decorators'
+import { MatchSideAdapter } from './types'
+import { ApiOperation } from '@nestjs/swagger'
 
-@Controller('')
+@Controller('match')
 export class MatchController {
-  constructor(
-    private matchService: MatchService,
-    private firebaseService: FirebaseService,
-  ) {}
+  constructor(private matchService: MatchService) {}
+
+  @ApiOperation({
+    summary: 'Forfeit',
+    description: 'Forfeits the current match',
+  })
+  @Post('forfeit')
+  @HttpCode(200)
+  handleForfeit(@CurrentMatchAdapter() matchAdapter: MatchSideAdapter) {
+    matchAdapter.forfeit()
+  }
 
   // @Get('matchId')
   // async handleGetMatch(@Headers('Authorization') authorization: string) {
