@@ -9,7 +9,7 @@ import {
 import { SocketsService } from '@/common'
 import { FirebaseService } from '@/firebase'
 import { MatchSocket, MatchSocketEmitMap } from './types'
-import { MatchBank } from './lib/match-bank'
+import { MatchBank } from './lib'
 
 @Injectable()
 export class MatchGuard implements CanActivate {

@@ -16,7 +16,7 @@ import { MatchSocketEmitMap } from '../types'
 import { DatabaseSyncService } from './database-sync.service'
 import { ClientSyncService } from './client-sync.service'
 import { BaseBot, LmmBot, RandomBot } from '../bots'
-import { MatchBank } from '../lib/match-bank'
+import { MatchBank } from '../lib'
 
 export type MatchPlayerProfile = {
   uid: string

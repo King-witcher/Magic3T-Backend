@@ -1,4 +1,5 @@
 import { Controller, Get, ImATeapotException } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
 
 const Package = require('../package.json')
 
@@ -9,6 +10,10 @@ export class AppController {
     throw new ImATeapotException()
   }
 
+  @ApiOperation({
+    summary: 'Service status',
+    description: 'Returns the service status for tracking downtimes.',
+  })
   @Get('status')
   status() {
     const rand = Math.random()
@@ -17,7 +22,10 @@ export class AppController {
       status: 'available',
     }
   }
-
+  @ApiOperation({
+    summary: 'Api version',
+    description: 'Returns the current api version.',
+  })
   @Get('version')
   getVersion() {
     return Package.version

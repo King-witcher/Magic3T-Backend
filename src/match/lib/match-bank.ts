@@ -5,6 +5,7 @@ import { BaseError } from '@/common/errors/base-error'
 import { HttpStatus, Injectable } from '@nestjs/common'
 
 @Injectable()
+/// Maps all matches that are currently running on the server.
 export class MatchBank {
   private matches: Map<string, Match> = new Map() // Maps matchIds to matches
   private adapters: Map<string, MatchSideAdapter> = new Map() // Maps user ids to matchAdapters
