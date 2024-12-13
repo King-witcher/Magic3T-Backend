@@ -19,7 +19,7 @@ export class AppController {
       const response = await fetch(`${backend_url}/status`)
       const body = await response.json()
 
-      logger.debug(`Received status ${body.status} from tick.`)
+      logger.debug(`Received status ${body.status} from re-up tick.`)
 
       const delta = Date.now() - initialTime
       setTimeout(tick, Math.max(reup_rate - delta, 0))
@@ -39,8 +39,6 @@ export class AppController {
   })
   @Get('status')
   status() {
-    const rand = Math.random()
-    if (rand < 0.0001) throw new ImATeapotException()
     return {
       status: 'available',
     }
