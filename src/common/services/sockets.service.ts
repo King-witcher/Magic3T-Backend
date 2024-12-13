@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import {
   DefaultEventsMap,
   EventNames,
@@ -9,20 +9,20 @@ import { Socket } from 'socket.io'
 
 @Injectable()
 export class SocketsService<EmitType extends EventsMap> {
+  private readonly logger = new Logger(SocketsService.name, { timestamp: true })
   private socketMap: Record<string, Socket<DefaultEventsMap, EmitType>[]> = {}
 
   /**
    * Binds a socket to a specific uid. More than one socket can be bound to the same uid.
-   * @param uid
+   * @param userId
    * @param socket
    */
-  add(uid: string, socket: Socket<DefaultEventsMap, EmitType>) {
-    if (this.socketMap[uid]?.includes(socket)) return
+  add(userId: string, socket: Socket<DefaultEventsMap, EmitType>) {
+    if (this.socketMap[userId]?.includes(socket)) return
 
-    console.log(`[SocketsService] Push ${uid}`)
-
-    if (this.socketMap[uid]) this.socketMap[uid].push(socket)
-    else this.socketMap[uid] = [socket]
+    if (this.socketMap[userId]) this.socketMap[userId].push(socket)
+    else this.socketMap[userId] = [socket]
+    this.logger.log(`bound socket ${socket.id} to user id ${userId}`)
   }
 
   getUserCount() {
@@ -31,31 +31,34 @@ export class SocketsService<EmitType extends EventsMap> {
 
   /**
    * Unbinds a socket from a uid.
-   * @param uid
+   * @param userId
    * @param socket
    */
-  remove(uid: string, socket: Socket<DefaultEventsMap, EmitType>) {
-    const sockets = this.socketMap[uid]
-    if (!sockets) throw new Error('Uid not found')
-    this.socketMap[uid].splice(sockets.indexOf(socket), 1)
-    if (this.socketMap[uid].length === 0) delete this.socketMap[uid]
+  remove(userId: string, socket: Socket<DefaultEventsMap, EmitType>) {
+    const sockets = this.socketMap[userId]
+    if (!sockets) throw new Error(`userId ${userId} not found`)
+
+    this.socketMap[userId].splice(sockets.indexOf(socket), 1)
+    if (this.socketMap[userId].length === 0) delete this.socketMap[userId]
+    this.logger.log(`unbound socket ${socket.id} from user id ${userId}`)
   }
 
   /**
    * Emits an event to each socket bound to an uid.
-   * @param uid
+   * @param userId
    * @param event
    * @param data
    */
   emit<Ev extends EventNames<EmitType>>(
-    uid: string,
+    userId: string,
     event: Ev,
     ...data: EventParams<EmitType, Ev>
   ) {
-    const sockets = this.socketMap[uid]
+    const sockets = this.socketMap[userId]
     if (!sockets) {
-      console.log(event)
-      console.error(`Socket uid ${uid} not found.`)
+      this.logger.warn(
+        `socket not found for ${userId}. message ${String(event)} was not sent`,
+      )
       return
     }
 

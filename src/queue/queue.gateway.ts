@@ -1,4 +1,10 @@
-import { Inject, UseGuards } from '@nestjs/common'
+import {
+  Inject,
+  Logger,
+  UseFilters,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common'
 import {
   MessageBody,
   OnGatewayDisconnect,
@@ -7,22 +13,27 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 
-import { QueueGuard } from './queue.guard'
-import { MatchService } from '@/match'
 import { QueueEmitType, QueueServer, QueueSocket } from './types'
 import { SocketsService } from '@/common'
 import { QueueService } from './queue.service'
-import { Uid } from './decorators'
 import { BotName } from '@/database'
+import { WsFilter } from '@/common/filters/ws.filter'
+import { GameModePipe } from './pipes/game-mode.pipe'
+import { AuthGuard } from '@/auth/auth.guard'
+import { QueueInterceptor } from './queue.interceptor'
+import { UserId } from '@/auth/user-id.decorator'
 
-@UseGuards(QueueGuard)
+@UseGuards(AuthGuard)
+@UseInterceptors(QueueInterceptor)
+@UseFilters(WsFilter)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayDisconnect {
+  private readonly logger = new Logger(QueueGateway.name, { timestamp: true })
+
   @WebSocketServer()
   server: QueueServer
 
   constructor(
-    private matchService: MatchService,
     private queueService: QueueService,
     @Inject('QueueSocketsService')
     private queueSocketsService: SocketsService<QueueEmitType>,
@@ -49,78 +60,55 @@ export class QueueGateway implements OnGatewayDisconnect {
     return
   }
 
+  @SubscribeMessage('fair')
+  async handleFairBot(@UserId() userId: string) {
+    await this.queueService.createFairBotMatch(userId)
+  }
+
   @SubscribeMessage('bot-0')
-  async handleBot0(@Uid() uid: string) {
+  async handleBot0(@UserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot0)
   }
 
   @SubscribeMessage('bot-1')
-  async handleBot1(@Uid() uid: string) {
+  async handleBot1(@UserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot1)
   }
 
   @SubscribeMessage('bot-2')
-  async handleBot2(@Uid() uid: string) {
+  async handleBot2(@UserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot2)
   }
 
   @SubscribeMessage('bot-3')
-  async handleBot3(@Uid() uid: string) {
+  async handleBot3(@UserId() uid: string) {
     await this.queueService.createBotMatch(uid, BotName.Bot3)
   }
 
   @SubscribeMessage('casual')
-  handleCasual(@Uid() uid: string) {
-    if (!this.matchService.isAvailable(uid)) {
-      console.error(`Player "${uid}" unavailable for queue: in game.`)
-      this.queueSocketsService.emit(uid, 'queueRejected')
-      return
-    }
-
+  handleCasual(@UserId() uid: string) {
     this.queueService.enqueue(uid, 'casual')
-
-    const userQueueModes = this.queueService.getQueueModes(uid)
-    this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
-
-    console.log(`Player "${uid}" enqueued on casual mode.`)
-    this.queueSocketsService.emit(uid, 'queueAcepted', { mode: 'casual' })
   }
 
   @SubscribeMessage('ranked')
-  handleRanked(@Uid() uid: string) {
-    if (!this.matchService.isAvailable(uid)) {
-      console.error(`Player "${uid}" unavailable for queue: in game.`)
-      this.queueSocketsService.emit(uid, 'queueRejected')
-      return
-    }
-
+  handleRanked(@UserId() uid: string) {
     this.queueService.enqueue(uid, 'ranked')
-
-    const userQueueModes = this.queueService.getQueueModes(uid)
-    this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
-
-    console.log(`User "${uid}" enqueued on ranked mode.`)
-    this.queueSocketsService.emit(uid, 'queueAcepted', { mode: 'ranked' })
   }
 
   @SubscribeMessage('dequeue')
   handleDequeue(
-    @Uid() uid: string,
-    @MessageBody() message: 'ranked' | 'casual',
+    @UserId() userId: string,
+    @MessageBody(GameModePipe) mode: 'ranked' | 'casual',
   ) {
-    this.queueService.dequeue(uid, message)
-
-    const userQueueModes = this.queueService.getQueueModes(uid)
-    this.queueSocketsService.emit(uid, 'queueModes', userQueueModes)
-
-    console.log(`User "${uid}" dequeued from mode "${message}".`)
+    this.queueService.dequeue(userId, mode)
   }
 
   handleDisconnect(client: QueueSocket) {
-    const { uid } = client.data
-    if (uid) {
-      this.queueService.dequeue(uid)
-      this.queueSocketsService.remove(uid, client)
+    const userId = client.data.userId
+    if (userId) {
+      this.logger.log(`user ${userId} disconnected`)
+      this.queueService.dequeue(userId)
+      this.queueSocketsService.remove(userId, client)
     }
   }
 }

@@ -1,10 +1,6 @@
 import { Server, Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 
-export type QueueSocketData = {
-  uid: string
-}
-
 export type QueueEmitType = {
   queueRejected: (reason?: string) => void
   queueAcepted: (payload: { mode: 'casual' | 'ranked' }) => void
@@ -20,12 +16,11 @@ export type QueueEmitType = {
 export type QueueSocket = Socket<
   DefaultEventsMap,
   QueueEmitType,
-  DefaultEventsMap,
-  QueueSocketData
+  DefaultEventsMap
 >
+
 export type QueueServer = Server<
   DefaultEventsMap,
   QueueEmitType,
-  DefaultEventsMap,
-  QueueSocketData
+  DefaultEventsMap
 >

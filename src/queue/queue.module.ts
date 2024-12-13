@@ -3,18 +3,19 @@ import { MatchModule } from '@/match'
 import { DatabaseModule } from '@/database'
 import { FirebaseModule } from '@/firebase'
 import { QueueGateway } from './queue.gateway'
-import { QueueGuard } from './queue.guard'
 import { QueueService } from './queue.service'
 import { SocketsService } from '@/common/services/sockets.service'
 import { QueueEmitType } from './types'
+import { QueueController } from './queue.controller'
+import { AuthModule } from '@/auth/auth.module'
 
 export const QueueSocketsService = Symbol('QueueSocketsService')
 
 @Module({
-  imports: [MatchModule, DatabaseModule, FirebaseModule],
+  controllers: [QueueController],
+  imports: [MatchModule, DatabaseModule, AuthModule, FirebaseModule],
   providers: [
     QueueGateway,
-    QueueGuard,
     QueueService,
     {
       provide: 'QueueSocketsService',
@@ -23,7 +24,3 @@ export const QueueSocketsService = Symbol('QueueSocketsService')
   ],
 })
 export class QueueModule {}
-
-class TestService {
-  constructor(private queueService: QueueService) {}
-}

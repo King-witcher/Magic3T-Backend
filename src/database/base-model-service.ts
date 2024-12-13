@@ -5,8 +5,12 @@ import CollectionReference = firestore.CollectionReference
 import Firestore = firestore.Firestore
 import { DatabaseService } from '@/database/database.service'
 import { UpdateData } from 'firebase-admin/firestore'
+import { Logger } from '@nestjs/common'
 
 export abstract class BaseModelService<T extends WithId> {
+  private readonly logger = new Logger(BaseModelService.name, {
+    timestamp: true,
+  })
   private readonly converter: FirestoreDataConverter<T>
   private readonly collection: CollectionReference<T>
 
@@ -22,10 +26,7 @@ export abstract class BaseModelService<T extends WithId> {
   }
 
   async get(id: string) {
-    console.info(
-      `%cFirestore: Read "${id}" from ${this.collection.id}.`,
-      'color: #FFCA28',
-    )
+    this.logger.verbose(`read "${id}" from ${this.collection.id}.`)
 
     const snapshot = await this.collection.doc(id).get()
     return snapshot.data() || null
@@ -36,10 +37,7 @@ export abstract class BaseModelService<T extends WithId> {
    * @param doc Document to be saved. _id field is considered to identify the document to be saved.
    */
   async save(doc: T) {
-    console.info(
-      `%cFirestore: Update "${doc._id}" on ${this.collection.id}.`,
-      'color: #FFCA28',
-    )
+    this.logger.verbose(`update "${doc._id}" on ${this.collection.id}.`)
 
     await this.collection.doc(doc._id).set(doc)
   }
@@ -51,10 +49,7 @@ export abstract class BaseModelService<T extends WithId> {
   async create(doc: T) {
     const id = this.databaseService.getId()
 
-    console.info(
-      `%cFirestore: Create "${id}" on ${this.collection.id}.`,
-      'color: #FFCA28',
-    )
+    this.logger.verbose(`create "${id}" on ${this.collection.id}.`)
 
     await this.collection.doc(id).set(doc)
     return id
@@ -65,10 +60,7 @@ export abstract class BaseModelService<T extends WithId> {
    * @param doc Document to be updated. _id field is considered to identify the document to be updated.
    */
   async update(doc: UpdateData<T> & WithId) {
-    console.info(
-      `%cFirestore: Update "${doc._id}" on ${this.collection.id}.`,
-      'color: #FFCA28',
-    )
+    this.logger.verbose(`update "${doc._id}" on ${this.collection.id}.`)
     await this.collection.doc(doc._id).update(doc)
   }
 }

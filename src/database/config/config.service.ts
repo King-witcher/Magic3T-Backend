@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { FirebaseService } from '@/firebase/firebase.service'
 import { DatabaseService } from '@/database/database.service'
 import {
@@ -12,6 +12,7 @@ import { CacheMethod } from '@common'
 
 @Injectable()
 export class ConfigService {
+  private readonly logger = new Logger(ConfigService.name, { timestamp: true })
   private collection: CollectionReference
 
   constructor(
@@ -23,7 +24,7 @@ export class ConfigService {
 
   @CacheMethod(300)
   async getBotConfigs() {
-    console.info('%cFirestore: Read "bots" from config.', 'color: #FFCA28')
+    this.logger.verbose('read "bots" from config')
 
     const converter = this.databaseService.getConverter<BotConfigModel>()
     const snapshot = await this.collection
@@ -33,7 +34,7 @@ export class ConfigService {
 
     const data = snapshot.data()
 
-    if (!data) throw new Error('Couldn not find bot config.')
+    if (!data) throw new Error('couldn not find bot config')
 
     return data
   }
@@ -45,7 +46,7 @@ export class ConfigService {
 
   @CacheMethod(300)
   async getRatingConfig(): Promise<RatingConfigModel> {
-    console.info('%cFirestore: Read "rating" from config.', 'color: #FFCA28')
+    this.logger.verbose('read "rating" from config')
     const converter = this.databaseService.getConverter<RatingConfigModel>()
     const snapshot = await this.collection
       .withConverter(converter)
@@ -54,7 +55,7 @@ export class ConfigService {
 
     const data = snapshot.data()
 
-    if (!data) throw new Error('Couldn not find rating config.')
+    if (!data) throw new Error('couldn not find rating config')
 
     return data
   }

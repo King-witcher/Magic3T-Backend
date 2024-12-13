@@ -1,4 +1,4 @@
-import { Inject, UseGuards } from '@nestjs/common'
+import { Inject, Logger, UseGuards } from '@nestjs/common'
 import {
   ConnectedSocket,
   MessageBody,
@@ -8,7 +8,6 @@ import {
 } from '@nestjs/websockets'
 import { ChoicePipe, SocketsService } from '@/common'
 
-import { Uid } from '@/queue/decorators'
 import { Choice } from '@/types/Choice'
 import { MatchGuard } from './match.guard'
 import {
@@ -20,10 +19,14 @@ import {
 } from './types'
 import { MatchService } from './services'
 import { CurrentMatchAdapter } from './decorators'
+import { UserId } from '@/auth/user-id.decorator'
+import { AuthGuard } from '@/auth/auth.guard'
 
-@UseGuards(MatchGuard)
+@UseGuards(AuthGuard, MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
 export class MatchGateway implements OnGatewayDisconnect {
+  private readonly logger = new Logger(MatchGateway.name, { timestamp: true })
+
   constructor(
     @Inject('MatchSocketsService')
     private socketsService: SocketsService<MatchSocketEmitMap>,
@@ -45,18 +48,17 @@ export class MatchGateway implements OnGatewayDisconnect {
 
   // Refactor this
   @SubscribeMessage(MatchSocketListenedEvent.Message)
-  handleMessage(
-    @ConnectedSocket() client: MatchSocket,
-    @Uid() uid: string,
-    @MessageBody() body: string,
-  ) {
+  handleMessage(@UserId() uid: string, @MessageBody() body: string) {
     const opponent = this.matchService.getOpponent(uid)
     this.socketsService.emit(opponent, MatchSocketEmittedEvent.Message, body)
   }
 
   @SubscribeMessage(MatchSocketListenedEvent.GetOpponent)
-  getOpponent(@Uid() uid: string, @ConnectedSocket() client: MatchSocket) {
-    const opponentUid = this.matchService.getOpponent(uid)
+  getOpponent(
+    @UserId() userId: string,
+    @ConnectedSocket() client: MatchSocket,
+  ) {
+    const opponentUid = this.matchService.getOpponent(userId)
     client.emit(MatchSocketEmittedEvent.OpponentUid, opponentUid)
   }
 
@@ -69,10 +71,10 @@ export class MatchGateway implements OnGatewayDisconnect {
   }
 
   handleDisconnect(client: MatchSocket) {
-    const uid = client.data.uid
-    if (uid) {
-      console.log(`[MatchGateway] ${uid} disconnected.`)
-      this.socketsService.remove(uid, client)
+    const userId = client.data.userId
+    if (userId) {
+      this.logger.log(`user ${userId} disconnected`)
+      this.socketsService.remove(userId, client)
     }
   }
 }
