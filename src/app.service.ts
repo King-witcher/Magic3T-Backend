@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common'
-import axios from 'axios'
 
 @Injectable()
 export class AppService {

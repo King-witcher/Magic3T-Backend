@@ -1,6 +1,5 @@
 import { Controller, Get, ImATeapotException, Logger } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
-import axios from 'axios'
 import { AppService } from './app.service'
 
 const Package = require('../package.json')
