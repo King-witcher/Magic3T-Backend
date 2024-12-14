@@ -1,5 +1,7 @@
 import { Controller, Get, ImATeapotException, Logger } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
+import axios from 'axios'
+import { AppService } from './app.service'
 
 const Package = require('../package.json')
 
@@ -7,25 +9,8 @@ const Package = require('../package.json')
 export class AppController {
   private readonly logger = new Logger(AppController.name)
 
-  constructor() {
-    const logger = this.logger
-    const backend_url = process.env.MAGIC3T_BACKEND_URL
-    const reup_rate = Number.parseInt(process.env.REUP_RATE)
-
-    async function tick() {
-      const initialTime = Date.now()
-
-      if (!backend_url) return
-      const response = await fetch(`${backend_url}/status`)
-      const body = await response.json()
-
-      logger.debug(`Received status ${body.status} from re-up tick.`)
-
-      const delta = Date.now() - initialTime
-      setTimeout(tick, Math.max(reup_rate - delta, 0))
-    }
-
-    tick()
+  constructor(private readonly appService: AppService) {
+    appService.keepServerAlive()
   }
 
   @Get('teapot')
