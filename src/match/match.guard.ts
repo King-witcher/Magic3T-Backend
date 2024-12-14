@@ -53,6 +53,7 @@ export class MatchGuard implements CanActivate {
     if (!matchAdapter) {
       throw new Error(`user ${userId} is not currently in a match`)
     }
+    request.matchAdapter = matchAdapter
     return true
   }
 
@@ -67,6 +68,7 @@ export class MatchGuard implements CanActivate {
     if (!matchAdapter) {
       throw new Error(`user ${userId} is not currently in a match`)
     }
+    socket.data.matchAdapter = matchAdapter
     this.matchSocketsService.add(userId, socket)
     return true
   }
