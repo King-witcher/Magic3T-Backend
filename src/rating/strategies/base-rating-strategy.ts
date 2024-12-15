@@ -1,4 +1,4 @@
-import { Glicko, UserModel } from '@/database/users/user.model'
+import { Glicko, UserModel } from '@/database/user/user.model'
 
 export abstract class RatingStrategy {
   abstract getRatings(

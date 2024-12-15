@@ -1,4 +1,4 @@
-import { Glicko } from '@/database/users/user.model'
+import { Glicko } from '@/database/user/user.model'
 
 const piSquare = Math.PI ** 2
 

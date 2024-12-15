@@ -1,12 +1,12 @@
-import { Glicko, UserModel } from '@/database/users/user.model'
+import { Glicko, UserModel } from '@/database/user/user.model'
 import { RatingStrategy } from './base-rating-strategy'
-import { ConfigService } from '@/database/config/config.service'
 import { Injectable } from '@nestjs/common'
 import { getInflation, newDeviation, newRating } from '../lib/glicko'
+import { ConfigRepository } from '@/database'
 
 @Injectable()
 export class GlickoRatingStrategy extends RatingStrategy {
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly configService: ConfigRepository) {
     super()
   }
 

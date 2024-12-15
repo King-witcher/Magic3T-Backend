@@ -3,13 +3,13 @@ import { Inject, Injectable } from '@nestjs/common'
 import {
   BotConfig,
   BotName,
-  ConfigService,
+  ConfigRepository,
   DatabaseService,
   GameMode,
   Glicko,
   SidesEnum,
   UserModel,
-  UsersService,
+  UserRepository,
 } from '@database'
 import { SocketsService } from '@common'
 import { MatchSocketEmitMap } from '../types'
@@ -29,8 +29,8 @@ export type MatchPlayerProfile = {
 export class MatchService {
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly configService: ConfigService,
-    private readonly usersService: UsersService,
+    private readonly configRepository: ConfigRepository,
+    private readonly userRepository: UserRepository,
     private readonly databaseSyncService: DatabaseSyncService,
     @Inject('MatchSocketsService')
     private readonly matchSocketsService: SocketsService<MatchSocketEmitMap>,
@@ -45,7 +45,7 @@ export class MatchService {
   }
 
   private async getProfile(uid: string): Promise<UserModel> {
-    const profile = await this.usersService.get(uid)
+    const profile = await this.userRepository.get(uid)
     if (!profile) throw new Error(`Could not find profile for bot ${uid}.`)
     return profile
   }
@@ -55,7 +55,7 @@ export class MatchService {
 
     // Get profiles
     const humanProfilePromise = this.getProfile(uid)
-    const botConfig = await this.configService.getBotConfig(botName)
+    const botConfig = await this.configRepository.getBotConfig(botName)
     if (!botConfig) throw new Error(`Could not find config for bot ${botName}.`)
     const botProfile = await this.getProfile(botConfig.uid)
     const humanProfile = await humanProfilePromise

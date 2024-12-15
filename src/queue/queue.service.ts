@@ -9,7 +9,7 @@ import {
 import { SocketsService } from '@/common'
 import { MatchService } from '@/match'
 import { QueueEmitType } from './types'
-import { BotName, UsersService } from '@/database'
+import { BotName, UserRepository } from '@/database'
 import { AlreadyInGameError } from './errors/already-in-game.error'
 import { BaseError } from '@/common/errors/base-error'
 
@@ -21,7 +21,7 @@ export class QueueService {
 
   constructor(
     private matchService: MatchService,
-    private usersService: UsersService,
+    private usersService: UserRepository,
     @Inject('QueueSocketsService')
     private queueSocketsService: SocketsService<QueueEmitType>,
   ) {}

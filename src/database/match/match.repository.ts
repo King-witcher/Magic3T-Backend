@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { BaseModelService } from '@/database/base-model-service'
-import { MatchModel } from '@/database/matches/match.model'
+import { MatchModel } from '@/database/match/match.model'
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
+import { BaseRepository } from '../base-repository'
 
 @Injectable()
-export class MatchesService extends BaseModelService<MatchModel> {
+export class MatchRepository extends BaseRepository<MatchModel> {
   constructor(
     databaseService: DatabaseService,
     firebaseService: FirebaseService,

@@ -1,18 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { ConfigService } from './config.service'
+import { ConfigRepository } from './config.repository'
 
 describe('ConfigService', () => {
-  let service: ConfigService
+  let repository: ConfigRepository
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ConfigService],
+      providers: [ConfigRepository],
     }).compile()
 
-    service = module.get<ConfigService>(ConfigService)
+    repository = module.get<ConfigRepository>(ConfigRepository)
   })
 
   it('should be defined', () => {
-    expect(service).toBeDefined()
+    expect(repository).toBeDefined()
   })
 })
