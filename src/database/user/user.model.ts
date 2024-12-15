@@ -9,6 +9,7 @@ export interface Glicko {
 
 export interface UserModel extends WithId {
   nickname: string
+  nicknameDate?: Date
   role: 'player' | 'bot' | 'creator'
   glicko: Glicko
   stats: {

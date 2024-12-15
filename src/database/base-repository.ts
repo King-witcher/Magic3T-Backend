@@ -11,8 +11,8 @@ export abstract class BaseRepository<T extends WithId> {
   private readonly logger = new Logger(BaseRepository.name, {
     timestamp: true,
   })
-  private readonly converter: FirestoreDataConverter<T>
-  private readonly collection: CollectionReference<T>
+  protected readonly converter: FirestoreDataConverter<T>
+  protected readonly collection: CollectionReference<T>
 
   protected constructor(
     firestore: Firestore,

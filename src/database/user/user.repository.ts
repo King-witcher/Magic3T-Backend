@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotImplementedException,
+} from '@nestjs/common'
 import { Glicko, UserModel } from '@/database/user/user.model'
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
@@ -13,6 +17,11 @@ export class UserRepository extends BaseRepository<UserModel> {
     private configService: ConfigRepository,
   ) {
     super(firebaseService.firestore, databaseService, 'users')
+  }
+
+  async getByNickname(nickname: string): Promise<UserModel | null> {
+    throw new NotImplementedException()
+    // await this.collection.where()
   }
 
   async updateGlicko(id: string, glicko: Glicko) {
