@@ -13,26 +13,44 @@ export class AppService {
       return
     }
 
-    const reup_rate = Number.parseInt(process.env.REUP_RATE)
+    const reup_rate = Number.parseInt(process.env.HEARTBEAT_RATE)
 
-    async function tick() {
-      const initialTime = Date.now()
-      try {
-        const response = await fetch(`${backend_url}/status`)
-        const body = await response.json()
-
-        logger.debug(`Received status ${body.status} from re-up tick.`)
-
-        const delta = Date.now() - initialTime
-        setTimeout(tick, Math.max(reup_rate - delta, 0))
-      } catch (e) {
-        logger.error(`Failed to send reup tick: ${e.code}`)
-        if (e.code === 'ECONNRESET') {
-          setTimeout(tick, 1000)
-        }
-      }
+    // Define the function that will circularly call the server.
+    async function heartbeat() {
+      const response = await fetch(`${backend_url}/status`)
+      const body = await response.json()
+      return <string>body.status
     }
 
-    tick()
+    // Define the recursive function that calls itself in a loop.
+    async function recursion() {
+      const initialTime = Date.now()
+
+      // Define a function to handle the scenario where a heartbeat call resolved without throwing errors.
+      function handleHeartbeat(status: string) {
+        logger.verbose(`Received "${status}" from heartbeat.`)
+        const delta = Date.now() - initialTime
+        // Recursively calls the recursive function again.
+        setTimeout(recursion, Math.max(reup_rate - delta, 0))
+      }
+
+      heartbeat()
+        .then(handleHeartbeat)
+        .catch((error: Error) => {
+          // If the heartbeat failed once, wait for 1 second and then retry.
+          logger.warn(`Heartbeat failed due to ${error.cause}. Retrying.`)
+          setTimeout(() => {
+            heartbeat()
+              .then(handleHeartbeat)
+              .catch((error: Error) => {
+                // If it fails again, stops heartbeating and do not call the recursive function anymore.
+                // This behavior can be changed.
+                logger.error(`Heartbeat retry failed due to ${error.cause}.`)
+              })
+          }, 1000)
+        })
+    }
+
+    recursion()
   }
 }
