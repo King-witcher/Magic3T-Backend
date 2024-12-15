@@ -11,8 +11,10 @@ import CollectionReference = firestore.CollectionReference
 import { CacheMethod } from '@common'
 
 @Injectable()
-export class ConfigService {
-  private readonly logger = new Logger(ConfigService.name, { timestamp: true })
+export class ConfigRepository {
+  private readonly logger = new Logger(ConfigRepository.name, {
+    timestamp: true,
+  })
   private collection: CollectionReference
 
   constructor(

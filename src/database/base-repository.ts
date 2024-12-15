@@ -7,8 +7,8 @@ import { DatabaseService } from '@/database/database.service'
 import { UpdateData } from 'firebase-admin/firestore'
 import { Logger } from '@nestjs/common'
 
-export abstract class BaseModelService<T extends WithId> {
-  private readonly logger = new Logger(BaseModelService.name, {
+export abstract class BaseRepository<T extends WithId> {
+  private readonly logger = new Logger(BaseRepository.name, {
     timestamp: true,
   })
   private readonly converter: FirestoreDataConverter<T>

@@ -1,16 +1,16 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
-import { BaseModelService } from '@/database/base-model-service'
-import { Glicko, UserModel } from '@/database/users/user.model'
+import { Glicko, UserModel } from '@/database/user/user.model'
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
-import { ConfigService } from '../config'
+import { ConfigRepository } from '../config'
+import { BaseRepository } from '../base-repository'
 
 @Injectable()
-export class UsersService extends BaseModelService<UserModel> {
+export class UserRepository extends BaseRepository<UserModel> {
   constructor(
     databaseService: DatabaseService,
     firebaseService: FirebaseService,
-    private configService: ConfigService,
+    private configService: ConfigRepository,
   ) {
     super(firebaseService.firestore, databaseService, 'users')
   }

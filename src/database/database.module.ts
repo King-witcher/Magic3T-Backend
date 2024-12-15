@@ -1,14 +1,19 @@
 import { Global, Module } from '@nestjs/common'
 import { FirebaseModule } from '@/firebase'
 import { DatabaseService } from './database.service'
-import { UsersService } from './users'
-import { MatchesService } from './matches'
-import { ConfigService } from './config'
+import { UserRepository } from './user'
+import { MatchRepository } from './match'
+import { ConfigRepository } from './config'
 
 @Global()
 @Module({
   imports: [FirebaseModule],
-  providers: [DatabaseService, UsersService, MatchesService, ConfigService],
-  exports: [DatabaseService, UsersService, MatchesService, ConfigService],
+  providers: [
+    DatabaseService,
+    UserRepository,
+    MatchRepository,
+    ConfigRepository,
+  ],
+  exports: [DatabaseService, UserRepository, MatchRepository, ConfigRepository],
 })
 export class DatabaseModule {}

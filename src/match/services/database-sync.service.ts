@@ -4,10 +4,10 @@ import {
   GameMode,
   HistoryMatchEvent,
   HistoryMatchEventsEnum,
-  MatchesService,
+  MatchRepository,
   MatchModel,
   UserModel,
-  UsersService,
+  UserRepository,
 } from '@database'
 import { RatingService } from '@rating'
 import { Observable } from '@/lib'
@@ -17,8 +17,8 @@ import { MatchEventsEnum, MatchEventsMap } from '../lib'
 export class DatabaseSyncService {
   constructor(
     private readonly ratingService: RatingService,
-    private readonly matchesService: MatchesService,
-    private readonly usersService: UsersService,
+    private readonly matchRepository: MatchRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
   syncHistory(
@@ -75,7 +75,7 @@ export class DatabaseSyncService {
         winner,
       }
 
-      await this.matchesService.create(historyMatch)
+      await this.matchRepository.create(historyMatch)
     })
   }
 
@@ -93,8 +93,8 @@ export class DatabaseSyncService {
         whiteScore,
       )
 
-      this.usersService.updateGlicko(white._id, whiteRating)
-      this.usersService.updateGlicko(black._id, blackRating)
+      this.userRepository.updateGlicko(white._id, whiteRating)
+      this.userRepository.updateGlicko(black._id, blackRating)
     })
   }
 
