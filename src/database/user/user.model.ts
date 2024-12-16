@@ -8,8 +8,16 @@ export interface Glicko {
 }
 
 export interface UserModel extends WithId {
+  // Legacy
   nickname: string
-  nicknameDate?: Date
+
+  // New model
+  identification?: {
+    unique_id: string // nickname.toLower() without spaces
+    nickname: string
+    last_changed: Date
+  }
+
   role: 'player' | 'bot' | 'creator'
   glicko: Glicko
   stats: {
