@@ -12,6 +12,7 @@ import {
 import { ChangeNickDto } from './dtos/change-nick'
 import { HttpFilter } from '@/common/filters/http.filter'
 import { UserService } from './user.service'
+import { ApiOperation } from '@nestjs/swagger'
 
 @Controller('user')
 @UseFilters(HttpFilter)
@@ -24,6 +25,9 @@ export class UserController {
     throw new NotImplementedException()
   }
 
+  @ApiOperation({
+    summary: 'Update nickname',
+  })
   @Patch('me/nickname')
   @UseGuards(AuthGuard)
   async changeNickName(
