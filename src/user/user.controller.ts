@@ -12,7 +12,7 @@ import {
 import { ChangeNickDto } from './dtos/change-nick'
 import { HttpFilter } from '@/common/filters/http.filter'
 import { UserService } from './user.service'
-import { ApiOperation } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiHeader, ApiOperation } from '@nestjs/swagger'
 
 @Controller('user')
 @UseFilters(HttpFilter)
@@ -20,6 +20,9 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('me')
+  @ApiOperation({
+    summary: 'Not implemented',
+  })
   @UseGuards(AuthGuard)
   getMe() {
     throw new NotImplementedException()
@@ -30,6 +33,10 @@ export class UserController {
   })
   @Patch('me/nickname')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiHeader({
+    name: 'Authorization',
+  })
   async changeNickName(
     @UserId() userId: string,
     @Body() changeNickDto: ChangeNickDto,
