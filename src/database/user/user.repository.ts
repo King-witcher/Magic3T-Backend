@@ -15,8 +15,33 @@ export class UserRepository extends BaseRepository<UserModel> {
     super(firebaseService.firestore, databaseService, 'users')
   }
 
+  getUniqueId(nickname: string): string {
+    return nickname.toLowerCase().replace(' ', '')
+  }
+
+  async getByNickname(nickname: string): Promise<UserModel | null> {
+    const uniqueId = this.getUniqueId(nickname)
+    const query = this.collection
+      .where('identification.unique_id', '==', uniqueId)
+      .limit(1)
+    const result = await query.get()
+    if (result.empty) return null
+    return result.docs[0].data()
+  }
+
   async updateGlicko(id: string, glicko: Glicko) {
     await super.update({ _id: id, glicko })
+  }
+
+  async updateNickname(userId: string, nickname: string) {
+    const uniqueId = this.getUniqueId(nickname)
+    await this.collection.doc(userId).update({
+      identification: {
+        nickname,
+        unique_id: uniqueId,
+        last_changed: new Date(),
+      },
+    })
   }
 
   /// Gets all bot profiles, sorted by the bot name (bot0, bot1, bot2 and bot3)

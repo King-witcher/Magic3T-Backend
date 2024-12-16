@@ -36,10 +36,10 @@ export class SocketsService<EmitType extends EventsMap> {
    */
   remove(userId: string, socket: Socket<DefaultEventsMap, EmitType>) {
     const sockets = this.socketMap[userId]
-    if (!sockets) throw new Error(`userId ${userId} not found`)
+    if (!sockets) return
 
-    this.socketMap[userId].splice(sockets.indexOf(socket), 1)
-    if (this.socketMap[userId].length === 0) delete this.socketMap[userId]
+    sockets.splice(sockets.indexOf(socket), 1)
+    if (sockets.length === 0) delete this.socketMap[userId]
     this.logger.log(`unbound socket ${socket.id} from user id ${userId}`)
   }
 

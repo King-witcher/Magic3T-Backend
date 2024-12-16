@@ -6,6 +6,7 @@ import { FirebaseModule } from '@/firebase/firebase.module'
 import { ConfigModule } from '@nestjs/config'
 import { AuthModule } from './auth/auth.module'
 import { AppService } from './app.service'
+import { UserModule } from './user/user.module';
 
 @Global()
 @Module({
@@ -15,6 +16,7 @@ import { AppService } from './app.service'
     DatabaseModule,
     FirebaseModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

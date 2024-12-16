@@ -144,6 +144,10 @@ export class Match extends Observable<MatchEventsMap> {
 
   private handleForfeit(side: SidesEnum) {
     if (this.turn === null) return
+
+    const player = this[side]
+    player.forfeit()
+
     this.turn = null
     this.globalTime.pause()
 
