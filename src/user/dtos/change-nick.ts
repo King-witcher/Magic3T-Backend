@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger'
 import {
   IsDefined,
   IsString,
@@ -12,5 +13,9 @@ export class ChangeNickDto {
   @MinLength(3)
   @MaxLength(16)
   @Matches(/[a-zA-Z0-9áÁâÂãÃàÀäÄéÉêÊèÈëËíÍîÎìÌïÏóÓôÔõÕòÒöÖúÚûÛùÙüÜçÇñÑ\s]/)
+  @ApiProperty({
+    minLength: 3,
+    maxLength: 16,
+  })
   nickname: string
 }
