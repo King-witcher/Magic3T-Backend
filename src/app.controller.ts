@@ -1,17 +1,10 @@
-import { Controller, Get, ImATeapotException, Logger } from '@nestjs/common'
+import { Controller, Get, ImATeapotException } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
-import { AppService } from './app.service'
 
 const Package = require('../package.json')
 
 @Controller()
 export class AppController {
-  private readonly logger = new Logger(AppController.name)
-
-  constructor(private readonly appService: AppService) {
-    appService.keepServerAlive()
-  }
-
   @Get('teapot')
   teapot(): never {
     throw new ImATeapotException()
@@ -27,6 +20,7 @@ export class AppController {
       status: 'available',
     }
   }
+
   @ApiOperation({
     summary: 'Api version',
     description: 'Returns the current api version.',
