@@ -44,4 +44,14 @@ export class UserService {
 
     await this.userRepository.updateNickname(user._id, newNickname)
   }
+
+  async changeIcon(userId: string, newIcon: number) {
+    if (newIcon > 29 || newIcon < 0)
+      throw new BaseError('bad icon id', HttpStatus.BAD_REQUEST)
+
+    await this.userRepository.update({
+      _id: userId,
+      summoner_icon: newIcon,
+    })
+  }
 }

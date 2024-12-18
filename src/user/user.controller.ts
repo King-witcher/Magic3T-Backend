@@ -13,6 +13,7 @@ import { ChangeNickDto } from './dtos/change-nick'
 import { HttpFilter } from '@/common/filters/http.filter'
 import { UserService } from './user.service'
 import { ApiBearerAuth, ApiHeader, ApiOperation } from '@nestjs/swagger'
+import { ChangeIconDto } from './dtos/change-icon'
 
 @Controller('user')
 @UseFilters(HttpFilter)
@@ -28,19 +29,35 @@ export class UserController {
     throw new NotImplementedException()
   }
 
-  @ApiOperation({
-    summary: 'Update nickname',
-  })
   @Patch('me/nickname')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiHeader({
     name: 'Authorization',
   })
+  @ApiOperation({
+    summary: 'Update nickname',
+  })
   async changeNickName(
     @UserId() userId: string,
     @Body() changeNickDto: ChangeNickDto,
   ) {
     await this.userService.changeNickName(userId, changeNickDto.nickname)
+  }
+
+  @Patch('me/icon')
+  @ApiOperation({
+    summary: 'Update summoner icon'
+  })
+  @ApiHeader({
+    name: 'Authorization',
+  })
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  async changeSummonerIcon(
+    @UserId() userId: string,
+    @Body() changeIconDto: ChangeIconDto
+  ) {
+    await this.userService.changeIcon(userId, changeIconDto.iconId)
   }
 }
