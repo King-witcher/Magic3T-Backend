@@ -39,7 +39,7 @@ export class PlayerState
     this.choices = []
 
     const timerCallback = () => {
-      this.emit.call(this, this)
+      this.emit.call(this, 'timeout')
     }
 
     this.timer = new Timer(timelimit, timerCallback.bind(this))
