@@ -8,18 +8,22 @@ export interface Glicko {
 }
 
 export interface UserModel extends WithId {
-  // Legacy
-  nickname: string
-
   // New model
   identification?: {
     unique_id: string // nickname.toLower() without spaces
     nickname: string
     last_changed: Date
-  }
+  } | null
+
+  experience: number
+  magic_points: number // bought with money
+  perfect_squares: number // earned playing
+  summoner_icon: number
 
   role: 'player' | 'bot' | 'creator'
+
   glicko: Glicko
+
   stats: {
     wins: number
     draws: number

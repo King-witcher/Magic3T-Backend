@@ -25,11 +25,18 @@ export abstract class BaseRepository<T extends WithId> {
       .withConverter(this.converter)
   }
 
-  async get(id: string) {
+  async get(id: string): Promise<T | null> {
     this.logger.verbose(`read "${id}" from ${this.collection.id}.`)
 
     const snapshot = await this.collection.doc(id).get()
     return snapshot.data() || null
+  }
+
+  async getAll(): Promise<T[]> {
+    this.logger.verbose(`read all from ${this.collection.id}.`)
+
+    const snapshot = await this.collection.get()
+    return snapshot.docs.map(doc => doc.data())
   }
 
   /**
@@ -46,7 +53,7 @@ export abstract class BaseRepository<T extends WithId> {
    * Generate a new id and store the doc in Firestore, ignoring _id field. Returns the id set in Firestore.
    * @param doc Document to be created. _id field is ignored.
    */
-  async create(doc: T) {
+  async create(doc: T): Promise<string> {
     const id = this.databaseService.getId()
 
     this.logger.verbose(`create "${id}" on ${this.collection.id}.`)

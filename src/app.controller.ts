@@ -1,12 +1,15 @@
 import { Controller, Get, ImATeapotException } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
+import { UserRepository } from './database'
 
 const Package = require('../package.json')
 
 @Controller()
 export class AppController {
+  constructor(private userRepository: UserRepository) {}
+
   @Get('teapot')
-  teapot(): never {
+  async teapot() {
     throw new ImATeapotException()
   }
 

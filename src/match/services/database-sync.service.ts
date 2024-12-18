@@ -59,13 +59,13 @@ export class DatabaseSyncService {
         _id: '',
         white: {
           uid: white._id,
-          name: white.nickname,
+          name: white.identification?.nickname || 'null',
           score: Math.floor(white.glicko.rating),
           gain: 0,
         },
         black: {
           uid: black._id,
-          name: black.nickname,
+          name: black.identification?.nickname || 'null',
           score: Math.floor(black.glicko.rating),
           gain: 0,
         },
