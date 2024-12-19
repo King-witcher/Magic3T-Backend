@@ -1,7 +1,7 @@
-import { Choice } from '@/types/Choice'
-import { Timer } from '@/lib/time/timer'
-import { TimeSnapshotState } from '@/lib/time/stopwatchSnapshot'
 import { Observable } from '@/lib/observable'
+import { TimeSnapshotState } from '@/lib/time/stopwatchSnapshot'
+import { Timer } from '@/lib/time/timer'
+import { Choice } from '@/types/Choice'
 
 export interface StateHandlerEvents {
   timeout(): unknown

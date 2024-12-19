@@ -5,7 +5,7 @@ class InvalidGameModeError extends BaseError {
   constructor(value: unknown) {
     super(
       `invalid game mode "${value}". game mode must be "casual" or "ranked"`,
-      HttpStatus.BAD_REQUEST,
+      HttpStatus.BAD_REQUEST
     )
   }
 }

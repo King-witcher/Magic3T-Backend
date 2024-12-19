@@ -4,6 +4,6 @@ export abstract class RatingStrategy {
   abstract getRatings(
     first: UserModel,
     second: UserModel,
-    scoreOfFirst: number,
+    scoreOfFirst: number
   ): Promise<[Glicko, Glicko]>
 }

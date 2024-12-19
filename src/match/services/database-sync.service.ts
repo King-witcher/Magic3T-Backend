@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common'
 
+import { Observable } from '@/lib'
 import {
   GameMode,
   HistoryMatchEvent,
   HistoryMatchEventsEnum,
-  MatchRepository,
   MatchModel,
+  MatchRepository,
   UserModel,
   UserRepository,
 } from '@database'
 import { RatingService } from '@rating'
-import { Observable } from '@/lib'
 import { MatchEventsEnum, MatchEventsMap } from '../lib'
 
 @Injectable()
@@ -18,14 +18,15 @@ export class DatabaseSyncService {
   constructor(
     private readonly ratingService: RatingService,
     private readonly matchRepository: MatchRepository,
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   syncHistory(
     match: Observable<MatchEventsMap>,
+    id: string,
     white: UserModel,
     black: UserModel,
-    gameMode: GameMode,
+    gameMode: GameMode
   ) {
     const events: HistoryMatchEvent[] = []
 
@@ -56,7 +57,7 @@ export class DatabaseSyncService {
 
     match.observe(MatchEventsEnum.Finish, async (winner) => {
       const historyMatch: MatchModel = {
-        _id: '',
+        _id: id,
         white: {
           uid: white._id,
           name: white.identification?.nickname || 'null',
@@ -82,7 +83,7 @@ export class DatabaseSyncService {
   syncRatings(
     match: Observable<MatchEventsMap>,
     white: UserModel,
-    black: UserModel,
+    black: UserModel
   ) {
     match.observe(MatchEventsEnum.Finish, async (winner) => {
       const whiteScore = winner === null ? 0.5 : 1 - winner
@@ -90,7 +91,7 @@ export class DatabaseSyncService {
       const [whiteRating, blackRating] = await this.ratingService.getRatings(
         white,
         black,
-        whiteScore,
+        whiteScore
       )
 
       this.userRepository.updateGlicko(white._id, whiteRating)
@@ -100,11 +101,12 @@ export class DatabaseSyncService {
 
   sync(
     match: Observable<MatchEventsMap>,
+    id: string,
     white: UserModel,
     black: UserModel,
-    gameMode: GameMode,
+    gameMode: GameMode
   ) {
-    this.syncHistory(match, white, black, gameMode)
+    this.syncHistory(match, id, white, black, gameMode)
     if (gameMode & GameMode.Ranked) {
       this.syncRatings(match, white, black)
     }

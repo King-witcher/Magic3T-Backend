@@ -13,15 +13,15 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 
-import { QueueEmitType, QueueServer, QueueSocket } from './types'
-import { SocketsService } from '@/common'
-import { QueueService } from './queue.service'
-import { BotName } from '@/database'
-import { WsFilter } from '@/common/filters/ws.filter'
-import { GameModePipe } from './pipes/game-mode.pipe'
 import { AuthGuard } from '@/auth/auth.guard'
-import { QueueInterceptor } from './queue.interceptor'
 import { UserId } from '@/auth/user-id.decorator'
+import { SocketsService } from '@/common'
+import { WsFilter } from '@/common/filters/ws.filter'
+import { BotName } from '@/database'
+import { GameModePipe } from './pipes/game-mode.pipe'
+import { QueueInterceptor } from './queue.interceptor'
+import { QueueService } from './queue.service'
+import { QueueEmitType, QueueServer, QueueSocket } from './types'
 
 @UseGuards(AuthGuard)
 @UseInterceptors(QueueInterceptor)
@@ -36,19 +36,19 @@ export class QueueGateway implements OnGatewayDisconnect {
   constructor(
     private queueService: QueueService,
     @Inject('QueueSocketsService')
-    private queueSocketsService: SocketsService<QueueEmitType>,
+    private queueSocketsService: SocketsService<QueueEmitType>
   ) {
     // Counts how many users are online and update everyone
     setInterval(() => {
       const queueCount = this.queueService.getUserCount()
       this.server.emit('updateUserCount', {
         casual: {
-          inGame: NaN,
+          inGame: Number.NaN,
           queue: queueCount.casual,
         },
         connected: this.queueSocketsService.getUserCount(),
         ranked: {
-          inGame: NaN,
+          inGame: Number.NaN,
           queue: queueCount.ranked,
         },
       })
@@ -98,7 +98,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   @SubscribeMessage('dequeue')
   handleDequeue(
     @UserId() userId: string,
-    @MessageBody(GameModePipe) mode: 'ranked' | 'casual',
+    @MessageBody(GameModePipe) mode: 'ranked' | 'casual'
   ) {
     this.queueService.dequeue(userId, mode)
   }

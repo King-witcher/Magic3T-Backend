@@ -1,16 +1,23 @@
-import { Controller, Get, HttpCode, Post, UseGuards } from '@nestjs/common'
-
-import { MatchService } from './services'
-import { CurrentMatchAdapter } from './decorators'
-import { MatchSideAdapter } from './types'
-import { ApiOperation } from '@nestjs/swagger'
-import { MatchGuard } from './match.guard'
 import { AuthGuard } from '@/auth/auth.guard'
+import { UserId } from '@/auth/user-id.decorator'
+import {
+  Controller,
+  Get,
+  HttpCode,
+  NotFoundException,
+  Post,
+  UseGuards,
+} from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { CurrentPerspective } from './decorators'
+import { MatchBank } from './lib'
+import { MatchGuard } from './match.guard'
+import { Perspective } from './types'
 
 @UseGuards(AuthGuard)
 @Controller('match')
 export class MatchController {
-  constructor(private matchService: MatchService) {}
+  constructor(private matchBank: MatchBank) {}
 
   @ApiOperation({
     summary: 'Forfeit',
@@ -19,7 +26,7 @@ export class MatchController {
   @Post(':matchId/forfeit')
   @HttpCode(200)
   @UseGuards(MatchGuard)
-  handleForfeit(@CurrentMatchAdapter() matchAdapter: MatchSideAdapter) {
+  handleForfeit(@CurrentPerspective() matchAdapter: Perspective) {
     matchAdapter.forfeit()
   }
 
@@ -32,27 +39,12 @@ export class MatchController {
     return 1
   }
 
-  // @Get('matchId')
-  // async handleGetMatch(@Headers('Authorization') authorization: string) {
-  //   let authData: DecodedIdToken
-  //   if (!authorization) {
-  //     throw new UnauthorizedException('No Authorization header')
-  //   }
-  //
-  //   try {
-  //     authData = await this.firebaseService.firebaseAuth.verifyIdToken(
-  //       authorization.replace('Bearer ', ''),
-  //     )
-  //   } catch (e) {
-  //     console.error(e)
-  //     throw new BadRequestException()
-  //   }
-  //
-  //   const match = this.matchService.playerMatches[authData.uid]
-  //   if (match)
-  //     return {
-  //       id: match.id,
-  //     }
-  //   else throw new NotFoundException('Match not found')
-  // }
+  @Get('current')
+  handleCurrentMatch(@UserId() userId: string) {
+    const perspective = this.matchBank.getPerspective(userId)
+    if (!perspective) throw new NotFoundException()
+    return {
+      id: perspective.matchId,
+    }
+  }
 }

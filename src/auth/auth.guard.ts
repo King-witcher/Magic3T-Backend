@@ -5,9 +5,9 @@ import {
   Logger,
   NotImplementedException,
 } from '@nestjs/common'
+import { AuthRequest } from './auth-request'
 import { AuthSocket } from './auth-socket'
 import { AuthService } from './auth.service'
-import { AuthRequest } from './auth-request'
 
 @Injectable()
 export class AuthGuard implements CanActivate {

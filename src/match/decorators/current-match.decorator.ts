@@ -3,22 +3,22 @@ import {
   NotImplementedException,
   createParamDecorator,
 } from '@nestjs/common'
-import { MatchSideAdapter, MatchSocket } from '../types'
+import { MatchSocket, Perspective } from '../types'
 import { MatchRequest } from '../types/match-request'
 
-export const CurrentMatchAdapter = createParamDecorator(
-  (_, ctx: ExecutionContext): MatchSideAdapter => {
+export const CurrentPerspective = createParamDecorator(
+  (_, ctx: ExecutionContext): Perspective => {
     switch (ctx.getType()) {
       case 'http': {
         const request = ctx.switchToHttp().getRequest<MatchRequest>()
-        return request.matchAdapter
+        return request.perspective
       }
       case 'ws': {
         const client = ctx.switchToWs().getClient<MatchSocket>()
-        return client.data.matchAdapter
+        return client.data.perspective
       }
       case 'rpc':
         throw new NotImplementedException()
     }
-  },
+  }
 )

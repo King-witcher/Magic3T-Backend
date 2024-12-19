@@ -1,15 +1,15 @@
-import { SidesEnum } from '@database'
 import { Observable, Stopwatch } from '@/lib'
 import { Choice } from '@/types/Choice'
+import { SidesEnum } from '@database'
+import { Perspective, PerspectiveGameState, PlayerStatus } from '../types'
 import { IStateHandler, PlayerState } from './player-state'
-import { MatchSideAdapter, PerspectiveGameState, PlayerStatus } from '../types'
 
 export enum MatchEventsEnum {
-  Start,
-  Choice,
-  Forfeit,
-  Timeout,
-  Finish,
+  Start = 0,
+  Choice = 1,
+  Forfeit = 2,
+  Timeout = 3,
+  Finish = 4,
 }
 
 export type MatchEventsMap = {
@@ -17,7 +17,7 @@ export type MatchEventsMap = {
   [MatchEventsEnum.Choice](
     side: SidesEnum,
     choice: Choice,
-    timestamp: number,
+    timestamp: number
   ): void
   [MatchEventsEnum.Forfeit](side: SidesEnum, timestamp: number): void
   [MatchEventsEnum.Timeout](side: SidesEnum, timestamp: number): void
@@ -26,6 +26,7 @@ export type MatchEventsMap = {
 
 export class Match extends Observable<MatchEventsMap> {
   private globalTime: Stopwatch
+  public id: string
   private [SidesEnum.White]: IStateHandler
   private [SidesEnum.Black]: IStateHandler
 
@@ -163,11 +164,14 @@ export class Match extends Observable<MatchEventsMap> {
     this.emit(MatchEventsEnum.Finish, opposite)
   }
 
-  public getAdapter(side: SidesEnum): MatchSideAdapter {
+  public getAdapter(side: SidesEnum): Perspective {
     const self = this
     return {
       get state(): PerspectiveGameState {
         return self.getPlayerState(side)
+      },
+      get matchId() {
+        return self.id
       },
       makeChoice(choice: Choice) {
         self.handleChoice(side, choice)

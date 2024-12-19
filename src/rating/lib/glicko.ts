@@ -12,7 +12,7 @@ function getCurrentDeviation(
   deviation: number,
   timestamp: Date,
   inflation: number,
-  maxRD: number,
+  maxRD: number
 ) {
   if (deviation === 0) return 0 // Tapa-buracos para prevenir que o Glicko do lmm2 infle com o tempo
 
@@ -24,7 +24,7 @@ function getCurrentDeviation(
 function getExpectedScore(
   first: number,
   second: number,
-  secondDeviation: number,
+  secondDeviation: number
 ) {
   return 1 / (1 + 10 ** ((g(secondDeviation) * (second - first)) / 400))
 }
@@ -34,25 +34,25 @@ export function newRating(
   opponent: Glicko,
   s: number,
   inflation: number,
-  maxRD: number,
+  maxRD: number
 ) {
   const playerDeviation = getCurrentDeviation(
     player.deviation,
     player.timestamp,
     inflation,
-    maxRD,
+    maxRD
   )
   const opponentDeviation = getCurrentDeviation(
     opponent.deviation,
     opponent.timestamp,
     inflation,
-    maxRD,
+    maxRD
   )
 
   const expectedScore = getExpectedScore(
     player.rating,
     opponent.rating,
-    opponentDeviation,
+    opponentDeviation
   )
 
   const d2 =
@@ -71,25 +71,25 @@ export function newDeviation(
   player: Glicko,
   opponent: Glicko,
   inflation: number,
-  maxRD: number,
+  maxRD: number
 ) {
   const playerDeviation = getCurrentDeviation(
     player.deviation,
     player.timestamp,
     inflation,
-    maxRD,
+    maxRD
   )
   const opponentDeviation = getCurrentDeviation(
     opponent.deviation,
     opponent.timestamp,
     inflation,
-    maxRD,
+    maxRD
   )
 
   const expectedScore = getExpectedScore(
     player.rating,
     opponent.rating,
-    opponent.deviation,
+    opponent.deviation
   )
 
   const dSquare =
@@ -100,6 +100,6 @@ export function newDeviation(
 
 export function getInflation(inflationTime: number, maxRD: number) {
   return Math.sqrt(
-    (maxRD ** 2 - 40 ** 2) / (inflationTime * 24 * 60 * 60 * 1000),
+    (maxRD ** 2 - 40 ** 2) / (inflationTime * 24 * 60 * 60 * 1000)
   )
 }

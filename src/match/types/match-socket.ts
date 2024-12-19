@@ -1,11 +1,11 @@
+import { AuthSocketData } from '@/auth/auth-socket'
+import { PerspectiveGameState } from '@/match/types/perspective.game.state'
 import { Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
-import { PerspectiveGameState } from '@/match/types/perspective.game.state'
-import { MatchSideAdapter } from './match-side-adapter'
-import { AuthSocketData } from '@/auth/auth-socket'
+import { Perspective } from './match-side-adapter'
 
 export type MatchSocketData = AuthSocketData & {
-  matchAdapter: MatchSideAdapter
+  perspective: Perspective
 }
 
 export enum MatchSocketListenedEvent {

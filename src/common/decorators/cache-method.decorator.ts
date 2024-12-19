@@ -5,7 +5,7 @@ export const CacheMethod = (ttlSecs: number): MethodDecorator => {
   return (
     target: object,
     propertyKey: string,
-    descriptor: PropertyDescriptor,
+    descriptor: PropertyDescriptor
   ): void => {
     const originalMethod: unknown = descriptor.value
     if (typeof originalMethod !== 'function') return

@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common'
-import { BaseError } from '../errors/base-error'
 import { Socket } from 'socket.io'
+import { BaseError } from '../errors/base-error'
 
 @Catch(BaseError)
 export class WsFilter implements ExceptionFilter {

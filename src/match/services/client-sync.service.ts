@@ -1,26 +1,26 @@
 import { Inject, Injectable } from '@nestjs/common'
 
 import { SocketsService } from '@common'
+import { MatchEventsEnum } from '../lib'
 import {
-  MatchSideAdapter,
   MatchSocketEmitMap,
   MatchSocketEmittedEvent,
+  Perspective,
 } from '../types'
-import { MatchEventsEnum } from '../lib'
 
 @Injectable()
 export class ClientSyncService {
   constructor(
     @Inject('MatchSocketsService')
-    private readonly socketsService: SocketsService<MatchSocketEmitMap>,
+    private readonly socketsService: SocketsService<MatchSocketEmitMap>
   ) {}
 
-  sync(adapter: MatchSideAdapter, uid: string) {
+  sync(adapter: Perspective, uid: string) {
     adapter.observe(MatchEventsEnum.Choice, () => {
       this.socketsService.emit(
         uid,
         MatchSocketEmittedEvent.GameState,
-        adapter.state,
+        adapter.state
       )
     })
 
@@ -28,7 +28,7 @@ export class ClientSyncService {
       this.socketsService.emit(
         uid,
         MatchSocketEmittedEvent.GameState,
-        adapter.state,
+        adapter.state
       )
     })
 
@@ -36,7 +36,7 @@ export class ClientSyncService {
       this.socketsService.emit(
         uid,
         MatchSocketEmittedEvent.GameState,
-        adapter.state,
+        adapter.state
       )
     })
   }

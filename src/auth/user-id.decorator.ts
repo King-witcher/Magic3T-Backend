@@ -1,7 +1,7 @@
 import {
-  createParamDecorator,
   ExecutionContext,
   NotImplementedException,
+  createParamDecorator,
 } from '@nestjs/common'
 import { AuthRequest } from './auth-request'
 import { AuthSocket } from './auth-socket'
@@ -22,5 +22,5 @@ export const UserId = createParamDecorator(
       default:
         throw new NotImplementedException()
     }
-  },
+  }
 )

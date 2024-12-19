@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common'
+import { Socket } from 'socket.io'
 import {
   DefaultEventsMap,
   EventNames,
   EventParams,
   EventsMap,
 } from 'socket.io/dist/typed-events'
-import { Socket } from 'socket.io'
 
 @Injectable()
 export class SocketsService<EmitType extends EventsMap> {
@@ -57,7 +57,7 @@ export class SocketsService<EmitType extends EventsMap> {
     const sockets = this.socketMap[userId]
     if (!sockets) {
       this.logger.warn(
-        `socket not found for ${userId}. message ${String(event)} was not sent`,
+        `socket not found for ${userId}. message ${String(event)} was not sent`
       )
       return
     }

@@ -1,9 +1,9 @@
-import { Controller, Delete, Logger, Post, UseGuards } from '@nestjs/common'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { QueueService } from './queue.service'
 import { BotName } from '@/database'
+import { Controller, Delete, Logger, Post, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiHeader, ApiOperation } from '@nestjs/swagger'
+import { QueueService } from './queue.service'
 
 @Controller('queue')
 @ApiBearerAuth()

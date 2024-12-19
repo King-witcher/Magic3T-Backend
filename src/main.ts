@@ -16,7 +16,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Magic3T Api')
     .setDescription(
-      'Api used by the Magic3T frontend to interact with the game server',
+      'Api used by the Magic3T frontend to interact with the game server'
     )
     .setVersion('1.0')
     .build()

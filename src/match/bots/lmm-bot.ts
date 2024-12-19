@@ -1,7 +1,7 @@
-import { PerspectiveGameState } from '@/match/types/perspective.game.state'
-import { Choice } from '@/types/Choice'
 import { createTree } from '@/lib/LMM'
 import { BaseBot } from '@/match/bots/base-bot'
+import { PerspectiveGameState } from '@/match/types/perspective.game.state'
+import { Choice } from '@/types/Choice'
 
 function getMatchChoices(state: PerspectiveGameState, side: 'white' | 'black') {
   const white = side === 'white' ? state.playerChoices : state.opponentChoices
@@ -29,7 +29,7 @@ export class LmmBot extends BaseBot {
     const matchChoices = getMatchChoices(state, side)
     const tree = createTree(
       Math.min(this.depth, 9 - matchChoices.length),
-      matchChoices,
+      matchChoices
     )
 
     const values: {
@@ -47,19 +47,21 @@ export class LmmBot extends BaseBot {
     for (const branchId of Object.keys(tree.branches)) {
       if (!tree.branches[branchId]) continue
       if (tree.branches[branchId].value === winNumber) {
-        values.wins.push(parseInt(branchId) as Choice)
+        values.wins.push(Number.parseInt(branchId) as Choice)
       } else if (tree.branches[branchId].value === 0) {
-        values.draws.push(parseInt(branchId) as Choice)
+        values.draws.push(Number.parseInt(branchId) as Choice)
       } else {
-        values.loses.push(parseInt(branchId) as Choice)
+        values.loses.push(Number.parseInt(branchId) as Choice)
       }
     }
 
     if (values.wins.length) {
       return values.wins[Math.floor(Math.random() * values.wins.length)]
-    } else if (values.draws.length) {
+    }
+    if (values.draws.length) {
       return values.draws[Math.floor(Math.random() * values.draws.length)]
-    } else if (values.loses.length) {
+    }
+    if (values.loses.length) {
       return values.loses[Math.floor(Math.random() * values.loses.length)]
     }
 

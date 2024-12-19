@@ -5,7 +5,7 @@ export class AlreadyInGameError extends BaseError {
   constructor() {
     super(
       'you are already in a match and cannot queue until the match ends',
-      HttpStatus.CONFLICT,
+      HttpStatus.CONFLICT
     )
   }
 }

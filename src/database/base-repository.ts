@@ -4,8 +4,8 @@ import FirestoreDataConverter = firestore.FirestoreDataConverter
 import CollectionReference = firestore.CollectionReference
 import Firestore = firestore.Firestore
 import { DatabaseService } from '@/database/database.service'
-import { UpdateData } from 'firebase-admin/firestore'
 import { Logger } from '@nestjs/common'
+import { UpdateData } from 'firebase-admin/firestore'
 
 export abstract class BaseRepository<T extends WithId> {
   private readonly logger = new Logger(BaseRepository.name, {
@@ -17,7 +17,7 @@ export abstract class BaseRepository<T extends WithId> {
   protected constructor(
     firestore: Firestore,
     private readonly databaseService: DatabaseService,
-    private readonly collectionName: string,
+    collectionName: string
   ) {
     this.converter = databaseService.getConverter<T>()
     this.collection = firestore
@@ -36,7 +36,7 @@ export abstract class BaseRepository<T extends WithId> {
     this.logger.verbose(`read all from ${this.collection.id}.`)
 
     const snapshot = await this.collection.get()
-    return snapshot.docs.map(doc => doc.data())
+    return snapshot.docs.map((doc) => doc.data())
   }
 
   /**
@@ -54,7 +54,7 @@ export abstract class BaseRepository<T extends WithId> {
    * @param doc Document to be created. _id field is ignored.
    */
   async create(doc: T): Promise<string> {
-    const id = this.databaseService.getId()
+    const id = doc._id ?? this.databaseService.getId()
 
     this.logger.verbose(`create "${id}" on ${this.collection.id}.`)
 

@@ -7,11 +7,11 @@ import {
 } from '@nestjs/common'
 
 import { SocketsService } from '@/common'
-import { MatchService } from '@/match'
-import { QueueEmitType } from './types'
-import { BotName, UserRepository } from '@/database'
-import { AlreadyInGameError } from './errors/already-in-game.error'
 import { BaseError } from '@/common/errors/base-error'
+import { BotName, UserRepository } from '@/database'
+import { MatchService } from '@/match'
+import { AlreadyInGameError } from './errors/already-in-game.error'
+import { QueueEmitType } from './types'
 
 @Injectable()
 export class QueueService {
@@ -23,7 +23,7 @@ export class QueueService {
     private matchService: MatchService,
     private usersService: UserRepository,
     @Inject('QueueSocketsService')
-    private queueSocketsService: SocketsService<QueueEmitType>,
+    private queueSocketsService: SocketsService<QueueEmitType>
   ) {}
 
   private async enqueueInternal(userId: string, mode: 'casual' | 'ranked') {
@@ -35,9 +35,10 @@ export class QueueService {
     if (mode === 'casual') {
       throw new BaseError(
         'casual mode is temporarily disabled',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.INTERNAL_SERVER_ERROR
       )
-    } else if (mode === 'ranked') {
+    }
+    if (mode === 'ranked') {
       if (!this.rankedPendingUid) {
         this.rankedPendingUid = userId
         this.logger.log(`userId ${userId} joined ranked queue`)
@@ -115,7 +116,7 @@ export class QueueService {
     const botIndex = Math.floor(Math.random() * 4) // ALERTA DE GAMBIARRA
     const matchId = await this.matchService.createPvCMatch(
       userId,
-      `bot${botIndex}` as BotName,
+      `bot${botIndex}` as BotName
     )
 
     this.queueSocketsService.emit(userId, 'matchFound', {
@@ -136,7 +137,7 @@ export class QueueService {
     // Finds the bot with the closest rating
     let closestIndex = 0
     {
-      let closestDistance = Infinity
+      let closestDistance = Number.POSITIVE_INFINITY
       bots.forEach((bot, currentIndex) => {
         const botRating = bot.glicko.rating
         const currentDistance = Math.abs(botRating - userRating)
@@ -148,7 +149,7 @@ export class QueueService {
     }
     const matchId = await this.matchService.createPvCMatch(
       userId,
-      `bot${closestIndex}` as BotName,
+      `bot${closestIndex}` as BotName
     )
 
     this.queueSocketsService.emit(userId, 'matchFound', {

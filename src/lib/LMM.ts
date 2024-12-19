@@ -43,9 +43,9 @@ function evaluateWhite(match: Choice[]): 1 | 0 | -1 {
   const blackValue = evaluateSet(black)
 
   if (whiteValue === 1 && blackValue === 0) return 1
-  else if (blackValue === 1 && whiteValue === 0) return -1
-  else if (whiteValue === blackValue && blackValue === 0) return 0
-  else throw new Error('Bad match')
+  if (blackValue === 1 && whiteValue === 0) return -1
+  if (whiteValue === blackValue && blackValue === 0) return 0
+  throw new Error('Bad match')
 }
 
 export function createTree(depth: number, previous: Choice[] = []): Tree {
@@ -70,7 +70,7 @@ export function createTree(depth: number, previous: Choice[] = []): Tree {
   }
 
   const children = Object.keys(result.branches).map((child) =>
-    parseInt(child),
+    Number.parseInt(child)
   ) as unknown as number[]
 
   const childValues = children.map((child) => result.branches[child].value)

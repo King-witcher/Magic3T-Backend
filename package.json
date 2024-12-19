@@ -9,7 +9,7 @@
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
     "typeorm": "typeorm-ts-node-commonjs",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -39,6 +39,7 @@
     "ts-jest": "^29.2.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@nest/testing": "^4.5.4",
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.2.3",
@@ -48,11 +49,6 @@
     "@types/node": "22.10.2",
     "@types/supertest": "^6.0.2",
     "@types/uuid": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.18.1",
-    "@typescript-eslint/parser": "^8.18.1",
-    "eslint": "^9.17.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
     "ts-loader": "^9.5.1",

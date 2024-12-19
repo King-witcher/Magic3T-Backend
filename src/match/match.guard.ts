@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common'
 
 import { SocketsService } from '@/common'
-import { MatchSocket, MatchSocketEmitMap } from './types'
 import { MatchBank } from './lib'
+import { MatchSocket, MatchSocketEmitMap } from './types'
 import { MatchRequest } from './types/match-request'
 
 @Injectable()
@@ -19,7 +19,7 @@ export class MatchGuard implements CanActivate {
   constructor(
     private readonly matchBank: MatchBank,
     @Inject('MatchSocketsService')
-    private readonly matchSocketsService: SocketsService<MatchSocketEmitMap>,
+    private readonly matchSocketsService: SocketsService<MatchSocketEmitMap>
   ) {}
 
   canActivate(context: ExecutionContext) {
@@ -46,14 +46,14 @@ export class MatchGuard implements CanActivate {
     const userId = request.userId
     if (!userId)
       throw new Error(
-        'socket is not authenticated. auth guard must run before.',
+        'socket is not authenticated. auth guard must run before.'
       )
 
-    const matchAdapter = this.matchBank.getAdapter(userId)
-    if (!matchAdapter) {
+    const perspective = this.matchBank.getPerspective(userId)
+    if (!perspective) {
       throw new Error(`user ${userId} is not currently in a match`)
     }
-    request.matchAdapter = matchAdapter
+    request.perspective = perspective
     return true
   }
 
@@ -61,14 +61,14 @@ export class MatchGuard implements CanActivate {
     const userId = socket.data.userId
     if (!userId)
       throw new Error(
-        'socket is not authenticated. auth guard must run before.',
+        'socket is not authenticated. auth guard must run before.'
       )
 
-    const matchAdapter = this.matchBank.getAdapter(userId)
-    if (!matchAdapter) {
+    const perspective = this.matchBank.getPerspective(userId)
+    if (!perspective) {
       throw new Error(`user ${userId} is not currently in a match`)
     }
-    socket.data.matchAdapter = matchAdapter
+    socket.data.perspective = perspective
     this.matchSocketsService.add(userId, socket)
     return true
   }

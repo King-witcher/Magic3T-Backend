@@ -1,5 +1,5 @@
-import { Choice } from '@/types/Choice'
 import { WithId } from '@/database/types/withId'
+import { Choice } from '@/types/Choice'
 
 export interface HistoryMatchPlayer {
   uid: string
@@ -21,10 +21,10 @@ export enum GameMode {
 }
 
 export enum HistoryMatchEventsEnum {
-  Choice,
-  Forfeit,
-  Timeout,
-  Message,
+  Choice = 0,
+  Forfeit = 1,
+  Timeout = 2,
+  Message = 3,
 }
 
 type BaseMatchEvent = {

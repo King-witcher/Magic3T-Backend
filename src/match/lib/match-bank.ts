@@ -1,14 +1,14 @@
-import { DatabaseService, SidesEnum } from '@/database'
-import { MatchSideAdapter } from '../types'
-import { Match, MatchEventsEnum } from './match'
 import { BaseError } from '@/common/errors/base-error'
+import { DatabaseService, SidesEnum } from '@/database'
 import { HttpStatus, Injectable } from '@nestjs/common'
+import { Perspective } from '../types'
+import { Match, MatchEventsEnum } from './match'
 
 @Injectable()
 /// Maps all matches that are currently running on the server.
 export class MatchBank {
   private matches: Map<string, Match> = new Map() // Maps matchIds to matches
-  private adapters: Map<string, MatchSideAdapter> = new Map() // Maps user ids to matchAdapters
+  private perspectives: Map<string, Perspective> = new Map() // Maps user ids to matchAdapters
   private opponents: Map<string, string> = new Map()
 
   constructor(private readonly databaseService: DatabaseService) {}
@@ -23,6 +23,7 @@ export class MatchBank {
 
     // Create and assign the match in the bank
     const match = new Match(...params)
+    match.id = id
     this.matches.set(id, match)
 
     // Remove the match from the bank when finished
@@ -36,31 +37,31 @@ export class MatchBank {
     }
   }
 
-  /// Creates instances of MatchSideAdapters for two different user ids and stores this relation in the bank.
-  assignAdapters(
+  /// Creates instances of Perspective for two different user ids and stores this relation in the bank.
+  createPerspectives(
     match: Match,
     [userId1, userId2]: [string, string],
-    sideOfFirst: SidesEnum,
-  ): [MatchSideAdapter, MatchSideAdapter] {
-    // Get adapters
-    const adapter1 = match.getAdapter(sideOfFirst)
-    const adapter2 = match.getAdapter(1 - sideOfFirst)
+    sideOfFirst: SidesEnum
+  ): [Perspective, Perspective] {
+    // Get perspectives
+    const perspective1 = match.getAdapter(sideOfFirst)
+    const perspective2 = match.getAdapter(1 - sideOfFirst)
 
     // Store relations the bank
-    this.adapters.set(userId1, adapter1)
-    this.adapters.set(userId2, adapter2)
+    this.perspectives.set(userId1, perspective1)
+    this.perspectives.set(userId2, perspective2)
     this.opponents.set(userId1, userId2)
     this.opponents.set(userId2, userId1)
 
     // Remove from bank when match finishes
     match.observe(MatchEventsEnum.Finish, () => {
-      this.adapters.delete(userId1)
-      this.adapters.delete(userId2)
+      this.perspectives.delete(userId1)
+      this.perspectives.delete(userId2)
       this.opponents.delete(userId1)
       this.opponents.delete(userId2)
     })
 
-    return [adapter1, adapter2]
+    return [perspective1, perspective2]
   }
 
   getMatch(matchId: string): Match {
@@ -75,13 +76,13 @@ export class MatchBank {
     return opponentUid
   }
 
-  getAdapter(userId: string): MatchSideAdapter | null {
-    const adapter = this.adapters.get(userId)
-    return adapter || null
+  getPerspective(userId: string): Perspective | null {
+    const perspective = this.perspectives.get(userId)
+    return perspective || null
   }
 
   /// Gets if a user is currently in a match.
   containsUser(userId: string): boolean {
-    return this.adapters.has(userId)
+    return this.perspectives.has(userId)
   }
 }

@@ -12,7 +12,7 @@ export class HttpFilter implements ExceptionFilter {
     const next = argumentsHost.switchToHttp().getNext()
     const httpException = new HttpException(
       exception.message,
-      exception.httpStatus,
+      exception.httpStatus
     )
     if (next) next(httpException)
     else throw httpException

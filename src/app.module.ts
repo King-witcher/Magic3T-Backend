@@ -1,12 +1,12 @@
-import { Global, Module } from '@nestjs/common'
-import { AppController } from './app.controller'
-import { QueueModule } from '@/queue/queue.module'
 import { DatabaseModule } from '@/database/database.module'
 import { FirebaseModule } from '@/firebase/firebase.module'
+import { QueueModule } from '@/queue/queue.module'
+import { Global, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { AdminModule } from './admin/admin.module'
+import { AppController } from './app.controller'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
-import { AdminModule } from './admin/admin.module'
 
 @Global()
 @Module({

@@ -1,9 +1,9 @@
-import { Global, Module } from '@nestjs/common'
 import { FirebaseModule } from '@/firebase'
-import { DatabaseService } from './database.service'
-import { UserRepository } from './user'
-import { MatchRepository } from './match'
+import { Global, Module } from '@nestjs/common'
 import { ConfigRepository } from './config'
+import { DatabaseService } from './database.service'
+import { MatchRepository } from './match'
+import { UserRepository } from './user'
 
 @Global()
 @Module({

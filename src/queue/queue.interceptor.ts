@@ -1,3 +1,4 @@
+import { AuthSocket } from '@/auth/auth-socket'
 import { SocketsService } from '@/common'
 import {
   CallHandler,
@@ -7,13 +8,12 @@ import {
 } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { QueueEmitType } from './types'
-import { AuthSocket } from '@/auth/auth-socket'
 
 /// Adds authenticated connections to the QueueSocketsService.
 export class QueueInterceptor implements NestInterceptor {
   constructor(
     @Inject('QueueSocketsService')
-    private queueSocketsService: SocketsService<QueueEmitType>,
+    private queueSocketsService: SocketsService<QueueEmitType>
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {

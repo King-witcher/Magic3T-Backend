@@ -1,10 +1,15 @@
+import { Choice } from '@/types/Choice'
 import { PipeTransform } from '@nestjs/common'
 import { InvalidChoiceError } from '../../match/errors/InvalidChoiceError'
-import { Choice } from '@/types/Choice'
 
 export class ChoicePipe implements PipeTransform {
   transform(value: unknown): Choice {
-    if (typeof value === 'string') value = parseInt(value)
+    if (typeof value === 'string') {
+      const value_ = Number.parseInt(value)
+      if (!this.isChoice(value)) throw new InvalidChoiceError()
+      return value
+    }
+
     if (!this.isChoice(value)) throw new InvalidChoiceError()
     return value
   }

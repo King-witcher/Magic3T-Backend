@@ -80,7 +80,7 @@ export class Timer {
     }
     this.callbackCaller = setTimeout(
       this.handleTimeout.bind(this),
-      this.remaining,
+      this.remaining
     )
   }
 }

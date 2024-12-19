@@ -1,22 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common'
 
+import { SocketsService } from '@common'
 import {
   BotConfig,
   BotName,
   ConfigRepository,
-  DatabaseService,
   GameMode,
   Glicko,
   SidesEnum,
   UserModel,
   UserRepository,
 } from '@database'
-import { SocketsService } from '@common'
-import { MatchSocketEmitMap } from '../types'
-import { DatabaseSyncService } from './database-sync.service'
-import { ClientSyncService } from './client-sync.service'
 import { BaseBot, LmmBot, RandomBot } from '../bots'
 import { MatchBank } from '../lib'
+import { MatchSocketEmitMap } from '../types'
+import { ClientSyncService } from './client-sync.service'
+import { DatabaseSyncService } from './database-sync.service'
 
 export type MatchPlayerProfile = {
   uid: string
@@ -28,14 +27,13 @@ export type MatchPlayerProfile = {
 @Injectable()
 export class MatchService {
   constructor(
-    private readonly databaseService: DatabaseService,
     private readonly configRepository: ConfigRepository,
     private readonly userRepository: UserRepository,
     private readonly databaseSyncService: DatabaseSyncService,
     @Inject('MatchSocketsService')
     private readonly matchSocketsService: SocketsService<MatchSocketEmitMap>,
     private readonly clientMessageService: ClientSyncService,
-    private readonly matchBank: MatchBank,
+    private readonly matchBank: MatchBank
   ) {}
 
   private getBot(botConfig: BotConfig): BaseBot {
@@ -62,22 +60,20 @@ export class MatchService {
 
     const bot = this.getBot(botConfig)
 
-    // Define sides and get adapters
+    // Define sides and get perspectives
     const humanSide = Math.round(Math.random()) as SidesEnum
-    const [playerAdapter, botAdapter] = this.matchBank.assignAdapters(
-      match,
-      [uid, botProfile._id],
-      humanSide,
-    )
+    const [playerPerspective, botPerspective] =
+      this.matchBank.createPerspectives(match, [uid, botProfile._id], humanSide)
 
     // Sync
-    bot.observe(botAdapter)
-    this.clientMessageService.sync(playerAdapter, uid)
+    bot.observe(botPerspective)
+    this.clientMessageService.sync(playerPerspective, uid)
     this.databaseSyncService.sync(
       match,
+      id,
       humanSide === SidesEnum.White ? humanProfile : botProfile,
       humanSide === SidesEnum.White ? botProfile : humanProfile,
-      GameMode.Ranked | GameMode.PvC,
+      GameMode.Ranked | GameMode.PvC
     )
 
     // Start match
@@ -94,22 +90,23 @@ export class MatchService {
       this.getProfile(uid2),
     ])
 
-    // Define sides and get adapters
+    // Define sides and get perspectives
     const sideOfFirst = <SidesEnum>Math.round(Math.random())
-    const [adapter1, adapter2] = this.matchBank.assignAdapters(
+    const [perspective1, perspective2] = this.matchBank.createPerspectives(
       match,
       [uid1, uid2],
-      sideOfFirst,
+      sideOfFirst
     )
 
     // Sync
-    this.clientMessageService.sync(adapter1, uid1)
-    this.clientMessageService.sync(adapter2, uid2)
+    this.clientMessageService.sync(perspective1, uid1)
+    this.clientMessageService.sync(perspective2, uid2)
     this.databaseSyncService.sync(
       match,
+      id,
       sideOfFirst === SidesEnum.White ? profile1 : profile2,
       sideOfFirst === SidesEnum.White ? profile2 : profile1,
-      GameMode.Ranked | GameMode.PvP,
+      GameMode.Ranked | GameMode.PvP
     )
 
     // Start match

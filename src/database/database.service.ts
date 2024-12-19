@@ -1,11 +1,11 @@
+import { OptionalProp } from '@/types/OptionalProp'
+import { Mutable } from '@/types/mutable'
 import { Injectable } from '@nestjs/common'
 import {
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   Timestamp,
 } from 'firebase-admin/firestore'
-import { OptionalProp } from '@/types/OptionalProp'
-import { Mutable } from '@/types/mutable'
 import { Firestorify, WithId } from './types'
 
 const epoch = new Date(2000, 7, 31).getTime()
@@ -15,10 +15,11 @@ const chars =
   'zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA9876543210'.split('')
 
 function convertToBase62(number: number) {
+  let _number = number
   let result = ''
-  while (number) {
-    result = chars[number % chars.length] + result
-    number = Math.floor(number / chars.length)
+  while (_number) {
+    result = chars[_number % chars.length] + result
+    _number = Math.floor(_number / chars.length)
   }
   return result
 }
@@ -65,6 +66,7 @@ export class DatabaseService {
 
       toFirestore: (data: T): Firestorify<T> => {
         const output: Mutable<OptionalProp<T, '_id'>> = { ...data }
+        // biome-ignore lint/performance/noDelete: <explanation>
         delete output._id
         return output
       },

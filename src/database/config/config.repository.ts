@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common'
-import { FirebaseService } from '@/firebase/firebase.service'
-import { DatabaseService } from '@/database/database.service'
 import {
   BotConfigModel,
-  RatingConfigModel,
   BotName,
+  RatingConfigModel,
 } from '@/database/config/models'
+import { DatabaseService } from '@/database/database.service'
+import { FirebaseService } from '@/firebase/firebase.service'
+import { Injectable, Logger } from '@nestjs/common'
 import { firestore } from 'firebase-admin'
 import CollectionReference = firestore.CollectionReference
 import { CacheMethod } from '@common'
@@ -19,7 +19,7 @@ export class ConfigRepository {
 
   constructor(
     firestoreService: FirebaseService,
-    private databaseService: DatabaseService,
+    private databaseService: DatabaseService
   ) {
     this.collection = firestoreService.firestore.collection('config')
   }

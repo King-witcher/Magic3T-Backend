@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: xD
 type EventsMap = Record<string | number, any>
 
 type EventNames<Map extends EventsMap> = keyof Map
@@ -19,7 +19,7 @@ type ObserverMap<Map extends EventsMap> = {
 export interface IObservable<ObservableEventsMap extends EventsMap> {
   observe<Event extends EventNames<ObservableEventsMap>>(
     event: Event,
-    observer: Observer<ObservableEventsMap, Event>,
+    observer: Observer<ObservableEventsMap, Event>
   )
 }
 
@@ -30,7 +30,7 @@ export abstract class Observable<ObservableEventsMap extends EventsMap>
 
   public observe<Event extends EventNames<ObservableEventsMap>>(
     event: Event,
-    observer: Observer<ObservableEventsMap, Event>,
+    observer: Observer<ObservableEventsMap, Event>
   ) {
     this.observers[event] = [...(this.observers[event] || []), observer]
   }
@@ -39,6 +39,7 @@ export abstract class Observable<ObservableEventsMap extends EventsMap>
     event: Event,
     ...data: EventParams<ObservableEventsMap, Event>
   ) {
-    this.observers[event]?.forEach((observer) => observer(...data))
+    if (this.observers[event])
+      for (const observer of this.observers[event]) observer(...data)
   }
 }

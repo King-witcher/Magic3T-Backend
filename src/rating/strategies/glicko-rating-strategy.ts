@@ -1,8 +1,8 @@
+import { ConfigRepository } from '@/database'
 import { Glicko, UserModel } from '@/database/user/user.model'
-import { RatingStrategy } from './base-rating-strategy'
 import { Injectable } from '@nestjs/common'
 import { getInflation, newDeviation, newRating } from '../lib/glicko'
-import { ConfigRepository } from '@/database'
+import { RatingStrategy } from './base-rating-strategy'
 
 @Injectable()
 export class GlickoRatingStrategy extends RatingStrategy {
@@ -13,13 +13,13 @@ export class GlickoRatingStrategy extends RatingStrategy {
   async getRatings(
     first: UserModel,
     second: UserModel,
-    scoreOfFirst: number,
+    scoreOfFirst: number
   ): Promise<[Glicko, Glicko]> {
     const config = await this.configService.getRatingConfig()
 
     const inflation = getInflation(
       config.deviationInflationTime,
-      config.initialRD,
+      config.initialRD
     )
 
     const now = new Date()
@@ -31,13 +31,13 @@ export class GlickoRatingStrategy extends RatingStrategy {
           second.glicko,
           scoreOfFirst,
           inflation,
-          config.initialRD,
+          config.initialRD
         ),
         deviation: newDeviation(
           first.glicko,
           second.glicko,
           inflation,
-          config.initialRD,
+          config.initialRD
         ),
         timestamp: now,
       },
@@ -47,13 +47,13 @@ export class GlickoRatingStrategy extends RatingStrategy {
           first.glicko,
           1 - scoreOfFirst,
           inflation,
-          config.initialRD,
+          config.initialRD
         ),
         deviation: newDeviation(
           second.glicko,
           first.glicko,
           inflation,
-          config.initialRD,
+          config.initialRD
         ),
         timestamp: now,
       },

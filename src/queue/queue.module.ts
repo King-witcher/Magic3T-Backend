@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common'
-import { MatchModule } from '@/match'
+import { AuthModule } from '@/auth/auth.module'
+import { SocketsService } from '@/common/services/sockets.service'
 import { DatabaseModule } from '@/database'
 import { FirebaseModule } from '@/firebase'
+import { MatchModule } from '@/match'
+import { Module } from '@nestjs/common'
+import { QueueController } from './queue.controller'
 import { QueueGateway } from './queue.gateway'
 import { QueueService } from './queue.service'
-import { SocketsService } from '@/common/services/sockets.service'
 import { QueueEmitType } from './types'
-import { QueueController } from './queue.controller'
-import { AuthModule } from '@/auth/auth.module'
 
 export const QueueSocketsService = Symbol('QueueSocketsService')
 

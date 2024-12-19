@@ -21,7 +21,7 @@ export class UserService {
     ) {
       throw new BaseError(
         'cannot change nickname more than once every 30 days',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       )
     }
 
@@ -29,7 +29,7 @@ export class UserService {
     if (user.identification?.nickname === newNickname) {
       throw new BaseError(
         'nickname must be different from the current',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       )
     }
 
@@ -38,7 +38,7 @@ export class UserService {
     if (nicknameOwner) {
       throw new BaseError(
         'the nickname is already being used',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       )
     }
 

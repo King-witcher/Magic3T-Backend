@@ -1,16 +1,16 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
-import { Glicko, UserModel } from '@/database/user/user.model'
 import { DatabaseService } from '@/database/database.service'
+import { Glicko, UserModel } from '@/database/user/user.model'
 import { FirebaseService } from '@/firebase/firebase.service'
-import { ConfigRepository } from '../config'
+import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { BaseRepository } from '../base-repository'
+import { ConfigRepository } from '../config'
 
 @Injectable()
 export class UserRepository extends BaseRepository<UserModel> {
   constructor(
     databaseService: DatabaseService,
     firebaseService: FirebaseService,
-    private configService: ConfigRepository,
+    private configService: ConfigRepository
   ) {
     super(firebaseService.firestore, databaseService, 'users')
   }
@@ -53,10 +53,10 @@ export class UserRepository extends BaseRepository<UserModel> {
         const user = await super.get(uid)
         if (!user)
           throw new InternalServerErrorException(
-            `user not found for bot ${uid}`,
+            `user not found for bot ${uid}`
           )
         return user
-      }),
+      })
     )
   }
 }
