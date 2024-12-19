@@ -7,11 +7,13 @@ import {
   HistoryMatchEventsEnum,
   MatchModel,
   MatchRepository,
+  SidesEnum,
   UserModel,
   UserRepository,
 } from '@database'
 import { RatingService } from '@rating'
 import { MatchEventsEnum, MatchEventsMap } from '../lib'
+import { FieldValue } from 'firebase-admin/firestore'
 
 @Injectable()
 export class DatabaseSyncService {
@@ -56,19 +58,23 @@ export class DatabaseSyncService {
     })
 
     match.observe(MatchEventsEnum.Finish, async (winner) => {
+      const whiteScore = winner === null ? 0.5 : 1 - winner
+      const [newWhiteRating, newBlackRating] =
+        await this.ratingService.getRatings(white, black, whiteScore)
+
       const historyMatch: MatchModel = {
         _id: id,
         white: {
           uid: white._id,
-          name: white.identification?.nickname || 'null',
-          score: Math.floor(white.glicko.rating),
-          gain: 0,
+          name: white.identification?.nickname || '',
+          score: white.glicko.rating,
+          gain: newWhiteRating.rating - white.glicko.rating,
         },
         black: {
           uid: black._id,
-          name: black.identification?.nickname || 'null',
-          score: Math.floor(black.glicko.rating),
-          gain: 0,
+          name: black.identification?.nickname || '',
+          score: black.glicko.rating,
+          gain: newBlackRating.rating - black.glicko.rating,
         },
         gameMode,
         timestamp: new Date(),
@@ -80,7 +86,7 @@ export class DatabaseSyncService {
     })
   }
 
-  syncRatings(
+  syncUsers(
     match: Observable<MatchEventsMap>,
     white: UserModel,
     black: UserModel
@@ -94,8 +100,27 @@ export class DatabaseSyncService {
         whiteScore
       )
 
-      this.userRepository.updateGlicko(white._id, whiteRating)
-      this.userRepository.updateGlicko(black._id, blackRating)
+      this.userRepository.update({
+        _id: white._id,
+        glicko: whiteRating,
+        experience: FieldValue.increment(0),
+        'stats.defeats': FieldValue.increment(
+          winner === SidesEnum.Black ? 1 : 0
+        ),
+        'stats.draws': FieldValue.increment(winner === null ? 1 : 0),
+        'stats.wins': FieldValue.increment(winner === SidesEnum.White ? 1 : 0),
+      })
+
+      this.userRepository.update({
+        _id: black._id,
+        glicko: blackRating,
+        experience: FieldValue.increment(0),
+        'stats.defeats': FieldValue.increment(
+          winner === SidesEnum.White ? 1 : 0
+        ),
+        'stats.draws': FieldValue.increment(winner === null ? 1 : 0),
+        'stats.wins': FieldValue.increment(winner === SidesEnum.Black ? 1 : 0),
+      })
     })
   }
 
@@ -108,7 +133,7 @@ export class DatabaseSyncService {
   ) {
     this.syncHistory(match, id, white, black, gameMode)
     if (gameMode & GameMode.Ranked) {
-      this.syncRatings(match, white, black)
+      this.syncUsers(match, white, black)
     }
   }
 }
