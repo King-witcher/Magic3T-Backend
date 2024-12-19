@@ -12,8 +12,8 @@ import {
   UserRepository,
 } from '@database'
 import { RatingService } from '@rating'
-import { MatchEventsEnum, MatchEventsMap } from '../lib'
 import { FieldValue } from 'firebase-admin/firestore'
+import { MatchEventsEnum, MatchEventsMap } from '../lib'
 
 @Injectable()
 export class DatabaseSyncService {
