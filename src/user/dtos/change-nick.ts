@@ -12,7 +12,7 @@ export class ChangeNickDto {
   @IsString()
   @MinLength(3)
   @MaxLength(16)
-  @Matches(/[a-zA-Z0-9áÁâÂãÃàÀäÄéÉêÊèÈëËíÍîÎìÌïÏóÓôÔõÕòÒöÖúÚûÛùÙüÜçÇñÑ\s]/)
+  @Matches(/^[a-zA-Z0-9áÁâÂãÃàÀäÄéÉêÊèÈëËíÍîÎìÌïÏóÓôÔõÕòÒöÖúÚûÛùÙüÜçÇñÑ\s]*$/)
   @ApiProperty({
     minLength: 3,
     maxLength: 16,
