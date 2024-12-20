@@ -3,3 +3,7 @@ export function delay(amount: number) {
     setTimeout(res, amount)
   })
 }
+
+export function block<T>(callback: () => T): T {
+  return callback()
+}

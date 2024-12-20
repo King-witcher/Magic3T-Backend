@@ -14,6 +14,7 @@ import {
 import { RatingService } from '@rating'
 import { FieldValue } from 'firebase-admin/firestore'
 import { MatchEventsEnum, MatchEventsMap } from '../lib'
+import { block } from '@/lib/utils'
 
 @Injectable()
 export class DatabaseSyncService {
@@ -58,15 +59,13 @@ export class DatabaseSyncService {
     })
 
     match.observe(MatchEventsEnum.Finish, async (match, winner) => {
-      let whiteScore = winner === null ? 0.5 : 1 - winner
-      if (winner === null) {
+      const whiteScore = block(() => {
+        if (winner !== null) return 1 - winner
         const whiteTime = match.timelimit - match[SidesEnum.White].timeLeft
         const blackTime = match.timelimit - match[SidesEnum.Black].timeLeft
+        return blackTime / (whiteTime + blackTime)
+      })
 
-        const timeBunus = blackTime / (whiteTime + blackTime) - 0.5 // ]-0.5, 0.5[
-
-        whiteScore += timeBunus
-      }
       const [newWhiteRating, newBlackRating] =
         await this.ratingService.getRatings(white, black, whiteScore)
 
@@ -100,16 +99,12 @@ export class DatabaseSyncService {
     black: UserModel
   ) {
     match.observe(MatchEventsEnum.Finish, async (match, winner) => {
-      let whiteScore = winner !== null ? 1 - winner : 0.5
-
-      if (winner === null) {
+      const whiteScore = block(() => {
+        if (winner !== null) return 1 - winner
         const whiteTime = match.timelimit - match[SidesEnum.White].timeLeft
         const blackTime = match.timelimit - match[SidesEnum.Black].timeLeft
-
-        const timeBunus = blackTime / (whiteTime + blackTime) - 0.5 // ]-0.5, 0.5[
-
-        whiteScore += timeBunus
-      }
+        return blackTime / (whiteTime + blackTime)
+      })
 
       const [whiteRating, blackRating] = await this.ratingService.getRatings(
         white,
