@@ -103,8 +103,6 @@ export class DatabaseSyncService {
         whiteScore += timeBunus
       }
 
-      console.log(whiteScore)
-
       const [whiteRating, blackRating] = await this.ratingService.getRatings(
         white,
         black,
