@@ -33,11 +33,9 @@ export class GlickoRatingStrategy extends RatingStrategy {
           inflation,
           config.initialRD
         ),
-        deviation: newDeviation(
-          first.glicko,
-          second.glicko,
-          inflation,
-          config.initialRD
+        deviation: Math.max(
+          config.minRD,
+          newDeviation(first.glicko, second.glicko, inflation, config.initialRD)
         ),
         timestamp: now,
       },
@@ -49,11 +47,9 @@ export class GlickoRatingStrategy extends RatingStrategy {
           inflation,
           config.initialRD
         ),
-        deviation: newDeviation(
-          second.glicko,
-          first.glicko,
-          inflation,
-          config.initialRD
+        deviation: Math.max(
+          config.minRD,
+          newDeviation(second.glicko, first.glicko, inflation, config.initialRD)
         ),
         timestamp: now,
       },

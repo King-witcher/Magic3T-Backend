@@ -4,6 +4,7 @@ export interface RatingConfigModel extends WithId {
   deviationInflationTime: number
   initialRD: number
   initialRating: number
+  minRD: number
 
   /** Max RD a player can have to be placed */
   maxReliableDeviation: number

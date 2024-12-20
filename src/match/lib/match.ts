@@ -21,16 +21,16 @@ export type MatchEventsMap = {
   ): void
   [MatchEventsEnum.Forfeit](side: SidesEnum, timestamp: number): void
   [MatchEventsEnum.Timeout](side: SidesEnum, timestamp: number): void
-  [MatchEventsEnum.Finish](winner: SidesEnum | null): void
+  [MatchEventsEnum.Finish](self: Match, winner: SidesEnum | null): void
 }
 
 export class Match extends Observable<MatchEventsMap> {
   private globalTime: Stopwatch
   public id: string
-  private [SidesEnum.White]: IStateHandler
-  private [SidesEnum.Black]: IStateHandler
+  public [SidesEnum.White]: IStateHandler
+  public [SidesEnum.Black]: IStateHandler
 
-  constructor(timelimit = 1000 * 105) {
+  constructor(public readonly timelimit = 1000 * 105) {
     super()
     this[SidesEnum.White] = new PlayerState(timelimit)
     this[SidesEnum.Black] = new PlayerState(timelimit)
@@ -133,10 +133,10 @@ export class Match extends Observable<MatchEventsMap> {
     if (player.isWinner) {
       this.globalTime.pause()
       this.emit(MatchEventsEnum.Choice, side, choice, this.time)
-      this.emit(MatchEventsEnum.Finish, side)
+      this.emit(MatchEventsEnum.Finish, this, side)
     } else if (this.isDrawn) {
       this.emit(MatchEventsEnum.Choice, side, choice, this.time)
-      this.emit(MatchEventsEnum.Finish, null)
+      this.emit(MatchEventsEnum.Finish, this, null)
     } else {
       this.turn = 1 - side
       this.emit(MatchEventsEnum.Choice, side, choice, this.time)
@@ -153,7 +153,7 @@ export class Match extends Observable<MatchEventsMap> {
     this.globalTime.pause()
 
     this.emit(MatchEventsEnum.Forfeit, side, this.time)
-    this.emit(MatchEventsEnum.Finish, 1 - side)
+    this.emit(MatchEventsEnum.Finish, this, 1 - side)
   }
 
   private handleTimeout(side: SidesEnum) {
@@ -161,7 +161,7 @@ export class Match extends Observable<MatchEventsMap> {
     this.turn = null
     this.globalTime.pause()
     this.emit(MatchEventsEnum.Timeout, side, this.time)
-    this.emit(MatchEventsEnum.Finish, opposite)
+    this.emit(MatchEventsEnum.Finish, this, opposite)
   }
 
   public getAdapter(side: SidesEnum): Perspective {

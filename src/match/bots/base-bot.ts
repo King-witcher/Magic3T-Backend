@@ -8,11 +8,12 @@ export abstract class BaseBot {
     const callback = () => {
       const state = adapter.state
       if (!state.turn) return
-      const choice = this.think(state)
 
-      // Waits for all other observers to be notified about the choice before committing a choice.
-      setTimeout(() => {
-        adapter.makeChoice(choice)
+      this.think(state).then((choice) => {
+        // Waits for all other observers to be notified about the choice before committing a choice.
+        setTimeout(() => {
+          adapter.makeChoice(choice)
+        })
       })
     }
 
@@ -20,5 +21,5 @@ export abstract class BaseBot {
     adapter.observe(MatchEventsEnum.Choice, callback)
   }
 
-  protected abstract think(state: PerspectiveGameState): Choice
+  protected abstract think(state: PerspectiveGameState): Promise<Choice>
 }

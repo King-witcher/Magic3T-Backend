@@ -1,4 +1,5 @@
 import { createTree } from '@/lib/LMM'
+import { delay } from '@/lib/utils'
 import { BaseBot } from '@/match/bots/base-bot'
 import { PerspectiveGameState } from '@/match/types/perspective.game.state'
 import { Choice } from '@/types/Choice'
@@ -20,7 +21,18 @@ export class LmmBot extends BaseBot {
     super()
   }
 
-  think(state: PerspectiveGameState): Choice {
+  private async simulateThinkTime(state: PerspectiveGameState): Promise<void> {
+    const choicesMade =
+      state.playerChoices.length + state.opponentChoices.length
+
+    const baseDelays = [1000, 1500, 2500, 5000, 6000, 7000, 6000, 5000, 1000]
+    const randomFactor = 1 + 0.3 * Math.random()
+    await delay(baseDelays[choicesMade] * randomFactor)
+  }
+
+  async think(state: PerspectiveGameState): Promise<Choice> {
+    await this.simulateThinkTime(state)
+
     const side =
       state.opponentChoices.length > state.playerChoices.length
         ? 'black'
