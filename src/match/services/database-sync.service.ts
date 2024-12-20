@@ -57,8 +57,16 @@ export class DatabaseSyncService {
       })
     })
 
-    match.observe(MatchEventsEnum.Finish, async (_, winner) => {
-      const whiteScore = winner === null ? 0.5 : 1 - winner
+    match.observe(MatchEventsEnum.Finish, async (match, winner) => {
+      let whiteScore = winner === null ? 0.5 : 1 - winner
+      if (winner === null) {
+        const whiteTime = match.timelimit - match[SidesEnum.White].timeLeft
+        const blackTime = match.timelimit - match[SidesEnum.Black].timeLeft
+
+        const timeBunus = blackTime / (whiteTime + blackTime) - 0.5 // ]-0.5, 0.5[
+
+        whiteScore += timeBunus
+      }
       const [newWhiteRating, newBlackRating] =
         await this.ratingService.getRatings(white, black, whiteScore)
 
