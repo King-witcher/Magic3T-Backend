@@ -3,11 +3,11 @@ import { Injectable } from '@nestjs/common'
 import { Observable } from '@/lib'
 import {
   GameMode,
-  HistoryMatchEvent,
   HistoryMatchEventsEnum,
+  MatchEventModal,
   MatchModel,
   MatchRepository,
-  SidesEnum,
+  Team,
   UserModel,
   UserRepository,
 } from '@database'
@@ -23,21 +23,21 @@ export class DatabaseSyncService {
     private readonly userRepository: UserRepository
   ) {}
 
-  private getWhiteScore(match: Match, winner: SidesEnum | null) {
+  private getWhiteScore(match: Match, winner: Team | null) {
     if (winner !== null) return 1 - winner
-    const whiteTime = match.timelimit - match[SidesEnum.White].timeLeft
-    const blackTime = match.timelimit - match[SidesEnum.Black].timeLeft
+    const whiteTime = match.timelimit - match[Team.Order].timer.remaining // FIXME: Demeter
+    const blackTime = match.timelimit - match[Team.Chaos].timer.remaining
     return blackTime / (whiteTime + blackTime)
   }
 
   syncHistory(
     match: Observable<MatchEventsMap>,
     id: string,
-    white: UserModel,
-    black: UserModel,
+    order: UserModel,
+    chaos: UserModel,
     gameMode: GameMode
   ) {
-    const events: HistoryMatchEvent[] = []
+    const events: MatchEventModal[] = []
 
     match.observe(MatchEventsEnum.Choice, (side, choice, time) => {
       events.push({
@@ -48,7 +48,7 @@ export class DatabaseSyncService {
       })
     })
 
-    match.observe(MatchEventsEnum.Forfeit, (side, time) => {
+    match.observe(MatchEventsEnum.Surrender, (side, time) => {
       events.push({
         event: HistoryMatchEventsEnum.Forfeit,
         time,
@@ -67,23 +67,23 @@ export class DatabaseSyncService {
     match.observe(MatchEventsEnum.Finish, async (match, winner) => {
       const whiteScore = this.getWhiteScore(match, winner)
       const [newWhiteRating, newBlackRating] =
-        await this.ratingService.getRatings(white, black, whiteScore)
+        await this.ratingService.getRatings(order, chaos, whiteScore)
 
       const historyMatch: MatchModel = {
         _id: id,
-        white: {
-          uid: white._id,
-          name: white.identification?.nickname || '',
+        [Team.Order]: {
+          uid: order._id,
+          name: order.identification?.nickname || '',
           score: whiteScore,
-          rating: white.glicko.rating,
-          gain: newWhiteRating.rating - white.glicko.rating,
+          rating: order.glicko.rating,
+          gain: newWhiteRating.rating - order.glicko.rating,
         },
-        black: {
-          uid: black._id,
-          name: black.identification?.nickname || '',
+        [Team.Chaos]: {
+          uid: chaos._id,
+          name: chaos.identification?.nickname || '',
           score: 1 - whiteScore,
-          rating: black.glicko.rating,
-          gain: newBlackRating.rating - black.glicko.rating,
+          rating: chaos.glicko.rating,
+          gain: newBlackRating.rating - chaos.glicko.rating,
         },
         gameMode,
         timestamp: new Date(),
@@ -112,22 +112,18 @@ export class DatabaseSyncService {
         _id: white._id,
         glicko: whiteRating,
         experience: FieldValue.increment(0),
-        'stats.defeats': FieldValue.increment(
-          winner === SidesEnum.Black ? 1 : 0
-        ),
+        'stats.defeats': FieldValue.increment(winner === Team.Chaos ? 1 : 0),
         'stats.draws': FieldValue.increment(winner === null ? 1 : 0),
-        'stats.wins': FieldValue.increment(winner === SidesEnum.White ? 1 : 0),
+        'stats.wins': FieldValue.increment(winner === Team.Order ? 1 : 0),
       })
 
       this.userRepository.update({
         _id: black._id,
         glicko: blackRating,
         experience: FieldValue.increment(0),
-        'stats.defeats': FieldValue.increment(
-          winner === SidesEnum.White ? 1 : 0
-        ),
+        'stats.defeats': FieldValue.increment(winner === Team.Order ? 1 : 0),
         'stats.draws': FieldValue.increment(winner === null ? 1 : 0),
-        'stats.wins': FieldValue.increment(winner === SidesEnum.Black ? 1 : 0),
+        'stats.wins': FieldValue.increment(winner === Team.Chaos ? 1 : 0),
       })
     })
   }

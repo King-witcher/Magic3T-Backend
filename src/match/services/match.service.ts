@@ -11,7 +11,7 @@ import {
   Glicko,
   MatchModel,
   MatchRepository,
-  SidesEnum,
+  Team,
   UserModel,
   UserRepository,
 } from '@database'
@@ -23,8 +23,6 @@ import {
   MatchSocketEmitMap,
   MatchSocketEmittedEvent,
 } from '../types'
-import { ClientSyncService } from './client-sync.service'
-import { DatabaseSyncService } from './database-sync.service'
 
 export type MatchPlayerProfile = {
   uid: string
@@ -38,11 +36,9 @@ export class MatchService {
   constructor(
     private configRepository: ConfigRepository,
     private userRepository: UserRepository,
-    private databaseSyncService: DatabaseSyncService,
     @Inject('MatchSocketsService')
     private matchSocketsService: SocketsService<MatchSocketEmitMap>,
     private readonly matchRepository: MatchRepository,
-    private clientSyncService: ClientSyncService,
     private matchBank: MatchBank,
     private ratingService: RatingService
   ) {}
@@ -59,103 +55,81 @@ export class MatchService {
     return profile
   }
 
-  private getWhiteScore(match: Match, winner: SidesEnum | null) {
+  private getWhiteScore(match: Match, winner: Team | null) {
     if (winner !== null) return 1 - winner
-    const whiteTime = match.timelimit - match[SidesEnum.White].timeLeft
-    const blackTime = match.timelimit - match[SidesEnum.Black].timeLeft
+    const whiteTime = match.timelimit - match[Team.Order].timer.remaining // TODO: Use Demeter's principle!!!
+    const blackTime = match.timelimit - match[Team.Chaos].timer.remaining
     return blackTime / (whiteTime + blackTime)
+  }
+
+  private syncStateReport(match: Match, order: UserModel, chaos: UserModel) {
+    match.observeMany(
+      [
+        MatchEventsEnum.Choice,
+        MatchEventsEnum.Surrender,
+        MatchEventsEnum.Timeout,
+      ],
+      () => {
+        const stateReport = match.stateReport
+
+        if (order.role !== 'bot')
+          this.matchSocketsService.emit(
+            order._id,
+            MatchSocketEmittedEvent.StateReport,
+            stateReport
+          )
+
+        if (chaos.role !== 'bot')
+          this.matchSocketsService.emit(
+            chaos._id,
+            MatchSocketEmittedEvent.StateReport,
+            stateReport
+          )
+      }
+    )
   }
 
   // The largest method I ever created 😅
   private async observeMatch(
     match: Match,
-    white: UserModel,
-    black: UserModel,
+    order: UserModel,
+    chaos: UserModel,
     gameMode: GameMode
   ) {
-    const whitePerspective = match.getAdapter(SidesEnum.White)
-    const blackPerspective = match.getAdapter(SidesEnum.Black)
-    match.observe(MatchEventsEnum.Choice, () => {
-      if (white.role !== 'bot')
-        this.matchSocketsService.emit(
-          white._id,
-          MatchSocketEmittedEvent.GameState,
-          whitePerspective.state
-        )
-      if (black.role !== 'bot')
-        this.matchSocketsService.emit(
-          black._id,
-          MatchSocketEmittedEvent.GameState,
-          blackPerspective.state
-        )
-    })
-
-    match.observe(MatchEventsEnum.Forfeit, () => {
-      if (white.role !== 'bot')
-        this.matchSocketsService.emit(
-          white._id,
-          MatchSocketEmittedEvent.GameState,
-          whitePerspective.state
-        )
-      if (black.role !== 'bot')
-        this.matchSocketsService.emit(
-          black._id,
-          MatchSocketEmittedEvent.GameState,
-          blackPerspective.state
-        )
-    })
-
-    match.observe(MatchEventsEnum.Timeout, () => {
-      if (white.role !== 'bot')
-        this.matchSocketsService.emit(
-          white._id,
-          MatchSocketEmittedEvent.GameState,
-          whitePerspective.state
-        )
-      if (black.role !== 'bot')
-        this.matchSocketsService.emit(
-          black._id,
-          MatchSocketEmittedEvent.GameState,
-          blackPerspective.state
-        )
-    })
+    this.syncStateReport(match, order, chaos)
 
     match.observe(MatchEventsEnum.Finish, async (_, winner) => {
       const events = match.events
-      const whiteScore = this.getWhiteScore(match, winner)
+      const orderScore = this.getWhiteScore(match, winner)
 
-      const whiteUpdateData: UpdateData<UserModel> & WithId = {
-        _id: white._id,
-        'stats.defeats': FieldValue.increment(
-          winner === SidesEnum.Black ? 1 : 0
-        ),
+      const orderUD: UpdateData<UserModel> & WithId = {
+        _id: order._id,
+        'stats.defeats': FieldValue.increment(winner === Team.Chaos ? 1 : 0),
         'stats.draws': FieldValue.increment(winner === null ? 1 : 0),
-        'stats.wins': FieldValue.increment(winner === SidesEnum.White ? 1 : 0),
+        'stats.wins': FieldValue.increment(winner === Team.Order ? 1 : 0),
       }
 
-      const blackUpdateData: UpdateData<UserModel> & WithId = {
-        _id: black._id,
-        'stats.defeats': FieldValue.increment(
-          winner === SidesEnum.White ? 1 : 0
-        ),
+      const chaosUD: UpdateData<UserModel> & WithId = {
+        _id: chaos._id,
+        'stats.defeats': FieldValue.increment(winner === Team.Order ? 1 : 0),
         'stats.draws': FieldValue.increment(winner === null ? 1 : 0),
-        'stats.wins': FieldValue.increment(winner === SidesEnum.Black ? 1 : 0),
+        'stats.wins': FieldValue.increment(winner === Team.Chaos ? 1 : 0),
       }
 
       const historyMatch: MatchModel = {
         _id: match.id,
-        white: {
-          uid: white._id,
-          name: white.identification?.nickname || '',
-          score: whiteScore,
-          rating: white.glicko.rating,
+        [Team.Order]: {
+          uid: order._id,
+          name: order.identification?.nickname || '',
+          score: orderScore,
+          rating: order.glicko.rating,
           gain: 0,
         },
-        black: {
-          uid: black._id,
-          name: black.identification?.nickname || '',
-          score: 1 - whiteScore,
-          rating: black.glicko.rating,
+        [Team.Chaos]: {
+          uid: chaos._id,
+          name: chaos.identification?.nickname || '',
+          score: 1 - orderScore,
+          rating: chaos.glicko.rating,
           gain: 0,
         },
         gameMode,
@@ -167,55 +141,55 @@ export class MatchService {
       const matchReport: MatchReportData = {
         matchId: match.id,
         winner,
-        white: {
-          score: whiteScore,
+        [Team.Order]: {
+          score: orderScore,
           gain: 0,
-          newRating: white.glicko,
+          newRating: order.glicko,
         },
-        black: {
-          score: 1 - whiteScore,
+        [Team.Chaos]: {
+          score: 1 - orderScore,
           gain: 0,
-          newRating: black.glicko,
+          newRating: chaos.glicko,
         },
       }
 
       if (gameMode & GameMode.Ranked) {
         const [whiteGlicko, blackGlicko] = await this.ratingService.getRatings(
-          white,
-          black,
-          whiteScore
+          order,
+          chaos,
+          orderScore
         )
 
-        whiteUpdateData.glicko = whiteGlicko
-        blackUpdateData.glicko = blackGlicko
+        orderUD.glicko = whiteGlicko
+        chaosUD.glicko = blackGlicko
 
-        historyMatch.white.gain = whiteGlicko.rating - white.glicko.rating
-        historyMatch.black.gain = blackGlicko.rating - black.glicko.rating
+        historyMatch.white.gain = whiteGlicko.rating - order.glicko.rating
+        historyMatch.black.gain = blackGlicko.rating - chaos.glicko.rating
 
-        matchReport.white.gain = whiteGlicko.rating - white.glicko.rating
-        matchReport.black.gain = blackGlicko.rating - black.glicko.rating
-        matchReport.white.newRating = whiteGlicko
-        matchReport.black.newRating = blackGlicko
+        matchReport[Team.Order].gain = whiteGlicko.rating - order.glicko.rating
+        matchReport[Team.Chaos].gain = blackGlicko.rating - chaos.glicko.rating
+        matchReport[Team.Order].newRating = whiteGlicko
+        matchReport[Team.Chaos].newRating = blackGlicko
       }
 
       // Update everything in the database
       await Promise.all([
         this.matchRepository.create(historyMatch),
-        this.userRepository.update(whiteUpdateData),
-        this.userRepository.update(blackUpdateData),
+        this.userRepository.update(orderUD),
+        this.userRepository.update(chaosUD),
       ])
 
       // Finally, emits the final report
-      if (white.role !== 'bot')
+      if (order.role !== 'bot')
         this.matchSocketsService.emit(
-          white._id,
+          order._id,
           MatchSocketEmittedEvent.MatchReport,
           matchReport
         )
 
-      if (black.role !== 'bot')
+      if (chaos.role !== 'bot')
         this.matchSocketsService.emit(
-          black._id,
+          chaos._id,
           MatchSocketEmittedEvent.MatchReport,
           matchReport
         )
@@ -235,7 +209,7 @@ export class MatchService {
     const bot = this.getBot(botConfig)
 
     // Define sides and get perspectives
-    const humanSide = Math.round(Math.random()) as SidesEnum
+    const humanSide = Math.round(Math.random()) as Team
     const [_, botPerspective] = this.matchBank.createPerspectives(
       match,
       [uid, botProfile._id],
@@ -246,8 +220,8 @@ export class MatchService {
     bot.observe(botPerspective)
     this.observeMatch(
       match,
-      humanSide === SidesEnum.White ? humanProfile : botProfile,
-      humanSide === SidesEnum.White ? botProfile : humanProfile,
+      humanSide === Team.Order ? humanProfile : botProfile,
+      humanSide === Team.Order ? botProfile : humanProfile,
       GameMode.Ranked | GameMode.PvC
     )
     // this.clientSyncService.sync(playerPerspective, uid)
@@ -274,14 +248,14 @@ export class MatchService {
     ])
 
     // Define sides and get perspectives
-    const sideOfFirst = <SidesEnum>Math.round(Math.random())
+    const sideOfFirst = <Team>Math.round(Math.random())
     this.matchBank.createPerspectives(match, [uid1, uid2], sideOfFirst)
 
     // Sync
     this.observeMatch(
       match,
-      sideOfFirst === SidesEnum.White ? profile1 : profile2,
-      sideOfFirst === SidesEnum.White ? profile2 : profile1,
+      sideOfFirst === Team.Order ? profile1 : profile2,
+      sideOfFirst === Team.Order ? profile2 : profile1,
       GameMode.Ranked | GameMode.PvP
     )
     // this.clientSyncService.sync(perspective1, uid1)

@@ -3,7 +3,8 @@ import {
   NotImplementedException,
   createParamDecorator,
 } from '@nestjs/common'
-import { MatchSocket, Perspective } from '../types'
+import { Perspective } from '../lib'
+import { MatchSocket } from '../types'
 import { MatchRequest } from '../types/match-request'
 
 export const CurrentPerspective = createParamDecorator(

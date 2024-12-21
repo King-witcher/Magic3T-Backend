@@ -1,44 +1,39 @@
+import { Team } from '@/database'
 import { createTree } from '@/lib/LMM'
 import { delay } from '@/lib/utils'
 import { BaseBot } from '@/match/bots/base-bot'
-import { PerspectiveGameState } from '@/match/types/perspective.game.state'
 import { Choice } from '@/types/Choice'
+import { StateReportData } from '../types'
 
-function getMatchChoices(state: PerspectiveGameState, side: 'white' | 'black') {
-  const white = side === 'white' ? state.playerChoices : state.opponentChoices
-  const black = side === 'black' ? state.playerChoices : state.opponentChoices
-
+function getMatchChoices(state: StateReportData, team: Team) {
+  const order = state[Team.Order].choices
+  const chaos = state[Team.Chaos].choices
   const result: Choice[] = []
-  for (let i = 0; i < black.length; i++) {
-    result.push(white[i], black[i])
+  for (let i = 0; i < chaos.length; i++) {
+    result.push(order[i], chaos[i])
   }
-  if (white.length > black.length) result.push(white[black.length])
+  if (order.length > chaos.length) result.push(order[chaos.length])
   return result
 }
 
 export class LmmBot extends BaseBot {
-  constructor(private readonly depth: number) {
+  constructor(private depth: number) {
     super()
   }
 
-  private async simulateThinkTime(state: PerspectiveGameState): Promise<void> {
+  private async simulateThinkTime(state: StateReportData): Promise<void> {
     const choicesMade =
-      state.playerChoices.length + state.opponentChoices.length
+      state[Team.Order].choices.length + state[Team.Chaos].choices.length
 
     const baseDelays = [1000, 1500, 2500, 5000, 6000, 7000, 6000, 5000, 1000]
     const randomFactor = 1 + 0.3 * Math.random()
     await delay(baseDelays[choicesMade] * randomFactor)
   }
 
-  async think(state: PerspectiveGameState): Promise<Choice> {
+  async think(state: StateReportData, team: Team): Promise<Choice> {
     await this.simulateThinkTime(state)
 
-    const side =
-      state.opponentChoices.length > state.playerChoices.length
-        ? 'black'
-        : 'white'
-
-    const matchChoices = getMatchChoices(state, side)
+    const matchChoices = getMatchChoices(state, team)
     const tree = createTree(
       Math.min(this.depth, 9 - matchChoices.length),
       matchChoices
@@ -54,7 +49,7 @@ export class LmmBot extends BaseBot {
       wins: [],
     }
 
-    const winNumber = side === 'white' ? 1 : -1
+    const winNumber = team === Team.Order ? 1 : -1
 
     for (const branchId of Object.keys(tree.branches)) {
       if (!tree.branches[branchId]) continue

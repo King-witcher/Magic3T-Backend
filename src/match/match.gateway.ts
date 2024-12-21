@@ -12,6 +12,7 @@ import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { Choice } from '@/types/Choice'
 import { CurrentPerspective } from './decorators'
+import { Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './services'
 import {
@@ -19,7 +20,6 @@ import {
   MatchSocketEmitMap,
   MatchSocketEmittedEvent,
   MatchSocketListenedEvent,
-  Perspective,
 } from './types'
 
 @UseGuards(AuthGuard, MatchGuard)
@@ -43,14 +43,24 @@ export class MatchGateway implements OnGatewayDisconnect {
     @CurrentPerspective() perspective: Perspective,
     @ConnectedSocket() client: MatchSocket
   ) {
-    client.emit(MatchSocketEmittedEvent.GameState, perspective.state)
+    client.emit(
+      MatchSocketEmittedEvent.StateReport,
+      perspective.getStateReport()
+    )
   }
 
   // Refactor this
   @SubscribeMessage(MatchSocketListenedEvent.Message)
   handleMessage(@UserId() uid: string, @MessageBody() body: string) {
     const opponent = this.matchService.getOpponent(uid)
-    this.socketsService.emit(opponent, MatchSocketEmittedEvent.Message, body)
+    this.socketsService.emit(opponent, MatchSocketEmittedEvent.Message, {
+      message: body,
+      sender: uid,
+    })
+    this.socketsService.emit(uid, MatchSocketEmittedEvent.Message, {
+      message: body,
+      sender: uid,
+    })
   }
 
   @SubscribeMessage(MatchSocketListenedEvent.GetOpponent)
@@ -67,7 +77,7 @@ export class MatchGateway implements OnGatewayDisconnect {
     @CurrentPerspective() adapter: Perspective,
     @MessageBody(ChoicePipe) choice: Choice
   ) {
-    adapter.makeChoice(choice)
+    adapter.pick(choice)
   }
 
   handleDisconnect(client: MatchSocket) {

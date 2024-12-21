@@ -10,9 +10,8 @@ import {
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { CurrentPerspective } from './decorators'
-import { MatchBank } from './lib'
+import { MatchBank, Perspective } from './lib'
 import { MatchGuard } from './match.guard'
-import { Perspective } from './types'
 
 @UseGuards(AuthGuard)
 @Controller('match')
@@ -44,7 +43,7 @@ export class MatchController {
     const perspective = this.matchBank.getPerspective(userId)
     if (!perspective) throw new NotFoundException()
     return {
-      id: perspective.matchId,
+      id: perspective.match.id,
     }
   }
 }

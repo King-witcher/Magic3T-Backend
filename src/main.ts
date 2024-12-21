@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core'
-
+import './prelude'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { AppModule } from './app.module'
 import './lib/LMM'

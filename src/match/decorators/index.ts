@@ -1,1 +1,1 @@
-export * from './current-match.decorator'
+export * from './current-perspective.decorator'
