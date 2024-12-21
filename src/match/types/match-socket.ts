@@ -44,7 +44,7 @@ export type MatchSocketEmitMap = {
   [MatchSocketEmittedEvent.Message](message: string): void
   [MatchSocketEmittedEvent.OpponentUid](uid: string): void
   [MatchSocketEmittedEvent.GameState](state: PerspectiveGameState): void
-  [MatchSocketEmittedEvent.MatchReport](matchReport: MatchReportData)
+  [MatchSocketEmittedEvent.MatchReport](matchReport: MatchReportData): void
   [MatchSocketEmittedEvent.RatingsVariation](data: {
     player: number
     opponent: number
