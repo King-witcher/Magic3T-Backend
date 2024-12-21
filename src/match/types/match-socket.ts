@@ -1,9 +1,9 @@
 import { AuthSocketData } from '@/auth/auth-socket'
+import { Glicko, SidesEnum } from '@/database'
 import { PerspectiveGameState } from '@/match/types/perspective.game.state'
 import { Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import { Perspective } from './match-side-adapter'
-import { Glicko, SidesEnum } from '@/database'
 
 export type MatchSocketData = AuthSocketData & {
   perspective: Perspective

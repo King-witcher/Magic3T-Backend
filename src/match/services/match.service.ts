@@ -1,5 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 
+import { WithId } from '@/database/types'
+import { RatingService } from '@/rating'
 import { SocketsService } from '@common'
 import {
   BotConfig,
@@ -13,6 +15,7 @@ import {
   UserModel,
   UserRepository,
 } from '@database'
+import { FieldValue, UpdateData } from 'firebase-admin/firestore'
 import { BaseBot, LmmBot, RandomBot } from '../bots'
 import { Match, MatchBank, MatchEventsEnum } from '../lib'
 import {
@@ -22,9 +25,6 @@ import {
 } from '../types'
 import { ClientSyncService } from './client-sync.service'
 import { DatabaseSyncService } from './database-sync.service'
-import { RatingService } from '@/rating'
-import { FieldValue, UpdateData } from 'firebase-admin/firestore'
-import { WithId } from '@/database/types'
 
 export type MatchPlayerProfile = {
   uid: string
