@@ -4,6 +4,7 @@ import { Choice } from '@/types/Choice'
 export interface HistoryMatchPlayer {
   uid: string
   name: string
+  rating: number
   score: number
   gain: number
 }

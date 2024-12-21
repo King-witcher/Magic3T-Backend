@@ -13,8 +13,7 @@ import {
 } from '@database'
 import { RatingService } from '@rating'
 import { FieldValue } from 'firebase-admin/firestore'
-import { MatchEventsEnum, MatchEventsMap } from '../lib'
-import { block } from '@/lib/utils'
+import { Match, MatchEventsEnum, MatchEventsMap } from '../lib'
 
 @Injectable()
 export class DatabaseSyncService {
@@ -23,6 +22,13 @@ export class DatabaseSyncService {
     private readonly matchRepository: MatchRepository,
     private readonly userRepository: UserRepository
   ) {}
+
+  private getWhiteScore(match: Match, winner: SidesEnum | null) {
+    if (winner !== null) return 1 - winner
+    const whiteTime = match.timelimit - match[SidesEnum.White].timeLeft
+    const blackTime = match.timelimit - match[SidesEnum.Black].timeLeft
+    return blackTime / (whiteTime + blackTime)
+  }
 
   syncHistory(
     match: Observable<MatchEventsMap>,
@@ -59,13 +65,7 @@ export class DatabaseSyncService {
     })
 
     match.observe(MatchEventsEnum.Finish, async (match, winner) => {
-      const whiteScore = block(() => {
-        if (winner !== null) return 1 - winner
-        const whiteTime = match.timelimit - match[SidesEnum.White].timeLeft
-        const blackTime = match.timelimit - match[SidesEnum.Black].timeLeft
-        return blackTime / (whiteTime + blackTime)
-      })
-
+      const whiteScore = this.getWhiteScore(match, winner)
       const [newWhiteRating, newBlackRating] =
         await this.ratingService.getRatings(white, black, whiteScore)
 
@@ -74,13 +74,15 @@ export class DatabaseSyncService {
         white: {
           uid: white._id,
           name: white.identification?.nickname || '',
-          score: white.glicko.rating,
+          score: whiteScore,
+          rating: white.glicko.rating,
           gain: newWhiteRating.rating - white.glicko.rating,
         },
         black: {
           uid: black._id,
           name: black.identification?.nickname || '',
-          score: black.glicko.rating,
+          score: 1 - whiteScore,
+          rating: black.glicko.rating,
           gain: newBlackRating.rating - black.glicko.rating,
         },
         gameMode,
@@ -99,13 +101,7 @@ export class DatabaseSyncService {
     black: UserModel
   ) {
     match.observe(MatchEventsEnum.Finish, async (match, winner) => {
-      const whiteScore = block(() => {
-        if (winner !== null) return 1 - winner
-        const whiteTime = match.timelimit - match[SidesEnum.White].timeLeft
-        const blackTime = match.timelimit - match[SidesEnum.Black].timeLeft
-        return blackTime / (whiteTime + blackTime)
-      })
-
+      const whiteScore = this.getWhiteScore(match, winner)
       const [whiteRating, blackRating] = await this.ratingService.getRatings(
         white,
         black,

@@ -1,6 +1,6 @@
 import { Observable, Stopwatch } from '@/lib'
 import { Choice } from '@/types/Choice'
-import { SidesEnum } from '@database'
+import { HistoryMatchEvent, HistoryMatchEventsEnum, SidesEnum } from '@database'
 import { Perspective, PerspectiveGameState, PlayerStatus } from '../types'
 import { IStateHandler, PlayerState } from './player-state'
 
@@ -27,6 +27,7 @@ export type MatchEventsMap = {
 export class Match extends Observable<MatchEventsMap> {
   private globalTime: Stopwatch
   public id: string
+  public events: HistoryMatchEvent[] = []
   public [SidesEnum.White]: IStateHandler
   public [SidesEnum.Black]: IStateHandler
 
@@ -130,9 +131,17 @@ export class Match extends Observable<MatchEventsMap> {
     const player = this[side]
     player.push(choice)
 
+    this.events.push({
+      event: HistoryMatchEventsEnum.Choice,
+      choice,
+      side,
+      time: this.time,
+    })
+
     if (player.isWinner) {
       this.globalTime.pause()
       this.emit(MatchEventsEnum.Choice, side, choice, this.time)
+
       this.emit(MatchEventsEnum.Finish, this, side)
     } else if (this.isDrawn) {
       this.emit(MatchEventsEnum.Choice, side, choice, this.time)
@@ -152,6 +161,12 @@ export class Match extends Observable<MatchEventsMap> {
     this.turn = null
     this.globalTime.pause()
 
+    this.events.push({
+      event: HistoryMatchEventsEnum.Forfeit,
+      side,
+      time: this.time,
+    })
+
     this.emit(MatchEventsEnum.Forfeit, side, this.time)
     this.emit(MatchEventsEnum.Finish, this, 1 - side)
   }
@@ -160,6 +175,13 @@ export class Match extends Observable<MatchEventsMap> {
     const opposite = 1 - side
     this.turn = null
     this.globalTime.pause()
+
+    this.events.push({
+      event: HistoryMatchEventsEnum.Timeout,
+      side,
+      time: this.time,
+    })
+
     this.emit(MatchEventsEnum.Timeout, side, this.time)
     this.emit(MatchEventsEnum.Finish, this, opposite)
   }

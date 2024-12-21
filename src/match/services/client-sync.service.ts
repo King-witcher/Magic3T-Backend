@@ -15,28 +15,28 @@ export class ClientSyncService {
     private readonly socketsService: SocketsService<MatchSocketEmitMap>
   ) {}
 
-  sync(adapter: Perspective, uid: string) {
-    adapter.observe(MatchEventsEnum.Choice, () => {
+  sync(perspective: Perspective, uid: string) {
+    perspective.observe(MatchEventsEnum.Choice, () => {
       this.socketsService.emit(
         uid,
         MatchSocketEmittedEvent.GameState,
-        adapter.state
+        perspective.state
       )
     })
 
-    adapter.observe(MatchEventsEnum.Forfeit, () => {
+    perspective.observe(MatchEventsEnum.Forfeit, () => {
       this.socketsService.emit(
         uid,
         MatchSocketEmittedEvent.GameState,
-        adapter.state
+        perspective.state
       )
     })
 
-    adapter.observe(MatchEventsEnum.Timeout, () => {
+    perspective.observe(MatchEventsEnum.Timeout, () => {
       this.socketsService.emit(
         uid,
         MatchSocketEmittedEvent.GameState,
-        adapter.state
+        perspective.state
       )
     })
   }
