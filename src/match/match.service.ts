@@ -16,13 +16,13 @@ import {
   UserRepository,
 } from '@database'
 import { FieldValue, UpdateData } from 'firebase-admin/firestore'
-import { BaseBot, LmmBot, RandomBot } from '../bots'
-import { Match, MatchBank, MatchEventsEnum } from '../lib'
+import { BaseBot, LmmBot, RandomBot } from './bots'
+import { Match, MatchBank, MatchEventsEnum } from './lib'
 import {
   MatchReportData,
-  MatchSocketEmitMap,
-  MatchSocketEmittedEvent,
-} from '../types'
+  MatchServerEventsMap,
+  ServerMatchEvents,
+} from './types'
 
 export type MatchPlayerProfile = {
   uid: string
@@ -37,7 +37,7 @@ export class MatchService {
     private configRepository: ConfigRepository,
     private userRepository: UserRepository,
     @Inject('MatchSocketsService')
-    private matchSocketsService: SocketsService<MatchSocketEmitMap>,
+    private matchSocketsService: SocketsService<MatchServerEventsMap>,
     private readonly matchRepository: MatchRepository,
     private matchBank: MatchBank,
     private ratingService: RatingService
@@ -75,14 +75,14 @@ export class MatchService {
         if (order.role !== 'bot')
           this.matchSocketsService.emit(
             order._id,
-            MatchSocketEmittedEvent.StateReport,
+            ServerMatchEvents.StateReport,
             stateReport
           )
 
         if (chaos.role !== 'bot')
           this.matchSocketsService.emit(
             chaos._id,
-            MatchSocketEmittedEvent.StateReport,
+            ServerMatchEvents.StateReport,
             stateReport
           )
       }
@@ -144,32 +144,44 @@ export class MatchService {
         [Team.Order]: {
           score: orderScore,
           gain: 0,
-          newRating: order.glicko,
+          newRating: {
+            date: order.glicko.timestamp.getTime(),
+            rd: order.glicko.deviation,
+            score: order.glicko.rating,
+          },
         },
         [Team.Chaos]: {
           score: 1 - orderScore,
           gain: 0,
-          newRating: chaos.glicko,
+          newRating: {
+            date: chaos.glicko.timestamp.getTime(),
+            rd: chaos.glicko.deviation,
+            score: chaos.glicko.rating,
+          },
         },
       }
 
       if (gameMode & GameMode.Ranked) {
-        const [whiteGlicko, blackGlicko] = await this.ratingService.getRatings(
+        const [orderGlicko, chaosGlicko] = await this.ratingService.getRatings(
           order,
           chaos,
           orderScore
         )
 
-        orderUD.glicko = whiteGlicko
-        chaosUD.glicko = blackGlicko
+        orderUD.glicko = orderGlicko
+        chaosUD.glicko = chaosGlicko
 
-        historyMatch.white.gain = whiteGlicko.rating - order.glicko.rating
-        historyMatch.black.gain = blackGlicko.rating - chaos.glicko.rating
+        historyMatch[Team.Order].gain = orderGlicko.rating - order.glicko.rating
+        historyMatch[Team.Chaos].gain = chaosGlicko.rating - chaos.glicko.rating
 
-        matchReport[Team.Order].gain = whiteGlicko.rating - order.glicko.rating
-        matchReport[Team.Chaos].gain = blackGlicko.rating - chaos.glicko.rating
-        matchReport[Team.Order].newRating = whiteGlicko
-        matchReport[Team.Chaos].newRating = blackGlicko
+        matchReport[Team.Order].gain = orderGlicko.rating - order.glicko.rating
+        matchReport[Team.Chaos].gain = chaosGlicko.rating - chaos.glicko.rating
+        matchReport[Team.Order].newRating = matchReport[Team.Chaos].newRating =
+          {
+            date: chaosGlicko.timestamp.getTime(),
+            rd: chaosGlicko.deviation,
+            score: chaosGlicko.rating,
+          }
       }
 
       // Update everything in the database
@@ -183,45 +195,49 @@ export class MatchService {
       if (order.role !== 'bot')
         this.matchSocketsService.emit(
           order._id,
-          MatchSocketEmittedEvent.MatchReport,
+          ServerMatchEvents.MatchReport,
           matchReport
         )
 
       if (chaos.role !== 'bot')
         this.matchSocketsService.emit(
           chaos._id,
-          MatchSocketEmittedEvent.MatchReport,
+          ServerMatchEvents.MatchReport,
           matchReport
         )
     })
   }
 
   async createPvCMatch(uid: string, botName: BotName) {
-    const { match, id } = this.matchBank.createAndRegisterMatch(1000 * 105)
-
     // Get profiles
     const humanProfilePromise = this.getProfile(uid)
     const botConfig = await this.configRepository.getBotConfig(botName)
     if (!botConfig) throw new Error(`Could not find config for bot ${botName}.`)
     const botProfile = await this.getProfile(botConfig.uid)
     const humanProfile = await humanProfilePromise
-
     const bot = this.getBot(botConfig)
 
     // Define sides and get perspectives
-    const humanSide = Math.round(Math.random()) as Team
+    const humanTeam = Math.round(Math.random()) as Team
+
+    const { match, id } = this.matchBank.createAndRegisterMatch({
+      [Team.Order]: humanTeam === Team.Order ? humanProfile : botProfile,
+      [Team.Chaos]: humanTeam === Team.Order ? botProfile : humanProfile,
+      timelimit: 180 * 1000,
+    })
+
     const [_, botPerspective] = this.matchBank.createPerspectives(
       match,
       [uid, botProfile._id],
-      humanSide
+      humanTeam
     )
 
     // Sync
     bot.observe(botPerspective)
     this.observeMatch(
       match,
-      humanSide === Team.Order ? humanProfile : botProfile,
-      humanSide === Team.Order ? botProfile : humanProfile,
+      humanTeam === Team.Order ? humanProfile : botProfile,
+      humanTeam === Team.Order ? botProfile : humanProfile,
       GameMode.Ranked | GameMode.PvC
     )
     // this.clientSyncService.sync(playerPerspective, uid)
@@ -239,8 +255,6 @@ export class MatchService {
   }
 
   async createPvPMatch(uid1: string, uid2: string) {
-    const { match, id } = this.matchBank.createAndRegisterMatch(1000 * 240)
-
     // Get profiles
     const [profile1, profile2] = await Promise.all([
       this.getProfile(uid1),
@@ -249,6 +263,13 @@ export class MatchService {
 
     // Define sides and get perspectives
     const sideOfFirst = <Team>Math.round(Math.random())
+
+    const { match, id } = this.matchBank.createAndRegisterMatch({
+      [Team.Order]: sideOfFirst === Team.Order ? profile1 : profile2,
+      [Team.Chaos]: sideOfFirst === Team.Order ? profile2 : profile1,
+      timelimit: 240 * 1000,
+    })
+
     this.matchBank.createPerspectives(match, [uid1, uid2], sideOfFirst)
 
     // Sync

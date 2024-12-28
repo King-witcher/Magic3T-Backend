@@ -36,6 +36,7 @@ function keepServerAlive() {
   }
 
   const reup_rate = Number.parseInt(process.env.HEARTBEAT_RATE)
+  if (!reup_rate) return
 
   setInterval(() => {
     fetch(`${backend_url}/status`)

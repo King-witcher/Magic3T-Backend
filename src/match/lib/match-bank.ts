@@ -45,7 +45,7 @@ export class MatchBank {
   ): [Perspective, Perspective] {
     // Get perspectives
     const perspective1 = new Perspective(match, teamOfFirst)
-    const perspective2 = new Perspective(match, -teamOfFirst)
+    const perspective2 = new Perspective(match, 1 - teamOfFirst)
 
     // Create relations in the bank
     this.perspectives.set(player1, perspective1)

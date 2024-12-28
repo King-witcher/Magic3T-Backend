@@ -1,6 +1,5 @@
 import { AuthSocketData } from '@/auth/auth-socket'
-import { Glicko, Team, UserModel } from '@/database'
-import { PerspectiveGameState } from '@/match/types/perspective.game.state'
+import { RatingDto, Team, UserDto } from '@/database'
 import { Choice } from '@/types/Choice'
 import { Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
@@ -10,34 +9,30 @@ export type MatchSocketData = AuthSocketData & {
   perspective: Perspective
 }
 
-export enum MatchSocketListenedEvent {
-  GetOpponent = 'get-opponent',
+export enum ClientMatchEvents {
+  GetAssignments = 'get-assignments',
   GetState = 'get-state',
-  Choice = 'choice',
+  Pick = 'pick',
   Message = 'message',
-  Forfeit = 'forfeit',
+  Surrender = 'surrender',
 }
 
-export enum MatchSocketEmittedEvent {
+export enum ServerMatchEvents {
   Message = 'message',
-  OpponentUid = 'opponent-uid',
-  GameState = 'game-state',
   /// Sends the player assignments
   Assignments = 'assignments', // new
   /// Send the match state report
   StateReport = 'state-report', // new
   /// Send the match result report
   MatchReport = 'match-report', // new
-  /// @deprecated
-  RatingsVariation = 'ratings-variation',
 }
 
 export type AssignmentsData = {
   [Team.Order]: {
-    profile: UserModel // Use DTO instead of the whole model?
+    profile: UserDto
   }
   [Team.Chaos]: {
-    profile: UserModel
+    profile: UserDto
   }
 }
 
@@ -63,36 +58,31 @@ export type MatchReportData = {
   [Team.Order]: {
     score: number
     gain: number
-    newRating: Glicko
+    newRating: RatingDto
   }
   [Team.Chaos]: {
     score: number
     gain: number
-    newRating: Glicko
+    newRating: RatingDto
   }
 }
 
 export type MessageData = {
   message: string
   sender: string
+  time: number
 }
 
-export type MatchSocketEmitMap = {
-  [MatchSocketEmittedEvent.Message](message: MessageData): void
-  [MatchSocketEmittedEvent.OpponentUid](uid: string): void
-  [MatchSocketEmittedEvent.GameState](state: PerspectiveGameState): void
-  [MatchSocketEmittedEvent.Assignments](assignments: AssignmentsData): void
-  [MatchSocketEmittedEvent.StateReport](report: StateReportData): void
-  [MatchSocketEmittedEvent.MatchReport](report: MatchReportData): void
-  [MatchSocketEmittedEvent.RatingsVariation](data: {
-    player: number
-    opponent: number
-  }): void
+export type MatchServerEventsMap = {
+  [ServerMatchEvents.Message](message: MessageData): void
+  [ServerMatchEvents.Assignments](assignments: AssignmentsData): void
+  [ServerMatchEvents.StateReport](report: StateReportData): void
+  [ServerMatchEvents.MatchReport](report: MatchReportData): void
 }
 
 export type MatchSocket = Socket<
   DefaultEventsMap,
-  MatchSocketEmitMap,
+  MatchServerEventsMap,
   DefaultEventsMap,
   MatchSocketData
 >

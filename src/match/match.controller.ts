@@ -26,7 +26,7 @@ export class MatchController {
   @HttpCode(200)
   @UseGuards(MatchGuard)
   handleForfeit(@CurrentPerspective() matchAdapter: Perspective) {
-    matchAdapter.forfeit()
+    matchAdapter.surrender()
   }
 
   @ApiOperation({

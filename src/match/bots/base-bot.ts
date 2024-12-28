@@ -8,7 +8,7 @@ export abstract class BaseBot {
   observe(perspective: Perspective) {
     const callback = () => {
       const state = perspective.getStateReport()
-      if (!state.turn) return
+      if (state.turn !== perspective.team) return
 
       this.think(state, perspective.team).then((choice) => {
         // Waits for all other observers to be notified about the choice before committing a choice.

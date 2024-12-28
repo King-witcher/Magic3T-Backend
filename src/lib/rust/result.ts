@@ -24,12 +24,12 @@ export class Result<T, E> {
     return new Result<T, E>(ResultTag.Err, data)
   }
 
-  match<MatchResult>(
-    okCallback: (data: T) => MatchResult,
-    errCallback: (error: E) => MatchResult
-  ): MatchResult {
-    if (this.is_ok()) return okCallback(this.data as unknown as T)
-    return errCallback(this.data as E)
+  match<MatchResult>({
+    Ok,
+    Err,
+  }: { Ok(data: T): MatchResult; Err(data: E): MatchResult }): MatchResult {
+    if (this.is_ok()) return Ok(this.data as unknown as T)
+    return Err(this.data as E)
   }
 }
 
