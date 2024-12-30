@@ -1,2 +1,2 @@
 export * from './match.module'
-export { MatchService } from './services'
+export { MatchService } from './match.service'

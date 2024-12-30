@@ -12,14 +12,15 @@ import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { Choice } from '@/types/Choice'
 import { CurrentPerspective } from './decorators'
+import { Perspective } from './lib'
 import { MatchGuard } from './match.guard'
-import { MatchService } from './services'
+import { MatchService } from './match.service'
 import {
+  ClientMatchEvents,
+  MatchServerEventsMap,
   MatchSocket,
-  MatchSocketEmitMap,
-  MatchSocketEmittedEvent,
-  MatchSocketListenedEvent,
-  Perspective,
+  MessageData,
+  ServerMatchEvents,
 } from './types'
 
 @UseGuards(AuthGuard, MatchGuard)
@@ -29,45 +30,52 @@ export class MatchGateway implements OnGatewayDisconnect {
 
   constructor(
     @Inject('MatchSocketsService')
-    private socketsService: SocketsService<MatchSocketEmitMap>,
+    private socketsService: SocketsService<MatchServerEventsMap>,
     private matchService: MatchService
   ) {}
 
-  @SubscribeMessage(MatchSocketListenedEvent.Forfeit)
-  handleForfeit(@CurrentPerspective() matchAdapter: Perspective) {
-    matchAdapter.forfeit()
+  @SubscribeMessage(ClientMatchEvents.Surrender)
+  handleForfeit(@CurrentPerspective() perspective: Perspective) {
+    perspective.surrender()
   }
 
-  @SubscribeMessage(MatchSocketListenedEvent.GetState)
+  @SubscribeMessage(ClientMatchEvents.GetState)
   handleGetStatus(
     @CurrentPerspective() perspective: Perspective,
     @ConnectedSocket() client: MatchSocket
   ) {
-    client.emit(MatchSocketEmittedEvent.GameState, perspective.state)
+    client.emit(ServerMatchEvents.StateReport, perspective.getStateReport())
   }
 
   // Refactor this
-  @SubscribeMessage(MatchSocketListenedEvent.Message)
+  @SubscribeMessage(ClientMatchEvents.Message)
   handleMessage(@UserId() uid: string, @MessageBody() body: string) {
     const opponent = this.matchService.getOpponent(uid)
-    this.socketsService.emit(opponent, MatchSocketEmittedEvent.Message, body)
+    const messageData: MessageData = {
+      message: body,
+      sender: uid,
+      time: Date.now(),
+    }
+
+    this.socketsService.emit(opponent, ServerMatchEvents.Message, messageData)
+    this.socketsService.emit(uid, ServerMatchEvents.Message, messageData)
   }
 
-  @SubscribeMessage(MatchSocketListenedEvent.GetOpponent)
+  @SubscribeMessage(ClientMatchEvents.GetAssignments)
   getOpponent(
-    @UserId() userId: string,
-    @ConnectedSocket() client: MatchSocket
+    @CurrentPerspective() perspective: Perspective,
+    @ConnectedSocket() socket: MatchSocket
   ) {
-    const opponentUid = this.matchService.getOpponent(userId)
-    client.emit(MatchSocketEmittedEvent.OpponentUid, opponentUid)
+    const assignments = perspective.getAssignments()
+    socket.emit(ServerMatchEvents.Assignments, assignments)
   }
 
-  @SubscribeMessage(MatchSocketListenedEvent.Choice)
+  @SubscribeMessage(ClientMatchEvents.Pick)
   async handleChoice(
     @CurrentPerspective() adapter: Perspective,
     @MessageBody(ChoicePipe) choice: Choice
   ) {
-    adapter.makeChoice(choice)
+    adapter.pick(choice)
   }
 
   handleDisconnect(client: MatchSocket) {

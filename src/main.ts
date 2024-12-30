@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core'
-
+import './prelude'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { AppModule } from './app.module'
 import './lib/LMM'
@@ -36,6 +36,7 @@ function keepServerAlive() {
   }
 
   const reup_rate = Number.parseInt(process.env.HEARTBEAT_RATE)
+  if (!reup_rate) return
 
   setInterval(() => {
     fetch(`${backend_url}/status`)

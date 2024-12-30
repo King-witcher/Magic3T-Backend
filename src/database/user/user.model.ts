@@ -8,7 +8,7 @@ export interface Glicko {
 }
 
 export interface UserModel extends WithId {
-  identification?: {
+  identification: {
     unique_id: string // nickname.toLower() without spaces
     nickname: string
     last_changed: Date

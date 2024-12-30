@@ -9,7 +9,7 @@ import {
 
 import { SocketsService } from '@/common'
 import { MatchBank } from './lib'
-import { MatchSocket, MatchSocketEmitMap } from './types'
+import { MatchServerEventsMap, MatchSocket } from './types'
 import { MatchRequest } from './types/match-request'
 
 @Injectable()
@@ -19,7 +19,7 @@ export class MatchGuard implements CanActivate {
   constructor(
     private readonly matchBank: MatchBank,
     @Inject('MatchSocketsService')
-    private readonly matchSocketsService: SocketsService<MatchSocketEmitMap>
+    private readonly matchSocketsService: SocketsService<MatchServerEventsMap>
   ) {}
 
   canActivate(context: ExecutionContext) {

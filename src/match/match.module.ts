@@ -6,8 +6,8 @@ import { GlickoRatingStrategy, RatingModule } from '@/rating'
 import { MatchBank } from './lib/match-bank'
 import { MatchController } from './match.controller'
 import { MatchGateway } from './match.gateway'
-import * as services from './services'
-import { MatchSocketEmitMap } from './types'
+import { MatchService } from './match.service'
+import { MatchServerEventsMap } from './types'
 
 @Module({
   imports: [AuthModule, RatingModule.register(GlickoRatingStrategy)],
@@ -15,12 +15,12 @@ import { MatchSocketEmitMap } from './types'
   providers: [
     MatchGateway,
     MatchBank,
-    ...Object.values(services),
+    MatchService,
     {
       provide: 'MatchSocketsService',
-      useClass: SocketsService<MatchSocketEmitMap>,
+      useClass: SocketsService<MatchServerEventsMap>,
     },
   ],
-  exports: [services.MatchService, 'MatchSocketsService'],
+  exports: [MatchService, 'MatchSocketsService'],
 })
 export class MatchModule {}

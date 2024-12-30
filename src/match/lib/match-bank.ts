@@ -1,8 +1,8 @@
 import { BaseError } from '@/common/errors/base-error'
-import { DatabaseService, SidesEnum } from '@/database'
+import { DatabaseService, Team } from '@/database'
 import { HttpStatus, Injectable } from '@nestjs/common'
-import { Perspective } from '../types'
 import { Match, MatchEventsEnum } from './match'
+import { Perspective } from './perspective'
 
 @Injectable()
 /// Maps all matches that are currently running on the server.
@@ -40,49 +40,49 @@ export class MatchBank {
   /// Creates instances of Perspective for two different user ids and stores this relation in the bank.
   createPerspectives(
     match: Match,
-    [userId1, userId2]: [string, string],
-    sideOfFirst: SidesEnum
+    [player1, player2]: [string, string],
+    teamOfFirst: Team
   ): [Perspective, Perspective] {
     // Get perspectives
-    const perspective1 = match.getAdapter(sideOfFirst)
-    const perspective2 = match.getAdapter(1 - sideOfFirst)
+    const perspective1 = new Perspective(match, teamOfFirst)
+    const perspective2 = new Perspective(match, 1 - teamOfFirst)
 
-    // Store relations the bank
-    this.perspectives.set(userId1, perspective1)
-    this.perspectives.set(userId2, perspective2)
-    this.opponents.set(userId1, userId2)
-    this.opponents.set(userId2, userId1)
+    // Create relations in the bank
+    this.perspectives.set(player1, perspective1)
+    this.perspectives.set(player2, perspective2)
+    this.opponents.set(player1, player2)
+    this.opponents.set(player2, player1)
 
     // Remove from bank when match finishes
     match.observe(MatchEventsEnum.Finish, () => {
-      this.perspectives.delete(userId1)
-      this.perspectives.delete(userId2)
-      this.opponents.delete(userId1)
-      this.opponents.delete(userId2)
+      this.perspectives.delete(player1)
+      this.perspectives.delete(player2)
+      this.opponents.delete(player1)
+      this.opponents.delete(player2)
     })
 
     return [perspective1, perspective2]
   }
 
-  getMatch(matchId: string): Match {
-    const match = this.matches.get(matchId)
+  getMatch(id: string): Match {
+    const match = this.matches.get(id)
     if (!match) throw new BaseError('match not found', HttpStatus.NOT_FOUND)
     return match
   }
 
-  getOpponent(uid: string): string {
-    const opponentUid = this.opponents.get(uid)
-    if (!opponentUid) throw new Error(`bad uid ${uid}.`)
+  getOpponent(user: string): string {
+    const opponentUid = this.opponents.get(user)
+    if (!opponentUid) throw new Error(`bad uid ${user}.`)
     return opponentUid
   }
 
-  getPerspective(userId: string): Perspective | null {
-    const perspective = this.perspectives.get(userId)
+  getPerspective(user: string): Perspective | null {
+    const perspective = this.perspectives.get(user)
     return perspective || null
   }
 
   /// Gets if a user is currently in a match.
-  containsUser(userId: string): boolean {
-    return this.perspectives.has(userId)
+  containsUser(id: string): boolean {
+    return this.perspectives.has(id)
   }
 }

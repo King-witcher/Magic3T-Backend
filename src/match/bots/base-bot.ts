@@ -1,25 +1,26 @@
+import { Team } from '@/database'
 import { MatchEventsEnum } from '@/match/lib/match'
-import { PerspectiveGameState } from '@/match/types/perspective.game.state'
 import { Choice } from '@/types/Choice'
-import { Perspective } from '../types/match-side-adapter'
+import { Perspective } from '../lib/perspective'
+import { StateReportData } from '../types'
 
 export abstract class BaseBot {
-  observe(adapter: Perspective) {
+  observe(perspective: Perspective) {
     const callback = () => {
-      const state = adapter.state
-      if (!state.turn) return
+      const state = perspective.getStateReport()
+      if (state.turn !== perspective.team) return
 
-      this.think(state).then((choice) => {
+      this.think(state, perspective.team).then((choice) => {
         // Waits for all other observers to be notified about the choice before committing a choice.
         setTimeout(() => {
-          adapter.makeChoice(choice)
+          perspective.pick(choice)
         })
       })
     }
 
-    adapter.observe(MatchEventsEnum.Start, callback)
-    adapter.observe(MatchEventsEnum.Choice, callback)
+    perspective.observe(MatchEventsEnum.Start, callback)
+    perspective.observe(MatchEventsEnum.Choice, callback)
   }
 
-  protected abstract think(state: PerspectiveGameState): Promise<Choice>
+  protected abstract think(state: StateReportData, team: Team): Promise<Choice>
 }
