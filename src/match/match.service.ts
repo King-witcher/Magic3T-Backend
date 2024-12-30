@@ -176,12 +176,18 @@ export class MatchService {
 
         matchReport[Team.Order].gain = orderGlicko.rating - order.glicko.rating
         matchReport[Team.Chaos].gain = chaosGlicko.rating - chaos.glicko.rating
-        matchReport[Team.Order].newRating = matchReport[Team.Chaos].newRating =
-          {
-            date: chaosGlicko.timestamp.getTime(),
-            rd: chaosGlicko.deviation,
-            score: chaosGlicko.rating,
-          }
+
+        matchReport[Team.Order].newRating = {
+          date: orderGlicko.timestamp.getTime(),
+          rd: orderGlicko.deviation,
+          score: orderGlicko.rating,
+        }
+
+        matchReport[Team.Chaos].newRating = {
+          date: chaosGlicko.timestamp.getTime(),
+          rd: chaosGlicko.deviation,
+          score: chaosGlicko.rating,
+        }
       }
 
       // Update everything in the database
@@ -240,18 +246,46 @@ export class MatchService {
       humanTeam === Team.Order ? botProfile : humanProfile,
       GameMode.Ranked | GameMode.PvC
     )
-    // this.clientSyncService.sync(playerPerspective, uid)
-    // this.databaseSyncService.sync(
-    //   match,
-    //   id,
-    //   humanSide === SidesEnum.White ? humanProfile : botProfile,
-    //   humanSide === SidesEnum.White ? botProfile : humanProfile,
-    //   GameMode.Ranked | GameMode.PvC
-    // )
 
     // Start match
     match.start()
     return id
+  }
+
+  async createCvCMatch(name1: BotName, name2: BotName) {
+    const botConfig1 = await this.configRepository.getBotConfig(name1)
+    const botConfig2 = await this.configRepository.getBotConfig(name2)
+
+    const bot1 = this.getBot(botConfig1)
+    const bot2 = this.getBot(botConfig2)
+
+    const botProfile1 = await this.getProfile(botConfig1.uid)
+    const botProfile2 = await this.getProfile(botConfig2.uid)
+
+    const { match, id } = this.matchBank.createAndRegisterMatch({
+      [Team.Order]: botProfile1,
+      [Team.Chaos]: botProfile2,
+      timelimit: 60 * 1000,
+    })
+
+    const [perspective1, perspective2] =
+      await this.matchBank.createPerspectives(
+        match,
+        [botConfig1.uid, botConfig2.uid],
+        Team.Order
+      )
+
+    bot1.observe(perspective1)
+    bot2.observe(perspective2)
+    this.observeMatch(
+      match,
+      botProfile1,
+      botProfile2,
+      GameMode.Ranked | GameMode.PvP
+    )
+
+    match.start()
+    return match
   }
 
   async createPvPMatch(uid1: string, uid2: string) {
@@ -279,15 +313,6 @@ export class MatchService {
       sideOfFirst === Team.Order ? profile2 : profile1,
       GameMode.Ranked | GameMode.PvP
     )
-    // this.clientSyncService.sync(perspective1, uid1)
-    // this.clientSyncService.sync(perspective2, uid2)
-    // this.databaseSyncService.sync(
-    //   match,
-    //   id,
-    //   sideOfFirst === SidesEnum.White ? profile1 : profile2,
-    //   sideOfFirst === SidesEnum.White ? profile2 : profile1,
-    //   GameMode.Ranked | GameMode.PvP
-    // )
 
     // Start match
     match.start()

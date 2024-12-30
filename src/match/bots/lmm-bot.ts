@@ -26,8 +26,12 @@ export class LmmBot extends BaseBot {
       state[Team.Order].choices.length + state[Team.Chaos].choices.length
 
     const baseDelays = [1000, 1500, 2500, 5000, 6000, 7000, 6000, 5000, 1000]
+    const detphFactor = 3 / (1 + this.depth)
     const randomFactor = 1 + 0.3 * Math.random()
-    await delay(baseDelays[choicesMade] * randomFactor)
+    const testingFactor = 1.0
+    await delay(
+      baseDelays[choicesMade] * randomFactor * detphFactor * testingFactor
+    )
   }
 
   async think(state: StateReportData, team: Team): Promise<Choice> {

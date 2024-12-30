@@ -16,11 +16,11 @@ import { Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
 import {
-  MatchSocket,
-  MatchServerEventsMap,
-  ServerMatchEvents,
   ClientMatchEvents,
+  MatchServerEventsMap,
+  MatchSocket,
   MessageData,
+  ServerMatchEvents,
 } from './types'
 
 @UseGuards(AuthGuard, MatchGuard)

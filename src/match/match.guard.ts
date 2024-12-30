@@ -9,7 +9,7 @@ import {
 
 import { SocketsService } from '@/common'
 import { MatchBank } from './lib'
-import { MatchSocket, MatchServerEventsMap } from './types'
+import { MatchServerEventsMap, MatchSocket } from './types'
 import { MatchRequest } from './types/match-request'
 
 @Injectable()
