@@ -1,4 +1,4 @@
-import { ChoicePipe, SocketsService } from '@/common'
+import { Choice, ChoicePipe, SocketsService } from '@/common'
 import { Inject, Logger, UseGuards } from '@nestjs/common'
 import {
   ConnectedSocket,
@@ -10,7 +10,6 @@ import {
 
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { Choice } from '@/types/Choice'
 import { CurrentPerspective } from './decorators'
 import { Perspective } from './lib'
 import { MatchGuard } from './match.guard'

@@ -1,16 +1,18 @@
-import { Choice } from '@/types/Choice'
-import { PipeTransform } from '@nestjs/common'
-import { InvalidChoiceError } from '../../match/errors/InvalidChoiceError'
+import { HttpStatus, PipeTransform } from '@nestjs/common'
+import { BaseError } from '../errors'
+import { Choice } from '../types'
 
 export class ChoicePipe implements PipeTransform {
   transform(value: unknown): Choice {
     if (typeof value === 'string') {
       const value_ = Number.parseInt(value)
-      if (!this.isChoice(value)) throw new InvalidChoiceError()
-      return value
+      if (!this.isChoice(value_))
+        throw new BaseError('Invalid choice', HttpStatus.BAD_REQUEST)
+      return value_
     }
 
-    if (!this.isChoice(value)) throw new InvalidChoiceError()
+    if (!this.isChoice(value))
+      throw new BaseError('Invalid choice', HttpStatus.BAD_REQUEST)
     return value
   }
 

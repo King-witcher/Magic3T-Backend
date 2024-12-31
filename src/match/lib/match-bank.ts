@@ -1,7 +1,8 @@
+import { Team } from '@/common'
 import { BaseError } from '@/common/errors/base-error'
-import { DatabaseService, Team } from '@/database'
+import { DatabaseService } from '@/database'
 import { HttpStatus, Injectable } from '@nestjs/common'
-import { Match, MatchEventsEnum } from './match'
+import { Match, MatchEventType } from './match'
 import { Perspective } from './perspective'
 
 @Injectable()
@@ -27,7 +28,7 @@ export class MatchBank {
     this.matches.set(id, match)
 
     // Remove the match from the bank when finished
-    match.observe(MatchEventsEnum.Finish, () => {
+    match.observe(MatchEventType.Finish, () => {
       this.matches.delete(id)
     })
 
@@ -54,7 +55,7 @@ export class MatchBank {
     this.opponents.set(player2, player1)
 
     // Remove from bank when match finishes
-    match.observe(MatchEventsEnum.Finish, () => {
+    match.observe(MatchEventType.Finish, () => {
       this.perspectives.delete(player1)
       this.perspectives.delete(player2)
       this.opponents.delete(player1)

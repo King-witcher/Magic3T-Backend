@@ -1,4 +1,4 @@
-import { Choice } from '@/types/Choice'
+import { Choice } from '@/common'
 
 export type Tree = {
   branches: {

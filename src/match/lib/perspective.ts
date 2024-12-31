@@ -1,7 +1,7 @@
-import { Team, UserDto } from '@/database'
-import { Choice } from '@/types/Choice'
+import { Choice, Team } from '@/common'
+import { UserDto } from '@/database'
 import { Observable } from 'rxjs'
-import { AssignmentsData, StateReportData } from '../types'
+import { AssignmentsDto, StateReportDto } from '../types'
 import { Match, MatchError, MatchEventsMap } from './match'
 
 /**
@@ -15,7 +15,7 @@ export class Perspective extends Observable<MatchEventsMap> {
     super()
   }
 
-  getAssignments(): AssignmentsData {
+  getAssignments(): AssignmentsDto {
     const order = this.match.assignments[Team.Order]
     const chaos = this.match.assignments[Team.Chaos]
 
@@ -29,7 +29,7 @@ export class Perspective extends Observable<MatchEventsMap> {
     }
   }
 
-  getStateReport(): StateReportData {
+  getStateReport(): StateReportDto {
     return this.match.stateReport
   }
 

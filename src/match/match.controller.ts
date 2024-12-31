@@ -1,26 +1,29 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { BotName } from '@/database'
+import { MatchDto } from '@/database/match/match.dto'
 import {
   Controller,
   Get,
   HttpCode,
   NotFoundException,
+  Param,
+  ParseIntPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common'
-import { ApiOperation } from '@nestjs/swagger'
+import { ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { CurrentPerspective } from './decorators'
-import { MatchBank, MatchEventsEnum, Perspective } from './lib'
+import { MatchBank, MatchEventType, Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
 
-@UseGuards(AuthGuard)
-@Controller('match')
+@Controller('matches')
 export class MatchController {
   constructor(
     private matchBank: MatchBank,
-    matchService: MatchService
+    private matchService: MatchService
   ) {
     const names = Object.values(BotName)
 
@@ -43,10 +46,10 @@ export class MatchController {
       ])
       let terminated = 0
       return new Promise<void>((res) => {
-        match1.observe(MatchEventsEnum.Finish, () => {
+        match1.observe(MatchEventType.Finish, () => {
           if (++terminated === 2) res()
         })
-        match2.observe(MatchEventsEnum.Finish, () => {
+        match2.observe(MatchEventType.Finish, () => {
           if (++terminated === 2) res()
         })
       })
@@ -62,11 +65,11 @@ export class MatchController {
     // iter(20)
   }
 
+  @Post(':matchId/forfeit')
   @ApiOperation({
     summary: 'Forfeit',
     description: 'Forfeit the current match',
   })
-  @Post(':matchId/forfeit')
   @HttpCode(200)
   @UseGuards(MatchGuard)
   handleForfeit(@CurrentPerspective() matchAdapter: Perspective) {
@@ -83,11 +86,27 @@ export class MatchController {
   }
 
   @Get('current')
+  @UseGuards(AuthGuard)
   handleCurrentMatch(@UserId() userId: string) {
     const perspective = this.matchBank.getPerspective(userId)
     if (!perspective) throw new NotFoundException()
     return {
       id: perspective.match.id,
     }
+  }
+
+  @Get('user/:userId')
+  @ApiOperation({
+    summary: 'Get recent matches',
+    description: 'Get the most recent matches played by a user, sorted by date',
+  })
+  @ApiResponse({
+    type: [MatchDto],
+  })
+  async getMatchesByUser(
+    @Query('limit', ParseIntPipe) limit: number,
+    @Param('userId') userId: string
+  ): Promise<MatchDto[]> {
+    return await this.matchService.getMatchesByUser(userId, limit)
   }
 }

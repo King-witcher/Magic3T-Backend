@@ -1,4 +1,4 @@
-import { TimeSnapshot, TimeSnapshotState } from '@/lib/time/stopwatchSnapshot'
+import { TimeSnapshot, TimeSnapshotState } from './time-snapshot'
 
 export class Timer {
   private lastSnapshot: TimeSnapshot

@@ -1,5 +1,4 @@
-import { Timer } from '@/lib'
-import { Choice } from '@/types/Choice'
+import { Choice, Timer } from '@/common'
 
 export class Player {
   choices: Choice[] = []

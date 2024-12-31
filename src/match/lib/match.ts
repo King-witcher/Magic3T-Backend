@@ -1,16 +1,18 @@
-import { Observable, Stopwatch } from '@/lib'
-import { block } from '@/lib/utils'
-import { Choice } from '@/types/Choice'
+import { Choice, Observable, Stopwatch, Team, block } from '@/common'
 import {
-  HistoryMatchEventsEnum,
-  MatchEventModal,
-  Team,
+  MatchModelEvent,
+  MatchEventType as MatchModelEventType,
   UserModel,
 } from '@database'
-import { StateReportData } from '../types'
+import { StateReportDto } from '../types'
 import { Player } from './player'
 
-export enum MatchEventsEnum {
+export enum MatchError {
+  BadTurn = 'bad-turn',
+  ChoiceUnavailable = 'choice-unavailable',
+}
+
+export enum MatchEventType {
   Start = 0,
   Choice = 1,
   Surrender = 2,
@@ -18,17 +20,12 @@ export enum MatchEventsEnum {
   Finish = 4,
 }
 
-export enum MatchError {
-  BadTurn = 'bad-turn',
-  ChoiceUnavailable = 'choice-unavailable',
-}
-
 export type MatchEventsMap = {
-  [MatchEventsEnum.Start](): void
-  [MatchEventsEnum.Choice](side: Team, choice: Choice, timestamp: number): void
-  [MatchEventsEnum.Surrender](side: Team, timestamp: number): void
-  [MatchEventsEnum.Timeout](side: Team, timestamp: number): void
-  [MatchEventsEnum.Finish](self: Match, winner: Team | null): void
+  [MatchEventType.Start](): void
+  [MatchEventType.Choice](side: Team, choice: Choice, timestamp: number): void
+  [MatchEventType.Surrender](side: Team, timestamp: number): void
+  [MatchEventType.Timeout](side: Team, timestamp: number): void
+  [MatchEventType.Finish](self: Match, winner: Team | null): void
 }
 
 interface MatchParams {
@@ -40,7 +37,7 @@ interface MatchParams {
 export class Match extends Observable<MatchEventsMap> {
   private globalTime = new Stopwatch()
   public id: string
-  public events: MatchEventModal[] = []
+  public events: MatchModelEvent[] = []
   public turn: Team | null = null
   public winner: Team | null = null
   public finished = false
@@ -78,11 +75,11 @@ export class Match extends Observable<MatchEventsMap> {
     return this[Team.Order].count + this[Team.Chaos].count === 9
   }
 
-  public get stateReport(): StateReportData {
+  public get stateReport(): StateReportDto {
     const order = this[Team.Order]
     const chaos = this[Team.Chaos]
 
-    const report: StateReportData = {
+    const report: StateReportDto = {
       [Team.Order]: {
         choices: [...order.choices],
         surrender: order.surrender,
@@ -107,7 +104,7 @@ export class Match extends Observable<MatchEventsMap> {
     this[Team.Order].timer.start()
     this.globalTime.start()
     this.turn = Team.Order
-    this.emit(MatchEventsEnum.Start)
+    this.emit(MatchEventType.Start)
   }
 
   private isAvailable(choice: Choice) {
@@ -129,7 +126,7 @@ export class Match extends Observable<MatchEventsMap> {
     player.choices.push(choice)
 
     this.events.push({
-      event: HistoryMatchEventsEnum.Choice,
+      event: MatchModelEventType.Choice,
       choice,
       side: team,
       time: this.time,
@@ -150,20 +147,20 @@ export class Match extends Observable<MatchEventsMap> {
       this[Team.Chaos].timer.pause()
       this.winner = team
       this.finished = true
-      this.emit(MatchEventsEnum.Choice, team, choice, this.time)
-      this.emit(MatchEventsEnum.Finish, this, team)
+      this.emit(MatchEventType.Choice, team, choice, this.time)
+      this.emit(MatchEventType.Finish, this, team)
     } else if (this.isDrawn) {
       this.globalTime.pause()
       this[Team.Order].timer.pause()
       this[Team.Chaos].timer.pause()
       this.finished = true
       this.winner = null
-      this.emit(MatchEventsEnum.Choice, team, choice, this.time)
-      this.emit(MatchEventsEnum.Finish, this, null)
+      this.emit(MatchEventType.Choice, team, choice, this.time)
+      this.emit(MatchEventType.Finish, this, null)
     } else {
       this.turn = 1 - team
       this[this.turn].timer.start()
-      this.emit(MatchEventsEnum.Choice, team, choice, this.time)
+      this.emit(MatchEventType.Choice, team, choice, this.time)
     }
 
     return Ok([])
@@ -183,13 +180,13 @@ export class Match extends Observable<MatchEventsMap> {
     this.globalTime.pause()
 
     this.events.push({
-      event: HistoryMatchEventsEnum.Forfeit,
+      event: MatchModelEventType.Forfeit,
       side,
       time: this.time,
     })
 
-    this.emit(MatchEventsEnum.Surrender, side, this.time)
-    this.emit(MatchEventsEnum.Finish, this, 1 - side)
+    this.emit(MatchEventType.Surrender, side, this.time)
+    this.emit(MatchEventType.Finish, this, 1 - side)
 
     return Ok([])
   }
@@ -200,12 +197,12 @@ export class Match extends Observable<MatchEventsMap> {
     this.globalTime.pause()
 
     this.events.push({
-      event: HistoryMatchEventsEnum.Timeout,
+      event: MatchModelEventType.Timeout,
       side,
       time: this.time,
     })
 
-    this.emit(MatchEventsEnum.Timeout, side, this.time)
-    this.emit(MatchEventsEnum.Finish, this, opposite)
+    this.emit(MatchEventType.Timeout, side, this.time)
+    this.emit(MatchEventType.Finish, this, opposite)
   }
 }

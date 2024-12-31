@@ -1,17 +1,12 @@
+import { Choice, Team } from '@/common'
 import { WithId } from '@/database/types/withId'
-import { Choice } from '@/types/Choice'
 
-export interface HistoryMatchPlayer {
+export interface MatchModelTeam {
   uid: string
   name: string
   rating: number
   score: number
   gain: number
-}
-
-export enum Team {
-  Order = 0,
-  Chaos = 1,
 }
 
 export enum GameMode {
@@ -21,7 +16,7 @@ export enum GameMode {
   PvC = 0b01,
 }
 
-export enum HistoryMatchEventsEnum {
+export enum MatchEventType {
   Choice = 0,
   Forfeit = 1,
   Timeout = 2,
@@ -29,32 +24,32 @@ export enum HistoryMatchEventsEnum {
 }
 
 type BaseMatchEvent = {
-  event: HistoryMatchEventsEnum
+  event: MatchEventType
   side: Team
   time: number
 }
 
-export type MatchEventModal = BaseMatchEvent &
+export type MatchModelEvent = BaseMatchEvent &
   (
     | {
-        event: HistoryMatchEventsEnum.Choice
+        event: MatchEventType.Choice
         choice: Choice
       }
     | {
-        event: HistoryMatchEventsEnum.Message
+        event: MatchEventType.Message
         message: string
       }
     | {
-        event: HistoryMatchEventsEnum.Timeout | HistoryMatchEventsEnum.Forfeit
+        event: MatchEventType.Timeout | MatchEventType.Forfeit
       }
   )
 
 /** Represents a match registry in the History. */
 export interface MatchModel extends WithId {
-  [Team.Order]: HistoryMatchPlayer
-  [Team.Chaos]: HistoryMatchPlayer
-  events: MatchEventModal[]
+  [Team.Order]: MatchModelTeam // TODO: put inside a teams object
+  [Team.Chaos]: MatchModelTeam
+  events: MatchModelEvent[]
   winner: Team | null
-  gameMode: GameMode
+  game_mode: GameMode
   timestamp: Date
 }
