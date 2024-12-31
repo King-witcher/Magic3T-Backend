@@ -12,6 +12,14 @@ export class Result<T, E> {
   is_ok() {
     return this.tag === ResultTag.Ok
   }
+
+  map<NewType>(mapFn: (value: T) => NewType): Result<NewType, E> {
+    if (this.is_ok()) {
+      return new Result<NewType, E>(ResultTag.Ok, mapFn(this.data as T))
+    }
+    return new Result<NewType, E>(this.tag, this.data as E)
+  }
+
   is_err() {
     return this.tag === ResultTag.Err
   }

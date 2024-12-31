@@ -1,4 +1,5 @@
-import { Err, Ok } from '@/lib/rust/result'
+import { Err, Ok } from '@/common'
+import './common/types/common-types'
 
 global.Ok = Ok
 global.Err = Err

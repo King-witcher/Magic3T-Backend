@@ -59,4 +59,18 @@ export class UserRepository extends BaseRepository<UserModel> {
       })
     )
   }
+
+  /**
+   * Gets the best ranked players in the database, up to a maximum.
+   * @param limit The amount of players to be fetched
+   * @returns The `limit` best ranked players
+   */
+  async getBest(limit: number): Promise<UserModel[]> {
+    const rankingQuery = this.collection
+      .orderBy('glicko.rating', 'desc')
+      .limit(limit)
+    const result = await rankingQuery.get()
+    const players = result.docs.map((doc) => doc.data())
+    return players
+  }
 }

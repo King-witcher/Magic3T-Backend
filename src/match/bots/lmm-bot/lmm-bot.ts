@@ -1,11 +1,9 @@
-import { Team } from '@/database'
-import { createTree } from '@/lib/LMM'
-import { delay } from '@/lib/utils'
+import { Choice, Team, delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
-import { Choice } from '@/types/Choice'
-import { StateReportData } from '../types'
+import { StateReportDto } from '@/match/types'
+import { createTree } from './lib'
 
-function getMatchChoices(state: StateReportData, team: Team) {
+function getMatchChoices(state: StateReportDto, team: Team) {
   const order = state[Team.Order].choices
   const chaos = state[Team.Chaos].choices
   const result: Choice[] = []
@@ -21,7 +19,7 @@ export class LmmBot extends BaseBot {
     super()
   }
 
-  private async simulateThinkTime(state: StateReportData): Promise<void> {
+  private async simulateThinkTime(state: StateReportDto): Promise<void> {
     const choicesMade =
       state[Team.Order].choices.length + state[Team.Chaos].choices.length
 
@@ -34,7 +32,7 @@ export class LmmBot extends BaseBot {
     )
   }
 
-  async think(state: StateReportData, team: Team): Promise<Choice> {
+  async think(state: StateReportDto, team: Team): Promise<Choice> {
     await this.simulateThinkTime(state)
 
     const matchChoices = getMatchChoices(state, team)

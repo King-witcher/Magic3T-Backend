@@ -1,6 +1,6 @@
 import { AuthSocketData } from '@/auth/auth-socket'
-import { RatingDto, Team, UserDto } from '@/database'
-import { Choice } from '@/types/Choice'
+import { Choice, Team } from '@/common'
+import { RatingDto, UserDto } from '@/database'
 import { Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import { Perspective } from '../lib/perspective'
@@ -27,7 +27,7 @@ export enum ServerMatchEvents {
   MatchReport = 'match-report', // new
 }
 
-export type AssignmentsData = {
+export type AssignmentsDto = {
   [Team.Order]: {
     profile: UserDto
   }
@@ -36,7 +36,7 @@ export type AssignmentsData = {
   }
 }
 
-export type StateReportData = {
+export type StateReportDto = {
   [Team.Order]: {
     timeLeft: number
     choices: Choice[]
@@ -52,7 +52,7 @@ export type StateReportData = {
   pending: false
 }
 
-export type MatchReportData = {
+export type MatchReportDto = {
   matchId: string
   winner: Team | null
   [Team.Order]: {
@@ -75,9 +75,9 @@ export type MessageData = {
 
 export type MatchServerEventsMap = {
   [ServerMatchEvents.Message](message: MessageData): void
-  [ServerMatchEvents.Assignments](assignments: AssignmentsData): void
-  [ServerMatchEvents.StateReport](report: StateReportData): void
-  [ServerMatchEvents.MatchReport](report: MatchReportData): void
+  [ServerMatchEvents.Assignments](assignments: AssignmentsDto): void
+  [ServerMatchEvents.StateReport](report: StateReportDto): void
+  [ServerMatchEvents.MatchReport](report: MatchReportDto): void
 }
 
 export type MatchSocket = Socket<

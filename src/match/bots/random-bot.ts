@@ -1,10 +1,9 @@
-import { Team } from '@/database'
-import { delay } from '@/lib/utils'
+import { Team, delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
-import { StateReportData } from '../types'
+import { StateReportDto } from '../types'
 
 export class RandomBot extends BaseBot {
-  async think(state: StateReportData) {
+  async think(state: StateReportDto) {
     const available = ([1, 2, 3, 4, 5, 6, 7, 8, 9] as const).filter(
       (choice) =>
         !state[Team.Order].choices.includes(choice) &&

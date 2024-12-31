@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common'
 
+import { MatchDto } from '@/database/match/match.dto'
 import { WithId } from '@/database/types'
 import { RatingService } from '@/rating'
-import { SocketsService } from '@common'
+import { SocketsService, Team } from '@common'
 import {
   BotConfig,
   BotName,
@@ -11,15 +12,15 @@ import {
   Glicko,
   MatchModel,
   MatchRepository,
-  Team,
   UserModel,
   UserRepository,
 } from '@database'
 import { FieldValue, UpdateData } from 'firebase-admin/firestore'
+import { clamp } from 'lodash'
 import { BaseBot, LmmBot, RandomBot } from './bots'
-import { Match, MatchBank, MatchEventsEnum } from './lib'
+import { Match, MatchBank, MatchEventType } from './lib'
 import {
-  MatchReportData,
+  MatchReportDto,
   MatchServerEventsMap,
   ServerMatchEvents,
 } from './types'
@@ -64,11 +65,7 @@ export class MatchService {
 
   private syncStateReport(match: Match, order: UserModel, chaos: UserModel) {
     match.observeMany(
-      [
-        MatchEventsEnum.Choice,
-        MatchEventsEnum.Surrender,
-        MatchEventsEnum.Timeout,
-      ],
+      [MatchEventType.Choice, MatchEventType.Surrender, MatchEventType.Timeout],
       () => {
         const stateReport = match.stateReport
 
@@ -98,7 +95,7 @@ export class MatchService {
   ) {
     this.syncStateReport(match, order, chaos)
 
-    match.observe(MatchEventsEnum.Finish, async (_, winner) => {
+    match.observe(MatchEventType.Finish, async (_, winner) => {
       const events = match.events
       const orderScore = this.getWhiteScore(match, winner)
 
@@ -132,13 +129,13 @@ export class MatchService {
           rating: chaos.glicko.rating,
           gain: 0,
         },
-        gameMode,
+        game_mode: gameMode,
         timestamp: new Date(),
         events,
         winner,
       }
 
-      const matchReport: MatchReportData = {
+      const matchReport: MatchReportDto = {
         matchId: match.id,
         winner,
         [Team.Order]: {
@@ -326,5 +323,12 @@ export class MatchService {
   /// Tells if a user is available for creating a new match
   isAvailable(userId: string) {
     return !this.matchBank.containsUser(userId)
+  }
+
+  async getMatchesByUser(user: string, limit: number): Promise<MatchDto[]> {
+    const clampedLimit = clamp(limit, 0, 50)
+    const models = await this.matchRepository.getByUser(user, clampedLimit)
+    const dtos = models.map((model) => MatchDto.fromModel(model))
+    return dtos
   }
 }

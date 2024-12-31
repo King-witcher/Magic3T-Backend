@@ -1,21 +1,29 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { HttpFilter } from '@/common/filters/http.filter'
+import { UserDto } from '@/database'
 import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   NotImplementedException,
+  Param,
   Patch,
   UseFilters,
   UseGuards,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiHeader, ApiOperation } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger'
 import { ChangeIconDto } from './dtos/change-icon'
 import { ChangeNickDto } from './dtos/change-nick'
 import { UserService } from './user.service'
 
-@Controller('user')
+@Controller('users')
 @UseFilters(HttpFilter)
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -27,6 +35,31 @@ export class UserController {
   @UseGuards(AuthGuard)
   getMe() {
     throw new NotImplementedException()
+  }
+
+  @Get('id/:id')
+  @ApiOperation({
+    summary: 'Get a user by id',
+  })
+  @ApiResponse({
+    type: UserDto,
+  })
+  async getById(@Param('id') id: string): Promise<UserDto> {
+    const user = await this.userService.getById(id)
+    if (!user) throw new NotFoundException()
+    return user
+  }
+
+  @Get('ranking')
+  @ApiOperation({
+    summary: 'Gets the top 30 ranked players',
+  })
+  @ApiResponse({
+    isArray: true,
+    type: UserDto,
+  })
+  async getRanking(): Promise<UserDto[]> {
+    return await this.userService.getRanking()
   }
 
   @Patch('me/nickname')

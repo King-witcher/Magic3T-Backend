@@ -1,8 +1,7 @@
-import { Team } from '@/database'
-import { MatchEventsEnum } from '@/match/lib/match'
-import { Choice } from '@/types/Choice'
+import { Choice, Team } from '@/common'
+import { MatchEventType } from '@/match/lib/match'
 import { Perspective } from '../lib/perspective'
-import { StateReportData } from '../types'
+import { StateReportDto } from '../types'
 
 export abstract class BaseBot {
   observe(perspective: Perspective) {
@@ -18,9 +17,9 @@ export abstract class BaseBot {
       })
     }
 
-    perspective.observe(MatchEventsEnum.Start, callback)
-    perspective.observe(MatchEventsEnum.Choice, callback)
+    perspective.observe(MatchEventType.Start, callback)
+    perspective.observe(MatchEventType.Choice, callback)
   }
 
-  protected abstract think(state: StateReportData, team: Team): Promise<Choice>
+  protected abstract think(state: StateReportDto, team: Team): Promise<Choice>
 }

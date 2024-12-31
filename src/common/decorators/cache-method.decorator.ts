@@ -4,7 +4,7 @@ export const CacheMethod = (ttlSecs: number): MethodDecorator => {
 
   return (
     target: object,
-    propertyKey: string,
+    propertyKey: string | symbol,
     descriptor: PropertyDescriptor
   ): void => {
     const originalMethod: unknown = descriptor.value
