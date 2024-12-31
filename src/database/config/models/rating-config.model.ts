@@ -1,19 +1,24 @@
 import { WithId } from '../../types/withId'
 
 export interface RatingConfigModel extends WithId {
-  deviationInflationTime: number
-  initialRD: number
-  initialRating: number
-  minRD: number
+  /** How much time a player with RD=40 would take to go back to 350, in days. */
+  rd_inflation_time: number
 
-  /** Max RD a player can have to be placed */
-  maxReliableDeviation: number
+  /** The base rating in the game, which is assigned to every player at the beginning. */
+  base_score: number
 
-  ranks: {
-    /** The size of each tier */
-    tierSize: number
+  /** The max RD a player can reach, which is also the initial RD for every player. */
+  max_rd: number
 
-    /** The tier corresponding to the initial rating. Can be non integer. 0 is equivalent to Bronze 1 and 4, Elite. */
-    initialTier: number
-  }
+  /** The min RD a player can reach. */
+  min_rd: number
+
+  /** The max rd a player can have to have their ranking revealed. */
+  rd_threshold: number
+
+  /** The legth of each league in score points. */
+  league_length: number
+
+  /** The league where a player would be with the base score. This number can be fractionary. */
+  base_league: number
 }

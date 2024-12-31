@@ -17,10 +17,7 @@ export class GlickoRatingStrategy extends RatingStrategy {
   ): Promise<[Glicko, Glicko]> {
     const config = await this.configService.getRatingConfig()
 
-    const inflation = getInflation(
-      config.deviationInflationTime,
-      config.initialRD
-    )
+    const inflation = getInflation(config.rd_inflation_time, config.max_rd)
 
     const now = new Date()
 
@@ -31,11 +28,11 @@ export class GlickoRatingStrategy extends RatingStrategy {
           second.glicko,
           scoreOfFirst,
           inflation,
-          config.initialRD
+          config.max_rd
         ),
         deviation: Math.max(
-          config.minRD,
-          newDeviation(first.glicko, second.glicko, inflation, config.initialRD)
+          config.min_rd,
+          newDeviation(first.glicko, second.glicko, inflation, config.max_rd)
         ),
         timestamp: now,
       },
@@ -45,11 +42,11 @@ export class GlickoRatingStrategy extends RatingStrategy {
           first.glicko,
           1 - scoreOfFirst,
           inflation,
-          config.initialRD
+          config.max_rd
         ),
         deviation: Math.max(
-          config.minRD,
-          newDeviation(second.glicko, first.glicko, inflation, config.initialRD)
+          config.min_rd,
+          newDeviation(second.glicko, first.glicko, inflation, config.max_rd)
         ),
         timestamp: now,
       },

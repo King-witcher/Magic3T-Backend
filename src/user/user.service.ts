@@ -74,12 +74,12 @@ export class UserService {
       .filter((user) => user.nickname !== null)
 
     const reliable = namedDtos.filter(
-      (item) => item.rating.rd <= ratingConfig.maxReliableDeviation
+      (item) => item.rating.rd <= ratingConfig.rd_threshold
     )
 
     const imprecise =
       namedDtos
-        .filter((item) => item.rating.rd > ratingConfig.maxReliableDeviation)
+        .filter((item) => item.rating.rd > ratingConfig.rd_threshold)
         .sort((a, b) => a.nickname!.localeCompare(b.nickname!)) ?? []
 
     return [...reliable, ...imprecise]
