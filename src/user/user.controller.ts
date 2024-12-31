@@ -1,6 +1,7 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { HttpFilter } from '@/common/filters/http.filter'
+import { UserDto } from '@/database'
 import {
   Body,
   Controller,
@@ -21,7 +22,6 @@ import {
 import { ChangeIconDto } from './dtos/change-icon'
 import { ChangeNickDto } from './dtos/change-nick'
 import { UserService } from './user.service'
-import { UserDto } from '@/database'
 
 @Controller('users')
 @UseFilters(HttpFilter)

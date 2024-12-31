@@ -1,4 +1,3 @@
-import { block } from '@/lib/utils'
 import { DatabaseService } from '@/database/database.service'
 import { Glicko, UserModel } from '@/database/user/user.model'
 import { FirebaseService } from '@/firebase/firebase.service'
