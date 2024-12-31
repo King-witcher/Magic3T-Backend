@@ -37,7 +37,7 @@ export class MatchGuard implements CanActivate {
           throw new NotImplementedException()
       }
     } catch (e) {
-      this.logger.error(`request rejected: ${e.message}`)
+      this.logger.error(`request rejected: ${(<Error>e).message}`)
       return false
     }
   }

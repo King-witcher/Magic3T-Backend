@@ -50,6 +50,18 @@ export class UserController {
     return user
   }
 
+  @Get('ranking')
+  @ApiOperation({
+    summary: 'Gets the top 30 ranked players',
+  })
+  @ApiResponse({
+    isArray: true,
+    type: UserDto,
+  })
+  async getRanking(): Promise<UserDto[]> {
+    return await this.userService.getRanking()
+  }
+
   @Patch('me/nickname')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()

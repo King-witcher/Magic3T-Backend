@@ -1,10 +1,13 @@
 import { BaseError } from '@/common/errors/base-error'
-import { UserDto, UserRepository } from '@/database'
+import { ConfigRepository, UserDto, UserRepository } from '@/database'
 import { HttpStatus, Injectable } from '@nestjs/common'
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private configRepository: ConfigRepository
+  ) {}
 
   async changeNickName(userId: string, newNickname: string) {
     const user = await this.userRepository.get(userId)
@@ -58,5 +61,27 @@ export class UserService {
   async getById(id: string): Promise<UserDto | null> {
     const user = await this.userRepository.get(id)
     return user && UserDto.fromModel(user)
+  }
+
+  async getRanking(): Promise<UserDto[]> {
+    const [best, ratingConfig] = await Promise.all([
+      this.userRepository.getBest(30),
+      this.configRepository.getRatingConfig(),
+    ])
+
+    const namedDtos = best
+      .map(UserDto.fromModel)
+      .filter((user) => user.nickname !== null)
+
+    const reliable = namedDtos.filter(
+      (item) => item.rating.rd <= ratingConfig.maxReliableDeviation
+    )
+
+    const imprecise =
+      namedDtos
+        .filter((item) => item.rating.rd > ratingConfig.maxReliableDeviation)
+        .sort((a, b) => a.nickname!.localeCompare(b.nickname!)) ?? []
+
+    return [...reliable, ...imprecise]
   }
 }

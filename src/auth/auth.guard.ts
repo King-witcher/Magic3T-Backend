@@ -31,7 +31,7 @@ export class AuthGuard implements CanActivate {
         }
       }
     } catch (e) {
-      this.logger.error(`request rejected: ${e.message}`)
+      this.logger.error(`request rejected: ${(<Error>e).message}`)
       return false
     }
   }

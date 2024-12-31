@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "es2022",
     "sourceMap": true,
+    "strict": true,
     "outDir": "./dist",
     "baseUrl": "./",
     "incremental": true,
@@ -16,7 +17,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "strictPropertyInitialization": false,
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false,
     "noUnusedLocals": false,
     "paths": {

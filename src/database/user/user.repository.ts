@@ -1,3 +1,4 @@
+import { block } from '@/lib/utils'
 import { DatabaseService } from '@/database/database.service'
 import { Glicko, UserModel } from '@/database/user/user.model'
 import { FirebaseService } from '@/firebase/firebase.service'
@@ -58,5 +59,19 @@ export class UserRepository extends BaseRepository<UserModel> {
         return user
       })
     )
+  }
+
+  /**
+   * Gets the best ranked players in the database, up to a maximum.
+   * @param limit The amount of players to be fetched
+   * @returns The `limit` best ranked players
+   */
+  async getBest(limit: number): Promise<UserModel[]> {
+    const rankingQuery = this.collection
+      .orderBy('glicko.rating', 'desc')
+      .limit(limit)
+    const result = await rankingQuery.get()
+    const players = result.docs.map((doc) => doc.data())
+    return players
   }
 }
