@@ -1,5 +1,5 @@
 import { BaseError } from '@/common/errors/base-error'
-import { UserRepository } from '@/database'
+import { UserDto, UserRepository } from '@/database'
 import { HttpStatus, Injectable } from '@nestjs/common'
 
 @Injectable()
@@ -53,5 +53,10 @@ export class UserService {
       _id: userId,
       summoner_icon: newIcon,
     })
+  }
+
+  async getById(id: string): Promise<UserDto | null> {
+    const user = await this.userRepository.get(id)
+    return user && UserDto.fromModel(user)
   }
 }

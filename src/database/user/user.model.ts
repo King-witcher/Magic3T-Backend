@@ -19,7 +19,7 @@ export interface UserModel extends WithId {
   perfect_squares: number // earned playing
   summoner_icon: number
 
-  role: 'player' | 'bot' | 'creator'
+  role: UserRole
 
   glicko: Glicko
 
@@ -28,4 +28,10 @@ export interface UserModel extends WithId {
     draws: number
     defeats: number
   }
+}
+
+export enum UserRole {
+  Player = 'player',
+  Creator = 'creator',
+  Bot = 'bot',
 }
