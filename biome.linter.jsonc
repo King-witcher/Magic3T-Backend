@@ -18,7 +18,10 @@
       },
       "complexity": {
         "noStaticOnlyClass": "off"
+      },
+      "performance": {
+        "noDelete": "off"
       }
-    }
+    },
   },
 }

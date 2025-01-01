@@ -67,7 +67,10 @@ export abstract class BaseRepository<T extends WithId> {
    * @param doc Document to be updated. _id field is considered to identify the document to be updated.
    */
   async update(doc: UpdateData<T> & WithId) {
-    this.logger.verbose(`update "${doc._id}" on ${this.collection.id}.`)
-    await this.collection.doc(doc._id).update(doc)
+    const clone: UpdateData<T> = { ...doc }
+    const id = clone._id
+    delete clone._id
+    this.logger.verbose(`update "${id}" on ${this.collection.id}.`)
+    await this.collection.doc(doc._id).update(clone)
   }
 }

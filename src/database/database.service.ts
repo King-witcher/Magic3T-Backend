@@ -66,7 +66,6 @@ export class DatabaseService {
 
       toFirestore: (data: T): Firestorify<T> => {
         const output: Mutable<OptionalProp<T, '_id'>> = { ...data }
-        // biome-ignore lint/performance/noDelete: <explanation>
         delete output._id
         return output
       },
