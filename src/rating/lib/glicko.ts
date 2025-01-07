@@ -1,4 +1,4 @@
-import { Glicko } from '@/database/user/user.model'
+import { RatingModel } from '@/database/user/user.model'
 
 const piSquare = Math.PI ** 2
 
@@ -30,8 +30,8 @@ function getExpectedScore(
 }
 
 export function newRating(
-  player: Glicko,
-  opponent: Glicko,
+  player: RatingModel,
+  opponent: RatingModel,
   s: number,
   inflation: number,
   maxRD: number
@@ -68,8 +68,8 @@ export function newRating(
 }
 
 export function newDeviation(
-  player: Glicko,
-  opponent: Glicko,
+  player: RatingModel,
+  opponent: RatingModel,
   inflation: number,
   maxRD: number
 ) {

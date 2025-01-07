@@ -1,5 +1,5 @@
 import { DatabaseService } from '@/database/database.service'
-import { Glicko, UserModel } from '@/database/user/user.model'
+import { RatingModel, UserModel } from '@/database/user/user.model'
 import { FirebaseService } from '@/firebase/firebase.service'
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { BaseRepository } from '../base-repository'
@@ -29,7 +29,7 @@ export class UserRepository extends BaseRepository<UserModel> {
     return result.docs[0].data()
   }
 
-  async updateGlicko(id: string, glicko: Glicko) {
+  async updateGlicko(id: string, glicko: RatingModel) {
     await super.update({ _id: id, glicko })
   }
 
@@ -66,6 +66,7 @@ export class UserRepository extends BaseRepository<UserModel> {
    * @returns The `limit` best ranked players
    */
   async getBest(limit: number): Promise<UserModel[]> {
+    this.logger.verbose(`read ${limit} best players from.`)
     const rankingQuery = this.collection
       .orderBy('glicko.rating', 'desc')
       .limit(limit)

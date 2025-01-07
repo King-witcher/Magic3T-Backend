@@ -9,7 +9,7 @@ import {
   BotName,
   ConfigRepository,
   GameMode,
-  Glicko,
+  RatingModel,
   MatchModel,
   MatchRepository,
   UserModel,
@@ -28,7 +28,7 @@ import {
 export type MatchPlayerProfile = {
   uid: string
   nickname: string
-  glicko: Glicko
+  glicko: RatingModel
 }
 
 // Stores all matches that are currently in progress.

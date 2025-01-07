@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
-import { RatingStrategy } from './strategies'
+import { UpdatingStrategy } from './strategies'
 
 @Injectable()
 export class RatingService {
-  constructor(private readonly ratingStrategy: RatingStrategy) {}
+  constructor(private readonly ratingStrategy: UpdatingStrategy) {}
 
-  getRatings(...params: Parameters<RatingStrategy['getRatings']>) {
-    return this.ratingStrategy.getRatings(...params)
+  getRatings(...params: Parameters<UpdatingStrategy['getNewRatings']>) {
+    return this.ratingStrategy.getNewRatings(...params)
   }
 }

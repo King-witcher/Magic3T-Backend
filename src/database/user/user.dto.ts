@@ -1,6 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Glicko, UserModel, UserRole } from './user.model'
+import { RatingModel, UserModel, UserRole } from './user.model'
 
+export enum League {
+  Provisional = 'provisional',
+  Bronze = 'bronze',
+  Silver = 'silver',
+  Gold = 'gold',
+  Diamond = 'diamond',
+  Master = 'master',
+  Challenger = 'challenger',
+}
 export class RatingDto {
   @ApiProperty({
     description: "The player's estimate rating",
@@ -21,11 +30,16 @@ export class RatingDto {
   })
   date: number
 
+  // league: League
+  // division?: number
+  // points?: number
+  // progression?: number
+
   constructor(data: RatingDto) {
     Object.assign(this, data)
   }
 
-  static fromModel(model: Glicko): RatingDto {
+  static fromModel(model: RatingModel): RatingDto {
     return new RatingDto({
       score: model.rating,
       date: model.timestamp.getTime(),
@@ -33,6 +47,7 @@ export class RatingDto {
     })
   }
 }
+
 export class UserDto {
   @ApiProperty({
     description: 'The user unique id',

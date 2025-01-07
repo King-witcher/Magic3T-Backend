@@ -1,2 +1,2 @@
-export * from './glicko-rating-strategy'
-export * from './base-rating-strategy'
+export * from './glicko-strategy'
+export * from './updating-strategy'

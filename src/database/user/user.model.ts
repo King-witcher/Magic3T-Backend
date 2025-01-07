@@ -1,7 +1,7 @@
 import { WithId } from '@/database/types/withId'
 
 // TODO: Change to rating, and replace rating with score
-export interface Glicko {
+export interface RatingModel {
   rating: number
   deviation: number
   timestamp: Date
@@ -21,7 +21,7 @@ export interface UserModel extends WithId {
 
   role: UserRole
 
-  glicko: Glicko
+  glicko: RatingModel
 
   stats: {
     wins: number
