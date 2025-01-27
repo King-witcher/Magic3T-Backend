@@ -9,12 +9,12 @@ import {
   BotName,
   ConfigRepository,
   GameMode,
-  RatingModel,
+  League,
   MatchModel,
   MatchRepository,
+  RatingModel,
   UserModel,
   UserRepository,
-  League,
 } from '@database'
 import { FieldValue, UpdateData } from 'firebase-admin/firestore'
 import { clamp } from 'lodash'

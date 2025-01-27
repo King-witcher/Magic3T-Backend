@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common'
 import { RatingDto, RatingModel } from '@/database'
-import { UpdatingStrategy } from './updating-strategies'
+import { Injectable } from '@nestjs/common'
 import { PresentationStrategy } from './presentation-strategies'
+import { UpdatingStrategy } from './updating-strategies'
 
 @Injectable()
 export class RatingService {

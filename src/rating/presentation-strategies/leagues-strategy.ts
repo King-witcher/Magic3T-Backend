@@ -1,8 +1,8 @@
-import { RatingModel, RatingDto, ConfigRepository, League } from '@/database'
-import { PresentationStrategy } from './presentation-strategy'
 import { block } from '@/common'
+import { ConfigRepository, League, RatingDto, RatingModel } from '@/database'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
+import { PresentationStrategy } from './presentation-strategy'
 
 const leagueIndexes = [
   League.Bronze,

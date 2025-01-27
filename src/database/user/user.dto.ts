@@ -1,6 +1,6 @@
+import { RatingService } from '@/rating'
 import { ApiProperty } from '@nestjs/swagger'
 import { RatingModel, UserModel, UserRole } from './user.model'
-import { RatingService } from '@/rating'
 
 export enum League {
   Provisional = 'provisional',
