@@ -61,11 +61,11 @@ export class MatchGateway implements OnGatewayDisconnect {
   }
 
   @SubscribeMessage(ClientMatchEvents.GetAssignments)
-  getOpponent(
+  async getOpponent(
     @CurrentPerspective() perspective: Perspective,
     @ConnectedSocket() socket: MatchSocket
   ) {
-    const assignments = perspective.getAssignments()
+    const assignments = await perspective.getAssignments()
     socket.emit(ServerMatchEvents.Assignments, assignments)
   }
 

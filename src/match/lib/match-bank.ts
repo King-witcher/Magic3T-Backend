@@ -1,6 +1,7 @@
 import { Team } from '@/common'
 import { BaseError } from '@/common/errors/base-error'
 import { DatabaseService } from '@/database'
+import { RatingService } from '@/rating'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { Match, MatchEventType } from './match'
 import { Perspective } from './perspective'
@@ -12,7 +13,10 @@ export class MatchBank {
   private perspectives: Map<string, Perspective> = new Map() // Maps user ids to matchAdapters
   private opponents: Map<string, string> = new Map()
 
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private databaseService: DatabaseService,
+    private ratingService: RatingService
+  ) {}
 
   /// Creates a match that will be assigned to an id until it's finished.
   createAndRegisterMatch(...params: ConstructorParameters<typeof Match>): {
@@ -45,8 +49,12 @@ export class MatchBank {
     teamOfFirst: Team
   ): [Perspective, Perspective] {
     // Get perspectives
-    const perspective1 = new Perspective(match, teamOfFirst)
-    const perspective2 = new Perspective(match, 1 - teamOfFirst)
+    const perspective1 = new Perspective(match, teamOfFirst, this.ratingService)
+    const perspective2 = new Perspective(
+      match,
+      1 - teamOfFirst,
+      this.ratingService
+    )
 
     // Create relations in the bank
     this.perspectives.set(player1, perspective1)

@@ -23,7 +23,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory)
   await app.listen(port)
   keepServerAlive()
-  logger.log(`Server running on http://localhost:${port}`)
+  logger.log(`Swagger available on http://localhost:${port}/api`)
 }
 
 function keepServerAlive() {

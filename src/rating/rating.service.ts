@@ -1,11 +1,24 @@
+import { RatingDto, RatingModel } from '@/database'
 import { Injectable } from '@nestjs/common'
-import { RatingStrategy } from './strategies'
+import { PresentationStrategy } from './presentation-strategies'
+import { UpdatingStrategy } from './updating-strategies'
 
 @Injectable()
 export class RatingService {
-  constructor(private readonly ratingStrategy: RatingStrategy) {}
+  constructor(
+    private updatingStrategy: UpdatingStrategy,
+    private presentationStrategy: PresentationStrategy
+  ) {}
 
-  getRatings(...params: Parameters<RatingStrategy['getRatings']>) {
-    return this.ratingStrategy.getRatings(...params)
+  getRatings(...params: Parameters<UpdatingStrategy['getNewRatings']>) {
+    return this.updatingStrategy.getNewRatings(...params)
+  }
+
+  async getRatingDto(ratingModel: RatingModel): Promise<RatingDto> {
+    return this.presentationStrategy.getDto(ratingModel)
+  }
+
+  async convertRatingIntoLp(rating: number): Promise<number> {
+    return this.presentationStrategy.convertRatingIntoLp(rating)
   }
 }

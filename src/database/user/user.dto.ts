@@ -1,38 +1,57 @@
+import { RatingService } from '@/rating'
 import { ApiProperty } from '@nestjs/swagger'
-import { Glicko, UserModel, UserRole } from './user.model'
+import { RatingModel, UserModel, UserRole } from './user.model'
+
+export enum League {
+  Provisional = 'provisional',
+  Bronze = 'bronze',
+  Silver = 'silver',
+  Gold = 'gold',
+  Diamond = 'diamond',
+  Master = 'master',
+  Challenger = 'challenger',
+}
 
 export class RatingDto {
   @ApiProperty({
-    description: "The player's estimate rating",
-    default: 1500,
+    description: "The player's league",
+    example: League.Provisional,
   })
-  score: number
+  league: League
 
   @ApiProperty({
-    description:
-      'The standard deviation of the rating estimate at the specified date',
-    default: 350,
+    description: "The player's division in the league",
+    nullable: true,
+    example: 1,
   })
-  rd: number
+  division: number | null
 
   @ApiProperty({
-    description: 'The date when this rating was calculated',
-    example: Date.now(),
+    description: "The player's LP in the division",
+    nullable: true,
+    example: 22,
   })
-  date: number
+  points: number | null
+
+  @ApiProperty({
+    description: "The player's progress towards being qualified",
+    nullable: true,
+    default: 0,
+  })
+  progress: number
 
   constructor(data: RatingDto) {
     Object.assign(this, data)
   }
 
-  static fromModel(model: Glicko): RatingDto {
-    return new RatingDto({
-      score: model.rating,
-      date: model.timestamp.getTime(),
-      rd: model.deviation,
-    })
+  static fromModel(
+    model: RatingModel,
+    ratingService: RatingService
+  ): Promise<RatingDto> {
+    return ratingService.getRatingDto(model)
   }
 }
+
 export class UserDto {
   @ApiProperty({
     description: 'The user unique id',
@@ -85,7 +104,10 @@ export class UserDto {
     Object.assign(this, data)
   }
 
-  static fromModel(model: UserModel): UserDto {
+  static async fromModel(
+    model: UserModel,
+    ratingService: RatingService
+  ): Promise<UserDto> {
     return new UserDto({
       id: model._id,
       nickname: model.identification?.nickname || null,
@@ -96,7 +118,7 @@ export class UserDto {
         draws: model.stats.draws,
         defeats: model.stats.defeats,
       },
-      rating: RatingDto.fromModel(model.glicko),
+      rating: await RatingDto.fromModel(model.glicko, ratingService),
     })
   }
 }

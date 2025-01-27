@@ -1,4 +1,3 @@
-import { AuthModule } from '@/auth/auth.module'
 import { SocketsService } from '@/common/services/sockets.service'
 import { DatabaseModule } from '@/database'
 import { FirebaseModule } from '@/firebase'
@@ -13,7 +12,7 @@ export const QueueSocketsService = Symbol('QueueSocketsService')
 
 @Module({
   controllers: [QueueController],
-  imports: [MatchModule, DatabaseModule, AuthModule, FirebaseModule],
+  imports: [MatchModule, DatabaseModule, FirebaseModule],
   providers: [
     QueueGateway,
     QueueService,
