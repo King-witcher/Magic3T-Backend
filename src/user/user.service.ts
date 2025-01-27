@@ -2,6 +2,7 @@ import { BaseError } from '@/common/errors/base-error'
 import { ConfigRepository, League, UserDto, UserRepository } from '@/database'
 import { RatingService } from '@/rating'
 import { HttpStatus, Injectable } from '@nestjs/common'
+import { range } from 'lodash'
 
 @Injectable()
 export class UserService {
@@ -51,7 +52,8 @@ export class UserService {
   }
 
   async changeIcon(userId: string, newIcon: number) {
-    if (newIcon > 29 || newIcon < 0)
+    const allowed = [...range(0, 30), ...range(3455, 3464)]
+    if (!allowed.includes(newIcon))
       throw new BaseError('bad icon id', HttpStatus.BAD_REQUEST)
 
     await this.userRepository.update({
