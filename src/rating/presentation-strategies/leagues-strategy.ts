@@ -37,15 +37,15 @@ export class LeaguesStrategy extends PresentationStrategy {
   private async getQualifyProgress(model: RatingModel): Promise<number> {
     const config = await this.configRepository.cachedGetRatingConfig()
 
-    const modelDistance = model.deviation - config.rd_threshold
+    const modelDistance = config.max_rd - model.deviation
     const totalDistance = config.max_rd - config.rd_threshold
     const progress = clamp(1 - modelDistance / totalDistance, 0, 1)
-    return 100 * progress
+    return Math.floor(100 * progress)
   }
 
   private async convertToLeagueSystem(
     score: number
-  ): Promise<[League, number, number]> {
+  ): Promise<[League, number | null, number]> {
     const config = await this.configRepository.cachedGetRatingConfig()
 
     // 0 means the lowest score, and each point is one league wide.
@@ -64,7 +64,7 @@ export class LeaguesStrategy extends PresentationStrategy {
     const league = leagueIndexes[leagueIndex]
 
     const division = block(() => {
-      if (league === League.Master) return 1
+      if (league === League.Master) return null
 
       const divsAbove = Math.floor(leagueRemainder * 4)
       return 4 - divsAbove
@@ -87,10 +87,9 @@ export class LeaguesStrategy extends PresentationStrategy {
     if (currentRD > config.rd_threshold) {
       const progress = await this.getQualifyProgress(model)
       return {
-        date: model.timestamp.getTime(),
         league: League.Provisional,
-        rd: model.deviation,
-        score: model.rating,
+        division: null,
+        points: null,
         progress,
       }
     }
@@ -103,9 +102,7 @@ export class LeaguesStrategy extends PresentationStrategy {
       league,
       division,
       points,
-      date: model.timestamp.getTime(),
-      rd: model.deviation,
-      score: model.rating,
+      progress: 100,
     }
   }
 

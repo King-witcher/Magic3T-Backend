@@ -14,28 +14,31 @@ export enum League {
 
 export class RatingDto {
   @ApiProperty({
-    description: "The player's estimate rating",
-    default: 1500,
+    description: "The player's league",
+    example: League.Provisional,
   })
-  score: number
-
-  @ApiProperty({
-    description:
-      'The standard deviation of the rating estimate at the specified date',
-    default: 350,
-  })
-  rd: number
-
-  @ApiProperty({
-    description: 'The date when this rating was calculated',
-    example: Date.now(),
-  })
-  date: number
-
   league: League
-  division?: number
-  points?: number
-  progress?: number
+
+  @ApiProperty({
+    description: "The player's division in the league",
+    nullable: true,
+    example: 1,
+  })
+  division: number | null
+
+  @ApiProperty({
+    description: "The player's LP in the division",
+    nullable: true,
+    example: 22,
+  })
+  points: number | null
+
+  @ApiProperty({
+    description: "The player's progress towards being qualified",
+    nullable: true,
+    default: 0,
+  })
+  progress: number
 
   constructor(data: RatingDto) {
     Object.assign(this, data)
