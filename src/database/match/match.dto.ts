@@ -1,7 +1,7 @@
 import { Choice, Team } from '@/common'
+import { RatingService } from '@/rating'
 import { ApiProperty } from '@nestjs/swagger'
 import { MatchEventType, MatchModel } from './match.model'
-import { RatingService } from '@/rating'
 
 export interface MatchDtoTeam {
   id: string
