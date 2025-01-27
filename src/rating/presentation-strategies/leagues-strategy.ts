@@ -71,9 +71,9 @@ export class LeaguesStrategy extends PresentationStrategy {
     })
 
     const points = block(() => {
-      if (league === League.Master) return 400 * leagueRemainder
+      if (league === League.Master) return Math.floor(400 * leagueRemainder)
 
-      return (400 * leagueRemainder) % 100
+      return Math.floor((400 * leagueRemainder) % 100)
     })
 
     return [league, division, points]
@@ -107,5 +107,11 @@ export class LeaguesStrategy extends PresentationStrategy {
       rd: model.deviation,
       score: model.rating,
     }
+  }
+
+  async convertRatingIntoLp(rating: number): Promise<number> {
+    const config = await this.configRepository.cachedGetRatingConfig()
+
+    return Math.round((400 * rating) / config.league_length)
   }
 }

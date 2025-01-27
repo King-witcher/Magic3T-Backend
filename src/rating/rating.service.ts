@@ -17,4 +17,8 @@ export class RatingService {
   async getRatingDto(ratingModel: RatingModel): Promise<RatingDto> {
     return this.presentationStrategy.getDto(ratingModel)
   }
+
+  async convertRatingIntoLp(rating: number): Promise<number> {
+    return this.presentationStrategy.convertRatingIntoLp(rating)
+  }
 }

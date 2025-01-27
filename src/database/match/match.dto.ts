@@ -1,6 +1,7 @@
 import { Choice, Team } from '@/common'
 import { ApiProperty } from '@nestjs/swagger'
 import { MatchEventType, MatchModel } from './match.model'
+import { RatingService } from '@/rating'
 
 export interface MatchDtoTeam {
   id: string
@@ -78,7 +79,10 @@ export class MatchDto {
     Object.assign(this, data)
   }
 
-  static fromModel(model: MatchModel): MatchDto {
+  static async fromModel(
+    model: MatchModel,
+    ratingService: RatingService
+  ): Promise<MatchDto> {
     const modelOrder = model[Team.Order]
     const modelChaos = model[Team.Chaos]
 
@@ -89,14 +93,14 @@ export class MatchDto {
           id: modelOrder.uid,
           matchScore: modelOrder.score,
           nickname: modelOrder.name,
-          ratingGain: modelOrder.gain,
+          ratingGain: await ratingService.convertRatingIntoLp(modelOrder.gain),
           ratingScore: modelOrder.rating,
         },
         [Team.Chaos]: {
           id: modelChaos.uid,
           matchScore: modelChaos.score,
           nickname: modelChaos.name,
-          ratingGain: modelChaos.gain,
+          ratingGain: await ratingService.convertRatingIntoLp(modelChaos.gain),
           ratingScore: modelChaos.rating,
         },
       },
