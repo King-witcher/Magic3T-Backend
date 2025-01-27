@@ -47,7 +47,7 @@ export class ConfigRepository {
   }
 
   @CacheMethod(300)
-  async getRatingConfig(): Promise<RatingConfigModel> {
+  async cachedGetRatingConfig(): Promise<RatingConfigModel> {
     this.logger.verbose('read "rating" from config')
     const converter = this.databaseService.getConverter<RatingConfigModel>()
     const snapshot = await this.collection

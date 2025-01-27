@@ -8,7 +8,7 @@ import { AppController } from './app.controller'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
 import { CacheModule } from '@nestjs/cache-manager'
-import { GlickoStrategy, RatingModule } from './rating'
+import { GlickoStrategy, LeaguesStrategy, RatingModule } from './rating'
 
 @Global()
 @Module({
@@ -17,7 +17,7 @@ import { GlickoStrategy, RatingModule } from './rating'
     CacheModule.register({
       isGlobal: true,
     }),
-    RatingModule.forRoot(GlickoStrategy),
+    RatingModule.forRoot(GlickoStrategy, LeaguesStrategy),
     AuthModule,
     QueueModule,
     DatabaseModule,

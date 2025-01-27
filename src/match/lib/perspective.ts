@@ -3,6 +3,7 @@ import { UserDto } from '@/database'
 import { Observable } from 'rxjs'
 import { AssignmentsDto, StateReportDto } from '../types'
 import { Match, MatchError, MatchEventsMap } from './match'
+import { RatingService } from '@/rating'
 
 /**
  * A perspective is a portal through which a player (human or bot) can interact with its ongoing match.
@@ -10,21 +11,22 @@ import { Match, MatchError, MatchEventsMap } from './match'
 export class Perspective extends Observable<MatchEventsMap> {
   constructor(
     public readonly match: Match,
-    public readonly team: Team
+    public readonly team: Team,
+    public readonly ratingService: RatingService
   ) {
     super()
   }
 
-  getAssignments(): AssignmentsDto {
+  async getAssignments(): Promise<AssignmentsDto> {
     const order = this.match.assignments[Team.Order]
     const chaos = this.match.assignments[Team.Chaos]
 
     return {
       [Team.Order]: {
-        profile: UserDto.fromModel(order),
+        profile: await UserDto.fromModel(order, this.ratingService),
       },
       [Team.Chaos]: {
-        profile: UserDto.fromModel(chaos),
+        profile: await UserDto.fromModel(chaos, this.ratingService),
       },
     }
   }

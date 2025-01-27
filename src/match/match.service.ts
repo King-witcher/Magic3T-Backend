@@ -14,6 +14,7 @@ import {
   MatchRepository,
   UserModel,
   UserRepository,
+  League,
 } from '@database'
 import { FieldValue, UpdateData } from 'firebase-admin/firestore'
 import { clamp } from 'lodash'
@@ -145,6 +146,7 @@ export class MatchService {
             date: order.glicko.timestamp.getTime(),
             rd: order.glicko.deviation,
             score: order.glicko.rating,
+            league: League.Provisional,
           },
         },
         [Team.Chaos]: {
@@ -154,6 +156,7 @@ export class MatchService {
             date: chaos.glicko.timestamp.getTime(),
             rd: chaos.glicko.deviation,
             score: chaos.glicko.rating,
+            league: League.Provisional,
           },
         },
       }
@@ -178,12 +181,14 @@ export class MatchService {
           date: orderGlicko.timestamp.getTime(),
           rd: orderGlicko.deviation,
           score: orderGlicko.rating,
+          league: League.Provisional,
         }
 
         matchReport[Team.Chaos].newRating = {
           date: chaosGlicko.timestamp.getTime(),
           rd: chaosGlicko.deviation,
           score: chaosGlicko.rating,
+          league: League.Provisional,
         }
       }
 

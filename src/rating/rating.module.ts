@@ -1,7 +1,8 @@
 import { DatabaseModule } from '@/database'
 import { DynamicModule, Module, Provider, Type } from '@nestjs/common'
 import { RatingService } from '.'
-import { UpdatingStrategy } from './strategies'
+import { PresentationStrategy } from './presentation-strategies'
+import { UpdatingStrategy } from './updating-strategies'
 
 interface Params {
   udpatingStrategy: UpdatingStrategy
@@ -9,18 +10,24 @@ interface Params {
 
 @Module({})
 export class RatingModule {
-  static forRoot<T extends UpdatingStrategy>(
-    ratingStrategy: Type<T>
+  static forRoot<U extends UpdatingStrategy, P extends PresentationStrategy>(
+    updatingStrategy: Type<U>,
+    presentationStrategy: Type<P>
   ): DynamicModule {
-    const StrategyProvider: Provider = {
+    const updatingProvider: Provider = {
       provide: UpdatingStrategy,
-      useClass: ratingStrategy,
+      useClass: updatingStrategy,
+    }
+
+    const presentationProvider: Provider = {
+      provide: PresentationStrategy,
+      useClass: presentationStrategy,
     }
 
     return {
       module: RatingModule,
       imports: [DatabaseModule],
-      providers: [RatingService, StrategyProvider],
+      providers: [RatingService, updatingProvider, presentationProvider],
       exports: [RatingService],
       global: true,
     }

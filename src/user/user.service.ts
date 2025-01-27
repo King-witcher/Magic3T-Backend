@@ -1,12 +1,14 @@
 import { BaseError } from '@/common/errors/base-error'
-import { ConfigRepository, UserDto, UserRepository } from '@/database'
+import { ConfigRepository, League, UserDto, UserRepository } from '@/database'
+import { RatingService } from '@/rating'
 import { HttpStatus, Injectable } from '@nestjs/common'
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly userRepository: UserRepository,
-    private configRepository: ConfigRepository
+    private userRepository: UserRepository,
+    private configRepository: ConfigRepository,
+    private ratingService: RatingService
   ) {}
 
   async changeNickName(userId: string, newNickname: string) {
@@ -60,28 +62,33 @@ export class UserService {
 
   async getById(id: string): Promise<UserDto | null> {
     const user = await this.userRepository.get(id)
-    return user && UserDto.fromModel(user)
+    return user && (await UserDto.fromModel(user, this.ratingService))
   }
 
   async getRanking(): Promise<UserDto[]> {
-    const [best, ratingConfig] = await Promise.all([
-      this.userRepository.getBest(30),
-      this.configRepository.getRatingConfig(),
+    const [bestPlayers, ratingConfig] = await Promise.all([
+      this.userRepository.getBest(50),
+      this.configRepository.cachedGetRatingConfig(),
     ])
 
-    const namedDtos = best
-      .map(UserDto.fromModel)
-      .filter((user) => user.nickname !== null)
-
-    const reliable = namedDtos.filter(
-      (item) => item.rating.rd <= ratingConfig.rd_threshold
+    const bestPlayersDtos = await Promise.all(
+      bestPlayers
+        // Filter only players with an identification
+        .filter((player) => !!player.identification)
+        // Convert to Dtos
+        .map((model) => UserDto.fromModel(model, this.ratingService))
     )
 
-    const imprecise =
-      namedDtos
-        .filter((item) => item.rating.rd > ratingConfig.rd_threshold)
+    const qualified = bestPlayersDtos.filter(
+      (player) => player.rating.league !== League.Provisional
+    )
+
+    const notQualified =
+      bestPlayersDtos
+        .filter((player) => player.rating.league === League.Provisional)
+        // Sort not qualified players by nickname instead of invalid scores.
         .sort((a, b) => a.nickname!.localeCompare(b.nickname!)) ?? []
 
-    return [...reliable, ...imprecise]
+    return [...qualified, ...notQualified]
   }
 }

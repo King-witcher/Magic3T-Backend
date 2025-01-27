@@ -1,12 +1,12 @@
 import { ConfigRepository } from '@/database'
 import { RatingModel, UserModel } from '@/database/user/user.model'
 import { Injectable } from '@nestjs/common'
-import { getInflation, newDeviation, newRating } from '../lib/glicko'
+import { getInflation, newDeviation, newRating } from './glicko'
 import { UpdatingStrategy } from './updating-strategy'
 
 @Injectable()
 export class GlickoStrategy extends UpdatingStrategy {
-  constructor(private readonly configService: ConfigRepository) {
+  constructor(private configService: ConfigRepository) {
     super()
   }
 
@@ -15,7 +15,7 @@ export class GlickoStrategy extends UpdatingStrategy {
     b: UserModel,
     aScore: number
   ): Promise<[RatingModel, RatingModel]> {
-    const config = await this.configService.getRatingConfig()
+    const config = await this.configService.cachedGetRatingConfig()
 
     const inflation = getInflation(config.rd_inflation_time, config.max_rd)
 

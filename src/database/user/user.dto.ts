@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { RatingModel, UserModel, UserRole } from './user.model'
+import { RatingService } from '@/rating'
 
 export enum League {
   Provisional = 'provisional',
@@ -10,6 +11,7 @@ export enum League {
   Master = 'master',
   Challenger = 'challenger',
 }
+
 export class RatingDto {
   @ApiProperty({
     description: "The player's estimate rating",
@@ -30,21 +32,20 @@ export class RatingDto {
   })
   date: number
 
-  // league: League
-  // division?: number
-  // points?: number
-  // progression?: number
+  league: League
+  division?: number
+  points?: number
+  progress?: number
 
   constructor(data: RatingDto) {
     Object.assign(this, data)
   }
 
-  static fromModel(model: RatingModel): RatingDto {
-    return new RatingDto({
-      score: model.rating,
-      date: model.timestamp.getTime(),
-      rd: model.deviation,
-    })
+  static fromModel(
+    model: RatingModel,
+    ratingService: RatingService
+  ): Promise<RatingDto> {
+    return ratingService.getRatingDto(model)
   }
 }
 
@@ -100,7 +101,10 @@ export class UserDto {
     Object.assign(this, data)
   }
 
-  static fromModel(model: UserModel): UserDto {
+  static async fromModel(
+    model: UserModel,
+    ratingService: RatingService
+  ): Promise<UserDto> {
     return new UserDto({
       id: model._id,
       nickname: model.identification?.nickname || null,
@@ -111,7 +115,7 @@ export class UserDto {
         draws: model.stats.draws,
         defeats: model.stats.defeats,
       },
-      rating: RatingDto.fromModel(model.glicko),
+      rating: await RatingDto.fromModel(model.glicko, ratingService),
     })
   }
 }
