@@ -30,11 +30,20 @@ export class UserController {
 
   @Get('me')
   @ApiOperation({
-    summary: 'Not implemented',
+    summary: 'Get the currently connected user',
   })
+  @ApiResponse({
+    type: UserDto,
+  })
+  @ApiHeader({
+    name: 'Authorization',
+  })
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  getMe() {
-    throw new NotImplementedException()
+  async getMe(@UserId() userId: string) {
+    const user = await this.userService.getById(userId)
+    if (!user) throw new NotFoundException()
+    return user
   }
 
   @Get('id/:id')
