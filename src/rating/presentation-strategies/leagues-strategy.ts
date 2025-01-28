@@ -39,7 +39,7 @@ export class LeaguesStrategy extends PresentationStrategy {
 
     const modelDistance = config.max_rd - model.deviation
     const totalDistance = config.max_rd - config.rd_threshold
-    const progress = clamp(1 - modelDistance / totalDistance, 0, 1)
+    const progress = clamp(modelDistance / totalDistance, 0, 1)
     return Math.floor(100 * progress)
   }
 
