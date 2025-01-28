@@ -16,7 +16,7 @@ export class UserRepository extends BaseRepository<UserModel> {
   }
 
   getUniqueId(nickname: string): string {
-    return nickname.toLowerCase().replace(' ', '')
+    return nickname.toLowerCase().replaceAll(' ', '')
   }
 
   async getByNickname(nickname: string): Promise<UserModel | null> {

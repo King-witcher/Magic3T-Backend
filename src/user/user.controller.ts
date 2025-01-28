@@ -50,6 +50,20 @@ export class UserController {
     return user
   }
 
+  @Get('nickname/:nickname')
+  @ApiOperation({
+    summary: 'Get a user by nickname',
+    description: 'Casing and spaces are ignored.',
+  })
+  @ApiResponse({
+    type: UserDto,
+  })
+  async getByNickname(@Param('nickname') nickname: string): Promise<UserDto> {
+    const user = await this.userService.getByNickname(nickname)
+    if (!user) throw new NotFoundException()
+    return user
+  }
+
   @Get('ranking')
   @ApiOperation({
     summary: 'Gets the top 30 ranked players',

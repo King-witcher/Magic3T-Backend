@@ -67,6 +67,11 @@ export class UserService {
     return user && (await UserDto.fromModel(user, this.ratingService))
   }
 
+  async getByNickname(nickname: string): Promise<UserDto | null> {
+    const user = await this.userRepository.getByNickname(nickname)
+    return user && (await UserDto.fromModel(user, this.ratingService))
+  }
+
   async getRanking(): Promise<UserDto[]> {
     const [bestPlayers, ratingConfig] = await Promise.all([
       this.userRepository.getBest(50),
