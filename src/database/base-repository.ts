@@ -33,9 +33,8 @@ export abstract class BaseRepository<T extends WithId> {
   }
 
   async getAll(): Promise<T[]> {
-    this.logger.verbose(`read all from ${this.collection.id}.`)
-
     const snapshot = await this.collection.get()
+    this.logger.verbose(`read all ${snapshot.size} from ${this.collection.id}.`)
     return snapshot.docs.map((doc) => doc.data())
   }
 

@@ -1,12 +1,18 @@
 import { DatabaseService } from '@/database/database.service'
 import { RatingModel, UserModel } from '@/database/user/user.model'
 import { FirebaseService } from '@/firebase/firebase.service'
-import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common'
 import { BaseRepository } from '../base-repository'
 import { ConfigRepository } from '../config'
 
 @Injectable()
 export class UserRepository extends BaseRepository<UserModel> {
+  private user_logger = new Logger(UserRepository.name, { timestamp: true })
+
   constructor(
     databaseService: DatabaseService,
     firebaseService: FirebaseService,
@@ -26,11 +32,15 @@ export class UserRepository extends BaseRepository<UserModel> {
       .limit(1)
     const result = await query.get()
     if (result.empty) return null
+    this.user_logger.verbose(
+      `read user by nickname ${nickname} best players from.`
+    )
     return result.docs[0].data()
   }
 
   async updateGlicko(id: string, glicko: RatingModel) {
     await super.update({ _id: id, glicko })
+    this.user_logger.verbose(`update glicko for user "${id}".`)
   }
 
   async updateNickname(userId: string, nickname: string) {
@@ -42,6 +52,7 @@ export class UserRepository extends BaseRepository<UserModel> {
         last_changed: new Date(),
       },
     })
+    this.user_logger.verbose(`update user "${userId}" nickname to ${nickname}.`)
   }
 
   /// Gets all bot profiles, sorted by the bot name (bot0, bot1, bot2 and bot3)
@@ -66,7 +77,7 @@ export class UserRepository extends BaseRepository<UserModel> {
    * @returns The `limit` best ranked players
    */
   async getBest(limit: number): Promise<UserModel[]> {
-    this.logger.verbose(`read ${limit} best players from.`)
+    this.user_logger.verbose(`read ${limit} best players from.`)
     const rankingQuery = this.collection
       .orderBy('glicko.rating', 'desc')
       .limit(limit)
