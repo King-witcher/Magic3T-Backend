@@ -16,11 +16,11 @@ export class UserRepository extends BaseRepository<UserModel> {
   }
 
   getUniqueId(nickname: string): string {
-    return nickname.toLowerCase().replace(' ', '')
+    return nickname.toLowerCase().replaceAll(' ', '')
   }
 
-  async getByNickname(nickname: string): Promise<UserModel | null> {
-    const uniqueId = this.getUniqueId(nickname)
+  async getBySummonerName(summonerName: string): Promise<UserModel | null> {
+    const uniqueId = this.getUniqueId(summonerName)
     const query = this.collection
       .where('identification.unique_id', '==', uniqueId)
       .limit(1)

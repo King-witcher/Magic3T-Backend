@@ -50,6 +50,22 @@ export class UserController {
     return user
   }
 
+  @Get('summoner-name/:summonerName')
+  @ApiOperation({
+    summary: 'Get a user by summoner name',
+    description: 'Casing and spaces are ignored.',
+  })
+  @ApiResponse({
+    type: UserDto,
+  })
+  async getBySummonerName(
+    @Param('summonerName') summonerName: string
+  ): Promise<UserDto> {
+    const user = await this.userService.getBySummonerName(summonerName)
+    if (!user) throw new NotFoundException()
+    return user
+  }
+
   @Get('ranking')
   @ApiOperation({
     summary: 'Gets the top 30 ranked players',
