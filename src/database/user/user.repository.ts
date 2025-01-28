@@ -19,7 +19,7 @@ export class UserRepository extends BaseRepository<UserModel> {
     return nickname.toLowerCase().replaceAll(' ', '')
   }
 
-  async getBySummonerName(summonerName: string): Promise<UserModel | null> {
+  async getByNickname(summonerName: string): Promise<UserModel | null> {
     const uniqueId = this.getUniqueId(summonerName)
     const query = this.collection
       .where('identification.unique_id', '==', uniqueId)

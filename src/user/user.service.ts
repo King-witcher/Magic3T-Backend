@@ -40,8 +40,7 @@ export class UserService {
     }
 
     // Nickname unavailable
-    const nicknameOwner =
-      await this.userRepository.getBySummonerName(newNickname)
+    const nicknameOwner = await this.userRepository.getByNickname(newNickname)
     if (nicknameOwner) {
       throw new BaseError(
         'the nickname is already being used',
@@ -68,8 +67,8 @@ export class UserService {
     return user && (await UserDto.fromModel(user, this.ratingService))
   }
 
-  async getBySummonerName(sn: string): Promise<UserDto | null> {
-    const user = await this.userRepository.getBySummonerName(sn)
+  async getByNickname(nickname: string): Promise<UserDto | null> {
+    const user = await this.userRepository.getByNickname(nickname)
     return user && (await UserDto.fromModel(user, this.ratingService))
   }
 

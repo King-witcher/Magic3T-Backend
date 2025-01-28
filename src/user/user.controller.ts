@@ -50,18 +50,16 @@ export class UserController {
     return user
   }
 
-  @Get('summoner-name/:summonerName')
+  @Get('nickname/:nickname')
   @ApiOperation({
-    summary: 'Get a user by summoner name',
+    summary: 'Get a user by nickname',
     description: 'Casing and spaces are ignored.',
   })
   @ApiResponse({
     type: UserDto,
   })
-  async getBySummonerName(
-    @Param('summonerName') summonerName: string
-  ): Promise<UserDto> {
-    const user = await this.userService.getBySummonerName(summonerName)
+  async getByNickname(@Param('nickname') nickname: string): Promise<UserDto> {
+    const user = await this.userService.getByNickname(nickname)
     if (!user) throw new NotFoundException()
     return user
   }
