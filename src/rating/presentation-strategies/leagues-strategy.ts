@@ -35,9 +35,11 @@ export class LeaguesStrategy extends PresentationStrategy {
   }
 
   private async getQualifyProgress(model: RatingModel): Promise<number> {
+    console.log(model)
     const config = await this.configRepository.cachedGetRatingConfig()
+    const currentRD = await this.getCurrentRD(model.deviation, model.timestamp)
 
-    const modelDistance = config.max_rd - model.deviation
+    const modelDistance = config.max_rd - currentRD
     const totalDistance = config.max_rd - config.rd_threshold
     const progress = clamp(modelDistance / totalDistance, 0, 1)
     return Math.floor(100 * progress)
