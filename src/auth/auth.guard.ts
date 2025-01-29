@@ -37,22 +37,24 @@ export class AuthGuard implements CanActivate {
   }
 
   private async validateHttp(request: AuthRequest): Promise<boolean> {
-    const token = request.headers.authorization
+    const token = request.headers.authorization as string | undefined
     if (!token) throw new Error('"Authorization" header is missing')
-    const userId = await this.authService.validateToken(token)
+    const userId = await this.authService.validateToken(
+      token.replace('Bearer ', '')
+    )
     request.userId = userId
     return true
   }
 
   private async validateWs(socket: AuthSocket): Promise<boolean> {
-    const token = socket.handshake.auth.token
-
+    const token = socket.handshake.auth.token as string | undefined
     if (!token) throw new Error('auth token is missing')
 
     // Socket has already been validated.
     if (socket.data.userId) return true
-
-    const userId = await this.authService.validateToken(token)
+    const userId = await this.authService.validateToken(
+      token.replace('Bearer ', '')
+    )
     socket.data.userId = userId
 
     this.logger.log(`ws connection from user ${userId} accepted`)

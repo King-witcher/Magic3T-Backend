@@ -15,9 +15,9 @@ export abstract class BaseRepository<T extends WithId> {
   protected readonly collection: CollectionReference<T>
 
   protected constructor(
-    firestore: Firestore,
-    private readonly databaseService: DatabaseService,
-    collectionName: string
+    protected firestore: Firestore,
+    private databaseService: DatabaseService,
+    protected collectionName: string
   ) {
     this.converter = databaseService.getConverter<T>()
     this.collection = firestore

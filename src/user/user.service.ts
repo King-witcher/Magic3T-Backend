@@ -4,6 +4,8 @@ import { RatingService } from '@/rating'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { range } from 'lodash'
 
+const baseIcons = [...range(0, 30), ...range(3455, 3464)]
+
 @Injectable()
 export class UserService {
   constructor(
@@ -52,9 +54,12 @@ export class UserService {
   }
 
   async changeIcon(userId: string, newIcon: number) {
-    const allowed = [...range(0, 30), ...range(3455, 3464)]
-    if (!allowed.includes(newIcon))
-      throw new BaseError('bad icon id', HttpStatus.BAD_REQUEST)
+    if (
+      !baseIcons.includes(newIcon) &&
+      (await this.userRepository.getIconAssignment(userId, newIcon)) === null
+    ) {
+      throw new BaseError("you don't have this icon", HttpStatus.BAD_REQUEST)
+    }
 
     await this.userRepository.update({
       _id: userId,
@@ -97,5 +102,13 @@ export class UserService {
         .sort((a, b) => a.nickname!.localeCompare(b.nickname!)) ?? []
 
     return [...qualified, ...notQualified]
+  }
+
+  async getIcons(user: string): Promise<number[]> {
+    const iconAssigments = await this.userRepository.getIconAssignments(user)
+    const assignedIcons = iconAssigments.map((assigment) =>
+      Number.parseInt(assigment._id)
+    )
+    return [...assignedIcons, ...baseIcons]
   }
 }

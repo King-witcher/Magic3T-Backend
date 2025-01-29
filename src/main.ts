@@ -14,6 +14,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Magic3T API')
+    .addBearerAuth()
     .setDescription(
       'Api used by the Magic3T frontend to interact with the game server'
     )

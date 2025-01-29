@@ -7,18 +7,12 @@ import {
   Controller,
   Get,
   NotFoundException,
-  NotImplementedException,
   Param,
   Patch,
   UseFilters,
   UseGuards,
 } from '@nestjs/common'
-import {
-  ApiBearerAuth,
-  ApiHeader,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { ChangeIconDto } from './dtos/change-icon'
 import { ChangeNickDto } from './dtos/change-nick'
 import { UserService } from './user.service'
@@ -27,24 +21,6 @@ import { UserService } from './user.service'
 @UseFilters(HttpFilter)
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Get('me')
-  @ApiOperation({
-    summary: 'Get the currently connected user',
-  })
-  @ApiResponse({
-    type: UserDto,
-  })
-  @ApiHeader({
-    name: 'Authorization',
-  })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard)
-  async getMe(@UserId() userId: string) {
-    const user = await this.userService.getById(userId)
-    if (!user) throw new NotFoundException()
-    return user
-  }
 
   @Get('id/:id')
   @ApiOperation({
@@ -85,12 +61,24 @@ export class UserController {
     return await this.userService.getRanking()
   }
 
+  @Get('me')
+  @ApiOperation({
+    summary: 'Get the currently connected user',
+  })
+  @ApiResponse({
+    type: UserDto,
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  async getMe(@UserId() userId: string) {
+    const user = await this.userService.getById(userId)
+    if (!user) throw new NotFoundException()
+    return user
+  }
+
   @Patch('me/nickname')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  @ApiHeader({
-    name: 'Authorization',
-  })
   @ApiOperation({
     summary: 'Update nickname',
   })
@@ -101,14 +89,26 @@ export class UserController {
     await this.userService.changeNickName(userId, changeNickDto.nickname)
   }
 
+  @Get('me/icons')
+  @UseGuards(AuthGuard)
+  @ApiOperation({
+    summary: 'Get all available icons for a user',
+  })
+  @ApiResponse({
+    type: Number,
+    isArray: true,
+    description: 'A list with all icon ids available',
+  })
+  @ApiBearerAuth()
+  async getIcons(@UserId() userId: string) {
+    return await this.userService.getIcons(userId)
+  }
+
   @Patch('me/icon')
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary: 'Update summoner icon',
   })
-  @ApiHeader({
-    name: 'Authorization',
-  })
-  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   async changeSummonerIcon(
     @UserId() userId: string,

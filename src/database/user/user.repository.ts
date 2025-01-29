@@ -6,12 +6,18 @@ import {
   InternalServerErrorException,
   Logger,
 } from '@nestjs/common'
+import { DocumentData, FirestoreDataConverter } from 'firebase-admin/firestore'
 import { BaseRepository } from '../base-repository'
 import { ConfigRepository } from '../config'
+import { IconAssignmentModel } from './icon-assignment.model'
 
 @Injectable()
 export class UserRepository extends BaseRepository<UserModel> {
   private user_logger = new Logger(UserRepository.name, { timestamp: true })
+  private iconAssignmentConverter: FirestoreDataConverter<
+    IconAssignmentModel,
+    DocumentData
+  >
 
   constructor(
     databaseService: DatabaseService,
@@ -19,6 +25,8 @@ export class UserRepository extends BaseRepository<UserModel> {
     private configService: ConfigRepository
   ) {
     super(firebaseService.firestore, databaseService, 'users')
+    this.iconAssignmentConverter =
+      databaseService.getConverter<IconAssignmentModel>()
   }
 
   getUniqueId(nickname: string): string {
@@ -84,5 +92,46 @@ export class UserRepository extends BaseRepository<UserModel> {
     const result = await rankingQuery.get()
     const players = result.docs.map((doc) => doc.data())
     return players
+  }
+
+  /**
+   * Gets all icon assigments for a given user.
+   */
+  async getIconAssignments(userId: string): Promise<IconAssignmentModel[]> {
+    const subCollection = this.firestore
+      .collection(`${this.collectionName}/${userId}/icon_assignments`)
+      .withConverter(this.iconAssignmentConverter)
+
+    const assignmentsSnap = await subCollection.orderBy('date', 'desc').get()
+    return assignmentsSnap.docs.map((doc) => doc.data())
+  }
+
+  /**
+   * Gets the icon assigment for a given user and a given icon, if any. Otherwise, return null.
+   */
+  async getIconAssignment(
+    userId: string,
+    iconId: number
+  ): Promise<IconAssignmentModel | null> {
+    const subCollection = this.firestore
+      .collection(`${this.collectionName}/${userId}/icon_assignments`)
+      .withConverter(this.iconAssignmentConverter)
+
+    const assignmentSnap = await subCollection.doc(String(iconId)).get()
+    return assignmentSnap.data() ?? null
+  }
+
+  /**
+   * Grants an icon to a certain user.
+   */
+  async grantIcon(userId: string, iconId: number): Promise<void> {
+    const subCollection = this.firestore
+      .collection(`${this.collectionName}/${userId}/icon_assignments`)
+      .withConverter(this.iconAssignmentConverter)
+
+    await subCollection.doc(String(iconId)).set({
+      _id: '',
+      date: new Date(),
+    })
   }
 }
