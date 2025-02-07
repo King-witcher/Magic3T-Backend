@@ -24,6 +24,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory)
   await app.listen(port)
   keepServerAlive()
+  logger.log(`Max concurrency: ${navigator.hardwareConcurrency}`)
   logger.log(`Swagger available on http://localhost:${port}/api`)
 }
 
