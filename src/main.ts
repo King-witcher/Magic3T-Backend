@@ -8,6 +8,7 @@ async function bootstrap() {
   const logger = new Logger('bootstrap function')
 
   const port = process.env.PORT || 4000
+  const backend_url = process.env.MAGIC3T_BACKEND_URL
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
   app.enableCors()
@@ -25,7 +26,7 @@ async function bootstrap() {
   await app.listen(port)
   keepServerAlive()
   logger.log(`Max concurrency: ${navigator.hardwareConcurrency}`)
-  logger.log(`Swagger available on http://localhost:${port}/api`)
+  logger.log(`Swagger available on ${backend_url}/api`)
 }
 
 function keepServerAlive() {
