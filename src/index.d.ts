@@ -15,9 +15,9 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       FIREBASE_ADMIN_CREDENTIALS: string
-      QUEUE_ITERATE_TIME: string
       MAGIC3T_BACKEND_URL: string
       HEARTBEAT_RATE: string
+      PORT: number
     }
   }
 }

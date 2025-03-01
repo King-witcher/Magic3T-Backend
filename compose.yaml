@@ -1,0 +1,14 @@
+# https://docs.docker.com/go/compose-spec-reference/
+
+services:
+  server:
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
+      FIREBASE_ADMIN_CREDENTIALS: ${FIREBASE_ADMIN_CREDENTIALS}
+      MAGIC3T_BACKEND_URL: ${MAGIC3T_BACKEND_URL}
+      HEARTBEAT_RATE: ${HEARTBEAT_RATE}
+      PORT: ${PORT}
+    ports:
+      - ${PORT}:${PORT}
