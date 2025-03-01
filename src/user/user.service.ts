@@ -4,7 +4,7 @@ import { RatingService } from '@/rating'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { range } from 'lodash'
 
-const baseIcons = [...range(0, 30), ...range(3455, 3464)]
+const baseIcons = [...range(59, 79), ...range(0, 30)]
 
 @Injectable()
 export class UserService {
