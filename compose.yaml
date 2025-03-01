@@ -7,8 +7,8 @@ services:
     environment:
       NODE_ENV: production
       FIREBASE_ADMIN_CREDENTIALS: ${FIREBASE_ADMIN_CREDENTIALS}
-      MAGIC3T_BACKEND_URL: ${MAGIC3T_BACKEND_URL}
+      MAGIC3T_BACKEND_URL: http://server
       HEARTBEAT_RATE: ${HEARTBEAT_RATE}
-      PORT: ${PORT}
+      PORT: 80
     ports:
-      - ${PORT}:${PORT}
+      - ${PORT}:80
