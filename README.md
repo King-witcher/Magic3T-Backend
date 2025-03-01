@@ -1,6 +1,6 @@
 ### Running development server
 
-You can start the application by first running yarn `install --frozen-lockfile`
+You can start the application by first running `yarn install --frozen-lockfile`
 and then bootstrapping the development server with `yarn dev`.
 
 ### Building and running your application
