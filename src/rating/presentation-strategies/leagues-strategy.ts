@@ -35,7 +35,6 @@ export class LeaguesStrategy extends PresentationStrategy {
   }
 
   private async getQualifyProgress(model: RatingModel): Promise<number> {
-    console.log(model)
     const config = await this.configRepository.cachedGetRatingConfig()
     const currentRD = await this.getCurrentRD(model.deviation, model.timestamp)
 
