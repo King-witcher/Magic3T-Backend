@@ -13,7 +13,7 @@ export class FirebaseService {
   private readonly firebase: App
 
   constructor() {
-    const credentials = process.env.FIREBASE_ADMIN_CREDENTIALS
+    const credentials = atob(process.env.FIREBASE_ADMIN_CREDENTIALS)
     if (!credentials)
       throw new Error('Firebase Admin credentials not found on environment')
 
