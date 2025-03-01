@@ -8,7 +8,7 @@ services:
   - key: HEARTBEAT_RATE
     value: 60000
   - key: MAGIC3T_BACKEND_URL
-    value: backend.magic3t.com.br
+    value: https://backend.magic3t.com.br
   - key: FIREBASE_ADMIN_CREDENTIALS
     sync: false
   - key: DEBUG
