@@ -13,7 +13,7 @@ services:
     sync: false
   - key: DEBUG
     value: "false"
-  region: ohio
+  region: virginia
   healthCheckPath: /status
   domains:
   - backend.magic3t.com.br
