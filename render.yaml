@@ -14,8 +14,6 @@ services:
   - key: DEBUG
     value: "false"
   region: ohio
-  # buildCommand: yarn install --frozen-lockfile && yarn build
-  # startCommand: yarn start:prod
   healthCheckPath: /status
   domains:
   - backend.magic3t.com.br
