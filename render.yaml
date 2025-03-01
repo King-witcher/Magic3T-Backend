@@ -1,7 +1,7 @@
 services:
 - type: web
   name: Magic3T Backend
-  runtime: node
+  runtime: docker
   repo: https://github.com/King-witcher/Magic3T-Backend
   plan: free
   envVars:
@@ -14,16 +14,18 @@ services:
   - key: DEBUG
     value: "false"
   region: ohio
-  buildCommand: yarn install --frozen-lockfile && yarn build
-  startCommand: yarn start:prod
+  # buildCommand: yarn install --frozen-lockfile && yarn build
+  # startCommand: yarn start:prod
   healthCheckPath: /status
   domains:
   - backend.magic3t.com.br
   - api.magic3t.com.br
+
 - type: redis
   name: Magic3T Redis
   plan: free
   region: virginia
   maxmemoryPolicy: allkeys-lru
   ipAllowList: []
+
 version: "1"
