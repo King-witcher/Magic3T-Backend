@@ -13,7 +13,7 @@ services:
     sync: false
   - key: DEBUG
     value: "false"
-  region: virginia
+  region: ohio
   buildCommand: yarn install --frozen-lockfile && yarn build
   startCommand: yarn start:prod
   healthCheckPath: /status
