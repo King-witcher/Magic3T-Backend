@@ -2,7 +2,6 @@ node_modules
 dist
 .env
 yarn-error.log
-yarn.lock
 .vscode
 build
 .VSCodeCounter
