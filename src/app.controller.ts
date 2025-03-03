@@ -1,14 +1,17 @@
-import { Controller, Get, ImATeapotException } from '@nestjs/common'
-import { ApiOperation } from '@nestjs/swagger'
-import { UserRepository } from './database'
+import { Controller, Get, ImATeapotException, Redirect } from '@nestjs/common'
+import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 
 const Package = require('../package.json')
 
 @Controller()
 export class AppController {
-  constructor(private userRepository: UserRepository) {}
+  @Get('/')
+  @Redirect('/api')
+  @ApiExcludeEndpoint()
+  root() {}
 
   @Get('teapot')
+  @ApiExcludeEndpoint()
   async teapot() {
     throw new ImATeapotException()
   }
