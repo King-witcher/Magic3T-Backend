@@ -12,3 +12,8 @@ services:
       PORT: 80
     ports:
       - ${PORT}:80
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

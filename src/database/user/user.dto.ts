@@ -60,7 +60,7 @@ export class UserDto {
   id: string
 
   @ApiProperty({
-    example: 'The Creator',
+    example: 'King Witcher',
   })
   nickname: string | null
 
