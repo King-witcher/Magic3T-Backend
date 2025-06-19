@@ -27,9 +27,9 @@ export class RatingService {
     if (progress < 100) {
       return {
         league: League.Provisional,
-        division: 0,
-        points: 0,
-        progress: progress,
+        division: null,
+        points: null,
+        progress,
       }
     }
 

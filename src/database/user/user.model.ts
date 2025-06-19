@@ -27,7 +27,7 @@ export interface UserModel extends WithId {
   role: UserRole
 
   glicko: GlickoModel
-  elo: EloModel | null
+  elo: EloModel
 
   stats: {
     wins: number

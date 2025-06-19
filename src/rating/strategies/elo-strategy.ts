@@ -46,7 +46,6 @@ export class EloStrategy extends RatingStrategy {
   }
 
   async getRatingProgress(user: UserModel): Promise<number> {
-    if (!user.elo) return 0
     if (user.elo.matches > 5) return 100
     return (user.elo.matches / 5) * 100
   }
