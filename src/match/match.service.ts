@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 
 import { MatchDto } from '@/database/match/match.dto'
-import { WithId } from '@/database/types'
 import { RatingService } from '@/rating'
 import { SocketsService, Team } from '@common'
 import {
@@ -11,12 +10,10 @@ import {
   GameMode,
   MatchModel,
   MatchRepository,
-  RatingDto,
-  RatingModel,
+  GlickoModel,
   UserModel,
   UserRepository,
 } from '@database'
-import { FieldValue, UpdateData } from 'firebase-admin/firestore'
 import { clamp } from 'lodash'
 import { BaseBot, LmmBot, RandomBot } from './bots'
 import { Match, MatchBank, MatchEventType } from './lib'
@@ -25,11 +22,12 @@ import {
   MatchServerEventsMap,
   ServerMatchEvents,
 } from './types'
+import { deepClone } from '@/common/utils/misc'
 
 export type MatchPlayerProfile = {
   uid: string
   nickname: string
-  glicko: RatingModel
+  glicko: GlickoModel
 }
 
 // Stores all matches that are currently in progress.
@@ -100,18 +98,29 @@ export class MatchService {
       const events = match.events
       const orderScore = this.getWhiteScore(match, winner)
 
-      const orderUD: UpdateData<UserModel> & WithId = {
-        _id: order._id,
-        'stats.defeats': FieldValue.increment(winner === Team.Chaos ? 1 : 0),
-        'stats.draws': FieldValue.increment(winner === null ? 1 : 0),
-        'stats.wins': FieldValue.increment(winner === Team.Order ? 1 : 0),
-      }
+      const orderRatingDto = await this.ratingService.getRatingDto(order)
+      const chaosRatingDto = await this.ratingService.getRatingDto(chaos)
 
-      const chaosUD: UpdateData<UserModel> & WithId = {
-        _id: chaos._id,
-        'stats.defeats': FieldValue.increment(winner === Team.Order ? 1 : 0),
-        'stats.draws': FieldValue.increment(winner === null ? 1 : 0),
-        'stats.wins': FieldValue.increment(winner === Team.Chaos ? 1 : 0),
+      const newOrder = deepClone(order)
+      const newChaos = deepClone(chaos)
+
+      // Update stats
+      switch (winner) {
+        case Team.Order: {
+          newOrder.stats.wins++
+          newChaos.stats.defeats++
+          break
+        }
+        case Team.Chaos: {
+          newChaos.stats.wins++
+          newOrder.stats.defeats++
+          break
+        }
+        case null: {
+          newOrder.stats.draws++
+          newChaos.stats.draws++
+          break
+        }
       }
 
       const historyMatch: MatchModel = {
@@ -120,15 +129,17 @@ export class MatchService {
           uid: order._id,
           name: order.identification?.nickname || '',
           score: orderScore,
-          rating: order.glicko.rating,
-          gain: 0,
+          league: orderRatingDto.league,
+          division: orderRatingDto.division,
+          lp_gain: 0,
         },
         [Team.Chaos]: {
           uid: chaos._id,
           name: chaos.identification?.nickname || '',
           score: 1 - orderScore,
-          rating: chaos.glicko.rating,
-          gain: 0,
+          league: chaosRatingDto.league,
+          division: chaosRatingDto.division,
+          lp_gain: 0,
         },
         game_mode: gameMode,
         timestamp: new Date(),
@@ -142,54 +153,43 @@ export class MatchService {
         winner,
         [Team.Order]: {
           score: orderScore,
-          gain: 0,
-          newRating: await this.ratingService.getRatingDto(order.glicko),
+          lpGain: 0,
+          newRating: await this.ratingService.getRatingDto(order),
         },
         [Team.Chaos]: {
           score: 1 - orderScore,
-          gain: 0,
-          newRating: await this.ratingService.getRatingDto(chaos.glicko),
+          lpGain: 0,
+          newRating: await this.ratingService.getRatingDto(chaos),
         },
       }
 
       if (gameMode & GameMode.Ranked) {
-        const [orderRating, chaosRating] = await this.ratingService.getRatings(
-          order,
-          chaos,
-          orderScore
-        )
+        await this.ratingService.update(newOrder, newChaos, orderScore)
+        const orderGain =
+          (await this.ratingService.getTotalLp(newOrder)) -
+          (await this.ratingService.getTotalLp(order))
 
-        orderUD.glicko = orderRating
-        chaosUD.glicko = chaosRating
+        const chaosGain =
+          (await this.ratingService.getTotalLp(newChaos)) -
+          (await this.ratingService.getTotalLp(chaos))
 
-        historyMatch[Team.Order].gain = orderRating.rating - order.glicko.rating
-        historyMatch[Team.Chaos].gain = chaosRating.rating - chaos.glicko.rating
+        historyMatch[Team.Order].lp_gain = orderGain
+        historyMatch[Team.Chaos].lp_gain = chaosGain
 
-        matchReport[Team.Order].gain =
-          await this.ratingService.convertRatingIntoLp(
-            orderRating.rating - order.glicko.rating
-          )
-        matchReport[Team.Chaos].gain =
-          await this.ratingService.convertRatingIntoLp(
-            chaosRating.rating - chaos.glicko.rating
-          )
+        matchReport[Team.Order].lpGain = orderGain
+        matchReport[Team.Chaos].lpGain = chaosGain
 
-        matchReport[Team.Order].newRating = await RatingDto.fromModel(
-          orderRating,
-          this.ratingService
-        )
-
-        matchReport[Team.Chaos].newRating = await RatingDto.fromModel(
-          chaosRating,
-          this.ratingService
-        )
+        matchReport[Team.Order].newRating =
+          await this.ratingService.getRatingDto(newOrder)
+        matchReport[Team.Chaos].newRating =
+          await this.ratingService.getRatingDto(newChaos)
       }
 
       // Update everything in the database
       await Promise.all([
         this.matchRepository.create(historyMatch),
-        this.userRepository.update(orderUD),
-        this.userRepository.update(chaosUD),
+        this.userRepository.update(newOrder),
+        this.userRepository.update(newChaos),
       ])
 
       // Finally, emits the final report
@@ -329,7 +329,7 @@ export class MatchService {
     const clampedLimit = clamp(limit, 0, 50)
     const models = await this.matchRepository.getByUser(user, clampedLimit)
     const dtos = await Promise.all(
-      models.map((model) => MatchDto.fromModel(model, this.ratingService))
+      models.map((model) => MatchDto.fromModel(model))
     )
     return dtos
   }

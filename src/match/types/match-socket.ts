@@ -57,12 +57,12 @@ export type MatchReportDto = {
   winner: Team | null
   [Team.Order]: {
     score: number
-    gain: number
+    lpGain: number
     newRating: RatingDto
   }
   [Team.Chaos]: {
     score: number
-    gain: number
+    lpGain: number
     newRating: RatingDto
   }
 }

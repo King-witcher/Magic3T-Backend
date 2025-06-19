@@ -7,8 +7,9 @@ import { ConfigModule } from '@nestjs/config'
 import { AdminModule } from './admin/admin.module'
 import { AppController } from './app.controller'
 import { AuthModule } from './auth/auth.module'
-import { GlickoStrategy, LeaguesStrategy, RatingModule } from './rating'
+import { RatingModule } from './rating'
 import { UserModule } from './user/user.module'
+import { EloStrategy } from './rating/strategies/elo-strategy'
 
 @Global()
 @Module({
@@ -17,7 +18,7 @@ import { UserModule } from './user/user.module'
     CacheModule.register({
       isGlobal: true,
     }),
-    RatingModule.forRoot(GlickoStrategy, LeaguesStrategy),
+    RatingModule.forRoot(EloStrategy),
     AuthModule,
     QueueModule,
     DatabaseModule,

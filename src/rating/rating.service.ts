@@ -1,24 +1,73 @@
-import { RatingDto, RatingModel } from '@/database'
+import { ConfigRepository, League, RatingDto, UserModel } from '@/database'
 import { Injectable } from '@nestjs/common'
-import { PresentationStrategy } from './presentation-strategies'
-import { UpdatingStrategy } from './updating-strategies'
+import { RatingStrategy } from './strategies'
+import { clamp } from 'lodash'
+
+const leagueIndexes = [
+  League.Bronze,
+  League.Silver,
+  League.Gold,
+  League.Diamond,
+  League.Master,
+]
 
 @Injectable()
 export class RatingService {
   constructor(
-    private updatingStrategy: UpdatingStrategy,
-    private presentationStrategy: PresentationStrategy
+    private configRepository: ConfigRepository,
+    private ratingStrategy: RatingStrategy
   ) {}
 
-  getRatings(...params: Parameters<UpdatingStrategy['getNewRatings']>) {
-    return this.updatingStrategy.getNewRatings(...params)
+  update(...params: Parameters<RatingStrategy['update']>) {
+    return this.ratingStrategy.update(...params)
   }
 
-  async getRatingDto(ratingModel: RatingModel): Promise<RatingDto> {
-    return this.presentationStrategy.getDto(ratingModel)
+  async getRatingDto(userModel: UserModel): Promise<RatingDto> {
+    const progress = await this.ratingStrategy.getRatingProgress(userModel)
+    if (progress < 100) {
+      return {
+        league: League.Provisional,
+        division: 0,
+        points: 0,
+        progress: progress,
+      }
+    }
+
+    const rawLP = await this.ratingStrategy.getTotalLp(userModel)
+
+    // 0 - Bronze
+    // 1 - Silver
+    // 2 - Gold
+    // 3 - Diamond
+    // 4 - Master
+    const leagueIndex = clamp(Math.floor(rawLP / 400), 0, 4)
+    const league = leagueIndexes[leagueIndex]
+    const division = (() => {
+      if (league === League.Master) return null
+
+      const divsAbove4 = Math.floor((rawLP % 400) / 100)
+      return 4 - divsAbove4
+    })()
+
+    const points = (() => {
+      if (league === League.Master) return Math.floor(rawLP - 1600)
+      return Math.floor(rawLP % 100)
+    })()
+
+    return {
+      league,
+      division,
+      points,
+      progress: 100,
+    }
   }
 
   async convertRatingIntoLp(rating: number): Promise<number> {
-    return this.presentationStrategy.convertRatingIntoLp(rating)
+    const config = await this.configRepository.cachedGetRatingConfig()
+    return Math.round((400 * rating) / config.league_length)
+  }
+
+  async getTotalLp(userModel: UserModel): Promise<number> {
+    return this.ratingStrategy.getTotalLp(userModel)
   }
 }

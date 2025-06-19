@@ -21,4 +21,13 @@ export interface RatingConfigModel extends WithId {
 
   /** The league where a player would be with the base score. This number can be fractionary. */
   base_league: number
+
+  /** The lowest possible K value for elo system. */
+  final_k_value: number
+
+  /** The initial user K value for elo system. */
+  initial_k_value: number
+
+  /** The factor by which the K value is deflated towards the final K value after each match. */
+  k_deflation_factor: number
 }

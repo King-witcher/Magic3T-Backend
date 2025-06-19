@@ -1,5 +1,5 @@
 import { DatabaseService } from '@/database/database.service'
-import { RatingModel, UserModel } from '@/database/user/user.model'
+import { GlickoModel, UserModel } from '@/database/user/user.model'
 import { FirebaseService } from '@/firebase/firebase.service'
 import {
   Injectable,
@@ -46,7 +46,7 @@ export class UserRepository extends BaseRepository<UserModel> {
     return result.docs[0].data()
   }
 
-  async updateGlicko(id: string, glicko: RatingModel) {
+  async updateGlicko(id: string, glicko: GlickoModel) {
     await super.update({ _id: id, glicko })
     this.user_logger.verbose(`update glicko for user "${id}".`)
   }

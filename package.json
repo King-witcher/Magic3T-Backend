@@ -5,17 +5,11 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
-    "typeorm": "typeorm-ts-node-commonjs",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "typeorm": "typeorm-ts-node-commonjs"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.3.0",
