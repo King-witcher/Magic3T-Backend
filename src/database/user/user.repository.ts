@@ -87,7 +87,7 @@ export class UserRepository extends BaseRepository<UserModel> {
   async getBest(limit: number): Promise<UserModel[]> {
     this.user_logger.verbose(`read ${limit} best players from.`)
     const rankingQuery = this.collection
-      .orderBy('glicko.rating', 'desc')
+      .orderBy('elo.score', 'desc')
       .limit(limit)
     const result = await rankingQuery.get()
     const players = result.docs.map((doc) => doc.data())
