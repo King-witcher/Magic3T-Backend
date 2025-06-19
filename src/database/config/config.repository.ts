@@ -9,6 +9,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { firestore } from 'firebase-admin'
 import CollectionReference = firestore.CollectionReference
 import { CacheMethod } from '@common'
+import { DevopsConfigModel } from './models/devops-config.model'
 
 @Injectable()
 export class ConfigRepository {
@@ -44,6 +45,22 @@ export class ConfigRepository {
   async getBotConfig(botName: BotName) {
     const botConfigs = await this.getBotConfigs()
     return botConfigs[botName] || null
+  }
+
+  @CacheMethod(10)
+  async getDevopsConfig(): Promise<DevopsConfigModel> {
+    this.logger.verbose('read "devops" from config')
+    const converter = this.databaseService.getConverter<DevopsConfigModel>()
+    const snapshot = await this.collection
+      .withConverter(converter)
+      .doc('devops')
+      .get()
+
+    const data = snapshot.data()
+
+    if (!data) throw new Error('couldn not find devops config')
+
+    return data
   }
 
   @CacheMethod(300)

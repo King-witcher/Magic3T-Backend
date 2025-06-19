@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module'
 import { RatingModule } from './rating'
 import { EloStrategy } from './rating/strategies/elo-strategy'
 import { UserModule } from './user/user.module'
+import { MaintenanceGuard } from './common/guards/maintenance.guard'
 
 @Global()
 @Module({
@@ -27,5 +28,11 @@ import { UserModule } from './user/user.module'
     AdminModule,
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: 'APP_GUARD',
+      useClass: MaintenanceGuard,
+    },
+  ],
 })
 export class AppModule {}
