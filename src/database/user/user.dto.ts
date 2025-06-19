@@ -1,6 +1,6 @@
 import { RatingService } from '@/rating'
 import { ApiProperty } from '@nestjs/swagger'
-import { RatingModel, UserModel, UserRole } from './user.model'
+import { UserModel, UserRole } from './user.model'
 
 export enum League {
   Provisional = 'provisional',
@@ -42,13 +42,6 @@ export class RatingDto {
 
   constructor(data: RatingDto) {
     Object.assign(this, data)
-  }
-
-  static fromModel(
-    model: RatingModel,
-    ratingService: RatingService
-  ): Promise<RatingDto> {
-    return ratingService.getRatingDto(model)
   }
 }
 
@@ -118,7 +111,7 @@ export class UserDto {
         draws: model.stats.draws,
         defeats: model.stats.defeats,
       },
-      rating: await RatingDto.fromModel(model.glicko, ratingService),
+      rating: await ratingService.getRatingDto(model),
     })
   }
 }

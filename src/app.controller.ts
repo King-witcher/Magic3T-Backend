@@ -1,5 +1,7 @@
 import { Controller, Get, ImATeapotException, Redirect } from '@nestjs/common'
 import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
+import { UserRepository } from './database'
+import { RatingService } from './rating'
 
 const Package = require('../package.json')
 
@@ -9,6 +11,11 @@ export class AppController {
   @Redirect('/api')
   @ApiExcludeEndpoint()
   root() {}
+
+  constructor(
+    private usersRepository: UserRepository,
+    private ratingService: RatingService
+  ) {}
 
   @Get('teapot')
   @ApiExcludeEndpoint()

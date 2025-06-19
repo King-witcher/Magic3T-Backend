@@ -1,13 +1,14 @@
 import { Choice, Team } from '@/common'
-import { RatingService } from '@/rating'
 import { ApiProperty } from '@nestjs/swagger'
+import { League } from '../user'
 import { MatchEventType, MatchModel } from './match.model'
 
 export interface MatchDtoTeam {
   id: string
   nickname: string
-  ratingScore: number
-  ratingGain: number
+  league: League
+  division: number | null
+  lpGain: number
   matchScore: number
 }
 
@@ -79,10 +80,7 @@ export class MatchDto {
     Object.assign(this, data)
   }
 
-  static async fromModel(
-    model: MatchModel,
-    ratingService: RatingService
-  ): Promise<MatchDto> {
+  static async fromModel(model: MatchModel): Promise<MatchDto> {
     const modelOrder = model[Team.Order]
     const modelChaos = model[Team.Chaos]
 
@@ -93,15 +91,17 @@ export class MatchDto {
           id: modelOrder.uid,
           matchScore: modelOrder.score,
           nickname: modelOrder.name,
-          ratingGain: await ratingService.convertRatingIntoLp(modelOrder.gain),
-          ratingScore: modelOrder.rating,
+          league: modelOrder.league,
+          division: modelOrder.division,
+          lpGain: modelOrder.lp_gain,
         },
         [Team.Chaos]: {
           id: modelChaos.uid,
           matchScore: modelChaos.score,
           nickname: modelChaos.name,
-          ratingGain: await ratingService.convertRatingIntoLp(modelChaos.gain),
-          ratingScore: modelChaos.rating,
+          league: modelChaos.league,
+          division: modelChaos.division,
+          lpGain: modelChaos.lp_gain,
         },
       },
       events: [...model.events],

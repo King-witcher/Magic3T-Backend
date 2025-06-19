@@ -1,12 +1,14 @@
 import { Choice, Team } from '@/common'
 import { WithId } from '@/database/types/withId'
+import { League } from '../user'
 
 export interface MatchModelTeam {
   uid: string
   name: string
-  rating: number
+  league: League
+  division: number | null
   score: number
-  gain: number
+  lp_gain: number
 }
 
 export enum GameMode {

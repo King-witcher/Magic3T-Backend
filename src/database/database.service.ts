@@ -2,11 +2,13 @@ import { OptionalProp } from '@/types/OptionalProp'
 import { Mutable } from '@/types/mutable'
 import { Injectable } from '@nestjs/common'
 import {
+  DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   Timestamp,
+  WithFieldValue,
 } from 'firebase-admin/firestore'
-import { Firestorify, WithId } from './types'
+import { WithId } from './types'
 
 const epoch = new Date(2000, 7, 31).getTime()
 
@@ -64,7 +66,7 @@ export class DatabaseService {
         }
       },
 
-      toFirestore: (data: T): Firestorify<T> => {
+      toFirestore: (data: T): WithFieldValue<DocumentData> => {
         const output: Mutable<OptionalProp<T, '_id'>> = { ...data }
         delete output._id
         return output
