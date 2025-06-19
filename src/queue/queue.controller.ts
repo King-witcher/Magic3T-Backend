@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger'
-import { QueueService } from './queue.service'
 import { EnqueueDto, QueueMode } from './dtos/enqueue-dto'
+import { QueueService } from './queue.service'
 
 @Controller('queue')
 @ApiBearerAuth()

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 
+import { deepClone } from '@/common/utils/misc'
 import { MatchDto } from '@/database/match/match.dto'
 import { RatingService } from '@/rating'
 import { SocketsService, Team } from '@common'
@@ -8,9 +9,9 @@ import {
   BotName,
   ConfigRepository,
   GameMode,
+  GlickoModel,
   MatchModel,
   MatchRepository,
-  GlickoModel,
   UserModel,
   UserRepository,
 } from '@database'
@@ -22,7 +23,6 @@ import {
   MatchServerEventsMap,
   ServerMatchEvents,
 } from './types'
-import { deepClone } from '@/common/utils/misc'
 
 export type MatchPlayerProfile = {
   uid: string

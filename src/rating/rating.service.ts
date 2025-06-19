@@ -1,7 +1,7 @@
 import { ConfigRepository, League, RatingDto, UserModel } from '@/database'
 import { Injectable } from '@nestjs/common'
-import { RatingStrategy } from './strategies'
 import { clamp } from 'lodash'
+import { RatingStrategy } from './strategies'
 
 const leagueIndexes = [
   League.Bronze,
