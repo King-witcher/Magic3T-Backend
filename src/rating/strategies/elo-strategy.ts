@@ -9,15 +9,17 @@ export class EloStrategy extends RatingStrategy {
     super()
   }
 
-  async update(a: UserModel, b: UserModel, aScore: number): Promise<void> {
+  async update(a: UserModel, b: UserModel, scoreA: number): Promise<void> {
     if (!a.elo || !b.elo)
       throw new Error('Both players must have an Elo rating to update.')
     const config = await this.configRepository.cachedGetRatingConfig()
 
     const expectedA = odds(a.elo.score, b.elo.score)
+    const expectedB = 1 - expectedA
+    const scoreB = 1 - scoreA
 
     a.elo = {
-      score: a.elo.score + a.elo.k * (aScore - expectedA),
+      score: a.elo.score + a.elo.k * (scoreA - expectedA),
       matches: a.elo.matches + 1,
       k:
         config.final_k_value * config.k_deflation_factor +
@@ -25,7 +27,7 @@ export class EloStrategy extends RatingStrategy {
     }
 
     b.elo = {
-      score: b.elo.score + b.elo.k * (1 - aScore - (1 - expectedA)),
+      score: b.elo.score + b.elo.k * (scoreB - expectedB),
       matches: b.elo.matches + 1,
       k:
         config.final_k_value * config.k_deflation_factor +

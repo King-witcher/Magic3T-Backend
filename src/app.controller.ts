@@ -18,23 +18,8 @@ export class AppController {
   ) {}
 
   @Get('teapot')
-  // @ApiExcludeEndpoint()
+  @ApiExcludeEndpoint()
   async teapot() {
-    const users = await this.usersRepository.getAll()
-    for (const user of users) {
-      const dto = await this.ratingService.getRatingDto(user)
-      const countedMatches =
-        user.stats.defeats + user.stats.wins + user.stats.draws
-      const progressMatches = Math.floor(dto.progress / 10)
-      const matches = Math.max(countedMatches, progressMatches)
-      user.elo = {
-        score: user.glicko.rating,
-        k: Math.max(30, Math.sqrt(user.glicko.deviation / 350) * 100),
-        matches: matches,
-      }
-      await this.usersRepository.update(user)
-    }
-
     throw new ImATeapotException()
   }
 

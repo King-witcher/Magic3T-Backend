@@ -4,6 +4,9 @@ import { Injectable } from '@nestjs/common'
 import { getInflation, newDeviation, newRating } from './glicko'
 import { RatingStrategy } from './rating-strategy'
 
+const DEFAULT_MAX_RD = 350
+const DEFAULT_MIN_RD = 40
+
 @Injectable()
 export class GlickoStrategy extends RatingStrategy {
   constructor(private configRepository: ConfigRepository) {
@@ -71,8 +74,10 @@ export class GlickoStrategy extends RatingStrategy {
   }
 
   private getC(inflationTimeInDays: number): number {
+    const ONE_DAY = 24 * 60 * 60 * 1000 // milliseconds in one day
     return Math.sqrt(
-      (350 ** 2 - 40 ** 2) / (inflationTimeInDays * 24 * 60 * 60 * 1000)
+      (DEFAULT_MAX_RD ** 2 - DEFAULT_MIN_RD ** 2) /
+        (inflationTimeInDays * ONE_DAY)
     )
   }
 
