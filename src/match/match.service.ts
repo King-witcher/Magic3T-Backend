@@ -9,7 +9,7 @@ import {
   BotName,
   ConfigRepository,
   GameMode,
-  GlickoModel,
+  League,
   MatchModel,
   MatchRepository,
   UserModel,
@@ -23,12 +23,6 @@ import {
   MatchServerEventsMap,
   ServerMatchEvents,
 } from './types'
-
-export type MatchPlayerProfile = {
-  uid: string
-  nickname: string
-  glicko: GlickoModel
-}
 
 // Stores all matches that are currently in progress.
 @Injectable()
@@ -165,24 +159,28 @@ export class MatchService {
 
       if (gameMode & GameMode.Ranked) {
         await this.ratingService.update(newOrder, newChaos, orderScore)
-        const orderGain =
-          (await this.ratingService.getTotalLp(newOrder)) -
-          (await this.ratingService.getTotalLp(order))
-
-        const chaosGain =
-          (await this.ratingService.getTotalLp(newChaos)) -
-          (await this.ratingService.getTotalLp(chaos))
-
-        historyMatch[Team.Order].lp_gain = orderGain
-        historyMatch[Team.Chaos].lp_gain = chaosGain
-
-        matchReport[Team.Order].lpGain = orderGain
-        matchReport[Team.Chaos].lpGain = chaosGain
 
         matchReport[Team.Order].newRating =
           await this.ratingService.getRatingDto(newOrder)
         matchReport[Team.Chaos].newRating =
           await this.ratingService.getRatingDto(newChaos)
+
+        // Update rating gains only if the league is not provisional
+        if (orderRatingDto.league !== League.Provisional) {
+          const orderGain =
+            (await this.ratingService.getTotalLp(newOrder)) -
+            (await this.ratingService.getTotalLp(order))
+          historyMatch[Team.Order].lp_gain = orderGain
+          matchReport[Team.Order].lpGain = orderGain
+        }
+
+        if (chaosRatingDto.league !== League.Provisional) {
+          const chaosGain =
+            (await this.ratingService.getTotalLp(newChaos)) -
+            (await this.ratingService.getTotalLp(chaos))
+          historyMatch[Team.Chaos].lp_gain = chaosGain
+          matchReport[Team.Chaos].lpGain = chaosGain
+        }
       }
 
       // Update everything in the database
