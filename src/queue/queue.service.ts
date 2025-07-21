@@ -8,10 +8,14 @@ import {
 
 import { SocketsService } from '@/common'
 import { BaseError } from '@/common/errors/base-error'
-import { BotName, UserRepository } from '@/database'
+import { UserRepository } from '@/database'
 import { MatchService } from '@/match'
 import { AlreadyInGameError } from './errors/already-in-game.error'
-import { QueueServerEvents, QueueServerEventsMap } from '@magic3t/types'
+import {
+  BotName,
+  QueueServerEvents,
+  QueueServerEventsMap,
+} from '@magic3t/types'
 
 @Injectable()
 export class QueueService {
@@ -64,7 +68,7 @@ export class QueueService {
   enqueue(userId: string, mode: 'casual' | 'ranked') {
     this.enqueueInternal(userId, mode)
     const userQueueModes = this.getQueueModes(userId)
-    this.queueSocketsService.emit(userId, QueueServerEvents.QueueAcepted, {
+    this.queueSocketsService.emit(userId, QueueServerEvents.QueueAccepted, {
       mode: 'casual',
     })
     this.queueSocketsService.emit(

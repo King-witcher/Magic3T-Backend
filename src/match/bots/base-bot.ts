@@ -1,7 +1,6 @@
 import { MatchEventType } from '@/match/lib/match'
 import { Perspective } from '../lib/perspective'
-import { StateReportDto } from '../types'
-import { Choice, Team } from '@magic3t/types'
+import { Choice, MatchState, Team } from '@magic3t/types'
 
 export abstract class BaseBot {
   observe(perspective: Perspective) {
@@ -21,5 +20,5 @@ export abstract class BaseBot {
     perspective.observe(MatchEventType.Choice, callback)
   }
 
-  protected abstract think(state: StateReportDto, team: Team): Promise<Choice>
+  protected abstract think(state: MatchState, team: Team): Promise<Choice>
 }

@@ -337,10 +337,10 @@
   resolved "https://registry.yarnpkg.com/@lukeed/csprng/-/csprng-1.1.0.tgz#1e3e4bd05c1cc7a0b2ddbd8a03f39f6e4b5e6cfe"
   integrity sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==
 
-"@magic3t/types@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@magic3t/types/-/types-3.1.0.tgz#4e21b0e70f156a803efc71efc70e8624f668095b"
-  integrity sha512-wA0FHnPAisbDFqAol1HHqPsVzLYLNWUZWFgDd/WOTyV8NtSlFJpUZV4m5+mcAUpgu540cJDo3QWh4NDUUeatcw==
+"@magic3t/types@^3.2.0":
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/@magic3t/types/-/types-3.2.0.tgz#22f3bde405eec7df5aed3af93c45d305f7727fa2"
+  integrity sha512-rDgIlQUsvDDYB7gWJx7fyVDQ+j5VrGR39h2lPu/x4KQjYBuvQmgECuZd/GAof8ayOLJESeRsVrAFVWqeCWCOIQ==
 
 "@microsoft/tsdoc@^0.15.0":
   version "0.15.1"

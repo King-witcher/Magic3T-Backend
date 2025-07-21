@@ -1,4 +1,4 @@
-import { UserModel } from '@/database/user/user.model'
+import { UserModel } from '@magic3t/types'
 
 /** Defines how ratings should be updated based on player scores on a match. */
 export abstract class RatingStrategy {

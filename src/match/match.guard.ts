@@ -9,8 +9,9 @@ import {
 
 import { SocketsService } from '@/common'
 import { MatchBank } from './lib'
-import { MatchServerEventsMap, MatchSocket } from './types'
 import { MatchRequest } from './types/match-request'
+import { MatchSocket } from './types'
+import { GameServerEventsMap } from '@magic3t/types'
 
 @Injectable()
 export class MatchGuard implements CanActivate {
@@ -19,7 +20,7 @@ export class MatchGuard implements CanActivate {
   constructor(
     private readonly matchBank: MatchBank,
     @Inject('MatchSocketsService')
-    private readonly matchSocketsService: SocketsService<MatchServerEventsMap>
+    private readonly matchSocketsService: SocketsService<GameServerEventsMap>
   ) {}
 
   canActivate(context: ExecutionContext) {

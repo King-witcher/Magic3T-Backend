@@ -1,18 +1,15 @@
 import { RatingService } from '@/rating'
 import { ApiProperty } from '@nestjs/swagger'
-import { UserModel, UserRole } from './user.model'
+import {
+  Division,
+  League,
+  Profile,
+  Rating,
+  UserModel,
+  UserRole,
+} from '@magic3t/types'
 
-export enum League {
-  Provisional = 'provisional',
-  Bronze = 'bronze',
-  Silver = 'silver',
-  Gold = 'gold',
-  Diamond = 'diamond',
-  Master = 'master',
-  Challenger = 'challenger',
-}
-
-export class RatingDto {
+export class RatingDto implements Rating {
   @ApiProperty({
     description: "The player's league",
     example: League.Provisional,
@@ -24,7 +21,7 @@ export class RatingDto {
     nullable: true,
     example: 1,
   })
-  division: number | null
+  division: Division | null
 
   @ApiProperty({
     description: "The player's LP in the division",
@@ -45,7 +42,7 @@ export class RatingDto {
   }
 }
 
-export class UserDto {
+export class UserDto implements Profile {
   @ApiProperty({
     description: 'The user unique id',
     example: 'RdZ0ThlzqfMEpcwDEYaND7avAi42',
@@ -69,7 +66,7 @@ export class UserDto {
       "The user role in Magic3T. Can be either 'player', 'bot', or 'creator'",
     default: 'player',
     example: 'creator',
-    enum: UserRole,
+    enum: [UserRole.Bot, UserRole.Player, UserRole.Creator],
   })
   role: UserRole
 
@@ -77,7 +74,7 @@ export class UserDto {
     description: 'The rating params of the user',
     type: RatingDto,
   })
-  rating: RatingDto
+  rating: Rating
 
   @ApiProperty({
     description: "The player's wins, draws and defeats",
@@ -93,7 +90,7 @@ export class UserDto {
     defeats: number
   }
 
-  constructor(data: UserDto) {
+  constructor(data: Profile) {
     Object.assign(this, data)
   }
 
@@ -111,7 +108,7 @@ export class UserDto {
         draws: model.stats.draws,
         defeats: model.stats.defeats,
       },
-      rating: await ratingService.getRatingDto(model),
+      rating: await ratingService.getRating(model),
     })
   }
 }

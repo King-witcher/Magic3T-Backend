@@ -5,7 +5,7 @@ import { MatchBank } from './lib/match-bank'
 import { MatchController } from './match.controller'
 import { MatchGateway } from './match.gateway'
 import { MatchService } from './match.service'
-import { MatchServerEventsMap } from './types'
+import { GameServerEventsMap } from '@magic3t/types'
 
 @Module({
   controllers: [MatchController],
@@ -15,7 +15,7 @@ import { MatchServerEventsMap } from './types'
     MatchService,
     {
       provide: 'MatchSocketsService',
-      useClass: SocketsService<MatchServerEventsMap>,
+      useClass: SocketsService<GameServerEventsMap>,
     },
   ],
   exports: [MatchService, 'MatchSocketsService'],

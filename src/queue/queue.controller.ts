@@ -1,6 +1,5 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { BotName } from '@/database'
 import {
   Body,
   Controller,
@@ -13,6 +12,7 @@ import {
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger'
 import { EnqueueDto, QueueMode } from './dtos/enqueue-dto'
 import { QueueService } from './queue.service'
+import { BotName } from '@magic3t/types'
 
 @Controller('queue')
 @ApiBearerAuth()

@@ -1,7 +1,8 @@
-import { ConfigRepository, League, RatingDto, UserModel } from '@/database'
+import { ConfigRepository } from '@/database'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
 import { RatingStrategy } from './strategies'
+import { Division, League, Rating, UserModel } from '@magic3t/types'
 
 const leagueIndexes = [
   League.Bronze,
@@ -22,7 +23,7 @@ export class RatingService {
     return this.ratingStrategy.update(...params)
   }
 
-  async getRatingDto(userModel: UserModel): Promise<RatingDto> {
+  async getRating(userModel: UserModel): Promise<Rating> {
     const progress = await this.ratingStrategy.getRatingProgress(userModel)
     if (progress < 100) {
       return {
@@ -46,7 +47,7 @@ export class RatingService {
       if (league === League.Master) return null
 
       const divsAbove4 = Math.floor((rawLP % 400) / 100)
-      return 4 - divsAbove4
+      return (4 - divsAbove4) as Division
     })()
 
     const points = (() => {
