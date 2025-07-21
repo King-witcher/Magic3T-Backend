@@ -1,4 +1,4 @@
-import { Choice, Observable, Stopwatch, Team, block } from '@/common'
+import { Observable, Stopwatch, block } from '@/common'
 import {
   MatchModelEvent,
   MatchEventType as MatchModelEventType,
@@ -6,6 +6,7 @@ import {
 } from '@database'
 import { StateReportDto } from '../types'
 import { Player } from './player'
+import { Choice, Team } from '@magic3t/types'
 
 export enum MatchError {
   BadTurn = 'bad-turn',

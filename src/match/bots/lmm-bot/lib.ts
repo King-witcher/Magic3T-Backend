@@ -1,4 +1,4 @@
-import { Choice } from '@/common'
+import { Choice } from '@magic3t/types'
 
 export type Tree = {
   branches: {

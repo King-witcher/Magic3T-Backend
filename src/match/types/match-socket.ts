@@ -1,9 +1,9 @@
 import { AuthSocketData } from '@/auth/auth-socket'
-import { Choice, Team } from '@/common'
 import { RatingDto, UserDto } from '@/database'
 import { Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
 import { Perspective } from '../lib/perspective'
+import { Choice, Team } from '@magic3t/types'
 
 export type MatchSocketData = AuthSocketData & {
   perspective: Perspective

@@ -1,7 +1,7 @@
-import { Choice, Team } from '@/common'
 import { MatchEventType } from '@/match/lib/match'
 import { Perspective } from '../lib/perspective'
 import { StateReportDto } from '../types'
+import { Choice, Team } from '@magic3t/types'
 
 export abstract class BaseBot {
   observe(perspective: Perspective) {

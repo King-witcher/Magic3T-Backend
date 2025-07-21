@@ -11,7 +11,7 @@ import { BaseError } from '@/common/errors/base-error'
 import { BotName, UserRepository } from '@/database'
 import { MatchService } from '@/match'
 import { AlreadyInGameError } from './errors/already-in-game.error'
-import { QueueEmitType } from './types'
+import { QueueServerEvents, QueueServerEventsMap } from '@magic3t/types'
 
 @Injectable()
 export class QueueService {
@@ -23,7 +23,7 @@ export class QueueService {
     private matchService: MatchService,
     private usersService: UserRepository,
     @Inject('QueueSocketsService')
-    private queueSocketsService: SocketsService<QueueEmitType>
+    private queueSocketsService: SocketsService<QueueServerEventsMap>
   ) {}
 
   private async enqueueInternal(userId: string, mode: 'casual' | 'ranked') {
@@ -49,11 +49,11 @@ export class QueueService {
         this.dequeue(pending)
         const matchId = await this.matchService.createPvPMatch(pending, userId)
 
-        this.queueSocketsService.emit(pending, 'matchFound', {
+        this.queueSocketsService.emit(pending, QueueServerEvents.MatchFound, {
           matchId,
           opponentId: userId,
         })
-        this.queueSocketsService.emit(userId, 'matchFound', {
+        this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
           matchId,
           opponentId: pending,
         })
@@ -64,8 +64,14 @@ export class QueueService {
   enqueue(userId: string, mode: 'casual' | 'ranked') {
     this.enqueueInternal(userId, mode)
     const userQueueModes = this.getQueueModes(userId)
-    this.queueSocketsService.emit(userId, 'queueAcepted', { mode: 'casual' })
-    this.queueSocketsService.emit(userId, 'queueModes', userQueueModes)
+    this.queueSocketsService.emit(userId, QueueServerEvents.QueueAcepted, {
+      mode: 'casual',
+    })
+    this.queueSocketsService.emit(
+      userId,
+      QueueServerEvents.QueueModes,
+      userQueueModes
+    )
   }
 
   getQueueModes(uid: string) {
@@ -93,7 +99,11 @@ export class QueueService {
     }
 
     const userQueueModes = this.getQueueModes(userId)
-    this.queueSocketsService.emit(userId, 'queueModes', userQueueModes)
+    this.queueSocketsService.emit(
+      userId,
+      QueueServerEvents.QueueModes,
+      userQueueModes
+    )
   }
 
   getUserCount() {
@@ -106,7 +116,7 @@ export class QueueService {
   async createBotMatch(userId: string, botName: BotName) {
     const matchId = await this.matchService.createPvCMatch(userId, botName)
 
-    this.queueSocketsService.emit(userId, 'matchFound', {
+    this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
       matchId,
       opponentId: '',
     })
@@ -119,7 +129,7 @@ export class QueueService {
       `bot${botIndex}` as BotName
     )
 
-    this.queueSocketsService.emit(userId, 'matchFound', {
+    this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
       matchId,
       opponentId: '',
     })
@@ -152,7 +162,7 @@ export class QueueService {
       `bot${closestIndex}` as BotName
     )
 
-    this.queueSocketsService.emit(userId, 'matchFound', {
+    this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
       matchId,
       opponentId: bots[closestIndex]._id,
     })

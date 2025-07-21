@@ -1,9 +1,9 @@
-import { Choice, Team } from '@/common'
 import { UserDto } from '@/database'
 import { RatingService } from '@/rating'
 import { Observable } from 'rxjs'
 import { AssignmentsDto, StateReportDto } from '../types'
 import { Match, MatchError, MatchEventsMap } from './match'
+import { Choice, Team } from '@magic3t/types'
 
 /**
  * A perspective is a portal through which a player (human or bot) can interact with its ongoing match.

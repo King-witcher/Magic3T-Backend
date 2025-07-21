@@ -1,6 +1,7 @@
-import { Team, delay } from '@/common'
+import { delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
 import { StateReportDto } from '../types'
+import { Team } from '@magic3t/types'
 
 export class RandomBot extends BaseBot {
   async think(state: StateReportDto) {

@@ -6,7 +6,7 @@ import { Module } from '@nestjs/common'
 import { QueueController } from './queue.controller'
 import { QueueGateway } from './queue.gateway'
 import { QueueService } from './queue.service'
-import { QueueEmitType } from './types'
+import { QueueServerEventsMap } from '@magic3t/types'
 
 export const QueueSocketsService = Symbol('QueueSocketsService')
 
@@ -18,7 +18,7 @@ export const QueueSocketsService = Symbol('QueueSocketsService')
     QueueService,
     {
       provide: 'QueueSocketsService',
-      useClass: SocketsService<QueueEmitType>,
+      useClass: SocketsService<QueueServerEventsMap>,
     },
   ],
 })

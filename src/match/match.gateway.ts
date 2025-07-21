@@ -1,4 +1,4 @@
-import { Choice, ChoicePipe, SocketsService } from '@/common'
+import { ChoicePipe, SocketsService } from '@/common'
 import { Inject, Logger, UseGuards } from '@nestjs/common'
 import {
   ConnectedSocket,
@@ -21,6 +21,7 @@ import {
   MessageData,
   ServerMatchEvents,
 } from './types'
+import { Choice } from '@magic3t/types'
 
 @UseGuards(AuthGuard, MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })

@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { deepClone } from '@/common/utils/misc'
 import { MatchDto } from '@/database/match/match.dto'
 import { RatingService } from '@/rating'
-import { SocketsService, Team } from '@common'
+import { SocketsService } from '@common'
 import {
   BotConfig,
   BotName,
@@ -23,6 +23,7 @@ import {
   MatchServerEventsMap,
   ServerMatchEvents,
 } from './types'
+import { Team } from '@magic3t/types'
 
 // Stores all matches that are currently in progress.
 @Injectable()

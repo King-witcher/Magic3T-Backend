@@ -1,10 +1,10 @@
-import { Team } from '@/common'
 import { BaseError } from '@/common/errors/base-error'
 import { DatabaseService } from '@/database'
 import { RatingService } from '@/rating'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { Match, MatchEventType } from './match'
 import { Perspective } from './perspective'
+import { Team } from '@magic3t/types'
 
 @Injectable()
 /// Maps all matches that are currently running on the server.

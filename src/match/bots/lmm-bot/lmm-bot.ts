@@ -1,7 +1,8 @@
-import { Choice, Team, delay } from '@/common'
+import { delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
 import { StateReportDto } from '@/match/types'
 import { createTree } from './lib'
+import { Choice, Team } from '@magic3t/types'
 
 function getMatchChoices(state: StateReportDto, team: Team) {
   const order = state[Team.Order].choices

@@ -1,6 +1,6 @@
-import { Choice, Team } from '@/common'
 import { WithId } from '@/database/types/withId'
 import { League } from '../user'
+import { Choice, Team } from '@magic3t/types'
 
 export interface MatchModelTeam {
   uid: string

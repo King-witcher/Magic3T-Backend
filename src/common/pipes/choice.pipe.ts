@@ -1,6 +1,6 @@
 import { HttpStatus, PipeTransform } from '@nestjs/common'
 import { BaseError } from '../errors'
-import { Choice } from '../types'
+import { Choice } from '@magic3t/types'
 
 export class ChoicePipe implements PipeTransform {
   transform(value: unknown): Choice {
