@@ -1,7 +1,7 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { BotName } from '@/database'
 import { MatchDto } from '@/database/match/match.dto'
+import { BotName } from '@magic3t/types'
 import {
   Controller,
   Get,
@@ -25,7 +25,7 @@ export class MatchController {
     private matchBank: MatchBank,
     private matchService: MatchService
   ) {
-    const names = Object.values(BotName)
+    const names = [BotName.Bot0, BotName.Bot1, BotName.Bot2, BotName.Bot3]
 
     function shuffle() {
       let currentIndex = names.length

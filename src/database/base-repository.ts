@@ -1,9 +1,9 @@
-import { WithId } from '@/database/types/withId'
 import { firestore } from 'firebase-admin'
 import FirestoreDataConverter = firestore.FirestoreDataConverter
 import CollectionReference = firestore.CollectionReference
 import Firestore = firestore.Firestore
 import { DatabaseService } from '@/database/database.service'
+import { WithId } from '@magic3t/types'
 import { Logger } from '@nestjs/common'
 import { UpdateData } from 'firebase-admin/firestore'
 

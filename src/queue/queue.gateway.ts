@@ -17,11 +17,15 @@ import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { SocketsService } from '@/common'
 import { WsFilter } from '@/common/filters/ws.filter'
-import { BotName } from '@/database'
+import {
+  BotName,
+  QueueServerEvents,
+  QueueServerEventsMap,
+} from '@magic3t/types'
 import { GameModePipe } from './pipes/game-mode.pipe'
 import { QueueInterceptor } from './queue.interceptor'
 import { QueueService } from './queue.service'
-import { QueueEmitType, QueueServer, QueueSocket } from './types'
+import { QueueServer, QueueSocket } from './types'
 
 @UseGuards(AuthGuard)
 @UseInterceptors(QueueInterceptor)
@@ -36,12 +40,12 @@ export class QueueGateway implements OnGatewayDisconnect {
   constructor(
     private queueService: QueueService,
     @Inject('QueueSocketsService')
-    private queueSocketsService: SocketsService<QueueEmitType>
+    private queueSocketsService: SocketsService<QueueServerEventsMap>
   ) {
     // Counts how many users are online and update everyone
     setInterval(() => {
       const queueCount = this.queueService.getUserCount()
-      this.server.emit('updateUserCount', {
+      this.server.emit(QueueServerEvents.UpdateUserCount, {
         casual: {
           inGame: Number.NaN,
           queue: queueCount.casual,

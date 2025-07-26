@@ -1,7 +1,11 @@
-import { Choice, Team } from '@/common'
+import {
+  Choice,
+  League,
+  MatchEventType,
+  MatchModel,
+  Team,
+} from '@magic3t/types'
 import { ApiProperty } from '@nestjs/swagger'
-import { League } from '../user'
-import { MatchEventType, MatchModel } from './match.model'
 
 export interface MatchDtoTeam {
   id: string
@@ -15,14 +19,18 @@ export interface MatchDtoTeam {
 export class MatchDtoEvent {
   @ApiProperty({
     description: `The event type. ${MatchEventType.Choice} = choice, ${MatchEventType.Forfeit} = surrender, ${MatchEventType.Timeout} = timeout`,
-    enum: MatchEventType,
+    enum: [
+      MatchEventType.Choice,
+      MatchEventType.Forfeit,
+      MatchEventType.Timeout,
+    ],
   })
   event: MatchEventType
 
   @ApiProperty({
     description: 'The team that triggered the event.',
     example: Team.Chaos,
-    enum: Team,
+    enum: [Team.Order, Team.Chaos],
   })
   side: Team
 
@@ -64,7 +72,7 @@ export class MatchDto {
 
   @ApiProperty({
     description: 'The match winner, if any; otherwise, null',
-    enum: Team,
+    enum: [Team.Order, Team.Chaos],
     nullable: true,
     example: Team.Chaos,
   })

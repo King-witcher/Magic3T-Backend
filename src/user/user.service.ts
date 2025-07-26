@@ -1,6 +1,7 @@
 import { BaseError } from '@/common/errors/base-error'
-import { ConfigRepository, League, UserDto, UserRepository } from '@/database'
+import { ConfigRepository, UserDto, UserRepository } from '@/database'
 import { RatingService } from '@/rating'
+import { League } from '@magic3t/types'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { range } from 'lodash'
 

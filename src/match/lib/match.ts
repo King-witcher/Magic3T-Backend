@@ -1,10 +1,12 @@
-import { Choice, Observable, Stopwatch, Team, block } from '@/common'
+import { Observable, Stopwatch, block } from '@/common'
 import {
+  Choice,
   MatchModelEvent,
   MatchEventType as MatchModelEventType,
+  MatchState,
+  Team,
   UserModel,
-} from '@database'
-import { StateReportDto } from '../types'
+} from '@magic3t/types'
 import { Player } from './player'
 
 export enum MatchError {
@@ -75,11 +77,11 @@ export class Match extends Observable<MatchEventsMap> {
     return this[Team.Order].count + this[Team.Chaos].count === 9
   }
 
-  public get stateReport(): StateReportDto {
+  public get stateReport(): MatchState {
     const order = this[Team.Order]
     const chaos = this[Team.Chaos]
 
-    const report: StateReportDto = {
+    const report: MatchState = {
       [Team.Order]: {
         choices: [...order.choices],
         surrender: order.surrender,

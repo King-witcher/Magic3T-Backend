@@ -1,6 +1,6 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { BotName } from '@/database'
+import { BotName } from '@magic3t/types'
 import {
   Body,
   Controller,

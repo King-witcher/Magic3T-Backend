@@ -1,6 +1,6 @@
 import { DatabaseService } from '@/database/database.service'
-import { GlickoModel, UserModel } from '@/database/user/user.model'
 import { FirebaseService } from '@/firebase/firebase.service'
+import { GlickoModel, UserModel } from '@magic3t/types'
 import {
   Injectable,
   InternalServerErrorException,

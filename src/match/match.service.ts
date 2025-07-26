@@ -3,26 +3,23 @@ import { Inject, Injectable } from '@nestjs/common'
 import { deepClone } from '@/common/utils/misc'
 import { MatchDto } from '@/database/match/match.dto'
 import { RatingService } from '@/rating'
-import { SocketsService, Team } from '@common'
+import { SocketsService } from '@common'
+import { ConfigRepository, MatchRepository, UserRepository } from '@database'
 import {
   BotConfig,
   BotName,
-  ConfigRepository,
   GameMode,
+  GameServerEventsMap,
   League,
   MatchModel,
-  MatchRepository,
+  MatchResults,
+  MatchServerEvents,
+  Team,
   UserModel,
-  UserRepository,
-} from '@database'
+} from '@magic3t/types'
 import { clamp } from 'lodash'
 import { BaseBot, LmmBot, RandomBot } from './bots'
 import { Match, MatchBank, MatchEventType } from './lib'
-import {
-  MatchReportDto,
-  MatchServerEventsMap,
-  ServerMatchEvents,
-} from './types'
 
 // Stores all matches that are currently in progress.
 @Injectable()
@@ -31,7 +28,7 @@ export class MatchService {
     private configRepository: ConfigRepository,
     private userRepository: UserRepository,
     @Inject('MatchSocketsService')
-    private matchSocketsService: SocketsService<MatchServerEventsMap>,
+    private matchSocketsService: SocketsService<GameServerEventsMap>,
     private readonly matchRepository: MatchRepository,
     private matchBank: MatchBank,
     private ratingService: RatingService
@@ -65,14 +62,14 @@ export class MatchService {
         if (order.role !== 'bot')
           this.matchSocketsService.emit(
             order._id,
-            ServerMatchEvents.StateReport,
+            MatchServerEvents.StateReport,
             stateReport
           )
 
         if (chaos.role !== 'bot')
           this.matchSocketsService.emit(
             chaos._id,
-            ServerMatchEvents.StateReport,
+            MatchServerEvents.StateReport,
             stateReport
           )
       }
@@ -92,8 +89,8 @@ export class MatchService {
       const events = match.events
       const orderScore = this.getWhiteScore(match, winner)
 
-      const orderRatingDto = await this.ratingService.getRatingDto(order)
-      const chaosRatingDto = await this.ratingService.getRatingDto(chaos)
+      const orderRatingDto = await this.ratingService.getRating(order)
+      const chaosRatingDto = await this.ratingService.getRating(chaos)
 
       const newOrder = deepClone(order)
       const newChaos = deepClone(chaos)
@@ -142,18 +139,18 @@ export class MatchService {
       }
 
       // Sets with initial values. If the match is ranked, then update the rating values.
-      const matchReport: MatchReportDto = {
+      const matchReport: MatchResults = {
         matchId: match.id,
         winner,
         [Team.Order]: {
           score: orderScore,
           lpGain: 0,
-          newRating: await this.ratingService.getRatingDto(order),
+          newRating: await this.ratingService.getRating(order),
         },
         [Team.Chaos]: {
           score: 1 - orderScore,
           lpGain: 0,
-          newRating: await this.ratingService.getRatingDto(chaos),
+          newRating: await this.ratingService.getRating(chaos),
         },
       }
 
@@ -161,9 +158,9 @@ export class MatchService {
         await this.ratingService.update(newOrder, newChaos, orderScore)
 
         matchReport[Team.Order].newRating =
-          await this.ratingService.getRatingDto(newOrder)
+          await this.ratingService.getRating(newOrder)
         matchReport[Team.Chaos].newRating =
-          await this.ratingService.getRatingDto(newChaos)
+          await this.ratingService.getRating(newChaos)
 
         // Update rating gains only if the league is not provisional
         if (orderRatingDto.league !== League.Provisional) {
@@ -194,14 +191,14 @@ export class MatchService {
       if (order.role !== 'bot')
         this.matchSocketsService.emit(
           order._id,
-          ServerMatchEvents.MatchReport,
+          MatchServerEvents.MatchReport,
           matchReport
         )
 
       if (chaos.role !== 'bot')
         this.matchSocketsService.emit(
           chaos._id,
-          ServerMatchEvents.MatchReport,
+          MatchServerEvents.MatchReport,
           matchReport
         )
     })

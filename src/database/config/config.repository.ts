@@ -1,15 +1,15 @@
-import {
-  BotConfigModel,
-  BotName,
-  RatingConfigModel,
-} from '@/database/config/models'
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
 import { Injectable, Logger } from '@nestjs/common'
 import { firestore } from 'firebase-admin'
 import CollectionReference = firestore.CollectionReference
 import { CacheMethod } from '@common'
-import { DevopsConfigModel } from './models/devops-config.model'
+import {
+  BotConfigModel,
+  BotName,
+  DevopsConfigModel,
+  RatingConfigModel,
+} from '@magic3t/types'
 
 @Injectable()
 export class ConfigRepository {

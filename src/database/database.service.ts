@@ -1,5 +1,6 @@
 import { OptionalProp } from '@/types/OptionalProp'
 import { Mutable } from '@/types/mutable'
+import { WithId } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import {
   DocumentData,
@@ -8,7 +9,6 @@ import {
   Timestamp,
   WithFieldValue,
 } from 'firebase-admin/firestore'
-import { WithId } from './types'
 
 const epoch = new Date(2000, 7, 31).getTime()
 

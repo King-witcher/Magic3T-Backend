@@ -1,7 +1,7 @@
-import { Team } from '@/common'
 import { BaseError } from '@/common/errors/base-error'
 import { DatabaseService } from '@/database'
 import { RatingService } from '@/rating'
+import { Team } from '@magic3t/types'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { Match, MatchEventType } from './match'
 import { Perspective } from './perspective'

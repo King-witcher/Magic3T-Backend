@@ -1,5 +1,6 @@
 import { AuthSocket } from '@/auth/auth-socket'
 import { SocketsService } from '@/common'
+import { QueueServerEventsMap } from '@magic3t/types'
 import {
   CallHandler,
   ExecutionContext,
@@ -7,13 +8,12 @@ import {
   NestInterceptor,
 } from '@nestjs/common'
 import { Observable } from 'rxjs'
-import { QueueEmitType } from './types'
 
 /// Adds authenticated connections to the QueueSocketsService.
 export class QueueInterceptor implements NestInterceptor {
   constructor(
     @Inject('QueueSocketsService')
-    private queueSocketsService: SocketsService<QueueEmitType>
+    private queueSocketsService: SocketsService<QueueServerEventsMap>
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {

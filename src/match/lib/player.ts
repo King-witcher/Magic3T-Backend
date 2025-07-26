@@ -1,4 +1,5 @@
-import { Choice, Timer } from '@/common'
+import { Timer } from '@/common'
+import { Choice } from '@magic3t/types'
 
 export class Player {
   choices: Choice[] = []

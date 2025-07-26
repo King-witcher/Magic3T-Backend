@@ -1,4 +1,4 @@
-import { Choice, ChoicePipe, SocketsService } from '@/common'
+import { ChoicePipe, SocketsService } from '@/common'
 import { Inject, Logger, UseGuards } from '@nestjs/common'
 import {
   ConnectedSocket,
@@ -10,17 +10,18 @@ import {
 
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
+import {
+  Choice,
+  GameServerEventsMap,
+  MatchClientEvents,
+  MatchServerEvents,
+  MessageData,
+} from '@magic3t/types'
 import { CurrentPerspective } from './decorators'
 import { Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
-import {
-  ClientMatchEvents,
-  MatchServerEventsMap,
-  MatchSocket,
-  MessageData,
-  ServerMatchEvents,
-} from './types'
+import { MatchSocket } from './types'
 
 @UseGuards(AuthGuard, MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
@@ -29,25 +30,25 @@ export class MatchGateway implements OnGatewayDisconnect {
 
   constructor(
     @Inject('MatchSocketsService')
-    private socketsService: SocketsService<MatchServerEventsMap>,
+    private socketsService: SocketsService<GameServerEventsMap>,
     private matchService: MatchService
   ) {}
 
-  @SubscribeMessage(ClientMatchEvents.Surrender)
+  @SubscribeMessage(MatchClientEvents.Surrender)
   handleForfeit(@CurrentPerspective() perspective: Perspective) {
     perspective.surrender()
   }
 
-  @SubscribeMessage(ClientMatchEvents.GetState)
+  @SubscribeMessage(MatchClientEvents.GetState)
   handleGetStatus(
     @CurrentPerspective() perspective: Perspective,
     @ConnectedSocket() client: MatchSocket
   ) {
-    client.emit(ServerMatchEvents.StateReport, perspective.getStateReport())
+    client.emit(MatchServerEvents.StateReport, perspective.getStateReport())
   }
 
   // Refactor this
-  @SubscribeMessage(ClientMatchEvents.Message)
+  @SubscribeMessage(MatchClientEvents.Message)
   handleMessage(@UserId() uid: string, @MessageBody() body: string) {
     const opponent = this.matchService.getOpponent(uid)
     const messageData: MessageData = {
@@ -56,20 +57,20 @@ export class MatchGateway implements OnGatewayDisconnect {
       time: Date.now(),
     }
 
-    this.socketsService.emit(opponent, ServerMatchEvents.Message, messageData)
-    this.socketsService.emit(uid, ServerMatchEvents.Message, messageData)
+    this.socketsService.emit(opponent, MatchServerEvents.Message, messageData)
+    this.socketsService.emit(uid, MatchServerEvents.Message, messageData)
   }
 
-  @SubscribeMessage(ClientMatchEvents.GetAssignments)
+  @SubscribeMessage(MatchClientEvents.GetAssignments)
   async getOpponent(
     @CurrentPerspective() perspective: Perspective,
     @ConnectedSocket() socket: MatchSocket
   ) {
     const assignments = await perspective.getAssignments()
-    socket.emit(ServerMatchEvents.Assignments, assignments)
+    socket.emit(MatchServerEvents.Assignments, assignments)
   }
 
-  @SubscribeMessage(ClientMatchEvents.Pick)
+  @SubscribeMessage(MatchClientEvents.Pick)
   async handleChoice(
     @CurrentPerspective() adapter: Perspective,
     @MessageBody(ChoicePipe) choice: Choice

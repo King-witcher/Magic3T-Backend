@@ -1,5 +1,5 @@
 import { ConfigRepository } from '@/database'
-import { UserModel } from '@/database/user/user.model'
+import { UserModel } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { getInflation, newDeviation, newRating } from './glicko'
 import { RatingStrategy } from './rating-strategy'
