@@ -3,9 +3,9 @@ import FirestoreDataConverter = firestore.FirestoreDataConverter
 import CollectionReference = firestore.CollectionReference
 import Firestore = firestore.Firestore
 import { DatabaseService } from '@/database/database.service'
+import { WithId } from '@magic3t/types'
 import { Logger } from '@nestjs/common'
 import { UpdateData } from 'firebase-admin/firestore'
-import { WithId } from '@magic3t/types'
 
 export abstract class BaseRepository<T extends WithId> {
   protected readonly logger = new Logger(BaseRepository.name, {

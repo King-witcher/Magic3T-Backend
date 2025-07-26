@@ -1,8 +1,8 @@
 import { ConfigRepository } from '@/database'
+import { UserModel } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { getInflation, newDeviation, newRating } from './glicko'
 import { RatingStrategy } from './rating-strategy'
-import { UserModel } from '@magic3t/types'
 
 const DEFAULT_MAX_RD = 350
 const DEFAULT_MIN_RD = 40

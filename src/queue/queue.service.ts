@@ -10,12 +10,12 @@ import { SocketsService } from '@/common'
 import { BaseError } from '@/common/errors/base-error'
 import { UserRepository } from '@/database'
 import { MatchService } from '@/match'
-import { AlreadyInGameError } from './errors/already-in-game.error'
 import {
   BotName,
   QueueServerEvents,
   QueueServerEventsMap,
 } from '@magic3t/types'
+import { AlreadyInGameError } from './errors/already-in-game.error'
 
 @Injectable()
 export class QueueService {

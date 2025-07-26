@@ -1,9 +1,9 @@
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
+import { MatchModel, Team } from '@magic3t/types'
 import { Injectable, Logger } from '@nestjs/common'
 import { FieldPath, Filter } from 'firebase-admin/firestore'
 import { BaseRepository } from '../base-repository'
-import { MatchModel, Team } from '@magic3t/types'
 
 @Injectable()
 export class MatchRepository extends BaseRepository<MatchModel> {

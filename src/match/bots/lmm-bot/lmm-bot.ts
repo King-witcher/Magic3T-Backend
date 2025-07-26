@@ -1,7 +1,7 @@
 import { delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
-import { createTree } from './lib'
 import { Choice, MatchState, Team } from '@magic3t/types'
+import { createTree } from './lib'
 
 function getMatchChoices(state: MatchState, team: Team) {
   const order = state[Team.Order].choices

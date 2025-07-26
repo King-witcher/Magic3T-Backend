@@ -5,9 +5,6 @@ import { MatchDto } from '@/database/match/match.dto'
 import { RatingService } from '@/rating'
 import { SocketsService } from '@common'
 import { ConfigRepository, MatchRepository, UserRepository } from '@database'
-import { clamp } from 'lodash'
-import { BaseBot, LmmBot, RandomBot } from './bots'
-import { Match, MatchBank, MatchEventType } from './lib'
 import {
   BotConfig,
   BotName,
@@ -20,6 +17,9 @@ import {
   Team,
   UserModel,
 } from '@magic3t/types'
+import { clamp } from 'lodash'
+import { BaseBot, LmmBot, RandomBot } from './bots'
+import { Match, MatchBank, MatchEventType } from './lib'
 
 // Stores all matches that are currently in progress.
 @Injectable()

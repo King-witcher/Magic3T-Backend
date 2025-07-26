@@ -1,8 +1,8 @@
 import { ConfigRepository } from '@/database'
+import { Division, League, Rating, UserModel } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
 import { RatingStrategy } from './strategies'
-import { Division, League, Rating, UserModel } from '@magic3t/types'
 
 const leagueIndexes = [
   League.Bronze,

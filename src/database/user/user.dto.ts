@@ -1,5 +1,4 @@
 import { RatingService } from '@/rating'
-import { ApiProperty } from '@nestjs/swagger'
 import {
   Division,
   League,
@@ -8,6 +7,7 @@ import {
   UserModel,
   UserRole,
 } from '@magic3t/types'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class RatingDto implements Rating {
   @ApiProperty({

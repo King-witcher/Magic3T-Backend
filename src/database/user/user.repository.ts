@@ -1,5 +1,6 @@
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
+import { GlickoModel, UserModel } from '@magic3t/types'
 import {
   Injectable,
   InternalServerErrorException,
@@ -9,7 +10,6 @@ import { DocumentData, FirestoreDataConverter } from 'firebase-admin/firestore'
 import { BaseRepository } from '../base-repository'
 import { ConfigRepository } from '../config'
 import { IconAssignmentModel } from './icon-assignment.model'
-import { GlickoModel, UserModel } from '@magic3t/types'
 
 @Injectable()
 export class UserRepository extends BaseRepository<UserModel> {

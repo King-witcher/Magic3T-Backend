@@ -17,15 +17,15 @@ import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { SocketsService } from '@/common'
 import { WsFilter } from '@/common/filters/ws.filter'
-import { GameModePipe } from './pipes/game-mode.pipe'
-import { QueueInterceptor } from './queue.interceptor'
-import { QueueService } from './queue.service'
-import { QueueServer, QueueSocket } from './types'
 import {
   BotName,
   QueueServerEvents,
   QueueServerEventsMap,
 } from '@magic3t/types'
+import { GameModePipe } from './pipes/game-mode.pipe'
+import { QueueInterceptor } from './queue.interceptor'
+import { QueueService } from './queue.service'
+import { QueueServer, QueueSocket } from './types'
 
 @UseGuards(AuthGuard)
 @UseInterceptors(QueueInterceptor)

@@ -1,7 +1,7 @@
 import { ConfigRepository } from '@/database'
+import { UserModel } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { RatingStrategy } from './rating-strategy'
-import { UserModel } from '@magic3t/types'
 
 @Injectable()
 export class EloStrategy extends RatingStrategy {

@@ -1,6 +1,7 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { MatchDto } from '@/database/match/match.dto'
+import { BotName } from '@magic3t/types'
 import {
   Controller,
   Get,
@@ -17,7 +18,6 @@ import { CurrentPerspective } from './decorators'
 import { MatchBank, MatchEventType, Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
-import { BotName } from '@magic3t/types'
 
 @Controller('matches')
 export class MatchController {

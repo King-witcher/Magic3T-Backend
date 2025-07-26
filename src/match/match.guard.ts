@@ -8,10 +8,10 @@ import {
 } from '@nestjs/common'
 
 import { SocketsService } from '@/common'
-import { MatchBank } from './lib'
-import { MatchRequest } from './types/match-request'
-import { MatchSocket } from './types'
 import { GameServerEventsMap } from '@magic3t/types'
+import { MatchBank } from './lib'
+import { MatchSocket } from './types'
+import { MatchRequest } from './types/match-request'
 
 @Injectable()
 export class MatchGuard implements CanActivate {

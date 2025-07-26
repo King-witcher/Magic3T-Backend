@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common'
 
 import { SocketsService } from '@/common'
+import { GameServerEventsMap } from '@magic3t/types'
 import { MatchBank } from './lib/match-bank'
 import { MatchController } from './match.controller'
 import { MatchGateway } from './match.gateway'
 import { MatchService } from './match.service'
-import { GameServerEventsMap } from '@magic3t/types'
 
 @Module({
   controllers: [MatchController],

@@ -10,10 +10,6 @@ import {
 
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { CurrentPerspective } from './decorators'
-import { Perspective } from './lib'
-import { MatchGuard } from './match.guard'
-import { MatchService } from './match.service'
 import {
   Choice,
   GameServerEventsMap,
@@ -21,6 +17,10 @@ import {
   MatchServerEvents,
   MessageData,
 } from '@magic3t/types'
+import { CurrentPerspective } from './decorators'
+import { Perspective } from './lib'
+import { MatchGuard } from './match.guard'
+import { MatchService } from './match.service'
 import { MatchSocket } from './types'
 
 @UseGuards(AuthGuard, MatchGuard)

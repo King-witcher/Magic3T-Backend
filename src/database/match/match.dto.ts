@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger'
 import {
   Choice,
   League,
@@ -6,6 +5,7 @@ import {
   MatchModel,
   Team,
 } from '@magic3t/types'
+import { ApiProperty } from '@nestjs/swagger'
 
 export interface MatchDtoTeam {
   id: string
