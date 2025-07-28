@@ -53,7 +53,7 @@ export abstract class BaseRepository<T extends WithId> {
    * @param doc Document to be created. _id field is ignored.
    */
   async create(doc: T): Promise<string> {
-    const id = doc._id ?? this.databaseService.getId()
+    const id = doc._id ?? this.databaseService.getTemporalId()
 
     this.logger.verbose(`create "${id}" on ${this.collection.id}.`)
 

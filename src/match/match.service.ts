@@ -1,37 +1,20 @@
-import { Inject, Injectable } from '@nestjs/common'
-
-import { deepClone } from '@/common/utils/misc'
+import { Injectable } from '@nestjs/common'
 import { MatchDto } from '@/database/match/match.dto'
-import { RatingService } from '@/rating'
-import { SocketsService } from '@common'
 import { ConfigRepository, MatchRepository, UserRepository } from '@database'
-import {
-  BotConfig,
-  BotName,
-  GameMode,
-  GameServerEventsMap,
-  League,
-  MatchModel,
-  MatchResults,
-  MatchServerEvents,
-  Team,
-  UserModel,
-} from '@magic3t/types'
+import { BotConfig, BotName, GameMode, Team, UserModel } from '@magic3t/types'
 import { clamp } from 'lodash'
 import { BaseBot, LmmBot, RandomBot } from './bots'
-import { Match, MatchBank, MatchEventType } from './lib'
+import { MatchBank } from './lib'
+import { MatchObserverService } from './state-report.service'
 
-// Stores all matches that are currently in progress.
 @Injectable()
 export class MatchService {
   constructor(
     private configRepository: ConfigRepository,
     private userRepository: UserRepository,
-    @Inject('MatchSocketsService')
-    private matchSocketsService: SocketsService<GameServerEventsMap>,
-    private readonly matchRepository: MatchRepository,
+    private matchRepository: MatchRepository,
     private matchBank: MatchBank,
-    private ratingService: RatingService
+    private matchObserverService: MatchObserverService
   ) {}
 
   private getBot(botConfig: BotConfig): BaseBot {
@@ -44,164 +27,6 @@ export class MatchService {
     const profile = await this.userRepository.get(uid)
     if (!profile) throw new Error(`Could not find profile for bot ${uid}.`)
     return profile
-  }
-
-  private getWhiteScore(match: Match, winner: Team | null) {
-    if (winner !== null) return 1 - winner
-    const whiteTime = match.timelimit - match[Team.Order].timer.remaining // TODO: Use Demeter's principle!!!
-    const blackTime = match.timelimit - match[Team.Chaos].timer.remaining
-    return blackTime / (whiteTime + blackTime)
-  }
-
-  private syncStateReport(match: Match, order: UserModel, chaos: UserModel) {
-    match.observeMany(
-      [MatchEventType.Choice, MatchEventType.Surrender, MatchEventType.Timeout],
-      () => {
-        const stateReport = match.stateReport
-
-        if (order.role !== 'bot')
-          this.matchSocketsService.emit(
-            order._id,
-            MatchServerEvents.StateReport,
-            stateReport
-          )
-
-        if (chaos.role !== 'bot')
-          this.matchSocketsService.emit(
-            chaos._id,
-            MatchServerEvents.StateReport,
-            stateReport
-          )
-      }
-    )
-  }
-
-  // The largest method I ever created 😅
-  private async observeMatch(
-    match: Match,
-    order: UserModel,
-    chaos: UserModel,
-    gameMode: GameMode
-  ) {
-    this.syncStateReport(match, order, chaos)
-
-    match.observe(MatchEventType.Finish, async (_, winner) => {
-      const events = match.events
-      const orderScore = this.getWhiteScore(match, winner)
-
-      const orderRatingDto = await this.ratingService.getRating(order)
-      const chaosRatingDto = await this.ratingService.getRating(chaos)
-
-      const newOrder = deepClone(order)
-      const newChaos = deepClone(chaos)
-
-      // Update stats
-      switch (winner) {
-        case Team.Order: {
-          newOrder.stats.wins++
-          newChaos.stats.defeats++
-          break
-        }
-        case Team.Chaos: {
-          newChaos.stats.wins++
-          newOrder.stats.defeats++
-          break
-        }
-        case null: {
-          newOrder.stats.draws++
-          newChaos.stats.draws++
-          break
-        }
-      }
-
-      const historyMatch: MatchModel = {
-        _id: match.id,
-        [Team.Order]: {
-          uid: order._id,
-          name: order.identification?.nickname || '',
-          score: orderScore,
-          league: orderRatingDto.league,
-          division: orderRatingDto.division,
-          lp_gain: 0,
-        },
-        [Team.Chaos]: {
-          uid: chaos._id,
-          name: chaos.identification?.nickname || '',
-          score: 1 - orderScore,
-          league: chaosRatingDto.league,
-          division: chaosRatingDto.division,
-          lp_gain: 0,
-        },
-        game_mode: gameMode,
-        timestamp: new Date(),
-        events,
-        winner,
-      }
-
-      // Sets with initial values. If the match is ranked, then update the rating values.
-      const matchReport: MatchResults = {
-        matchId: match.id,
-        winner,
-        [Team.Order]: {
-          score: orderScore,
-          lpGain: 0,
-          newRating: await this.ratingService.getRating(order),
-        },
-        [Team.Chaos]: {
-          score: 1 - orderScore,
-          lpGain: 0,
-          newRating: await this.ratingService.getRating(chaos),
-        },
-      }
-
-      if (gameMode & GameMode.Ranked) {
-        await this.ratingService.update(newOrder, newChaos, orderScore)
-
-        matchReport[Team.Order].newRating =
-          await this.ratingService.getRating(newOrder)
-        matchReport[Team.Chaos].newRating =
-          await this.ratingService.getRating(newChaos)
-
-        // Update rating gains only if the league is not provisional
-        if (orderRatingDto.league !== League.Provisional) {
-          const orderGain =
-            (await this.ratingService.getTotalLp(newOrder)) -
-            (await this.ratingService.getTotalLp(order))
-          historyMatch[Team.Order].lp_gain = orderGain
-          matchReport[Team.Order].lpGain = orderGain
-        }
-
-        if (chaosRatingDto.league !== League.Provisional) {
-          const chaosGain =
-            (await this.ratingService.getTotalLp(newChaos)) -
-            (await this.ratingService.getTotalLp(chaos))
-          historyMatch[Team.Chaos].lp_gain = chaosGain
-          matchReport[Team.Chaos].lpGain = chaosGain
-        }
-      }
-
-      // Update everything in the database
-      await Promise.all([
-        this.matchRepository.create(historyMatch),
-        this.userRepository.update(newOrder),
-        this.userRepository.update(newChaos),
-      ])
-
-      // Finally, emits the final report
-      if (order.role !== 'bot')
-        this.matchSocketsService.emit(
-          order._id,
-          MatchServerEvents.MatchReport,
-          matchReport
-        )
-
-      if (chaos.role !== 'bot')
-        this.matchSocketsService.emit(
-          chaos._id,
-          MatchServerEvents.MatchReport,
-          matchReport
-        )
-    })
   }
 
   async createPvCMatch(uid: string, botName: BotName) {
@@ -230,7 +55,7 @@ export class MatchService {
 
     // Sync
     bot.observe(botPerspective)
-    this.observeMatch(
+    this.matchObserverService.observe(
       match,
       humanTeam === Team.Order ? humanProfile : botProfile,
       humanTeam === Team.Order ? botProfile : humanProfile,
@@ -269,7 +94,7 @@ export class MatchService {
 
     bot1.observe(perspective1)
     bot2.observe(perspective2)
-    this.observeMatch(
+    this.matchObserverService.observe(
       match,
       botProfile1,
       botProfile2,
@@ -299,7 +124,7 @@ export class MatchService {
     this.matchBank.createPerspectives(match, [uid1, uid2], sideOfFirst)
 
     // Sync
-    this.observeMatch(
+    this.matchObserverService.observe(
       match,
       sideOfFirst === Team.Order ? profile1 : profile2,
       sideOfFirst === Team.Order ? profile2 : profile1,

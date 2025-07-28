@@ -24,7 +24,7 @@ export class MatchBank {
     match: Match
   } {
     // Get the match id as defined by the database service
-    const id = this.databaseService.getId()
+    const id = this.databaseService.getTemporalId()
 
     // Create and assign the match in the bank
     const match = new Match(...params)

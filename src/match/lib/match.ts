@@ -100,6 +100,14 @@ export class Match extends Observable<MatchEventsMap> {
     return report
   }
 
+  public getFinalScore(team: Team): number | null {
+    if (!this.finished) return null
+    if (this.winner !== null) return team === this.winner ? 1 : 0
+    const playerTime = this.timelimit - this[team].timer.remaining
+    const opponentTime = this.timelimit - this[1 - team].timer.remaining
+    return playerTime / (playerTime + opponentTime)
+  }
+
   public start() {
     if (this.turn !== null) throw new Error('panic: called start() twice')
 

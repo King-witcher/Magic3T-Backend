@@ -77,7 +77,7 @@ export class DatabaseService {
   /**
    * Gets a 6+ char time sortable unique id.
    */
-  getId() {
+  getTemporalId() {
     const lannaDate = Math.floor((Date.now() - epoch) / 1000)
     return (
       convertToBase62(lannaDate) +
