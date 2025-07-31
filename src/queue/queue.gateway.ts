@@ -56,7 +56,7 @@ export class QueueGateway implements OnGatewayDisconnect {
           queue: queueCount.ranked,
         },
       })
-    }, 2000)
+    }, process.env.QUEUE_STATUS_POLLING_RATE || 2000)
   }
 
   @SubscribeMessage('interact')

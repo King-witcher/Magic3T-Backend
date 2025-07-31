@@ -9,7 +9,8 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "typeorm": "typeorm-ts-node-commonjs",
+    "test": "vitest"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.3.0",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@faker-js/faker": "^9.9.0",
     "@magic3t/types": "^3.3.1",
     "@nest/testing": "^4.5.4",
     "@nestjs/cli": "^10.4.9",
@@ -50,6 +52,7 @@
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "4.2.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   }
 }

@@ -17,12 +17,12 @@ type ObserverMap<Map extends EventsMap> = {
 }
 
 export interface IObservable<ObservableEventsMap extends EventsMap> {
-  observeMany<Event extends EventNames<ObservableEventsMap>>(
+  onMany<Event extends EventNames<ObservableEventsMap>>(
     events: Event[],
     observer: Observer<ObservableEventsMap, Event>
   )
 
-  observe<Event extends EventNames<ObservableEventsMap>>(
+  on<Event extends EventNames<ObservableEventsMap>>(
     event: Event,
     observer: Observer<ObservableEventsMap, Event>
   )
@@ -33,16 +33,16 @@ export abstract class Observable<ObservableEventsMap extends EventsMap>
 {
   private observers: ObserverMap<ObservableEventsMap> = {}
 
-  public observeMany<Event extends keyof ObservableEventsMap>(
+  public onMany<Event extends keyof ObservableEventsMap>(
     events: Event[],
     observer: Observer<ObservableEventsMap, Event>
   ) {
     for (const event of events) {
-      this.observe(event, observer)
+      this.on(event, observer)
     }
   }
 
-  public observe<Event extends EventNames<ObservableEventsMap>>(
+  public on<Event extends EventNames<ObservableEventsMap>>(
     events: Event,
     observer: Observer<ObservableEventsMap, Event>
   ) {

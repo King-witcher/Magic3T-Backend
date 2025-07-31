@@ -3,6 +3,7 @@ import { RatingService } from '@/rating'
 import { AssignmentsData, Choice, MatchState, Team } from '@magic3t/types'
 import { Observable } from 'rxjs'
 import { Match, MatchError, MatchEventsMap } from './match'
+import { Result } from '@/common'
 
 /**
  * A perspective is a portal through which a player (human or bot) can interact with its ongoing match.
@@ -46,6 +47,6 @@ export class Perspective extends Observable<MatchEventsMap> {
     event: Event,
     observer: (...data: Parameters<MatchEventsMap[Event]>) => void
   ) {
-    this.match.observe(event, observer)
+    this.match.on(event, observer)
   }
 }

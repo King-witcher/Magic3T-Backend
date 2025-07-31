@@ -32,7 +32,7 @@ export class MatchBank {
     this.matches.set(id, match)
 
     // Remove the match from the bank when finished
-    match.observe(MatchEventType.Finish, () => {
+    match.on(MatchEventType.Finish, () => {
       this.matches.delete(id)
     })
 
@@ -63,7 +63,7 @@ export class MatchBank {
     this.opponents.set(player2, player1)
 
     // Remove from bank when match finishes
-    match.observe(MatchEventType.Finish, () => {
+    match.on(MatchEventType.Finish, () => {
       this.perspectives.delete(player1)
       this.perspectives.delete(player2)
       this.opponents.delete(player1)

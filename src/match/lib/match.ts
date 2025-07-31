@@ -1,4 +1,4 @@
-import { Observable, Stopwatch, block } from '@/common'
+import { Err, Observable, Ok, Result, Stopwatch } from '@/common'
 import {
   Choice,
   MatchModelEvent,
@@ -109,7 +109,8 @@ export class Match extends Observable<MatchEventsMap> {
   }
 
   public start() {
-    if (this.turn !== null) throw new Error('panic: called start() twice')
+    if (this.turn !== null || this.finished)
+      throw new Error('panic: called start() twice')
 
     this[Team.Order].timer.start()
     this.globalTime.start()
@@ -124,11 +125,36 @@ export class Match extends Observable<MatchEventsMap> {
     )
   }
 
+  /**
+   * Checks if the specified team has a magic3t combination.
+   * @param team The team to check for magic3t
+   * @returns True if the team has a magic3t combination, false otherwise.
+   */
+  private hasMagic3T(team: Team): boolean {
+    const player = this[team]
+
+    const choices = player.choices
+    for (let i = 0; i < choices.length; i++)
+      for (let j = i + 1; j < choices.length; j++)
+        for (let k = j + 1; k < choices.length; k++)
+          if (choices[i] + choices[j] + choices[k] === 15) return true
+    return false
+  }
+
+  private declareWinner(team: Team | null) {
+    this.globalTime.pause()
+    this[Team.Order].timer.pause()
+    this[Team.Chaos].timer.pause()
+    this.winner = team
+    this.finished = true
+    this.turn = null
+    this.emit(MatchEventType.Finish, this, team)
+  }
+
   public handleChoice(team: Team, choice: Choice): Result<[], MatchError> {
     if (this.turn !== team) return Err(MatchError.BadTurn)
     if (!this.isAvailable(choice)) return Err(MatchError.ChoiceUnavailable)
 
-    this.turn = null
     this[Team.Order].timer.pause()
     this[Team.Chaos].timer.pause()
 
@@ -142,35 +168,19 @@ export class Match extends Observable<MatchEventsMap> {
       time: this.time,
     })
 
-    const isWinner = block(() => {
-      const choices = player.choices
-      for (let i = 0; i < choices.length; i++)
-        for (let j = i + 1; j < choices.length; j++)
-          for (let k = j + 1; k < choices.length; k++)
-            if (choices[i] + choices[j] + choices[k] === 15) return true
-      return false
-    })
+    this.turn = 1 - team
+    this[1 - team].timer.start()
 
-    if (isWinner) {
-      this.globalTime.pause()
-      this[Team.Order].timer.pause()
-      this[Team.Chaos].timer.pause()
-      this.winner = team
-      this.finished = true
-      this.emit(MatchEventType.Choice, team, choice, this.time)
-      this.emit(MatchEventType.Finish, this, team)
-    } else if (this.isDrawn) {
-      this.globalTime.pause()
-      this[Team.Order].timer.pause()
-      this[Team.Chaos].timer.pause()
-      this.finished = true
-      this.winner = null
-      this.emit(MatchEventType.Choice, team, choice, this.time)
-      this.emit(MatchEventType.Finish, this, null)
-    } else {
-      this.turn = 1 - team
-      this[this.turn].timer.start()
-      this.emit(MatchEventType.Choice, team, choice, this.time)
+    this.emit(MatchEventType.Choice, team, choice, this.time)
+
+    if (this.hasMagic3T(team)) {
+      this.declareWinner(team)
+      return Ok([])
+    }
+
+    if (this.isDrawn) {
+      this.declareWinner(null)
+      return Ok([])
     }
 
     return Ok([])
@@ -178,16 +188,9 @@ export class Match extends Observable<MatchEventsMap> {
 
   public handleSurrender(side: Team): Result<[], MatchError> {
     if (this.turn === null) return Err(MatchError.BadTurn)
-    this.turn = null
-    this.finished = true
-    this.winner = 1 - side
 
     const player = this[side]
     player.surrender = true
-
-    this[Team.Order].timer.pause()
-    this[Team.Chaos].timer.pause()
-    this.globalTime.pause()
 
     this.events.push({
       event: MatchModelEventType.Forfeit,
@@ -196,15 +199,13 @@ export class Match extends Observable<MatchEventsMap> {
     })
 
     this.emit(MatchEventType.Surrender, side, this.time)
-    this.emit(MatchEventType.Finish, this, 1 - side)
+    this.declareWinner(1 - side)
 
     return Ok([])
   }
 
   private handleTimeout(side: Team) {
     const opposite = 1 - side
-    this.turn = null
-    this.globalTime.pause()
 
     this.events.push({
       event: MatchModelEventType.Timeout,
@@ -213,6 +214,6 @@ export class Match extends Observable<MatchEventsMap> {
     })
 
     this.emit(MatchEventType.Timeout, side, this.time)
-    this.emit(MatchEventType.Finish, this, opposite)
+    this.declareWinner(opposite)
   }
 }

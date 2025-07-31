@@ -32,15 +32,16 @@ export class MatchObserverService {
     chaos: UserModel,
     gameMode: GameMode
   ) {
-    match.observeMany(
+    match.onMany(
       [MatchEventType.Choice, MatchEventType.Surrender, MatchEventType.Timeout],
-      this.handleMatchStateUpdated.bind(this, match, order, chaos)
+      () => {
+        this.handleMatchStateUpdated(match, order, chaos)
+      }
     )
 
-    match.observe(
-      MatchEventType.Finish,
-      this.handleMatchFinished.bind(this, match, order, chaos, gameMode)
-    )
+    match.on(MatchEventType.Finish, () => {
+      this.handleMatchFinished(match, order, chaos, gameMode)
+    })
   }
 
   private async handleMatchStateUpdated(
@@ -113,6 +114,12 @@ export class MatchObserverService {
       const oldLp = await this.ratingService.getTotalLp(player.old)
       const newLp = await this.ratingService.getTotalLp(player.new)
       const score = match.getFinalScore(player.team)!
+      console.log(
+        'final score of',
+        player.new.identification?.nickname,
+        'is',
+        score
+      )
       const lpGain = oldRating.league === League.Provisional ? 0 : newLp - oldLp
 
       matchReport[player.team] = {

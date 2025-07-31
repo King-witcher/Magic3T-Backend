@@ -1,12 +1,18 @@
+import { Observable } from '../observable'
 import { TimeSnapshot, TimeSnapshotState } from './time-snapshot'
 
-export class Timer {
+interface TimerEventsMap {
+  timeout(): void
+}
+
+export class Timer extends Observable<TimerEventsMap> {
   private lastSnapshot: TimeSnapshot
   private callbackCaller: NodeJS.Timeout
   private readonly callback: () => void
   public readonly initial: number
 
   constructor(timeMs: number, callback: () => void) {
+    super()
     this.lastSnapshot = {
       at: Date.now(),
       value: timeMs,
@@ -24,6 +30,7 @@ export class Timer {
     }
 
     this.callback()
+    this.emit('timeout')
   }
 
   public get state(): TimeSnapshotState {

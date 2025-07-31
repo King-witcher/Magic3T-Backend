@@ -46,10 +46,10 @@ export class MatchController {
       ])
       let terminated = 0
       return new Promise<void>((res) => {
-        match1.observe(MatchEventType.Finish, () => {
+        match1.on(MatchEventType.Finish, () => {
           if (++terminated === 2) res()
         })
-        match2.observe(MatchEventType.Finish, () => {
+        match2.on(MatchEventType.Finish, () => {
           if (++terminated === 2) res()
         })
       })

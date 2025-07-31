@@ -3,8 +3,6 @@ import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 import { UserRepository } from './database'
 import { RatingService } from './rating'
 
-const Package = require('../package.json')
-
 @Controller()
 export class AppController {
   @Get('/')
@@ -32,14 +30,5 @@ export class AppController {
     return {
       status: 'available',
     }
-  }
-
-  @ApiOperation({
-    summary: 'Api version',
-    description: 'Returns the current api version.',
-  })
-  @Get('version')
-  getVersion() {
-    return Package.version
   }
 }

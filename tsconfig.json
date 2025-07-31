@@ -16,6 +16,7 @@
     "strictNullChecks": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
+    "types": ["vitest/globals"],
     "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false,
