@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 # https://docs.docker.com/go/dockerfile-reference/
 
-ARG NODE_VERSION=22.12.0
+ARG NODE_VERSION=24.4.1
 
 ################################################################################
 # Use node image for base image for all stages.
