@@ -11,6 +11,7 @@ import { MaintenanceGuard } from './common/guards/maintenance.guard'
 import { RatingModule } from './rating'
 import { EloStrategy } from './rating/strategies/elo-strategy'
 import { UserModule } from './user/user.module'
+import { AppGateway } from './app.gateway'
 
 @Global()
 @Module({
@@ -33,6 +34,7 @@ import { UserModule } from './user/user.module'
       provide: 'APP_GUARD',
       useClass: MaintenanceGuard,
     },
+    AppGateway,
   ],
 })
 export class AppModule {}
