@@ -3,6 +3,7 @@ import './prelude'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
+import { apiReference } from '@scalar/nestjs-api-reference'
 
 async function bootstrap() {
   const logger = new Logger('bootstrap function')
@@ -21,8 +22,16 @@ async function bootstrap() {
     )
     .setVersion('2.0')
     .build()
-  const documentFactory = () => SwaggerModule.createDocument(app, config)
-  SwaggerModule.setup('api', app, documentFactory)
+
+  const document = SwaggerModule.createDocument(app, config)
+
+  app.use(
+    '/api',
+    apiReference({
+      content: document,
+    })
+  )
+
   await app.listen(port)
   keepServerAlive()
   logger.log(`Max concurrency: ${navigator.hardwareConcurrency}`)
