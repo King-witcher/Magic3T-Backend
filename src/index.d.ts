@@ -1,3 +1,6 @@
+// biome-ignore lint/correctness/noUnusedImports: <explanation>
+import type { Result as ResultClass } from './lib/rust/result'
+
 declare global {
   namespace Express {
     export interface Request {

@@ -37,7 +37,7 @@ function keepServerAlive() {
     return
   }
 
-  const reup_rate = Number.parseInt(process.env.HEARTBEAT_RATE)
+  const reup_rate = Number.parseInt(process.env.HEARTBEAT_RATE || '0')
   if (!reup_rate) return
 
   setInterval(() => {
