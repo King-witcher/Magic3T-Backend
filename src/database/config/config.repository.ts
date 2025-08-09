@@ -58,7 +58,7 @@ export class ConfigRepository {
 
     const data = snapshot.data()
 
-    if (!data) throw new Error('couldn not find devops config')
+    if (!data) throw new Error('could not find devops config')
 
     return data
   }

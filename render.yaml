@@ -14,6 +14,8 @@ services:
         sync: false
       - key: DEBUG
         value: "false"
+      - key: FIRESTORE_DB
+        value: "(default)"
     healthCheckPath: /status
     domains:
       - backend.magic3t.com.br

@@ -12,6 +12,7 @@ declare global {
       FIREBASE_ADMIN_CREDENTIALS: string
       MAGIC3T_BACKEND_URL: string
       HEARTBEAT_RATE: string
+      FIRESTORE_DB: string
       PORT: number
       QUEUE_STATUS_POLLING_RATE: number
     }

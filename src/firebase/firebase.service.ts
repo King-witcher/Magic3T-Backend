@@ -23,7 +23,7 @@ export class FirebaseService {
         credential: cert(JSON.parse(credentials)),
       })
 
-    this.firestore = getFirestore(this.firebase)
+    this.firestore = getFirestore(process.env.FIRESTORE_DB)
     this.firebaseAuth = getAuth(this.firebase)
   }
 }

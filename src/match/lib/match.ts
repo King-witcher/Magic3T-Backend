@@ -171,18 +171,19 @@ export class Match extends Observable<MatchEventsMap> {
     this.turn = 1 - team
     this[1 - team].timer.start()
 
-    this.emit(MatchEventType.Choice, team, choice, this.time)
-
     if (this.hasMagic3T(team)) {
       this.declareWinner(team)
+      this.emit(MatchEventType.Choice, team, choice, this.time)
       return Ok([])
     }
 
     if (this.isDrawn) {
       this.declareWinner(null)
+      this.emit(MatchEventType.Choice, team, choice, this.time)
       return Ok([])
     }
 
+    this.emit(MatchEventType.Choice, team, choice, this.time)
     return Ok([])
   }
 
@@ -198,8 +199,9 @@ export class Match extends Observable<MatchEventsMap> {
       time: this.time,
     })
 
-    this.emit(MatchEventType.Surrender, side, this.time)
     this.declareWinner(1 - side)
+    console.log(this.turn)
+    this.emit(MatchEventType.Surrender, side, this.time)
 
     return Ok([])
   }
@@ -213,7 +215,7 @@ export class Match extends Observable<MatchEventsMap> {
       time: this.time,
     })
 
-    this.emit(MatchEventType.Timeout, side, this.time)
     this.declareWinner(opposite)
+    this.emit(MatchEventType.Timeout, side, this.time)
   }
 }
