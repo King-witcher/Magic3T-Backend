@@ -1,5 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { Match, MatchEventType } from './lib'
+import { SocketsService } from '@/common/services/sockets.service'
+import { deepClone } from '@/common/utils/misc'
+import { MatchRepository, UserRepository } from '@/database'
+import { RatingService } from '@/rating'
 import {
   GameMode,
   GameServerEventsMap,
@@ -10,10 +12,8 @@ import {
   Team,
   UserModel,
 } from '@magic3t/types'
-import { SocketsService } from '@/common/services/sockets.service'
-import { RatingService } from '@/rating'
-import { deepClone } from '@/common/utils/misc'
-import { MatchRepository, UserRepository } from '@/database'
+import { Inject, Injectable } from '@nestjs/common'
+import { Match, MatchEventType } from './lib'
 
 @Injectable()
 export class MatchObserverService {

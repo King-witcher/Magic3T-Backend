@@ -1,7 +1,7 @@
+import { delay } from '@/common'
+import { faker } from '@faker-js/faker'
 import { Choice, Team, UserModel } from '@magic3t/types'
 import { Match, MatchEventType } from './match'
-import { faker } from '@faker-js/faker'
-import { delay } from '@/common'
 
 function createMatch(): Match {
   return new Match({

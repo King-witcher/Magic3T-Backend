@@ -6,12 +6,12 @@ import { Global, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { AdminModule } from './admin/admin.module'
 import { AppController } from './app.controller'
+import { AppGateway } from './app.gateway'
 import { AuthModule } from './auth/auth.module'
 import { MaintenanceGuard } from './common/guards/maintenance.guard'
 import { RatingModule } from './rating'
 import { EloStrategy } from './rating/strategies/elo-strategy'
 import { UserModule } from './user/user.module'
-import { AppGateway } from './app.gateway'
 
 @Global()
 @Module({

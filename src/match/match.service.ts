@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common'
 import { MatchDto } from '@/database/match/match.dto'
 import { ConfigRepository, MatchRepository, UserRepository } from '@database'
 import { BotConfig, BotName, GameMode, Team, UserModel } from '@magic3t/types'
+import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
 import { BaseBot, LmmBot, RandomBot } from './bots'
 import { MatchBank } from './lib'

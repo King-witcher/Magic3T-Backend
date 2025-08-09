@@ -5,8 +5,8 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
-import { WsFilter } from './common/filters/ws.filter'
 import { Socket } from 'socket.io'
+import { WsFilter } from './common/filters/ws.filter'
 
 @UseFilters(WsFilter)
 @WebSocketGateway({ cors: '*' })
