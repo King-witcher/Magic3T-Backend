@@ -1,5 +1,6 @@
 import { delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
+import { Perspective } from '@/match/lib'
 import { Choice, MatchState, Team } from '@magic3t/types'
 import { createTree } from './lib'
 
@@ -15,8 +16,11 @@ function getMatchChoices(state: MatchState, team: Team) {
 }
 
 export class LmmBot extends BaseBot {
-  constructor(private depth: number) {
-    super()
+  constructor(
+    perspective: Perspective,
+    private depth: number
+  ) {
+    super(perspective)
   }
 
   private async simulateThinkTime(state: MatchState): Promise<void> {

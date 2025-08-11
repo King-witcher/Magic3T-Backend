@@ -4,7 +4,7 @@ import { BotConfig, BotName, GameMode, Team, UserModel } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
 import { BaseBot, LmmBot, RandomBot } from './bots'
-import { MatchBank } from './lib'
+import { MatchBank, Perspective } from './lib'
 import { MatchObserverService } from './state-report.service'
 
 @Injectable()
@@ -17,10 +17,10 @@ export class MatchService {
     private matchObserverService: MatchObserverService
   ) {}
 
-  private getBot(botConfig: BotConfig): BaseBot {
+  private getBot(botConfig: BotConfig, perspective: Perspective): BaseBot {
     return botConfig.model === 'lmm'
-      ? new LmmBot(botConfig.depth)
-      : new RandomBot()
+      ? new LmmBot(perspective, botConfig.depth)
+      : new RandomBot(perspective)
   }
 
   private async getProfile(uid: string): Promise<UserModel> {
@@ -36,25 +36,22 @@ export class MatchService {
     if (!botConfig) throw new Error(`Could not find config for bot ${botName}.`)
     const botProfile = await this.getProfile(botConfig.uid)
     const humanProfile = await humanProfilePromise
-    const bot = this.getBot(botConfig)
 
     // Define sides and get perspectives
     const humanTeam = Math.round(Math.random()) as Team
-
     const { match, id } = this.matchBank.createAndRegisterMatch({
       [Team.Order]: humanTeam === Team.Order ? humanProfile : botProfile,
       [Team.Chaos]: humanTeam === Team.Order ? botProfile : humanProfile,
       timelimit: 180 * 1000,
     })
-
     const [_, botPerspective] = this.matchBank.createPerspectives(
       match,
       [uid, botProfile._id],
       humanTeam
     )
+    const bot = this.getBot(botConfig, botPerspective)
 
     // Sync
-    bot.observe(botPerspective)
     this.matchObserverService.observe(
       match,
       humanTeam === Team.Order ? humanProfile : botProfile,
@@ -64,15 +61,13 @@ export class MatchService {
 
     // Start match
     match.start()
+    bot.start()
     return id
   }
 
   async createCvCMatch(name1: BotName, name2: BotName) {
     const botConfig1 = await this.configRepository.getBotConfig(name1)
     const botConfig2 = await this.configRepository.getBotConfig(name2)
-
-    const bot1 = this.getBot(botConfig1)
-    const bot2 = this.getBot(botConfig2)
 
     const [botProfile1, botProfile2] = await Promise.all([
       this.getProfile(botConfig1.uid),
@@ -92,8 +87,9 @@ export class MatchService {
         Team.Order
       )
 
-    bot1.observe(perspective1)
-    bot2.observe(perspective2)
+    const bot1 = this.getBot(botConfig1, perspective1)
+    const bot2 = this.getBot(botConfig2, perspective2)
+
     this.matchObserverService.observe(
       match,
       botProfile1,
@@ -102,6 +98,8 @@ export class MatchService {
     )
 
     match.start()
+    bot1.start()
+    bot2.start()
     return match
   }
 
