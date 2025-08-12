@@ -32,13 +32,9 @@ export class AdminGuard implements CanActivate {
     }
 
     if (!userId) return false
-
     const user = await this.userRepository.get(userId)
-
     if (!user) return false
-
     if (user.role === 'creator') return true
-
     return false
   }
 }
