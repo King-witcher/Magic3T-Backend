@@ -47,11 +47,14 @@ function keepServerAlive() {
   }
 
   const reup_rate = Number.parseInt(process.env.HEARTBEAT_RATE || '0')
-  if (!reup_rate) return
+  if (!reup_rate) {
+    Logger.warn('Heartbeat requests are disabled.')
+    return
+  }
+  Logger.log('Heartbeat requests are enabled.')
 
   setInterval(() => {
     fetch(`${backend_url}/status`)
-    Logger.verbose('Heartbeat request sent.')
   }, reup_rate)
 }
 
