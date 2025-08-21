@@ -1,6 +1,6 @@
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
-import { GlickoModel, UserModel } from '@magic3t/types'
+import { Glicko, IconAssignmentRow, UserRow } from '@magic3t/types'
 import {
   Injectable,
   InternalServerErrorException,
@@ -9,13 +9,12 @@ import {
 import { DocumentData, FirestoreDataConverter } from 'firebase-admin/firestore'
 import { BaseRepository } from '../base-repository'
 import { ConfigRepository } from '../config'
-import { IconAssignmentModel } from './icon-assignment.model'
 
 @Injectable()
-export class UserRepository extends BaseRepository<UserModel> {
+export class UserRepository extends BaseRepository<UserRow> {
   private user_logger = new Logger(UserRepository.name, { timestamp: true })
   private iconAssignmentConverter: FirestoreDataConverter<
-    IconAssignmentModel,
+    IconAssignmentRow,
     DocumentData
   >
 
@@ -26,14 +25,14 @@ export class UserRepository extends BaseRepository<UserModel> {
   ) {
     super(firebaseService.firestore, databaseService, 'users')
     this.iconAssignmentConverter =
-      databaseService.getConverter<IconAssignmentModel>()
+      databaseService.getConverter<IconAssignmentRow>()
   }
 
   getUniqueId(nickname: string): string {
     return nickname.toLowerCase().replaceAll(' ', '')
   }
 
-  async getByNickname(nickname: string): Promise<UserModel | null> {
+  async getByNickname(nickname: string): Promise<UserRow | null> {
     const uniqueId = this.getUniqueId(nickname)
     const query = this.collection
       .where('identification.unique_id', '==', uniqueId)
@@ -46,7 +45,7 @@ export class UserRepository extends BaseRepository<UserModel> {
     return result.docs[0].data()
   }
 
-  async updateGlicko(id: string, glicko: GlickoModel) {
+  async updateGlicko(id: string, glicko: Glicko) {
     await super.update({ _id: id, glicko })
     this.user_logger.verbose(`update glicko for user "${id}".`)
   }
@@ -64,7 +63,7 @@ export class UserRepository extends BaseRepository<UserModel> {
   }
 
   /// Gets all bot profiles, sorted by the bot name (bot0, bot1, bot2 and bot3)
-  async getBots(): Promise<UserModel[]> {
+  async getBots(): Promise<UserRow[]> {
     const bots = await this.configService.getBotConfigs()
     const uids = [bots.bot0.uid, bots.bot1.uid, bots.bot2.uid, bots.bot3.uid]
     return await Promise.all(
@@ -84,7 +83,7 @@ export class UserRepository extends BaseRepository<UserModel> {
    * @param limit The amount of players to be fetched
    * @returns The `limit` best ranked players
    */
-  async getBest(limit: number): Promise<UserModel[]> {
+  async getBest(limit: number): Promise<UserRow[]> {
     this.user_logger.verbose(`read ${limit} best players from.`)
     const rankingQuery = this.collection
       .orderBy('elo.score', 'desc')
@@ -97,7 +96,7 @@ export class UserRepository extends BaseRepository<UserModel> {
   /**
    * Gets all icon assigments for a given user.
    */
-  async getIconAssignments(userId: string): Promise<IconAssignmentModel[]> {
+  async getIconAssignments(userId: string): Promise<IconAssignmentRow[]> {
     const subCollection = this.firestore
       .collection(`${this.collectionName}/${userId}/icon_assignments`)
       .withConverter(this.iconAssignmentConverter)
@@ -112,7 +111,7 @@ export class UserRepository extends BaseRepository<UserModel> {
   async getIconAssignment(
     userId: string,
     iconId: number
-  ): Promise<IconAssignmentModel | null> {
+  ): Promise<IconAssignmentRow | null> {
     const subCollection = this.firestore
       .collection(`${this.collectionName}/${userId}/icon_assignments`)
       .withConverter(this.iconAssignmentConverter)

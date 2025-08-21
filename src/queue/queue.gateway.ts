@@ -45,7 +45,7 @@ export class QueueGateway implements OnGatewayDisconnect {
     // Counts how many users are online and update everyone
     setInterval(() => {
       const queueCount = this.queueService.getUserCount()
-      this.server.emit(QueueServerEvents.UpdateUserCount, {
+      this.server.emit(QueueServerEvents.UserCount, {
         casual: {
           inGame: Number.NaN,
           queue: queueCount.casual,

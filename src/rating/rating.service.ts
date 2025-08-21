@@ -1,5 +1,5 @@
 import { ConfigRepository } from '@/database'
-import { Division, League, Rating, UserModel } from '@magic3t/types'
+import { Division, League, RatingPayload, UserRow } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
 import { RatingStrategy } from './strategies'
@@ -23,7 +23,7 @@ export class RatingService {
     return this.ratingStrategy.update(...params)
   }
 
-  async getRating(userModel: UserModel): Promise<Rating> {
+  async getRating(userModel: UserRow): Promise<RatingPayload> {
     const progress = await this.ratingStrategy.getRatingProgress(userModel)
     if (progress < 100) {
       return {
@@ -68,7 +68,7 @@ export class RatingService {
     return Math.round((400 * rating) / config.league_length)
   }
 
-  async getTotalLp(userModel: UserModel): Promise<number> {
+  async getTotalLp(userModel: UserRow): Promise<number> {
     return this.ratingStrategy.getTotalLp(userModel)
   }
 }

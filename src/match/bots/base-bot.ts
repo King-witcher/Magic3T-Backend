@@ -1,10 +1,11 @@
 import { Channel } from '@/common/utils/channel'
 import { MatchEventType } from '@/match/lib/match'
-import { Choice, MatchState, Team } from '@magic3t/types'
+import { Choice, StateReportPayload, Team } from '@magic3t/types'
 import { Perspective } from '../lib/perspective'
 
 export abstract class BaseBot {
-  private channel: Channel<MatchState> = new Channel<MatchState>()
+  private channel: Channel<StateReportPayload> =
+    new Channel<StateReportPayload>()
   private started = false
 
   constructor(private perspective: Perspective) {
@@ -35,5 +36,8 @@ export abstract class BaseBot {
     }
   }
 
-  protected abstract think(state: MatchState, team: Team): Promise<Choice>
+  protected abstract think(
+    state: StateReportPayload,
+    team: Team
+  ): Promise<Choice>
 }

@@ -5,7 +5,7 @@ import { firestore } from 'firebase-admin'
 import CollectionReference = firestore.CollectionReference
 import { CacheMethod } from '@common'
 import {
-  BotConfigModel,
+  BotConfigRow,
   BotName,
   DevopsConfigModel,
   RatingConfigModel,
@@ -29,7 +29,7 @@ export class ConfigRepository {
   async getBotConfigs() {
     this.logger.verbose('read "bots" from config')
 
-    const converter = this.databaseService.getConverter<BotConfigModel>()
+    const converter = this.databaseService.getConverter<BotConfigRow>()
     const snapshot = await this.collection
       .withConverter(converter)
       .doc('bots')

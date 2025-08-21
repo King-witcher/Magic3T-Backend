@@ -2,14 +2,14 @@ import { RatingService } from '@/rating'
 import {
   Division,
   League,
-  Profile,
-  Rating,
-  UserModel,
+  UserRow,
   UserRole,
+  RatingPayload,
+  UserPayload,
 } from '@magic3t/types'
 import { ApiProperty } from '@nestjs/swagger'
 
-export class RatingDto implements Rating {
+export class RatingDto implements RatingPayload {
   @ApiProperty({
     description: "The player's league",
     example: League.Provisional,
@@ -42,7 +42,7 @@ export class RatingDto implements Rating {
   }
 }
 
-export class UserDto implements Profile {
+export class UserDto implements UserPayload {
   @ApiProperty({
     description: 'The user unique id',
     example: 'RdZ0ThlzqfMEpcwDEYaND7avAi42',
@@ -74,7 +74,7 @@ export class UserDto implements Profile {
     description: 'The rating params of the user',
     type: RatingDto,
   })
-  rating: Rating
+  rating: RatingPayload
 
   @ApiProperty({
     description: "The player's wins, draws and defeats",
@@ -90,12 +90,12 @@ export class UserDto implements Profile {
     defeats: number
   }
 
-  constructor(data: Profile) {
+  constructor(data: UserPayload) {
     Object.assign(this, data)
   }
 
   static async fromModel(
-    model: UserModel,
+    model: UserRow,
     ratingService: RatingService
   ): Promise<UserDto> {
     return new UserDto({

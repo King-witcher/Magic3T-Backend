@@ -1,4 +1,8 @@
-import { EventNames, EventParams, EventsMap } from 'socket.io/dist/typed-events'
+import {
+  EventNames,
+  EventParams,
+  EventsMap,
+} from '@socket.io/component-emitter'
 
 export type GatewayResponse<
   EmitEventsMap extends EventsMap,

@@ -1,5 +1,5 @@
 import { ConfigRepository } from '@/database'
-import { UserModel } from '@magic3t/types'
+import { UserRow } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { getInflation, newDeviation, newRating } from './glicko'
 import { RatingStrategy } from './rating-strategy'
@@ -13,7 +13,7 @@ export class GlickoStrategy extends RatingStrategy {
     super()
   }
 
-  async update(a: UserModel, b: UserModel, aScore: number) {
+  async update(a: UserRow, b: UserRow, aScore: number) {
     const config = await this.configRepository.cachedGetRatingConfig()
 
     const inflation = getInflation(config.rd_inflation_time, config.max_rd)
@@ -45,7 +45,7 @@ export class GlickoStrategy extends RatingStrategy {
     }
   }
 
-  async getTotalLp(user: UserModel): Promise<number> {
+  async getTotalLp(user: UserRow): Promise<number> {
     if (!user.glicko) throw new Error('User does not have a Glicko rating.')
 
     const config = await this.configRepository.cachedGetRatingConfig()
@@ -57,7 +57,7 @@ export class GlickoStrategy extends RatingStrategy {
     return rawLP
   }
 
-  async getRatingProgress(user: UserModel): Promise<number> {
+  async getRatingProgress(user: UserRow): Promise<number> {
     if (!user.glicko) return 0
     const config = await this.configRepository.cachedGetRatingConfig()
 

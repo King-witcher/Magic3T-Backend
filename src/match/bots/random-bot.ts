@@ -1,9 +1,9 @@
 import { delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
-import { MatchState, Team } from '@magic3t/types'
+import { StateReportPayload, Team } from '@magic3t/types'
 
 export class RandomBot extends BaseBot {
-  async think(state: MatchState) {
+  async think(state: StateReportPayload) {
     const available = ([1, 2, 3, 4, 5, 6, 7, 8, 9] as const).filter(
       (choice) =>
         !state[Team.Order].choices.includes(choice) &&

@@ -1,11 +1,11 @@
 import { Err, Observable, Ok, Result, Stopwatch } from '@/common'
 import {
   Choice,
-  MatchModelEvent,
-  MatchEventType as MatchModelEventType,
-  MatchState,
+  MatchPayloadEvents,
+  MatchRowEvent,
+  StateReportPayload,
   Team,
-  UserModel,
+  UserRow,
 } from '@magic3t/types'
 import { Player } from './player'
 
@@ -32,21 +32,21 @@ export type MatchEventsMap = {
 
 interface MatchParams {
   timelimit: number
-  [Team.Order]: UserModel
-  [Team.Chaos]: UserModel
+  [Team.Order]: UserRow
+  [Team.Chaos]: UserRow
 }
 
 export class Match extends Observable<MatchEventsMap> {
   private globalTime = new Stopwatch()
   public id: string
-  public events: MatchModelEvent[] = []
+  public events: MatchRowEvent[] = []
   public turn: Team | null = null
   public winner: Team | null = null
   public finished = false
   public [Team.Order]: Player
   public [Team.Chaos]: Player
   public timelimit: number
-  public assignments: Record<Team, UserModel>
+  public assignments: Record<Team, UserRow>
 
   constructor({
     timelimit,
@@ -77,11 +77,11 @@ export class Match extends Observable<MatchEventsMap> {
     return this[Team.Order].count + this[Team.Chaos].count === 9
   }
 
-  public get stateReport(): MatchState {
+  public get stateReport(): StateReportPayload {
     const order = this[Team.Order]
     const chaos = this[Team.Chaos]
 
-    const report: MatchState = {
+    const report: StateReportPayload = {
       [Team.Order]: {
         choices: [...order.choices],
         surrender: order.surrender,
@@ -162,7 +162,7 @@ export class Match extends Observable<MatchEventsMap> {
     player.choices.push(choice)
 
     this.events.push({
-      event: MatchModelEventType.Choice,
+      event: MatchPayloadEvents.Choice,
       choice,
       side: team,
       time: this.time,
@@ -194,13 +194,12 @@ export class Match extends Observable<MatchEventsMap> {
     player.surrender = true
 
     this.events.push({
-      event: MatchModelEventType.Forfeit,
+      event: MatchPayloadEvents.Forfeit,
       side,
       time: this.time,
     })
 
     this.declareWinner(1 - side)
-    console.log(this.turn)
     this.emit(MatchEventType.Surrender, side, this.time)
 
     return Ok([])
@@ -210,7 +209,7 @@ export class Match extends Observable<MatchEventsMap> {
     const opposite = 1 - side
 
     this.events.push({
-      event: MatchModelEventType.Timeout,
+      event: MatchPayloadEvents.Timeout,
       side,
       time: this.time,
     })

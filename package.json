@@ -9,6 +9,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
+    "typecheck": "tsc --noEmit",
     "typeorm": "typeorm-ts-node-commonjs",
     "test": "vitest"
   },
@@ -34,11 +35,12 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@faker-js/faker": "^9.9.0",
-    "@magic3t/types": "^3.3.1",
+    "@magic3t/types": "^4.0.1",
     "@nest/testing": "^4.5.4",
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^10.4.15",
+    "@socket.io/component-emitter": "^3.1.2",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.0",

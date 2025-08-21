@@ -31,5 +31,6 @@
       "@rating": ["./src/rating"],
       "@types": ["./src/rating"],
     }
-  }
+  },
+  "include": ["src/**/*.ts"]
 }

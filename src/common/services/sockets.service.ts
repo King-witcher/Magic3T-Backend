@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { Socket } from 'socket.io'
+import { DefaultEventsMap, Socket } from 'socket.io'
 import {
-  DefaultEventsMap,
   EventNames,
   EventParams,
   EventsMap,
-} from 'socket.io/dist/typed-events'
+} from '@socket.io/component-emitter'
 
 @Injectable()
 export class SocketsService<EmitType extends EventsMap> {

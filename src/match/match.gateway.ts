@@ -15,7 +15,7 @@ import {
   GameServerEventsMap,
   MatchClientEvents,
   MatchServerEvents,
-  MessageData,
+  MessagePayload,
 } from '@magic3t/types'
 import { CurrentPerspective } from './decorators'
 import { Perspective } from './lib'
@@ -51,7 +51,7 @@ export class MatchGateway implements OnGatewayDisconnect {
   @SubscribeMessage(MatchClientEvents.Message)
   handleMessage(@UserId() uid: string, @MessageBody() body: string) {
     const opponent = this.matchService.getOpponent(uid)
-    const messageData: MessageData = {
+    const messageData: MessagePayload = {
       message: body,
       sender: uid,
       time: Date.now(),

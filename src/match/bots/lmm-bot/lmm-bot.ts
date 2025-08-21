@@ -1,10 +1,10 @@
 import { delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
 import { Perspective } from '@/match/lib'
-import { Choice, MatchState, Team } from '@magic3t/types'
+import { Choice, StateReportPayload, Team } from '@magic3t/types'
 import { createTree } from './lib'
 
-function getMatchChoices(state: MatchState, team: Team) {
+function getMatchChoices(state: StateReportPayload, team: Team) {
   const order = state[Team.Order].choices
   const chaos = state[Team.Chaos].choices
   const result: Choice[] = []
@@ -23,7 +23,7 @@ export class LmmBot extends BaseBot {
     super(perspective)
   }
 
-  private async simulateThinkTime(state: MatchState): Promise<void> {
+  private async simulateThinkTime(state: StateReportPayload): Promise<void> {
     const choicesMade =
       state[Team.Order].choices.length + state[Team.Chaos].choices.length
 
@@ -36,7 +36,7 @@ export class LmmBot extends BaseBot {
     )
   }
 
-  async think(state: MatchState, team: Team): Promise<Choice> {
+  async think(state: StateReportPayload, team: Team): Promise<Choice> {
     await this.simulateThinkTime(state)
 
     const matchChoices = getMatchChoices(state, team)

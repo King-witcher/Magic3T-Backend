@@ -1,4 +1,4 @@
-import { GlickoModel } from '@magic3t/types'
+import { Glicko } from '@magic3t/types'
 
 const piSquare = Math.PI ** 2
 
@@ -30,8 +30,8 @@ function getExpectedScore(
 }
 
 export function newRating(
-  player: GlickoModel,
-  opponent: GlickoModel,
+  player: Glicko,
+  opponent: Glicko,
   s: number,
   inflation: number,
   maxRD: number
@@ -68,8 +68,8 @@ export function newRating(
 }
 
 export function newDeviation(
-  player: GlickoModel,
-  opponent: GlickoModel,
+  player: Glicko,
+  opponent: Glicko,
   inflation: number,
   maxRD: number
 ) {

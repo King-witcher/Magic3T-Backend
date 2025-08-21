@@ -1,7 +1,6 @@
-import { Server, Socket } from 'socket.io'
-import { DefaultEventsMap } from 'socket.io/dist/typed-events'
+import { DefaultEventsMap, Server, Socket } from 'socket.io'
 
-import { QueueClientEventsMap, QueueServerEventsMap } from '@magic3t/types/'
+import { QueueClientEventsMap, QueueServerEventsMap } from '@magic3t/types'
 
 export type QueueSocket = Socket<
   QueueClientEventsMap,

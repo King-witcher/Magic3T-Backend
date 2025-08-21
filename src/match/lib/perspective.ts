@@ -1,7 +1,12 @@
 import { Result } from '@/common'
 import { UserDto } from '@/database'
 import { RatingService } from '@/rating'
-import { AssignmentsData, Choice, MatchState, Team } from '@magic3t/types'
+import {
+  AssignmentsPayload,
+  Choice,
+  StateReportPayload,
+  Team,
+} from '@magic3t/types'
 import { Match, MatchError, MatchEventsMap } from './match'
 
 /**
@@ -14,7 +19,7 @@ export class Perspective {
     public readonly ratingService: RatingService
   ) {}
 
-  async getAssignments(): Promise<AssignmentsData> {
+  async getAssignments(): Promise<AssignmentsPayload> {
     const order = this.match.assignments[Team.Order]
     const chaos = this.match.assignments[Team.Chaos]
 
@@ -28,7 +33,7 @@ export class Perspective {
     }
   }
 
-  getStateReport(): MatchState {
+  getStateReport(): StateReportPayload {
     return this.match.stateReport
   }
 

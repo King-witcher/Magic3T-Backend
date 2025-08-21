@@ -1,7 +1,6 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { MatchDto } from '@/database/match/match.dto'
-import { BotName } from '@magic3t/types'
+import { BotName, GetMatchesResult } from '@magic3t/types'
 import {
   Controller,
   Get,
@@ -18,12 +17,15 @@ import { CurrentPerspective } from './decorators'
 import { MatchBank, MatchEventType, Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
+import { GetMatchesResult as GetMatchesPayloadClass } from './swagger/get-matches'
+import { MatchRepository } from '@/database'
 
 @Controller('matches')
 export class MatchController {
   constructor(
     private matchBank: MatchBank,
-    private matchService: MatchService
+    private matchService: MatchService,
+    private matchRepository: MatchRepository
   ) {
     const names = [BotName.Bot0, BotName.Bot1, BotName.Bot2, BotName.Bot3]
 
@@ -101,12 +103,12 @@ export class MatchController {
     description: 'Get the most recent matches played by a user, sorted by date',
   })
   @ApiResponse({
-    type: [MatchDto],
+    type: [GetMatchesPayloadClass],
   })
   async getMatchesByUser(
     @Query('limit', ParseIntPipe) limit: number,
     @Param('userId') userId: string
-  ): Promise<MatchDto[]> {
-    return await this.matchService.getMatchesByUser(userId, limit)
+  ): Promise<GetMatchesResult> {
+    return this.matchService.getMatchesByUser(userId, limit)
   }
 }

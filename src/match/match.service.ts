@@ -1,11 +1,18 @@
-import { MatchDto } from '@/database/match/match.dto'
 import { ConfigRepository, MatchRepository, UserRepository } from '@database'
-import { BotConfig, BotName, GameMode, Team, UserModel } from '@magic3t/types'
+import {
+  BotConfig,
+  BotName,
+  GameMode,
+  GetMatchesResult,
+  Team,
+  UserRow,
+} from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
 import { BaseBot, LmmBot, RandomBot } from './bots'
 import { MatchBank, Perspective } from './lib'
 import { MatchObserverService } from './state-report.service'
+import { MatchPayload } from './swagger/match-payload'
 
 @Injectable()
 export class MatchService {
@@ -23,7 +30,7 @@ export class MatchService {
       : new RandomBot(perspective)
   }
 
-  private async getProfile(uid: string): Promise<UserModel> {
+  private async getProfile(uid: string): Promise<UserRow> {
     const profile = await this.userRepository.get(uid)
     if (!profile) throw new Error(`Could not find profile for bot ${uid}.`)
     return profile
@@ -143,12 +150,18 @@ export class MatchService {
     return !this.matchBank.containsUser(userId)
   }
 
-  async getMatchesByUser(user: string, limit: number): Promise<MatchDto[]> {
+  async getMatchesByUser(
+    userId: string,
+    limit: number
+  ): Promise<GetMatchesResult> {
     const clampedLimit = clamp(limit, 0, 50)
-    const models = await this.matchRepository.getByUser(user, clampedLimit)
-    const dtos = await Promise.all(
-      models.map((model) => MatchDto.fromModel(model))
+    const rows = await this.matchRepository.getByUser(userId, clampedLimit)
+    const payloads = await Promise.all(
+      rows.map((model) => MatchPayload.fromRow(model))
     )
-    return dtos
+    return {
+      matches: payloads,
+      cursor: null,
+    }
   }
 }

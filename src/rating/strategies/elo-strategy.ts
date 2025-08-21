@@ -1,5 +1,5 @@
 import { ConfigRepository } from '@/database'
-import { UserModel } from '@magic3t/types'
+import { UserRow } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { RatingStrategy } from './rating-strategy'
 
@@ -9,7 +9,7 @@ export class EloStrategy extends RatingStrategy {
     super()
   }
 
-  async update(a: UserModel, b: UserModel, scoreA: number): Promise<void> {
+  async update(a: UserRow, b: UserRow, scoreA: number): Promise<void> {
     if (!a.elo || !b.elo)
       throw new Error('Both players must have an Elo rating to update.')
     const config = await this.configRepository.cachedGetRatingConfig()
@@ -35,7 +35,7 @@ export class EloStrategy extends RatingStrategy {
     }
   }
 
-  async getTotalLp(user: UserModel): Promise<number> {
+  async getTotalLp(user: UserRow): Promise<number> {
     if (!user.elo) throw new Error('User does not have an Elo rating.')
     const config = await this.configRepository.cachedGetRatingConfig()
     const rawLP =
@@ -45,7 +45,7 @@ export class EloStrategy extends RatingStrategy {
     return Math.round(rawLP)
   }
 
-  async getRatingProgress(user: UserModel): Promise<number> {
+  async getRatingProgress(user: UserRow): Promise<number> {
     if (user.elo.matches > 5) return 100
     return (user.elo.matches / 5) * 100
   }

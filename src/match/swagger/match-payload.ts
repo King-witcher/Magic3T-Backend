@@ -1,22 +1,23 @@
 import {
   Choice,
-  MatchDtoTeam,
-  MatchEventType,
-  MatchModel,
+  MatchPayloadEvents,
+  MatchPayloadTeam,
+  MatchRow,
+  MatchRowEvent,
   Team,
 } from '@magic3t/types'
 import { ApiProperty } from '@nestjs/swagger'
 
-export class MatchDtoEvent {
+export class MatchPayloadEvent {
   @ApiProperty({
-    description: `The event type. ${MatchEventType.Choice} = choice, ${MatchEventType.Forfeit} = surrender, ${MatchEventType.Timeout} = timeout`,
+    description: `The event type. ${MatchPayloadEvents.Choice} = choice, ${MatchPayloadEvents.Forfeit} = surrender, ${MatchPayloadEvents.Timeout} = timeout`,
     enum: [
-      MatchEventType.Choice,
-      MatchEventType.Forfeit,
-      MatchEventType.Timeout,
+      MatchPayloadEvents.Choice,
+      MatchPayloadEvents.Forfeit,
+      MatchPayloadEvents.Timeout,
     ],
   })
-  event: MatchEventType
+  event: MatchPayloadEvents
 
   @ApiProperty({
     description: 'The team that triggered the event.',
@@ -34,7 +35,7 @@ export class MatchDtoEvent {
 
   @ApiProperty({
     nullable: true,
-    description: `The choice made, if event is ${MatchEventType.Choice}; otherwise, undefined`,
+    description: `The choice made, if event is ${MatchPayloadEvents.Choice}; otherwise, undefined`,
     example: 7,
   })
   choice?: Choice
@@ -42,7 +43,7 @@ export class MatchDtoEvent {
   message?: string
 }
 
-export class MatchDto {
+export class MatchPayload {
   @ApiProperty({
     description: 'The match unique id',
   })
@@ -52,14 +53,14 @@ export class MatchDto {
     description:
       'An object mapping teams into info about that team in the match',
   })
-  teams: Record<Team, MatchDtoTeam>
+  teams: Record<Team, MatchPayloadTeam>
 
   @ApiProperty({
     description: 'The list of events that happened in the match',
-    type: MatchDtoEvent,
+    type: MatchPayloadEvent,
     isArray: true,
   })
-  events: MatchDtoEvent[]
+  events: MatchRowEvent[]
 
   @ApiProperty({
     description: 'The match winner, if any; otherwise, null',
@@ -75,16 +76,16 @@ export class MatchDto {
   })
   time: number
 
-  constructor(data: MatchDto) {
+  constructor(data: MatchPayload) {
     Object.assign(this, data)
   }
 
-  static async fromModel(model: MatchModel): Promise<MatchDto> {
-    const modelOrder = model[Team.Order]
-    const modelChaos = model[Team.Chaos]
+  static fromRow(row: MatchRow): MatchPayload {
+    const modelOrder = row[Team.Order]
+    const modelChaos = row[Team.Chaos]
 
-    return new MatchDto({
-      id: model._id,
+    return new MatchPayload({
+      id: row._id,
       teams: {
         [Team.Order]: {
           id: modelOrder.uid,
@@ -103,9 +104,9 @@ export class MatchDto {
           lpGain: modelChaos.lp_gain,
         },
       },
-      events: [...model.events],
-      time: model.timestamp.getDate(),
-      winner: model.winner,
+      events: [...row.events],
+      time: row.timestamp.getDate(),
+      winner: row.winner,
     })
   }
 }

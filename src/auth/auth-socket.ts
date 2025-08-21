@@ -1,5 +1,4 @@
-import { Socket } from 'socket.io'
-import { DefaultEventsMap } from 'socket.io/dist/typed-events'
+import { DefaultEventsMap, Socket } from 'socket.io'
 
 export type AuthSocketData = {
   userId: string

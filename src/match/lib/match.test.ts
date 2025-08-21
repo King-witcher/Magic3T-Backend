@@ -1,13 +1,13 @@
 import { delay } from '@/common'
 import { faker } from '@faker-js/faker'
-import { Choice, Team, UserModel } from '@magic3t/types'
+import { Choice, Team, UserRow } from '@magic3t/types'
 import { Match, MatchEventType } from './match'
 
 function createMatch(): Match {
   return new Match({
     timelimit: 400,
-    [Team.Order]: {} as UserModel,
-    [Team.Chaos]: {} as UserModel,
+    [Team.Order]: {} as UserRow,
+    [Team.Chaos]: {} as UserRow,
   })
 }
 

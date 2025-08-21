@@ -6,11 +6,11 @@ import {
   GameMode,
   GameServerEventsMap,
   League,
-  MatchModel,
-  MatchResults,
+  MatchRow,
   MatchServerEvents,
   Team,
-  UserModel,
+  UserRow,
+  MatchReportPayload,
 } from '@magic3t/types'
 import { Inject, Injectable } from '@nestjs/common'
 import { Match, MatchEventType } from './lib'
@@ -26,12 +26,7 @@ export class MatchObserverService {
   ) {}
 
   /** Does everything xD */
-  observe(
-    match: Match,
-    order: UserModel,
-    chaos: UserModel,
-    gameMode: GameMode
-  ) {
+  observe(match: Match, order: UserRow, chaos: UserRow, gameMode: GameMode) {
     match.onMany(
       [MatchEventType.Choice, MatchEventType.Surrender, MatchEventType.Timeout],
       () => {
@@ -46,8 +41,8 @@ export class MatchObserverService {
 
   private async handleMatchStateUpdated(
     match: Match,
-    order: UserModel,
-    chaos: UserModel
+    order: UserRow,
+    chaos: UserRow
   ) {
     const state = match.stateReport
     for (const player of [order, chaos]) {
@@ -62,8 +57,8 @@ export class MatchObserverService {
 
   private async handleMatchFinished(
     match: Match,
-    order: UserModel,
-    chaos: UserModel,
+    order: UserRow,
+    chaos: UserRow,
     gameMode: GameMode
   ) {
     const [newOrder, newChaos] = await (async () => {
@@ -80,13 +75,14 @@ export class MatchObserverService {
       return [order, chaos]
     })()
 
-    const matchReport: MatchResults = {
+    const matchReport: MatchReportPayload = {
       matchId: match.id,
       winner: match.winner,
       [Team.Order]: null!,
       [Team.Chaos]: null!,
     }
-    const matchModel: MatchModel = {
+
+    const matchModel: MatchRow = {
       _id: match.id,
       [Team.Order]: null!,
       [Team.Chaos]: null!,
@@ -114,12 +110,6 @@ export class MatchObserverService {
       const oldLp = await this.ratingService.getTotalLp(player.old)
       const newLp = await this.ratingService.getTotalLp(player.new)
       const score = match.getFinalScore(player.team)!
-      console.log(
-        'final score of',
-        player.new.identification?.nickname,
-        'is',
-        score
-      )
       const lpGain = oldRating.league === League.Provisional ? 0 : newLp - oldLp
 
       matchReport[player.team] = {
