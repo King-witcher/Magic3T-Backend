@@ -2,6 +2,7 @@ import { Controller, Get, ImATeapotException, Redirect } from '@nestjs/common'
 import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 import { UserRepository } from './database'
 import { RatingService } from './rating'
+import { FirebaseService } from './firebase'
 
 @Controller()
 export class AppController {
@@ -12,7 +13,8 @@ export class AppController {
 
   constructor(
     private usersRepository: UserRepository,
-    private ratingService: RatingService
+    private ratingService: RatingService,
+    private firebaseService: FirebaseService
   ) {}
 
   @Get('teapot')
