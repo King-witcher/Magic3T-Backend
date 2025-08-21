@@ -1,7 +1,7 @@
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { HttpFilter } from '@/common/filters/http.filter'
-import { UserDto } from '@/database'
+import { UserPayload } from '@/database'
 import {
   Body,
   Controller,
@@ -9,13 +9,15 @@ import {
   NotFoundException,
   Param,
   Patch,
+  Post,
   UseFilters,
   UseGuards,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger'
-import { ChangeIconDto } from './dtos/change-icon'
-import { ChangeNickDto } from './dtos/change-nick'
+import { ChangeIconDto } from './swagger/change-icon'
+import { ChangeNickDto } from './swagger/change-nick'
 import { UserService } from './user.service'
+import { RegisterUserCommand } from './swagger/register-user'
 
 @Controller('users')
 @UseFilters(HttpFilter)
@@ -27,9 +29,9 @@ export class UserController {
     summary: 'Get a user by id',
   })
   @ApiResponse({
-    type: UserDto,
+    type: UserPayload,
   })
-  async getById(@Param('id') id: string): Promise<UserDto> {
+  async getById(@Param('id') id: string): Promise<UserPayload> {
     const user = await this.userService.getById(id)
     if (!user) throw new NotFoundException()
     return user
@@ -41,9 +43,11 @@ export class UserController {
     description: 'Casing and spaces are ignored.',
   })
   @ApiResponse({
-    type: UserDto,
+    type: UserPayload,
   })
-  async getByNickname(@Param('nickname') nickname: string): Promise<UserDto> {
+  async getByNickname(
+    @Param('nickname') nickname: string
+  ): Promise<UserPayload> {
     const user = await this.userService.getByNickname(nickname)
     if (!user) throw new NotFoundException()
     return user
@@ -55,9 +59,9 @@ export class UserController {
   })
   @ApiResponse({
     isArray: true,
-    type: UserDto,
+    type: UserPayload,
   })
-  async getRanking(): Promise<UserDto[]> {
+  async getRanking(): Promise<UserPayload[]> {
     return await this.userService.getRanking()
   }
 
@@ -66,7 +70,7 @@ export class UserController {
     summary: 'Get the currently connected user',
   })
   @ApiResponse({
-    type: UserDto,
+    type: UserPayload,
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
@@ -87,6 +91,17 @@ export class UserController {
     @Body() changeNickDto: ChangeNickDto
   ) {
     await this.userService.changeNickName(userId, changeNickDto.nickname)
+  }
+
+  @Post('register')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Register an authenticated user in the database information',
+  })
+  async register(@UserId() userId: string, @Body() body: RegisterUserCommand) {
+    console.log('aa')
+    await this.userService.register(userId, body)
   }
 
   @Get('me/icons')

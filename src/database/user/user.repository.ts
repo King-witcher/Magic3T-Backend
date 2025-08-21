@@ -28,12 +28,12 @@ export class UserRepository extends BaseRepository<UserRow> {
       databaseService.getConverter<IconAssignmentRow>()
   }
 
-  getUniqueId(nickname: string): string {
+  getSlug(nickname: string): string {
     return nickname.toLowerCase().replaceAll(' ', '')
   }
 
   async getByNickname(nickname: string): Promise<UserRow | null> {
-    const uniqueId = this.getUniqueId(nickname)
+    const uniqueId = this.getSlug(nickname)
     const query = this.collection
       .where('identification.unique_id', '==', uniqueId)
       .limit(1)
@@ -51,7 +51,7 @@ export class UserRepository extends BaseRepository<UserRow> {
   }
 
   async updateNickname(userId: string, nickname: string) {
-    const uniqueId = this.getUniqueId(nickname)
+    const uniqueId = this.getSlug(nickname)
     await this.collection.doc(userId).update({
       identification: {
         nickname,

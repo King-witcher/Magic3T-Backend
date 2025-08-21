@@ -1,7 +1,7 @@
 import { BaseError } from '@/common/errors/base-error'
-import { ConfigRepository, UserDto, UserRepository } from '@/database'
+import { ConfigRepository, UserPayload, UserRepository } from '@/database'
 import { RatingService } from '@/rating'
-import { League } from '@magic3t/types'
+import { League, RegisterUserCommand, UserRole, UserRow } from '@magic3t/types'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { range } from 'lodash'
 
@@ -68,17 +68,17 @@ export class UserService {
     })
   }
 
-  async getById(id: string): Promise<UserDto | null> {
+  async getById(id: string): Promise<UserPayload | null> {
     const user = await this.userRepository.get(id)
-    return user && (await UserDto.fromModel(user, this.ratingService))
+    return user && (await UserPayload.fromRow(user, this.ratingService))
   }
 
-  async getByNickname(nickname: string): Promise<UserDto | null> {
+  async getByNickname(nickname: string): Promise<UserPayload | null> {
     const user = await this.userRepository.getByNickname(nickname)
-    return user && (await UserDto.fromModel(user, this.ratingService))
+    return user && (await UserPayload.fromRow(user, this.ratingService))
   }
 
-  async getRanking(): Promise<UserDto[]> {
+  async getRanking(): Promise<UserPayload[]> {
     const [bestPlayers, ratingConfig] = await Promise.all([
       this.userRepository.getBest(50),
       this.configRepository.cachedGetRatingConfig(),
@@ -89,7 +89,7 @@ export class UserService {
         // Filter only players with an identification
         .filter((player) => !!player.identification)
         // Convert to Dtos
-        .map((model) => UserDto.fromModel(model, this.ratingService))
+        .map((model) => UserPayload.fromRow(model, this.ratingService))
     )
 
     const qualified = bestPlayersDtos.filter(
@@ -111,5 +111,43 @@ export class UserService {
       Number.parseInt(assigment._id)
     )
     return [...assignedIcons, ...baseIcons]
+  }
+
+  async register(userId: string, body: RegisterUserCommand) {
+    const user = await this.userRepository.get(userId)
+    if (user)
+      throw new BaseError('user already registered', HttpStatus.BAD_REQUEST)
+    const ratingConfig = await this.configRepository.cachedGetRatingConfig()
+
+    const userRow: UserRow = {
+      _id: userId,
+      elo: {
+        k: ratingConfig.initial_k_value,
+        score: ratingConfig.base_score,
+        matches: 0,
+      },
+      experience: 0,
+      glicko: {
+        deviation: ratingConfig.max_rd,
+        rating: ratingConfig.base_score,
+        timestamp: new Date(),
+      },
+      identification: {
+        last_changed: new Date(),
+        nickname: body.nickname,
+        unique_id: this.userRepository.getSlug(body.nickname),
+      },
+      magic_points: 0,
+      perfect_squares: 0,
+      role: UserRole.Player,
+      stats: {
+        defeats: 0,
+        draws: 0,
+        wins: 0,
+      },
+      summoner_icon: 29,
+    }
+
+    await this.userRepository.create(userRow)
   }
 }

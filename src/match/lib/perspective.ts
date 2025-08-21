@@ -1,5 +1,5 @@
 import { Result } from '@/common'
-import { UserDto } from '@/database'
+import { UserPayload } from '@/database'
 import { RatingService } from '@/rating'
 import {
   AssignmentsPayload,
@@ -25,10 +25,10 @@ export class Perspective {
 
     return {
       [Team.Order]: {
-        profile: await UserDto.fromModel(order, this.ratingService),
+        profile: await UserPayload.fromRow(order, this.ratingService),
       },
       [Team.Chaos]: {
-        profile: await UserDto.fromModel(chaos, this.ratingService),
+        profile: await UserPayload.fromRow(chaos, this.ratingService),
       },
     }
   }

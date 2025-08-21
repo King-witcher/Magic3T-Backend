@@ -5,7 +5,7 @@ import {
   UserRow,
   UserRole,
   RatingPayload,
-  UserPayload,
+  UserPayload as UserPayloadType,
 } from '@magic3t/types'
 import { ApiProperty } from '@nestjs/swagger'
 
@@ -42,7 +42,7 @@ export class RatingDto implements RatingPayload {
   }
 }
 
-export class UserDto implements UserPayload {
+export class UserPayload implements UserPayloadType {
   @ApiProperty({
     description: 'The user unique id',
     example: 'RdZ0ThlzqfMEpcwDEYaND7avAi42',
@@ -52,7 +52,7 @@ export class UserDto implements UserPayload {
   @ApiProperty({
     example: 'King Witcher',
   })
-  nickname: string | null
+  nickname: string
 
   @ApiProperty({
     description: 'The summoner icon id of the icon being used',
@@ -90,25 +90,25 @@ export class UserDto implements UserPayload {
     defeats: number
   }
 
-  constructor(data: UserPayload) {
+  constructor(data: UserPayloadType) {
     Object.assign(this, data)
   }
 
-  static async fromModel(
-    model: UserRow,
+  static async fromRow(
+    row: UserRow,
     ratingService: RatingService
-  ): Promise<UserDto> {
-    return new UserDto({
-      id: model._id,
-      nickname: model.identification?.nickname || null,
-      summonerIcon: model.summoner_icon,
-      role: model.role,
+  ): Promise<UserPayload> {
+    return new UserPayload({
+      id: row._id,
+      nickname: row.identification?.nickname || '',
+      summonerIcon: row.summoner_icon,
+      role: row.role,
       stats: {
-        wins: model.stats.wins,
-        draws: model.stats.draws,
-        defeats: model.stats.defeats,
+        wins: row.stats.wins,
+        draws: row.stats.draws,
+        defeats: row.stats.defeats,
       },
-      rating: await ratingService.getRating(model),
+      rating: await ratingService.getRating(row),
     })
   }
 }
