@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  '@magic3t/types': link:../../../Users/giuseppelanna/AppData/Local/pnpm/global/5/node_modules/@magic3t/types
-
 importers:
 
   .:
@@ -70,8 +67,8 @@ importers:
         specifier: ^9.9.0
         version: 9.9.0
       '@magic3t/types':
-        specifier: link:../../../Users/giuseppelanna/AppData/Local/pnpm/global/5/node_modules/@magic3t/types
-        version: link:../../../Users/giuseppelanna/AppData/Local/pnpm/global/5/node_modules/@magic3t/types
+        specifier: ^4.0.1
+        version: 4.0.1
       '@nest/testing':
         specifier: ^4.5.4
         version: 4.5.4(@nest/core@4.5.4(reflect-metadata@0.2.2)(rxjs@7.8.2))
@@ -482,6 +479,9 @@ packages:
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
     engines: {node: '>=8'}
+
+  '@magic3t/types@4.0.1':
+    resolution: {integrity: sha512-Tfwzl34hTOaoZl6kIa3M+uD822tq75YIncl6RZmAa8pEcNYuuM9wGwlYpG26ogtEpuUwhMneyPvoOumdnQBpnQ==}
 
   '@microsoft/tsdoc@0.15.1':
     resolution: {integrity: sha512-4aErSrCR/On/e5G2hDP0wjooqDdauzEbIq8hIkIe5pXV0rtWJZvdCEKL0ykZxex+IxIwBp0eGeV48hQN07dXtw==}
@@ -3408,6 +3408,8 @@ snapshots:
       call-bind: 1.0.8
 
   '@lukeed/csprng@1.1.0': {}
+
+  '@magic3t/types@4.0.1': {}
 
   '@microsoft/tsdoc@0.15.1': {}
 
