@@ -64,7 +64,7 @@ export class UserRepository extends BaseRepository<UserRow> {
 
   /// Gets all bot profiles, sorted by the bot name (bot0, bot1, bot2 and bot3)
   async getBots(): Promise<UserRow[]> {
-    const bots = await this.configService.getBotConfigs()
+    const bots = (await this.configService.getBotConfigs()).unwrap()
     const uids = [bots.bot0.uid, bots.bot1.uid, bots.bot2.uid, bots.bot3.uid]
     return await Promise.all(
       uids.map(async (uid) => {

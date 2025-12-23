@@ -14,7 +14,9 @@ export class GlickoStrategy extends RatingStrategy {
   }
 
   async update(a: UserRow, b: UserRow, aScore: number) {
-    const config = await this.configRepository.cachedGetRatingConfig()
+    const config = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).unwrap()
 
     const inflation = getInflation(config.rd_inflation_time, config.max_rd)
 
@@ -48,7 +50,9 @@ export class GlickoStrategy extends RatingStrategy {
   async getTotalLp(user: UserRow): Promise<number> {
     if (!user.glicko) throw new Error('User does not have a Glicko rating.')
 
-    const config = await this.configRepository.cachedGetRatingConfig()
+    const config = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).unwrap()
     const rawLP = Math.round(
       400 *
         ((user.glicko.rating - config.base_score) / config.league_length +
@@ -59,7 +63,9 @@ export class GlickoStrategy extends RatingStrategy {
 
   async getRatingProgress(user: UserRow): Promise<number> {
     if (!user.glicko) return 0
-    const config = await this.configRepository.cachedGetRatingConfig()
+    const config = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).unwrap()
 
     const currentRD = await this.getCurrentRD(
       user.glicko.deviation,
@@ -83,7 +89,9 @@ export class GlickoStrategy extends RatingStrategy {
 
   /** Gets the current RD based on the stored RD and its age. */
   private async getCurrentRD(rd: number, date: Date): Promise<number> {
-    const config = await this.configRepository.cachedGetRatingConfig()
+    const config = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).unwrap()
 
     const t = Date.now() - date.getTime()
     const c = this.getC(config.rd_inflation_time)

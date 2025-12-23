@@ -4,6 +4,9 @@ import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import { AppModule } from './app.module'
+import { ResultInterceptor } from './common/interceptors/result.interceptor'
+import { PanicFilter } from './common/filters/panic.filter'
+import { ExceptionToPanicMapper } from './common/filters/general.filter'
 
 async function bootstrap() {
   const logger = new Logger('bootstrap function')
@@ -12,6 +15,8 @@ async function bootstrap() {
   const backend_url = process.env.MAGIC3T_BACKEND_URL
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalInterceptors(new ResultInterceptor())
+  app.useGlobalFilters(new ExceptionToPanicMapper(), new PanicFilter())
   app.enableCors()
 
   const config = new DocumentBuilder()

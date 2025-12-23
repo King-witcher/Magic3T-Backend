@@ -11,7 +11,14 @@ export class MaintenanceGuard implements CanActivate {
 
   async canActivate() {
     const devopsConfig = await this.configRepository.getDevopsConfig()
-    if (devopsConfig.maintenance_mode) {
+    if (devopsConfig.isErr()) {
+      this.logger.fatal(
+        'Could not retrieve devops config to check maintenance mode'
+      )
+      return false
+    }
+
+    if (devopsConfig.unwrap().maintenance_mode) {
       this.logger.fatal('Request blocked by maintenance mode')
       return false
     }

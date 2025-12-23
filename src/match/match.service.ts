@@ -152,7 +152,8 @@ export class MatchService {
 
   async getMatchesByUser(
     userId: string,
-    limit: number
+    limit: number,
+    cursor: string | undefined
   ): Promise<GetMatchesResult> {
     const clampedLimit = clamp(limit, 0, 50)
     const rows = await this.matchRepository.getByUser(userId, clampedLimit)

@@ -12,7 +12,9 @@ export class EloStrategy extends RatingStrategy {
   async update(a: UserRow, b: UserRow, scoreA: number): Promise<void> {
     if (!a.elo || !b.elo)
       throw new Error('Both players must have an Elo rating to update.')
-    const config = await this.configRepository.cachedGetRatingConfig()
+    const config = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).unwrap()
 
     const expectedA = odds(a.elo.score, b.elo.score)
     const expectedB = 1 - expectedA
@@ -37,7 +39,9 @@ export class EloStrategy extends RatingStrategy {
 
   async getTotalLp(user: UserRow): Promise<number> {
     if (!user.elo) throw new Error('User does not have an Elo rating.')
-    const config = await this.configRepository.cachedGetRatingConfig()
+    const config = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).unwrap()
     const rawLP =
       400 *
       ((user.elo.score - config.base_score) / config.league_length +

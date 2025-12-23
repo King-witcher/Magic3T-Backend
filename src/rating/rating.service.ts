@@ -64,7 +64,9 @@ export class RatingService {
   }
 
   async convertRatingIntoLp(rating: number): Promise<number> {
-    const config = await this.configRepository.cachedGetRatingConfig()
+    const config = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).unwrap()
     return Math.round((400 * rating) / config.league_length)
   }
 

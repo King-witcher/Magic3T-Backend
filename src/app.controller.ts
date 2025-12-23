@@ -1,8 +1,16 @@
-import { Controller, Get, ImATeapotException, Redirect } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  ImATeapotException,
+  Redirect,
+  UseInterceptors,
+} from '@nestjs/common'
 import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 import { UserRepository } from './database'
 import { RatingService } from './rating'
 import { FirebaseService } from './firebase'
+import { ResultInterceptor } from './common/interceptors/result.interceptor'
+import { panic } from './common/utils/rust/panic'
 
 @Controller()
 export class AppController {
@@ -18,9 +26,8 @@ export class AppController {
   ) {}
 
   @Get('teapot')
-  @ApiExcludeEndpoint()
   async teapot() {
-    throw new ImATeapotException()
+    return Err('I am a teapot')
   }
 
   @ApiOperation({

@@ -117,7 +117,9 @@ export class UserService {
     const user = await this.userRepository.get(userId)
     if (user)
       throw new BaseError('user already registered', HttpStatus.BAD_REQUEST)
-    const ratingConfig = await this.configRepository.cachedGetRatingConfig()
+    const ratingConfig = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).expect('rating config not found')
 
     const userRow: UserRow = {
       _id: userId,

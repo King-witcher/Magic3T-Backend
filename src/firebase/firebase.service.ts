@@ -33,7 +33,7 @@ export class FirebaseService {
 
   getCredentials(): ServiceAccount {
     if (!process.env.FIREBASE_ADMIN_CREDENTIALS)
-      throw new Error('Firebase Admin credentials not found on environment')
+      panic('Firebase Admin credentials not found on environment')
 
     return JSON.parse(
       Buffer.from(process.env.FIREBASE_ADMIN_CREDENTIALS, 'base64').toString()

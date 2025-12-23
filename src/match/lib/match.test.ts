@@ -105,7 +105,7 @@ describe(Match, () => {
       match.start()
 
       const result = match.handleChoice(Team.Chaos, 4)
-      expect(result.is_err()).toBe(true)
+      expect(result.isErr()).toBe(true)
     })
 
     it('should dispatch a choice event', () => {
@@ -117,7 +117,7 @@ describe(Match, () => {
 
       const result = match.handleChoice(Team.Order, choice)
 
-      expect(result.is_ok()).toBe(true)
+      expect(result.isOk()).toBe(true)
       expect(mock).toHaveBeenCalledTimes(1)
       expect(mock).toHaveBeenCalledWith(Team.Order, choice, expect.any(Number))
     })

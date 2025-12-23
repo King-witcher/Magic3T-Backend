@@ -5,6 +5,10 @@ declare global {
     }
   }
 
+  function Ok<T, E>(value: T): import('@/common').Result<T, E>
+  function Err<T, E>(error: E): import('@/common').Result<T, E>
+  function panic(message?: string): never
+
   namespace NodeJS {
     interface ProcessEnv {
       FIREBASE_ADMIN_CREDENTIALS: string

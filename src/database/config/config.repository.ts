@@ -3,13 +3,16 @@ import { FirebaseService } from '@/firebase/firebase.service'
 import { Injectable, Logger } from '@nestjs/common'
 import { firestore } from 'firebase-admin'
 import CollectionReference = firestore.CollectionReference
-import { CacheMethod } from '@common'
+import { CacheMethod, Result } from '@common'
 import {
   BotConfigRow,
   BotName,
   DevopsConfigModel,
   RatingConfigModel,
 } from '@magic3t/types'
+
+export type ConfigRepositoryError = 'not-found'
+type ConfigRepositoryResult<T> = Result<T, ConfigRepositoryError>
 
 @Injectable()
 export class ConfigRepository {
@@ -26,7 +29,7 @@ export class ConfigRepository {
   }
 
   @CacheMethod(300)
-  async getBotConfigs() {
+  async getBotConfigs(): Promise<ConfigRepositoryResult<BotConfigRow>> {
     this.logger.verbose('read "bots" from config')
 
     const converter = this.databaseService.getConverter<BotConfigRow>()
@@ -37,9 +40,9 @@ export class ConfigRepository {
 
     const data = snapshot.data()
 
-    if (!data) throw new Error('couldn not find bot config')
+    if (!data) return Err('not-found')
 
-    return data
+    return Ok(data)
   }
 
   async getBotConfig(botName: BotName) {
@@ -48,7 +51,7 @@ export class ConfigRepository {
   }
 
   @CacheMethod(10)
-  async getDevopsConfig(): Promise<DevopsConfigModel> {
+  async getDevopsConfig(): Promise<ConfigRepositoryResult<DevopsConfigModel>> {
     this.logger.verbose('read "devops" from config')
     const converter = this.databaseService.getConverter<DevopsConfigModel>()
     const snapshot = await this.collection
@@ -58,13 +61,15 @@ export class ConfigRepository {
 
     const data = snapshot.data()
 
-    if (!data) throw new Error('could not find devops config')
+    if (!data) return Err('not-found')
 
-    return data
+    return Ok(data)
   }
 
   @CacheMethod(300)
-  async cachedGetRatingConfig(): Promise<RatingConfigModel> {
+  async cachedGetRatingConfig(): Promise<
+    ConfigRepositoryResult<RatingConfigModel>
+  > {
     this.logger.verbose('read "rating" from config')
     const converter = this.databaseService.getConverter<RatingConfigModel>()
     const snapshot = await this.collection
@@ -74,8 +79,8 @@ export class ConfigRepository {
 
     const data = snapshot.data()
 
-    if (!data) throw new Error('couldn not find rating config')
+    if (!data) return Err('not-found')
 
-    return data
+    return Ok(data)
   }
 }

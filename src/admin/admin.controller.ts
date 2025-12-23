@@ -15,7 +15,9 @@ export class AdminController {
   @ApiOperation({})
   @Post('reset-ratings')
   async resetRatings() {
-    const ratingConfig = await this.configRepository.cachedGetRatingConfig()
+    const ratingConfig = (
+      await this.configRepository.cachedGetRatingConfig()
+    ).expect('rating config not found')
     const users = await this.usersRepository.getAll()
 
     await Promise.all(

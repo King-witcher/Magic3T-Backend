@@ -107,8 +107,9 @@ export class MatchController {
   })
   async getMatchesByUser(
     @Query('limit', ParseIntPipe) limit: number,
+    @Query('cursor') cursor: string,
     @Param('userId') userId: string
   ): Promise<GetMatchesResult> {
-    return this.matchService.getMatchesByUser(userId, limit)
+    return this.matchService.getMatchesByUser(userId, limit, cursor)
   }
 }
