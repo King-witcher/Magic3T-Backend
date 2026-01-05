@@ -1,5 +1,0 @@
-export * from './config'
-export * from './match'
-export * from './user'
-export * from './database.service'
-export * from './database.module'

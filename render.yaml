@@ -20,6 +20,13 @@ services:
     domains:
       - backend.magic3t.com.br
       - api.magic3t.com.br
+    rootDir: backend
+    buildFilter:
+      paths:
+        - backend/**
+        - lib/**
+      ignoredPaths:
+        - lib/types/**
 
   - type: redis
     name: Magic3T Redis
