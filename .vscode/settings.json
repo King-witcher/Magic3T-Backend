@@ -1,0 +1,6 @@
+{
+  "material-icon-theme.activeIconPack": "nest",
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}

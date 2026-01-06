@@ -2,8 +2,8 @@
   "name": "magic3t",
   "version": "1.0.0",
   "workspaces": [
-    "frontend/",
-    "backend/",
+    "frontend",
+    "backend",
     "lib/*"
   ],
   "scripts": {

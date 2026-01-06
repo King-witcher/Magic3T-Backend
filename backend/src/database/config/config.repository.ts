@@ -6,9 +6,15 @@ import { FirebaseService } from '@/firebase/firebase.service'
 import CollectionReference = firestore.CollectionReference
 
 import { CacheMethod, Result } from '@common'
-import { BotConfigRow, BotName, DevopsConfigModel, RatingConfigModel } from '@magic3t/types'
+import {
+  BotConfig,
+  BotConfigRow,
+  BotName,
+  DevopsConfigModel,
+  RatingConfigModel,
+} from '@magic3t/types'
 
-export type ConfigRepositoryError = 'not-found'
+export type ConfigRepositoryError = 'configs-not-found' | 'bot-not-found'
 type ConfigRepositoryResult<T> = Result<T, ConfigRepositoryError>
 
 @Injectable()
@@ -34,14 +40,22 @@ export class ConfigRepository {
 
     const data = snapshot.data()
 
-    if (!data) return Err('not-found')
+    if (!data) return Err('configs-not-found')
 
     return Ok(data)
   }
 
-  async getBotConfig(botName: BotName) {
-    const botConfigs = await this.getBotConfigs()
-    return botConfigs[botName] || null
+  async getBotConfig(botName: BotName): Promise<ConfigRepositoryResult<BotConfig>> {
+    const result = await this.getBotConfigs()
+
+    return result.match({
+      ok: (configs) => {
+        const config = configs[botName]
+        if (!config) return Err('bot-not-found')
+        return Ok(config)
+      },
+      err: (error) => Err(error),
+    })
   }
 
   @CacheMethod(10)
@@ -52,7 +66,7 @@ export class ConfigRepository {
 
     const data = snapshot.data()
 
-    if (!data) return Err('not-found')
+    if (!data) return Err('configs-not-found')
 
     return Ok(data)
   }
@@ -65,7 +79,7 @@ export class ConfigRepository {
 
     const data = snapshot.data()
 
-    if (!data) return Err('not-found')
+    if (!data) return Err('configs-not-found')
 
     return Ok(data)
   }

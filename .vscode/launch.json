@@ -1,0 +1,23 @@
+{
+  "configurations": [
+    {
+      "name": "Launch Backend",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}/backend"
+    },
+    {
+      "name": "Launch Frontend",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "preLaunchTask": "vite: dev",
+      "webRoot": "${workspaceFolder}/frontend",
+      "cwd": "${workspaceFolder}/frontend",
+      "skipFiles": [
+        "${workspaceFolder}/node_modules/**/*.js"
+      ]
+    },
+  ]
+}

@@ -102,21 +102,48 @@ export class QueueService {
   }
 
   async createBotMatch(userId: string, botName: BotName) {
-    const matchId = await this.matchService.createPvCMatch(userId, botName)
+    const createResult = await this.matchService.createPvCMatch(userId, botName)
 
-    this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
-      matchId,
-      opponentId: '',
+    createResult.match({
+      ok: (matchId) => {
+        this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
+          matchId,
+          opponentId: '',
+        })
+      },
+      err: (error) => {
+        switch (error) {
+          // biome-ignore lint/suspicious/noFallthroughSwitchClause: panic
+          case 'user-not-found':
+            panic('unreachable by now')
+          case 'bot-not-found':
+            console.error('bot not found')
+            return
+        }
+      },
     })
   }
 
   async createRandomBotMatch(userId: string) {
     const botIndex = Math.floor(Math.random() * 4) // ALERTA DE GAMBIARRA
-    const matchId = await this.matchService.createPvCMatch(userId, `bot${botIndex}` as BotName)
+    const result = await this.matchService.createPvCMatch(userId, `bot${botIndex}` as BotName)
 
-    this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
-      matchId,
-      opponentId: '',
+    result.match({
+      ok: (matchId) => {
+        this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
+          matchId,
+          opponentId: '',
+        })
+      },
+      err: (error) => {
+        switch (error) {
+          // biome-ignore lint/suspicious/noFallthroughSwitchClause: panic
+          case 'user-not-found':
+            panic('unreachable by now')
+          case 'bot-not-found':
+            return
+        }
+      },
     })
   }
 
@@ -142,11 +169,24 @@ export class QueueService {
         }
       })
     }
-    const matchId = await this.matchService.createPvCMatch(userId, `bot${closestIndex}` as BotName)
+    const result = await this.matchService.createPvCMatch(userId, `bot${closestIndex}` as BotName)
 
-    this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
-      matchId,
-      opponentId: bots[closestIndex]._id,
+    result.match({
+      ok: (matchId) => {
+        this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
+          matchId,
+          opponentId: bots[closestIndex]._id,
+        })
+      },
+      err: (error) => {
+        switch (error) {
+          // biome-ignore lint/suspicious/noFallthroughSwitchClause: panic
+          case 'user-not-found':
+            panic('unreachable by now')
+          case 'bot-not-found':
+            return
+        }
+      },
     })
   }
 }

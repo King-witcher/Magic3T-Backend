@@ -51,6 +51,6 @@
     "lineEnding": "lf"
   },
   "files": {
-    "includes": ["apps/**/*", "!**/dist"]
+    "includes": ["frontend/**/*", "backend/**/*", "!**/dist"]
   }
 }
