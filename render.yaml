@@ -20,7 +20,7 @@ services:
     domains:
       - backend.magic3t.com.br
       - api.magic3t.com.br
-    rootDir: backend
+    dockerfilePath: Dockerfile.backend
     buildFilter:
       paths:
         - backend/**

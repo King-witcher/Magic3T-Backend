@@ -36,7 +36,7 @@ export class MatchService {
     // Get profiles
     const humanProfilePromise = this.getProfile(uid)
     const botConfig = (await this.configRepository.getBotConfig(botName)).unwrap()
-    if (!botConfig) return Err('bot-not-found')
+      if (!botConfig) return Err('bot-not-found')
     const botProfile = await this.getProfile(botConfig.uid)
     const humanProfile = await humanProfilePromise
 

@@ -1,7 +1,6 @@
 {
   "name": "magic3t-backend",
   "version": "2.0.1",
-  "private": true,
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",

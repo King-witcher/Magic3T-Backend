@@ -1,0 +1,12 @@
+# syntax=docker/dockerfile:1
+# https://docs.docker.com/go/dockerfile-reference/
+
+FROM oven/bun:latest AS base
+COPY . /app
+WORKDIR /app
+RUN bun install --frozen-lockfile
+
+WORKDIR /app/backend
+RUN bun run build
+USER bun
+ENTRYPOINT [ "bun", "start:prod" ]
