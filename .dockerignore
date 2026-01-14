@@ -30,6 +30,7 @@
 **/values.dev.yaml
 **/build
 **/dist
+render.yml
 node_modules
 LICENSE
 README.md

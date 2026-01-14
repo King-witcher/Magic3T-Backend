@@ -20,11 +20,6 @@ export class AppController {
   })
   @Get('status')
   async status() {
-    console.log({
-      a: 1234,
-      b: 123465,
-    })
-    await delay(1000)
     return {
       status: 'available',
     }
