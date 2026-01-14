@@ -52,5 +52,8 @@
     "tsconfig-paths": "4.2.0",
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.6.1"
   }
 }
