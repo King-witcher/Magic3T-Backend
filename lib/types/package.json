@@ -16,8 +16,6 @@
     "types"
   ],
   "devDependencies": {
-    "@biomejs/biome": "^2.1.2",
-    "@giuseppelanna/biomejs-configs": "^4.0.1",
     "typescript": "^5.8.3"
   }
 }
