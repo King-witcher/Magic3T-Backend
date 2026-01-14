@@ -32,9 +32,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
     "@faker-js/faker": "^9.9.0",
-    "@magic3t/types": "workspace:*",
     "@nestjs/cli": "^11.0.10",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.1.8",

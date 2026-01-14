@@ -1,5 +1,6 @@
 import { Controller, Get, Redirect } from '@nestjs/common'
 import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
+import { delay } from './common'
 
 @Controller()
 export class AppController {
@@ -18,7 +19,12 @@ export class AppController {
     description: 'Returns the service status for tracking downtimes.',
   })
   @Get('status')
-  status() {
+  async status() {
+    console.log({
+      a: 1234,
+      b: 123465,
+    })
+    await delay(1000)
     return {
       status: 'available',
     }

@@ -1,12 +1,13 @@
 # syntax=docker/dockerfile:1
 # https://docs.docker.com/go/dockerfile-reference/
 
-FROM oven/bun:latest AS base
+FROM node:alpine AS base
 COPY . /app
 WORKDIR /app
-RUN bun install --frozen-lockfile
+RUN npm clean-install
 
 WORKDIR /app/backend
-RUN bun run build
-USER bun
-ENTRYPOINT [ "bun", "start:prod" ]
+RUN npm run build
+USER node
+WORKDIR /app/backend
+ENTRYPOINT [ "npm", "run", "start:prod" ]

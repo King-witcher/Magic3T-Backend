@@ -4,7 +4,7 @@
   "workspaces": [
     "frontend",
     "backend",
-    "lib/*"
+    "lib/types"
   ],
   "scripts": {
     "lint": "biome check ."
