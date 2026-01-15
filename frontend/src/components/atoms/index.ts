@@ -1,5 +1,7 @@
+export * from './button'
 export * from './buttons-container'
 export * from './choice-component'
+export * from './input'
 export * from './page-width-limiter'
 export * from './smooth-number'
 export * from './spinner'

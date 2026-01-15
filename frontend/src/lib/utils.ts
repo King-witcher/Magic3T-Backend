@@ -1,3 +1,10 @@
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
 export function compareArrays<T>(a: T[], b: T[]) {
   if (a.length !== b.length) return false
 
