@@ -36,8 +36,8 @@ export function MatchRow({ match, viewAs }: Props) {
   const date = getDateFromId(match.id)
 
   const isDefeat = result === MatchResult.Defeat
-  const isDraw = result === MatchResult.Draw
-  const isVictory = result === MatchResult.Victory
+  // const isDraw = result === MatchResult.Draw
+  // const isVictory = result === MatchResult.Victory
 
   const player =
     match.teams[Team.Order].id === viewAs ? match.teams[Team.Order] : match.teams[Team.Chaos]
@@ -55,14 +55,14 @@ export function MatchRow({ match, viewAs }: Props) {
 
   return (
     <Link to="/users/id/$userId" params={{ userId: opponent.id }}>
-      <div className="flex flex-col gap-[10px] p-[20px] transition-all duration-100 cursor-pointer hover-acrylic hover:bg-[#ffffff40]">
+      <div className="flex flex-col gap-2.5 p-5 transition-all duration-100 cursor-pointer hover-acrylic hover:bg-[#ffffff40]">
         <div className="flex">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <h3 className="font-serif tracking-wider !text-lg">{opponent.nickname}</h3>
+              <h3 className="font-serif tracking-wider text-lg!">{opponent.nickname}</h3>
               {!!player.lpGain && (
                 <p
-                  className={`text-sm/normal !font-serif font-bold ${player.lpGain > 0 ? 'text-green-500' : 'text-red-500'}`}
+                  className={`text-sm/normal font-serif! font-bold ${player.lpGain > 0 ? 'text-green-500' : 'text-red-500'}`}
                 >
                   {player.lpGain > 0 && '+'}
                   {player.lpGain}
@@ -74,7 +74,7 @@ export function MatchRow({ match, viewAs }: Props) {
             </p>
           </div>
           <span
-            className={`flex items-center justify-center ml-auto rounded-[9999px] capitalize font-bold text w-[80px] h-[25px] ${resultColorMap[result]} ${isDefeat ? 'text-white' : 'text-black'}`}
+            className={`flex items-center justify-center ml-auto rounded-[9999px] capitalize font-bold text w-20 h-6.25 ${resultColorMap[result]} ${isDefeat ? 'text-white' : 'text-black'}`}
           >
             {result}
           </span>

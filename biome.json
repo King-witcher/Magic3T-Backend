@@ -43,6 +43,12 @@
     }
   },
 
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
@@ -51,6 +57,6 @@
     "lineEnding": "lf"
   },
   "files": {
-    "includes": ["frontend/**/*", "backend/**/*", "!**/dist"]
+    "includes": ["frontend/**/*", "backend/**/*", "!**/dist", "!frontend/src/route-tree.gen.ts"]
   }
 }

@@ -74,15 +74,16 @@ export function ChoiceTable({ redMoves, blueMoves, state, onSelect }: Props) {
 
   if (pugDance) {
     return (
-      <div
+      <button
+        type="button"
         className="flex flex-col justify-center relative"
         onClick={() => Console.set(SystemCvars.UiPugMode, 'false')}
       >
-        <img className="w-[300px]" alt="Pug dancing" src={PugDanceGif} />
-        <p className="absolute bottom-[7px] w-full text-center translate-y-[100%]">
+        <img className="w-75" alt="Pug dancing" src={PugDanceGif} />
+        <p className="absolute bottom-1.75 w-full text-center translate-y-full">
           Ó vc colocando hack no jogo
         </p>
-      </div>
+      </button>
     )
   }
 

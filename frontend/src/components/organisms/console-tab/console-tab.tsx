@@ -60,7 +60,7 @@ export function ConsoleTab() {
     [isOpen]
   )
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies:
+  // biome-ignore lint/correctness/useExhaustiveDependencies: No need to use dependencies
   useEffect(
     function keepScrollbarOnBottom() {
       if (scrollableRef.current) {
@@ -85,6 +85,7 @@ export function ConsoleTab() {
           'absolute top-0 w-full h-1/2 border-gold-4 bg-[#000000c0] border-b-3 flex flex-col py-[1em] px-[1ch]',
           con_style === ConStyle.Q3 && 'border-[red]'
         )}
+        role="dialog"
         onClick={focusInput}
       >
         {con_style === ConStyle.Q3 && (

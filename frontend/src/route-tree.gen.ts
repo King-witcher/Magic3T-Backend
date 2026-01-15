@@ -9,15 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthGuardedRouteImport } from './routes/_auth-guarded'
-import { Route as AuthGuardedIndexRouteImport } from './routes/_auth-guarded/index'
-import { Route as AuthGuardedMeRouteRouteImport } from './routes/_auth-guarded/me/route'
-import { Route as AuthGuardedStoreRouteImport } from './routes/_auth-guarded/store'
-import { Route as BiancaRouteImport } from './routes/bianca'
 import { Route as RankingRouteImport } from './routes/ranking'
-import { Route as RegisterIndexRouteImport } from './routes/register/index'
+import { Route as BiancaRouteImport } from './routes/bianca'
+import { Route as AuthGuardedRouteImport } from './routes/_auth-guarded'
 import { Route as SignInIndexRouteImport } from './routes/sign-in/index'
+import { Route as RegisterIndexRouteImport } from './routes/register/index'
+import { Route as AuthGuardedIndexRouteImport } from './routes/_auth-guarded/index'
 import { Route as UsersNicknameRouteImport } from './routes/users/$nickname'
+import { Route as AuthGuardedStoreRouteImport } from './routes/_auth-guarded/store'
+import { Route as AuthGuardedMeRouteRouteImport } from './routes/_auth-guarded/me/route'
 import { Route as UsersIdUserIdRouteImport } from './routes/users/id/$userId'
 
 const RankingRoute = RankingRouteImport.update({
@@ -239,7 +239,9 @@ const AuthGuardedRouteChildren: AuthGuardedRouteChildren = {
   AuthGuardedIndexRoute: AuthGuardedIndexRoute,
 }
 
-const AuthGuardedRouteWithChildren = AuthGuardedRoute._addFileChildren(AuthGuardedRouteChildren)
+const AuthGuardedRouteWithChildren = AuthGuardedRoute._addFileChildren(
+  AuthGuardedRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   AuthGuardedRoute: AuthGuardedRouteWithChildren,

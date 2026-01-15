@@ -1,36 +1,36 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Darumadrop+One&display=swap'); */
 @import "tailwindcss";
-@import '@/styles/fonts.sass';
+@import "@/styles/fonts.sass";
 
 @theme {
   --breakpoint-xs: 30rem;
 
   --font-sans: spiegel, sans-serif;
   --font-serif: beaufort, serif;
-  --font-mono: 'Source Code Pro', monospace;
+  --font-mono: "Source Code Pro", monospace;
 
-  --color-blue-1: #CDFAFA;
-  --color-blue-2: #0AC8B9;
-  --color-blue-3: #0397AB;
-  --color-blue-4: #005A82;
-  --color-blue-5: #0A323C;
+  --color-blue-1: #cdfafa;
+  --color-blue-2: #0ac8b9;
+  --color-blue-3: #0397ab;
+  --color-blue-4: #005a82;
+  --color-blue-5: #0a323c;
   --color-blue-6: #091428;
-  --color-blue-7: #0A1428;
+  --color-blue-7: #0a1428;
 
-  --color-gold-1: #F0E6D2;
-  --color-gold-2: #C8AA6E;
-  --color-gold-3: #C8AA6E;
-  --color-gold-4: #C89B3C;
-  --color-gold-5: #785A28;
+  --color-gold-1: #f0e6d2;
+  --color-gold-2: #c8aa6e;
+  --color-gold-3: #c8aa6e;
+  --color-gold-4: #c89b3c;
+  --color-gold-5: #785a28;
   --color-gold-6: #463714;
-  --color-gold-7: #32281E;
+  --color-gold-7: #32281e;
 
-  --color-grey-1: #A09B8C;
-  --color-grey-1-5: #5B5A56;
-  --color-grey-2: #3C3C41;
-  --color-grey-3: #1E2328;
-  --color-grey-cool: #1E282D;
-  --color-hextech-black: #010A13;
+  --color-grey-1: #a09b8c;
+  --color-grey-1-5: #5b5a56;
+  --color-grey-2: #3c3c41;
+  --color-grey-3: #1e2328;
+  --color-grey-cool: #1e282d;
+  --color-hextech-black: #010a13;
 
   --animate-fade-in: fade-in 0.1s ease-in-out;
   --animate-blink: blink 500ms steps(1) infinite;
@@ -66,5 +66,5 @@
 
 body {
   background-color: var(--color-blue-7);
-  color: var(--color-gold-1)
+  color: var(--color-gold-1);
 }
