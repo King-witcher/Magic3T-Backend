@@ -1,3 +1,6 @@
+import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
 export function getIconUrl(iconId?: number): string {
   return `https://ddragon.leagueoflegends.com/cdn/11.14.1/img/profileicon/${iconId ?? 29}.png`
 }
@@ -12,4 +15,8 @@ export async function delay(ms: number): Promise<void> {
 
 export async function defer(deferred: () => void) {
   return Promise.resolve().then(deferred)
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }

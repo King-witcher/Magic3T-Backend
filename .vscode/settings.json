@@ -2,5 +2,8 @@
   "material-icon-theme.activeIconPack": "nest",
   "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "always",
+  },
   "typescript.enablePromptUseWorkspaceTsdk": true
 }

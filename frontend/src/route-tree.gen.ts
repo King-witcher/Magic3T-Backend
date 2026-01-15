@@ -12,10 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RankingRouteImport } from './routes/ranking'
 import { Route as BiancaRouteImport } from './routes/bianca'
 import { Route as AuthGuardedRouteImport } from './routes/_auth-guarded'
-import { Route as SignInIndexRouteImport } from './routes/sign-in/index'
-import { Route as RegisterIndexRouteImport } from './routes/register/index'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthGuardedIndexRouteImport } from './routes/_auth-guarded/index'
 import { Route as UsersNicknameRouteImport } from './routes/users/$nickname'
+import { Route as AuthSignInRouteImport } from './routes/_auth/sign-in'
+import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthGuardedStoreRouteImport } from './routes/_auth-guarded/store'
 import { Route as AuthGuardedMeRouteRouteImport } from './routes/_auth-guarded/me/route'
 import { Route as UsersIdUserIdRouteImport } from './routes/users/id/$userId'
@@ -34,14 +35,8 @@ const AuthGuardedRoute = AuthGuardedRouteImport.update({
   id: '/_auth-guarded',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignInIndexRoute = SignInIndexRouteImport.update({
-  id: '/sign-in/',
-  path: '/sign-in/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterIndexRoute = RegisterIndexRouteImport.update({
-  id: '/register/',
-  path: '/register/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthGuardedIndexRoute = AuthGuardedIndexRouteImport.update({
@@ -53,6 +48,16 @@ const UsersNicknameRoute = UsersNicknameRouteImport.update({
   id: '/users/$nickname',
   path: '/users/$nickname',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignInRoute = AuthSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthRegisterRoute = AuthRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthGuardedStoreRoute = AuthGuardedStoreRouteImport.update({
   id: '/store',
@@ -75,10 +80,10 @@ export interface FileRoutesByFullPath {
   '/ranking': typeof RankingRoute
   '/me': typeof AuthGuardedMeRouteRoute
   '/store': typeof AuthGuardedStoreRoute
+  '/register': typeof AuthRegisterRoute
+  '/sign-in': typeof AuthSignInRoute
   '/users/$nickname': typeof UsersNicknameRoute
   '/': typeof AuthGuardedIndexRoute
-  '/register': typeof RegisterIndexRoute
-  '/sign-in': typeof SignInIndexRoute
   '/users/id/$userId': typeof UsersIdUserIdRoute
 }
 export interface FileRoutesByTo {
@@ -86,23 +91,24 @@ export interface FileRoutesByTo {
   '/ranking': typeof RankingRoute
   '/me': typeof AuthGuardedMeRouteRoute
   '/store': typeof AuthGuardedStoreRoute
+  '/register': typeof AuthRegisterRoute
+  '/sign-in': typeof AuthSignInRoute
   '/users/$nickname': typeof UsersNicknameRoute
   '/': typeof AuthGuardedIndexRoute
-  '/register': typeof RegisterIndexRoute
-  '/sign-in': typeof SignInIndexRoute
   '/users/id/$userId': typeof UsersIdUserIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/_auth': typeof AuthRouteWithChildren
   '/_auth-guarded': typeof AuthGuardedRouteWithChildren
   '/bianca': typeof BiancaRoute
   '/ranking': typeof RankingRoute
   '/_auth-guarded/me': typeof AuthGuardedMeRouteRoute
   '/_auth-guarded/store': typeof AuthGuardedStoreRoute
+  '/_auth/register': typeof AuthRegisterRoute
+  '/_auth/sign-in': typeof AuthSignInRoute
   '/users/$nickname': typeof UsersNicknameRoute
   '/_auth-guarded/': typeof AuthGuardedIndexRoute
-  '/register/': typeof RegisterIndexRoute
-  '/sign-in/': typeof SignInIndexRoute
   '/users/id/$userId': typeof UsersIdUserIdRoute
 }
 export interface FileRouteTypes {
@@ -112,10 +118,10 @@ export interface FileRouteTypes {
     | '/ranking'
     | '/me'
     | '/store'
-    | '/users/$nickname'
-    | '/'
     | '/register'
     | '/sign-in'
+    | '/users/$nickname'
+    | '/'
     | '/users/id/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -123,32 +129,32 @@ export interface FileRouteTypes {
     | '/ranking'
     | '/me'
     | '/store'
-    | '/users/$nickname'
-    | '/'
     | '/register'
     | '/sign-in'
+    | '/users/$nickname'
+    | '/'
     | '/users/id/$userId'
   id:
     | '__root__'
+    | '/_auth'
     | '/_auth-guarded'
     | '/bianca'
     | '/ranking'
     | '/_auth-guarded/me'
     | '/_auth-guarded/store'
+    | '/_auth/register'
+    | '/_auth/sign-in'
     | '/users/$nickname'
     | '/_auth-guarded/'
-    | '/register/'
-    | '/sign-in/'
     | '/users/id/$userId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthRoute: typeof AuthRouteWithChildren
   AuthGuardedRoute: typeof AuthGuardedRouteWithChildren
   BiancaRoute: typeof BiancaRoute
   RankingRoute: typeof RankingRoute
   UsersNicknameRoute: typeof UsersNicknameRoute
-  RegisterIndexRoute: typeof RegisterIndexRoute
-  SignInIndexRoute: typeof SignInIndexRoute
   UsersIdUserIdRoute: typeof UsersIdUserIdRoute
 }
 
@@ -175,18 +181,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthGuardedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sign-in/': {
-      id: '/sign-in/'
-      path: '/sign-in'
-      fullPath: '/sign-in'
-      preLoaderRoute: typeof SignInIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register/': {
-      id: '/register/'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterIndexRouteImport
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth-guarded/': {
@@ -202,6 +201,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/users/$nickname'
       preLoaderRoute: typeof UsersNicknameRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_auth/sign-in': {
+      id: '/_auth/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof AuthSignInRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/register': {
+      id: '/_auth/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof AuthRegisterRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth-guarded/store': {
       id: '/_auth-guarded/store'
@@ -227,6 +240,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthRouteChildren {
+  AuthRegisterRoute: typeof AuthRegisterRoute
+  AuthSignInRoute: typeof AuthSignInRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthRegisterRoute: AuthRegisterRoute,
+  AuthSignInRoute: AuthSignInRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 interface AuthGuardedRouteChildren {
   AuthGuardedMeRouteRoute: typeof AuthGuardedMeRouteRoute
   AuthGuardedStoreRoute: typeof AuthGuardedStoreRoute
@@ -244,12 +269,11 @@ const AuthGuardedRouteWithChildren = AuthGuardedRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthRoute: AuthRouteWithChildren,
   AuthGuardedRoute: AuthGuardedRouteWithChildren,
   BiancaRoute: BiancaRoute,
   RankingRoute: RankingRoute,
   UsersNicknameRoute: UsersNicknameRoute,
-  RegisterIndexRoute: RegisterIndexRoute,
-  SignInIndexRoute: SignInIndexRoute,
   UsersIdUserIdRoute: UsersIdUserIdRoute,
 }
 export const routeTree = rootRouteImport

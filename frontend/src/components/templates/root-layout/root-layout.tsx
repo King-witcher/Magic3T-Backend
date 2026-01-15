@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { PageWidthLimiter } from '@/components/atoms'
 import { Navbar } from '@/components/organisms'
 import { ModalLayout } from './modal-layout'
 import styles from './styles.module.sass'
@@ -12,12 +11,28 @@ export function RootLayout({ children }: Props) {
   return (
     <>
       <div className={styles.brightness_container} />
-      <div className="root-layout flex flex-col items-center h-dvh relative">
+      <div className="flex flex-col items-center h-dvh relative">
         <Navbar />
-        <div className="flex flex-1 w-full justify-center h-fit overflow-x-hidden overflow-y-scroll">
-          <PageWidthLimiter>{children}</PageWidthLimiter>
-        </div>
+        <main className="flex-1 relative w-full h-full overflow-hidden">
+          {/* Background decorative elements */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-0 left-0 size-120 bg-blue-4 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 right-0 size-120 bg-gold-5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+          </div>
+
+          {/* Animated hex pattern overlay */}
+          <div className="absolute inset-0 opacity-5 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTMwIDFMMSAzMGwyOSAyOSAyOS0yOUwzMCAxeiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzhBQTZFIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=')]" />
+
+          {/* Scroll Area */}
+          <div className="absolute inset-0 overflow-x-hidden overflow-y-scroll">
+            {/* Page width limiter */}
+            <div className="flex p-7.5 sm:p-[40px_100px] h-fit min-h-full w-full justify-center relative">
+              <div className="w-full max-w-350">{children}</div>
+            </div>
+          </div>
+        </main>
       </div>
+
       <ModalLayout />
     </>
   )
