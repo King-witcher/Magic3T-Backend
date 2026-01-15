@@ -1,5 +1,5 @@
-import { AuthState, useAuth } from '@/contexts/auth.context'
 import { useQuery } from '@tanstack/react-query'
+import { AuthState, useAuth } from '@/contexts/auth.context'
 
 /// Gets a Firebase ID token.
 export function useToken() {

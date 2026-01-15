@@ -1,3 +1,6 @@
+import { GetMatchesResult, League, UserPayload } from '@magic3t/types'
+import { UseQueryResult, useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
 import { Spinner } from '@/components/atoms'
 import { UserAvatar } from '@/components/molecules'
 import { ChangeIconModal } from '@/components/organisms/modals/change-icon-modal'
@@ -7,9 +10,6 @@ import { useRegisterCommand } from '@/hooks/use-register-command'
 import { Console } from '@/lib/console'
 import { NestApi } from '@/services'
 import { leaguesMap } from '@/utils/ranks'
-import { GetMatchesResult, League, UserPayload } from '@magic3t/types'
-import { UseQueryResult, useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
 import { DesktopRankContainer } from './desktop-rank-container'
 import { MatchRow } from './match-row'
 import { MobileRankContainer } from './mobile-rank-container'
@@ -84,9 +84,7 @@ export function ProfileTemplate({ user, matchesQuery, editable }: Props) {
         <DesktopRankContainer
           title="League"
           rankName={`${leagueInfo.name} ${user.rating.division ? divisionMap[user.rating.division] : ''} - ${
-            user.rating.league === League.Provisional
-              ? `${progress}%`
-              : `${user.rating.points} LP`
+            user.rating.league === League.Provisional ? `${progress}%` : `${user.rating.points} LP`
           }`}
           extra={`${user.stats.wins} wins - ${user.stats.draws} draws -
               ${user.stats.defeats} defeats`}
@@ -112,33 +110,23 @@ export function ProfileTemplate({ user, matchesQuery, editable }: Props) {
         <MobileRankContainer
           title="Rating"
           content={`${leagueInfo.name} ${user.rating.division && divisionMap[user.rating.division]} - ${
-            user.rating.league === League.Provisional
-              ? `${progress}%`
-              : `${user.rating.points} LP`
+            user.rating.league === League.Provisional ? `${progress}%` : `${user.rating.points} LP`
           }`}
           league={user.rating.league}
         />
 
-        <MobileRankContainer
-          title="Experience"
-          content="Coming soon"
-          league={League.Provisional}
-        />
+        <MobileRankContainer title="Experience" content="Coming soon" league={League.Provisional} />
       </section>
 
       <section className="flex flex-col gap-[10px] mt-[20px]">
         <h2 className="!text-4xl font-serif text-gold-3 uppercase">
-          {matchesQuery.data &&
-            matchesQuery.data.matches.length >= 20 &&
-            'Last 20 matches'}
+          {matchesQuery.data && matchesQuery.data.matches.length >= 20 && 'Last 20 matches'}
 
           {matchesQuery.data &&
             matchesQuery.data.matches.length < 20 &&
             `${matchesQuery.data.matches.length} recent match${matchesQuery.data.matches.length > 1 ? 'es' : ''}`}
 
-          {matchesQuery.isPending &&
-            matchesQuery.isFetching &&
-            'Recent matches'}
+          {matchesQuery.isPending && matchesQuery.isFetching && 'Recent matches'}
         </h2>
 
         {matchesQuery.isPending && matchesQuery.isFetching && (

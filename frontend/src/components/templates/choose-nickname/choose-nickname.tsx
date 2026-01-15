@@ -1,9 +1,9 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { ChangeEvent, FormEvent, useState } from 'react'
 import { useAuth } from '@/contexts/auth.context'
 import { NestApi } from '@/services'
 import buttonStyles from '@/styles/components/button.module.sass'
 import inputStyles from '@/styles/components/input.module.sass'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ChangeEvent, FormEvent, useState } from 'react'
 
 export function ChooseNicknameTemplate() {
   const [nickname, setNickname] = useState('')
@@ -14,8 +14,7 @@ export function ChooseNicknameTemplate() {
   const changeNickMutation = useMutation({
     mutationKey: ['change-nickname', nickname],
     async mutationFn() {
-      if (nickname.length < 3)
-        throw new Error('nickname must contain at least 3 characters')
+      if (nickname.length < 3) throw new Error('nickname must contain at least 3 characters')
 
       await NestApi.User.register(await getToken(), { nickname })
     },
@@ -37,12 +36,7 @@ export function ChooseNicknameTemplate() {
 
     if (value.length > 16) return
 
-    if (
-      !value.match(
-        /^[a-zA-Z0-9áÁâÂãÃàÀäÄéÉêÊèÈëËíÍîÎìÌïÏóÓôÔõÕòÒöÖúÚûÛùÙüÜçÇñÑ\s]*$/
-      )
-    )
-      return
+    if (!value.match(/^[a-zA-Z0-9áÁâÂãÃàÀäÄéÉêÊèÈëËíÍîÎìÌïÏóÓôÔõÕòÒöÖúÚûÛùÙüÜçÇñÑ\s]*$/)) return
 
     setNickname(value)
   }
@@ -62,8 +56,7 @@ export function ChooseNicknameTemplate() {
           Choose your unique nickname
         </h1>
         <p className="text-sm text-grey-1 text-center !mt-[20px]">
-          You will only be allowed to change your nickname again in{' '}
-          <b>30 days</b>.
+          You will only be allowed to change your nickname again in <b>30 days</b>.
         </p>
         <input
           className={`${inputStyles.text_field} text-center !font-serif !h-[55px] !text-2xl !mt-[20px] tracking-wide`}
@@ -74,9 +67,7 @@ export function ChooseNicknameTemplate() {
           disabled={changeNickMutation.isPending}
           spellCheck={false}
         />
-        {error && (
-          <p className="!mt-[10px] text-red-500 text-center">{error}</p>
-        )}
+        {error && <p className="!mt-[10px] text-red-500 text-center">{error}</p>}
         <button
           className={`${buttonStyles.primary} h-[50px] !mt-[20px] w-full md:w-[200px] self-center`}
           type="submit"

@@ -1,9 +1,9 @@
-import { NestApi } from '@/services/nest-api'
-import { divisionMap, leaguesMap } from '@/utils/ranks'
-import { getIconUrl } from '@/utils/utils'
 import { League } from '@magic3t/types'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { NestApi } from '@/services/nest-api'
+import { divisionMap, leaguesMap } from '@/utils/ranks'
+import { getIconUrl } from '@/utils/utils'
 
 export function RankingTemplate() {
   const rankingQuery = useSuspenseQuery({
@@ -58,9 +58,7 @@ export function RankingTemplate() {
                     src={leagueInfo.icon}
                   />
                   <span className="text-center h-[1fr] min-w-[20px]">
-                    {!isProvisional &&
-                      !isApex &&
-                      divisionMap[user.rating.division || 1]}
+                    {!isProvisional && !isApex && divisionMap[user.rating.division || 1]}
 
                     {isApex && `${user.rating.points} LP`}
                   </span>

@@ -1,10 +1,7 @@
-import {
-  ChooseNicknameTemplate,
-  LoadingSessionTemplate,
-} from '@/components/templates'
-import { AuthState, useAuth } from '@/contexts/auth.context'
-import { Outlet, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { ChooseNicknameTemplate, LoadingSessionTemplate } from '@/components/templates'
+import { AuthState, useAuth } from '@/contexts/auth.context'
 
 export const Route = createFileRoute('/_auth-guarded')({
   component: () => {
@@ -26,10 +23,7 @@ export const Route = createFileRoute('/_auth-guarded')({
         })
     }, [authState, navigate])
 
-    if (
-      authState === AuthState.Loading ||
-      authState === AuthState.NotSignedIn
-    ) {
+    if (authState === AuthState.Loading || authState === AuthState.NotSignedIn) {
       return <LoadingSessionTemplate />
     }
 

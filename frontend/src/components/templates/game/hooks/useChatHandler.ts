@@ -1,13 +1,6 @@
-import { useGame } from '@/contexts/game.context.tsx'
 import { MessagePayload } from '@magic3t/types'
-import {
-  type ChangeEvent,
-  type FormEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { type ChangeEvent, type FormEvent, useCallback, useEffect, useRef, useState } from 'react'
+import { useGame } from '@/contexts/game.context.tsx'
 
 export function useChatHandler() {
   const gameCtx = useGame()
@@ -32,8 +25,7 @@ export function useChatHandler() {
       const deltaTime = current - last
       last = current
       const position = scrollRef.current.scrollTop
-      const target =
-        scrollRef.current.scrollHeight - scrollRef.current.clientHeight
+      const target = scrollRef.current.scrollHeight - scrollRef.current.clientHeight
       const distance = target - position
       const movement = deltaTime * (distance * 0.005 + 0.3)
       scrollRef.current.scrollTop = Math.min(target, position + movement)

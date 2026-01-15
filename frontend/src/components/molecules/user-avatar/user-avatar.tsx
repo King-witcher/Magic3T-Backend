@@ -1,9 +1,9 @@
-import { leaguesMap } from '@/utils/ranks'
-import { getIconUrl } from '@/utils/utils'
 import { Division, League } from '@magic3t/types'
 import { ComponentProps } from 'react'
 import { RiEdit2Fill } from 'react-icons/ri'
 import { twMerge } from 'tailwind-merge'
+import { leaguesMap } from '@/utils/ranks'
+import { getIconUrl } from '@/utils/utils'
 import styles from './styles.module.sass'
 
 interface Props extends ComponentProps<'div'> {
@@ -52,9 +52,7 @@ export function UserAvatar({
         />
       )}
       {division && type === 'wing' && (
-        <p className="absolute !text-[0.16em] !font-serif top-[-0.95em]">
-          {numbers[division]}
-        </p>
+        <p className="absolute !text-[0.16em] !font-serif top-[-0.95em]">{numbers[division]}</p>
       )}
       {showPencil && (
         <div className={styles.edit_button}>

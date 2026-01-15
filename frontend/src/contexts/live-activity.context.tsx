@@ -1,10 +1,4 @@
-import {
-  type ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useState,
-} from 'react'
+import { createContext, type ReactNode, useCallback, useContext, useState } from 'react'
 
 // Forma que encontrei de fazer a navbar nao depender do gamecontext e queuecontext e também inflar um pouco o meu código, uma vez que eu amo aumentar o tamanho dos meus códigos =D
 
@@ -27,9 +21,7 @@ interface Props {
   children?: ReactNode
 }
 
-const LiveActivityContext = createContext<LiveActivityData>(
-  {} as LiveActivityData
-)
+const LiveActivityContext = createContext<LiveActivityData>({} as LiveActivityData)
 
 export function LiveActivityProvider({ children }: Props) {
   const [activities, setActivities] = useState<Record<number, LiveActivity>>({})

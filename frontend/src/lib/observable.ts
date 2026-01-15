@@ -3,10 +3,7 @@ type EventsMap = Record<string | number, any>
 
 type EventNames<Map extends EventsMap> = keyof Map
 
-type EventParams<
-  Map extends EventsMap,
-  Event extends EventNames<Map>,
-> = Parameters<Map[Event]>
+type EventParams<Map extends EventsMap, Event extends EventNames<Map>> = Parameters<Map[Event]>
 
 export type Observer<Map extends EventsMap, Event extends EventNames<Map>> = (
   ...data: EventParams<Map, Event>
@@ -43,9 +40,7 @@ export abstract class Observable<ObservableEventsMap extends EventsMap>
 
     return () => {
       for (const event of events) {
-        this.observers[event] = this.observers[event]?.filter(
-          (obs) => obs !== observer
-        )
+        this.observers[event] = this.observers[event]?.filter((obs) => obs !== observer)
       }
     }
   }
@@ -57,9 +52,7 @@ export abstract class Observable<ObservableEventsMap extends EventsMap>
     this.observers[events] = [...(this.observers[events] || []), observer]
 
     return () => {
-      this.observers[events] = this.observers[events]?.filter(
-        (obs) => obs !== observer
-      )
+      this.observers[events] = this.observers[events]?.filter((obs) => obs !== observer)
     }
   }
 
@@ -67,7 +60,6 @@ export abstract class Observable<ObservableEventsMap extends EventsMap>
     event: Event,
     ...data: EventParams<ObservableEventsMap, Event>
   ) {
-    if (this.observers[event])
-      for (const observer of this.observers[event]) observer(...data)
+    if (this.observers[event]) for (const observer of this.observers[event]) observer(...data)
   }
 }

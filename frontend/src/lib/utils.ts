@@ -13,16 +13,13 @@ export function formatTime(timeMs: number): string {
   const timeMins = timeMs / 60_000
 
   if (timeMs > 10_000) {
-    return `${Math.floor(timeMins)}:${Math.floor(timeSecs)
-      .toFixed()
-      .padStart(2, '0')}`
+    return `${Math.floor(timeMins)}:${Math.floor(timeSecs).toFixed().padStart(2, '0')}`
   }
   return `${timeSecs.toFixed(1)}`
 }
 
 const epoch = new Date(2000, 7, 31).getTime()
-const chars =
-  'zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA9876543210'.split('')
+const chars = 'zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA9876543210'.split('')
 
 export function getDateFromId(id: string): Date {
   let lannaDate = 0
@@ -31,8 +28,7 @@ export function getDateFromId(id: string): Date {
   for (let i = 0; i < id.length - 1; i++) {
     const char = id[i]
     const index = chars.indexOf(char)
-    if (index === -1)
-      throw new Error(`Invalid character "${char}" in id string`)
+    if (index === -1) throw new Error(`Invalid character "${char}" in id string`)
     lannaDate = lannaDate * 62 + index
   }
 

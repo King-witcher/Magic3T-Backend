@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { App, cert, getApps, initializeApp, ServiceAccount } from 'firebase-admin/app'
-import { getFirestore, Firestore } from 'firebase-admin/firestore'
 import { Auth, getAuth } from 'firebase-admin/auth'
+import { Firestore, getFirestore } from 'firebase-admin/firestore'
 
 @Injectable()
 export class FirebaseService {

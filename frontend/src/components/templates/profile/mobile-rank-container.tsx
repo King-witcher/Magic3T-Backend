@@ -1,5 +1,5 @@
-import { leaguesMap } from '@/utils/ranks'
 import { League } from '@magic3t/types'
+import { leaguesMap } from '@/utils/ranks'
 
 interface Props {
   title: string
@@ -12,9 +12,7 @@ export function MobileRankContainer({ title, content: rank, league }: Props) {
 
   return (
     <div className="flex items-center justify-between relative h-[70px]">
-      <h2 className="!text-sm absolute top-0 left-0 text-gold-4 !font-bold font-serif">
-        {title}
-      </h2>
+      <h2 className="!text-sm absolute top-0 left-0 text-gold-4 !font-bold font-serif">{title}</h2>
       <span className="font-serif">{rank}</span>
       {league && (
         <img

@@ -1,7 +1,3 @@
-import { useGateway } from '@/hooks/use-gateway.ts'
-import { useListener } from '@/hooks/use-listener.ts'
-import { NestApi } from '@/services'
-import { QueueMode } from '@/types/queue.ts'
 import {
   QueueClientEvents,
   QueueClientEventsMap,
@@ -9,14 +5,11 @@ import {
   QueueServerEventsMap,
   UpdateUserCountPayload,
 } from '@magic3t/types'
-import {
-  type ReactNode,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react'
+import { useGateway } from '@/hooks/use-gateway.ts'
+import { useListener } from '@/hooks/use-listener.ts'
+import { NestApi } from '@/services'
+import { QueueMode } from '@/types/queue.ts'
 import { AuthState, useAuth } from './auth.context.tsx'
 import { useGame } from './game.context.tsx'
 import { useLiveActivity } from './live-activity.context.tsx'
@@ -124,9 +117,7 @@ export function QueueProvider({ children }: QueueContextProps) {
   )
 
   return (
-    <QueueContext.Provider
-      value={{ enqueue, dequeue, queueModes, queueUserCount }}
-    >
+    <QueueContext.Provider value={{ enqueue, dequeue, queueModes, queueUserCount }}>
       {children}
     </QueueContext.Provider>
   )

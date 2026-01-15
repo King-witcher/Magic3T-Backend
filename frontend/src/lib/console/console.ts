@@ -1,9 +1,9 @@
 import { useSyncExternalStore } from 'react'
 import { Channel } from '../channel'
 import { Observer } from '../observable'
-import { PublicEmitter } from './emitter'
-import { CVar, CVarValue, INITIAL_CVARS } from './cvars'
 import { Cmd, ConsoleContext, INITIAL_CMDS } from './commands'
+import { CVar, CVarValue, INITIAL_CVARS } from './cvars'
+import { PublicEmitter } from './emitter'
 
 const BUFFER_SIZE = 128
 
@@ -23,9 +23,7 @@ export class Console {
   private static cvarsMap: Map<string, CVar> = new Map(
     INITIAL_CVARS.map((cvar) => [cvar.name, cvar])
   )
-  private static cmdsMap: Map<string, Cmd> = new Map(
-    INITIAL_CMDS.map((cmd) => [cmd.name, cmd])
-  )
+  private static cmdsMap: Map<string, Cmd> = new Map(INITIAL_CMDS.map((cmd) => [cmd.name, cmd]))
 
   // private static cmds: Record<string, CommandHandler> = { ...initialCmds }
   private static queue: Channel<Operation> = new Channel()
@@ -155,10 +153,7 @@ export class Console {
   private static slug(name: string): string {
     return name.toLowerCase()
   }
-  private static setInner(
-    cvar: string,
-    valueString: string
-  ): ConsoleResult<[]> {
+  private static setInner(cvar: string, valueString: string): ConsoleResult<[]> {
     const cvarObj = Console.cvarsMap.get(cvar)
 
     if (!cvarObj) {
@@ -184,9 +179,7 @@ export class Console {
           return Err(`CVar '${cvar}' requires an integer value`)
         }
         if (num < cvarObj.min || num > cvarObj.max) {
-          return Err(
-            `CVar '${cvar}' requires a value between ${cvarObj.min} and ${cvarObj.max}`
-          )
+          return Err(`CVar '${cvar}' requires a value between ${cvarObj.min} and ${cvarObj.max}`)
         }
 
         cvarObj.value = num
@@ -202,9 +195,7 @@ export class Console {
           cvarObj.value = false
           break
         }
-        return Err(
-          `CVar '${cvar}' requires a boolean value (0/1 or true/false)`
-        )
+        return Err(`CVar '${cvar}' requires a boolean value (0/1 or true/false)`)
       }
     }
     Console.emitter.publicEmit('changeCvar', cvar)

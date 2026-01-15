@@ -1,9 +1,9 @@
+import { Team } from '@magic3t/types'
+import { useEffect, useRef } from 'react'
 import * as ButtonGroup from '@/components/atoms/button-group'
 import { ChoiceTable } from '@/components/organisms'
 import { useGame } from '@/contexts/game.context.tsx'
 import { useDialogStore } from '@/contexts/modal.store'
-import { Team } from '@magic3t/types'
-import { useEffect, useRef } from 'react'
 import { ChatBox, ForfeitModal, PlayerCard, TimeCounter } from './components'
 import { ResultModal } from './components/result-modal'
 
@@ -47,17 +47,13 @@ export function GameTemplate() {
           <div className="flex flex-col gap-[20px] justify-center">
             <div className="flex flex-col gap-[20px] w-full items-center">
               <PlayerCard team={upTeam} className="w-full lg:hidden" />
-              <TimeCounter
-                timer={upPlayer.timer}
-                pause={gameCtx.turn === null}
-              />
+              <TimeCounter timer={upPlayer.timer} pause={gameCtx.turn === null} />
               <ChoiceTable
                 redMoves={upPlayer.choices}
                 blueMoves={downPlayer.choices}
                 state={
                   !gameCtx.finished
-                    ? gameCtx.turn !== null &&
-                      gameCtx.turn === gameCtx.currentTeam
+                    ? gameCtx.turn !== null && gameCtx.turn === gameCtx.currentTeam
                       ? 'selectable'
                       : 'static'
                     : 'disabled'
@@ -76,9 +72,7 @@ export function GameTemplate() {
         </div>
         {gameCtx.finished && (
           <ButtonGroup.Root>
-            <ButtonGroup.Button onClick={gameCtx.disconnect}>
-              Leave Room
-            </ButtonGroup.Button>
+            <ButtonGroup.Button onClick={gameCtx.disconnect}>Leave Room</ButtonGroup.Button>
           </ButtonGroup.Root>
         )}
       </div>

@@ -1,6 +1,6 @@
+import { useRef } from 'react'
 import { useDialogStore } from '@/contexts/modal.store'
 import { useOutsideClick } from '@/hooks'
-import { useRef } from 'react'
 
 export function ModalLayout() {
   const content = useDialogStore((state) => state.content)

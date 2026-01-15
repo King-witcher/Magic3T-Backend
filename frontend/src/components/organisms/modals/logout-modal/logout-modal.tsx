@@ -18,18 +18,10 @@ export function LogoutModal() {
         <p className="my-6">You are about to log out from your account.</p>
       </div>
       <div className="flex items-center justify-end gap-[10px]">
-        <button
-          className={buttonStyles.secondary}
-          onClick={closeModal}
-          type="button"
-        >
+        <button className={buttonStyles.secondary} onClick={closeModal} type="button">
           Cancel
         </button>
-        <button
-          className={buttonStyles.danger}
-          onClick={handleSignOut}
-          type="button"
-        >
+        <button className={buttonStyles.danger} onClick={handleSignOut} type="button">
           Sign out
         </button>
       </div>

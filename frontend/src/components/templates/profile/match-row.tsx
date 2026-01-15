@@ -1,10 +1,10 @@
-import { getDateFromId } from '@/lib/utils'
-import { acrylicClasses } from '@/styles/tailwind'
 import { MatchPayload, MatchPayloadEvents, Team } from '@magic3t/types'
 import { Link } from '@tanstack/react-router'
 import { useMemo } from 'react'
 import { FaClock } from 'react-icons/fa'
 import { RiFlagFill } from 'react-icons/ri'
+import { getDateFromId } from '@/lib/utils'
+import { acrylicClasses } from '@/styles/tailwind'
 
 interface Props {
   match: MatchPayload
@@ -40,18 +40,12 @@ export function MatchRow({ match, viewAs }: Props) {
   const isVictory = result === MatchResult.Victory
 
   const player =
-    match.teams[Team.Order].id === viewAs
-      ? match.teams[Team.Order]
-      : match.teams[Team.Chaos]
+    match.teams[Team.Order].id === viewAs ? match.teams[Team.Order] : match.teams[Team.Chaos]
   const opponent =
-    match.teams[Team.Order].id === viewAs
-      ? match.teams[Team.Chaos]
-      : match.teams[Team.Order]
+    match.teams[Team.Order].id === viewAs ? match.teams[Team.Chaos] : match.teams[Team.Order]
 
   const durationString = useMemo(() => {
-    const duration = Math.floor(
-      match.events[match.events.length - 1].time / 1000
-    )
+    const duration = Math.floor(match.events[match.events.length - 1].time / 1000)
     const secs = duration % 60
     const mins = (duration - secs) / 60
 
@@ -65,9 +59,7 @@ export function MatchRow({ match, viewAs }: Props) {
         <div className="flex">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <h3 className="font-serif tracking-wider !text-lg">
-                {opponent.nickname}
-              </h3>
+              <h3 className="font-serif tracking-wider !text-lg">{opponent.nickname}</h3>
               {!!player.lpGain && (
                 <p
                   className={`text-sm/normal !font-serif font-bold ${player.lpGain > 0 ? 'text-green-500' : 'text-red-500'}`}
@@ -89,8 +81,7 @@ export function MatchRow({ match, viewAs }: Props) {
         </div>
         <div className="flex gap-2 sm:gap-2.5">
           {match.events.map((event) => {
-            const borderColor =
-              event.side === Team.Order ? '!border-blue-400' : '!border-red-400'
+            const borderColor = event.side === Team.Order ? '!border-blue-400' : '!border-red-400'
 
             if (event.event === MatchPayloadEvents.Message) return null
 

@@ -1,5 +1,5 @@
-import { getIconUrl } from '@/utils/utils'
 import { memo, useCallback } from 'react'
+import { getIconUrl } from '@/utils/utils'
 import styles from './styles.module.sass'
 
 interface Props {

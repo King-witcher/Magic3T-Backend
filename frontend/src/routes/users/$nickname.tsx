@@ -1,11 +1,7 @@
-import {
-  Loading,
-  NotFoundTemplate,
-  ProfileTemplate,
-} from '@/components/templates'
-import { NestApi } from '@/services/nest-api'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
+import { Loading, NotFoundTemplate, ProfileTemplate } from '@/components/templates'
+import { NestApi } from '@/services/nest-api'
 
 export const Route = createFileRoute('/users/$nickname')({
   component: RouteComponent,

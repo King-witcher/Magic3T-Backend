@@ -1,9 +1,3 @@
-import { useGateway } from '@/hooks/use-gateway'
-import { useListener } from '@/hooks/use-listener'
-import { useObservable } from '@/hooks/use-observable'
-import { Timer } from '@/lib/Timer'
-import { Console } from '@/lib/console'
-import { NestApi } from '@/services'
 import {
   Choice,
   GameClientEventsMap,
@@ -15,8 +9,8 @@ import {
   UserPayload,
 } from '@magic3t/types'
 import {
-  type ReactNode,
   createContext,
+  type ReactNode,
   useCallback,
   useContext,
   useEffect,
@@ -25,6 +19,12 @@ import {
   useState,
 } from 'react'
 import { IoGameController } from 'react-icons/io5'
+import { useGateway } from '@/hooks/use-gateway'
+import { useListener } from '@/hooks/use-listener'
+import { useObservable } from '@/hooks/use-observable'
+import { Console } from '@/lib/console'
+import { Timer } from '@/lib/Timer'
+import { NestApi } from '@/services'
 import { AuthState, useAuth } from './auth.context'
 import { useLiveActivity } from './live-activity.context'
 
@@ -88,11 +88,8 @@ export function GameProvider({ children }: Props) {
   const [turn, setTurn] = useState<Team | null>(null)
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
-  const [finalReport, setFinalReport] = useState<MatchReportPayload | null>(
-    null
-  )
-  const [subscribeFinishMatch, emitFinishMatch] =
-    useObservable<MatchReportPayload>()
+  const [finalReport, setFinalReport] = useState<MatchReportPayload | null>(null)
+  const [subscribeFinishMatch, emitFinishMatch] = useObservable<MatchReportPayload>()
 
   const orderTimer = useRef(new Timer(0))
   const chaosTimer = useRef(new Timer(0))
@@ -325,10 +322,7 @@ export function GameProvider({ children }: Props) {
     if (!isActive) return []
     const availableChoices: Choice[] = []
     for (let i = 1; i < 10; i++) {
-      if (
-        !orderChoices.includes(i as Choice) &&
-        !chaosChoices.includes(i as Choice)
-      )
+      if (!orderChoices.includes(i as Choice) && !chaosChoices.includes(i as Choice))
         availableChoices.push(i as Choice)
     }
     return availableChoices

@@ -1,9 +1,9 @@
-import { AuthState, useAuth } from '@/contexts/auth.context.tsx'
-import { getIconUrl } from '@/utils/utils'
 import { Link } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import { FaRankingStar } from 'react-icons/fa6'
 import { IoBag } from 'react-icons/io5'
+import { AuthState, useAuth } from '@/contexts/auth.context.tsx'
+import { getIconUrl } from '@/utils/utils'
 import { NavbarMenu } from './menu/navbar-menu'
 import { NavbarButton } from './navbar-button'
 

@@ -1,5 +1,5 @@
-import { SignInTemplate } from '@/components/templates'
 import { createFileRoute } from '@tanstack/react-router'
+import { SignInTemplate } from '@/components/templates'
 
 export const Route = createFileRoute('/sign-in/')({
   component: Page,

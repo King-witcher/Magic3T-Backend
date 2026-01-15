@@ -1,4 +1,3 @@
-import { Console } from '@/lib/console'
 import {
   EventsMap,
   ReservedOrUserEventNames,
@@ -6,6 +5,7 @@ import {
 } from '@socket.io/component-emitter'
 import { DependencyList, useEffect } from 'react'
 import { Socket } from 'socket.io-client'
+import { Console } from '@/lib/console'
 import { Gateway } from './use-gateway'
 
 export type DisconnectDescription =
@@ -18,10 +18,7 @@ export type DisconnectDescription =
 interface SocketReservedEvents {
   connect: () => void
   connect_error: (err: Error) => void
-  disconnect: (
-    reason: Socket.DisconnectReason,
-    description?: DisconnectDescription
-  ) => void
+  disconnect: (reason: Socket.DisconnectReason, description?: DisconnectDescription) => void
 }
 
 export function useListener<

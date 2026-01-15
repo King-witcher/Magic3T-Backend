@@ -28,7 +28,10 @@ export class Result<T, E> {
   match<MatchResult>({
     Ok,
     Err,
-  }: { Ok(data: T): MatchResult; Err(data: E): MatchResult }): MatchResult {
+  }: {
+    Ok(data: T): MatchResult
+    Err(data: E): MatchResult
+  }): MatchResult {
     if (this.is_ok()) return Ok(this.data as unknown as T)
     return Err(this.data as E)
   }

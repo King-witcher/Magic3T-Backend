@@ -9,9 +9,7 @@ export function ForfeitModal(props: Props) {
 
   return (
     <div className="px-6 py-4 flex flex-col gap-4 w-100">
-      <h2 className="text-3xl font-semibold text-gold-4 font-serif">
-        SURRENDER
-      </h2>
+      <h2 className="text-3xl font-semibold text-gold-4 font-serif">SURRENDER</h2>
       <p className="text-gold-1">You are about to surrender.</p>
       <div className="flex gap-2 justify-end mt-2">
         <button

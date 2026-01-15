@@ -1,14 +1,14 @@
+import { Link, Navigate } from '@tanstack/react-router'
+import { AuthErrorCodes, sendPasswordResetEmail } from 'firebase/auth'
+import { useCallback, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { RiGoogleFill } from 'react-icons/ri'
 import { Spinner } from '@/components/atoms'
 import { AuthState, useAuth } from '@/contexts/auth.context.tsx'
 import { auth } from '@/services/firebase'
 import buttonStyles from '@/styles/components/button.module.sass'
 import inputStyles from '@/styles/components/input.module.sass'
 import { isValidEmail } from '@/utils/isValidEmail'
-import { Link, Navigate } from '@tanstack/react-router'
-import { AuthErrorCodes, sendPasswordResetEmail } from 'firebase/auth'
-import { useCallback, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { RiGoogleFill } from 'react-icons/ri'
 import { LoadingSessionTemplate } from '../loading-session'
 
 interface Props {
@@ -79,9 +79,7 @@ export function SignInTemplate({ referrer = '/' }: Props) {
         className="acrylic p-[40px] flex flex-col gap-[10px] items-center w-full max-w-auto md:max-w-[400px]"
         onSubmit={handleSubmit(handleSignIn)}
       >
-        <h1 className="!text-5xl font-serif !font-bold text-gold-4 uppercase">
-          Sign-in
-        </h1>
+        <h1 className="!text-5xl font-serif !font-bold text-gold-4 uppercase">Sign-in</h1>
         <p className="text-center">
           Don&apos;t have an account yet?{' '}
           <Link
@@ -120,10 +118,7 @@ export function SignInTemplate({ referrer = '/' }: Props) {
         {hideResetPassword ? (
           <p className="text-blue-2">Recovery email sent</p>
         ) : (
-          <p
-            className="text-blue-2 cursor-pointer hover:text-blue-1"
-            onClick={handleRecover}
-          >
+          <p className="text-blue-2 cursor-pointer hover:text-blue-1" onClick={handleRecover}>
             Forgot password?
           </p>
         )}

@@ -1,16 +1,10 @@
-import { NestApi } from '@/services/index'
 import { useQuery } from '@tanstack/react-query'
-import {
-  type ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-} from 'react'
+import { createContext, type ReactNode, useContext, useEffect, useMemo } from 'react'
 import { IoCloud, IoCloudOffline, IoMoon } from 'react-icons/io5'
-import { useLiveActivity } from './live-activity.context'
-import { Console } from '@/lib/console/console'
 import { SystemCvars } from '@/lib/console'
+import { Console } from '@/lib/console/console'
+import { NestApi } from '@/services/index'
+import { useLiveActivity } from './live-activity.context'
 
 export enum ServerStatus {
   Off = 0,
@@ -75,11 +69,7 @@ export function ServiceStatusProvider({ children }: Props) {
     }
   }, [serverStatus])
 
-  return (
-    <ServiceStatusContext.Provider value={value}>
-      {children}
-    </ServiceStatusContext.Provider>
-  )
+  return <ServiceStatusContext.Provider value={value}>{children}</ServiceStatusContext.Provider>
 }
 
 export const useServiceStatus = () => useContext(ServiceStatusContext)

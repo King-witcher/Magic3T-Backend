@@ -1,6 +1,6 @@
+import type { ReactNode } from 'react'
 import { PageWidthLimiter } from '@/components/atoms'
 import { Navbar } from '@/components/organisms'
-import type { ReactNode } from 'react'
 import { ModalLayout } from './modal-layout'
 import styles from './styles.module.sass'
 

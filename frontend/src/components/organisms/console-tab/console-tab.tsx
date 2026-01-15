@@ -1,8 +1,8 @@
-import Console1 from '@/assets/textures/console1.png'
-import Console2 from '@/assets/textures/console2.jpg'
-import { Console, ConStyle, SystemCvars } from '@/lib/console'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { twMerge } from 'tailwind-merge'
+import Console1 from '@/assets/textures/console1.png'
+import Console2 from '@/assets/textures/console2.jpg'
+import { ConStyle, Console, SystemCvars } from '@/lib/console'
 import { ConsoleInput } from './console-input'
 import styles from './styles.module.css'
 
@@ -17,10 +17,7 @@ export function ConsoleTab() {
   const scrollableRef = useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = useState(false)
 
-  const lines = useSyncExternalStore(
-    subscribeToConsoleChanges,
-    () => Console.lines
-  )
+  const lines = useSyncExternalStore(subscribeToConsoleChanges, () => Console.lines)
 
   let con_style = Console.useCvar(SystemCvars.ConStyle) as number
   if (!consoleStyles.has(con_style)) con_style = ConStyle.Default
@@ -36,8 +33,7 @@ export function ConsoleTab() {
 
   useEffect(function listenOpen() {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.code === 'Backquote' && event.ctrlKey)
-        setIsOpen((value) => !value)
+      if (event.code === 'Backquote' && event.ctrlKey) setIsOpen((value) => !value)
     }
 
     window.addEventListener('keydown', handleKeyDown)
@@ -109,10 +105,7 @@ export function ConsoleTab() {
         )}
 
         <div className="flex flex-1 relative">
-          <div
-            ref={scrollableRef}
-            className="absolute inset-0 overflow-y-auto overflow-x-hidden"
-          >
+          <div ref={scrollableRef} className="absolute inset-0 overflow-y-auto overflow-x-hidden">
             <div className="flex flex-col justify-end min-h-full">
               {lines.map(
                 (line, index) =>

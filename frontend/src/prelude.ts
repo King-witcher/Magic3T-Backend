@@ -1,8 +1,4 @@
-import {
-  Result as ResultClass,
-  Err as ResultErr,
-  Ok as ResultOk,
-} from '@/utils/rust/result'
+import { Result as ResultClass, Err as ResultErr, Ok as ResultOk } from '@/utils/rust/result'
 
 window.Ok = ResultOk
 window.Err = ResultErr

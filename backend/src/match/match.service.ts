@@ -2,11 +2,11 @@ import { ConfigRepository, MatchRepository, UserRepository } from '@database'
 import { BotConfig, BotName, GameMode, GetMatchesResult, Team, UserRow } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
+import { Result } from '@/common'
 import { BaseBot, LmmBot, RandomBot } from './bots'
 import { MatchBank, Perspective } from './lib'
 import { MatchObserverService } from './state-report.service'
 import { MatchPayload } from './swagger/match-payload'
-import { Result } from '@/common'
 
 export type MatchCreationError = 'user-not-found' | 'bot-not-found'
 
@@ -36,7 +36,7 @@ export class MatchService {
     // Get profiles
     const humanProfilePromise = this.getProfile(uid)
     const botConfig = (await this.configRepository.getBotConfig(botName)).unwrap()
-      if (!botConfig) return Err('bot-not-found')
+    if (!botConfig) return Err('bot-not-found')
     const botProfile = await this.getProfile(botConfig.uid)
     const humanProfile = await humanProfilePromise
 

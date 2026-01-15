@@ -1,12 +1,12 @@
+import { UserPayload } from '@magic3t/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
 import { Spinner } from '@/components/atoms'
 import { UserAvatar } from '@/components/molecules'
 import { useAuth } from '@/contexts/auth.context'
 import { useDialogStore } from '@/contexts/modal.store'
 import { NestApi } from '@/services/nest-api'
 import styles from '@/styles/components/button.module.sass'
-import { UserPayload } from '@magic3t/types'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
 import { SummonerIcon } from './summoner-icon'
 
 interface Props {
@@ -64,9 +64,7 @@ export function ChangeIconModal({ user, onSave }: Props) {
 
   return (
     <div className="h-[calc(100dvh-42px)] w-[600px] md:h-[800px] md:w-[1000px] flex flex-col max-w-full p-[20px] gap-[10px]">
-      <h2 className="!text-4xl font-serif text-center !my-4 text-gold-3">
-        CHANGE ICON
-      </h2>
+      <h2 className="!text-4xl font-serif text-center !my-4 text-gold-3">CHANGE ICON</h2>
       <div className="w-full h-full flex flex-col md:flex-row gap-[10px] items-center">
         <div className="flex flex-col gap-[5px] items-center pt-[25px]">
           <UserAvatar

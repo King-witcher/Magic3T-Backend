@@ -1,6 +1,6 @@
-import { Console, SystemCvars } from '@/lib/console'
 import { GetMatchesResult } from '@magic3t/types'
 import axios from 'axios'
+import { Console, SystemCvars } from '@/lib/console'
 
 const controller = () => {
   const apiUrl = Console.getCvarValue(SystemCvars.SvApiUrl)
@@ -23,10 +23,7 @@ export async function getCurrentMatch(token: string): Promise<{ id: string }> {
   return response.data
 }
 
-export async function getMatchesByUser(
-  userId: string,
-  limit: number
-): Promise<GetMatchesResult> {
+export async function getMatchesByUser(userId: string, limit: number): Promise<GetMatchesResult> {
   const response = await controller().get(`/user/${userId}`, {
     params: {
       limit,

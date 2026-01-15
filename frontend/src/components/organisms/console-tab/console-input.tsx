@@ -1,5 +1,5 @@
-import { useKeyListener } from '@/hooks/use-key-listener'
 import { useEffect, useState } from 'react'
+import { useKeyListener } from '@/hooks/use-key-listener'
 
 interface Props {
   onSubmit: (value: string) => void
@@ -132,10 +132,7 @@ export function ConsoleInput({ onSubmit, focused }: Props) {
     'Backspace',
     () => {
       if (cursorPosition > 0) {
-        setValue(
-          (prev) =>
-            prev.slice(0, cursorPosition - 1) + prev.slice(cursorPosition)
-        )
+        setValue((prev) => prev.slice(0, cursorPosition - 1) + prev.slice(cursorPosition))
         setCursorPosition(cursorPosition - 1)
       }
     },
@@ -147,10 +144,7 @@ export function ConsoleInput({ onSubmit, focused }: Props) {
     'Delete',
     () => {
       if (cursorPosition < value.length) {
-        setValue(
-          (prev) =>
-            prev.slice(0, cursorPosition) + prev.slice(cursorPosition + 1)
-        )
+        setValue((prev) => prev.slice(0, cursorPosition) + prev.slice(cursorPosition + 1))
       }
     },
     [value, cursorPosition],
@@ -180,12 +174,7 @@ export function ConsoleInput({ onSubmit, focused }: Props) {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (printableChars.has(event.key)) {
-        setValue(
-          (prev) =>
-            prev.slice(0, cursorPosition) +
-            event.key +
-            prev.slice(cursorPosition)
-        )
+        setValue((prev) => prev.slice(0, cursorPosition) + event.key + prev.slice(cursorPosition))
         setCursorPosition((prev) => prev + 1)
       }
     }

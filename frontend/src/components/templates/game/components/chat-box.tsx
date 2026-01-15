@@ -1,6 +1,6 @@
-import { formatMinutes } from '@/utils/timeFormat'
 import type { RefObject } from 'react'
 import { twMerge } from 'tailwind-merge'
+import { formatMinutes } from '@/utils/timeFormat'
 import { useChatHandler } from '../hooks/useChatHandler'
 
 interface Props {
@@ -9,13 +9,8 @@ interface Props {
 }
 
 export function ChatBox({ inputRef, className }: Props) {
-  const {
-    messages,
-    scrollRef,
-    handleSubmitMessage,
-    handleChangeMessageField,
-    currentMessage,
-  } = useChatHandler()
+  const { messages, scrollRef, handleSubmitMessage, handleChangeMessageField, currentMessage } =
+    useChatHandler()
 
   return (
     <div

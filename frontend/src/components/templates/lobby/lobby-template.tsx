@@ -1,9 +1,6 @@
 import { ButtonsContainer } from '@/components/atoms'
 import { useQueue } from '@/contexts/queue.context'
-import {
-  ServerStatus,
-  useServiceStatus,
-} from '@/contexts/service-status.context'
+import { ServerStatus, useServiceStatus } from '@/contexts/service-status.context'
 import { QueueMode } from '@/types/queue'
 import { QueueModeButton } from './queue-mode-button'
 
@@ -15,18 +12,14 @@ export function LobbyTemplate() {
     <div className="flex items-center justify-center h-full">
       <div className="flex flex-col w-full max-w-[800px]">
         <h1 className="text-center !text-5xl font-serif text-gold-4 !font-bold">
-          <span className="text-2xl xs:text-5xl">PLAY</span>{' '}
-          <br className="xs:hidden" />
+          <span className="text-2xl xs:text-5xl">PLAY</span> <br className="xs:hidden" />
           <span>MAGIC3T</span>
         </h1>
         <p className="text-center text-[0.8rem] xs:text-[0.9rem] text-grey-1 !mt-[10px]">
           Be the first to select three numbers that add up to exactly 15.
         </p>
 
-        <ButtonsContainer
-          className="mt-[20px]"
-          disabled={serverStatus !== ServerStatus.On}
-        >
+        <ButtonsContainer className="mt-[20px]" disabled={serverStatus !== ServerStatus.On}>
           <QueueModeButton
             name="Easy"
             isLoading={!!queueModes['bot-0']}
@@ -48,10 +41,7 @@ export function LobbyTemplate() {
             gameMode={QueueMode.Bot3}
           />
         </ButtonsContainer>
-        <ButtonsContainer
-          className="my-[20px]"
-          disabled={serverStatus !== ServerStatus.On}
-        >
+        <ButtonsContainer className="my-[20px]" disabled={serverStatus !== ServerStatus.On}>
           <QueueModeButton
             name="Human"
             isLoading={!!queueModes.ranked}
@@ -61,9 +51,7 @@ export function LobbyTemplate() {
         </ButtonsContainer>
         {serverStatus === ServerStatus.On &&
           (queueUserCount.connected > 1 ? (
-            <p className="text-center text-green-400">
-              {queueUserCount.connected} players online
-            </p>
+            <p className="text-center text-green-400">{queueUserCount.connected} players online</p>
           ) : (
             <p className="text-center text-grey-1">
               Only you are online. Invite a friends to play Magic3T!

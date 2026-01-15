@@ -1,11 +1,8 @@
-import { Console } from '@/lib/console'
-import { auth, provider } from '@/services/firebase'
-import { NestApi } from '@/services/nest-api'
 import { UserPayload } from '@magic3t/types'
 import { useQuery } from '@tanstack/react-query'
 import {
-  type User as FirebaseUser,
   createUserWithEmailAndPassword,
+  type User as FirebaseUser,
   signOut as firebaseSignOut,
   getIdToken,
   onAuthStateChanged,
@@ -13,14 +10,17 @@ import {
   signInWithPopup,
 } from 'firebase/auth'
 import {
-  type ReactNode,
   createContext,
+  type ReactNode,
   use,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from 'react'
+import { Console } from '@/lib/console'
+import { auth, provider } from '@/services/firebase'
+import { NestApi } from '@/services/nest-api'
 
 export enum AuthState {
   NotSignedIn = 'not-signed-in',
@@ -185,14 +185,12 @@ export function AuthProvider({ children }: Props) {
 
 export function useAuth() {
   const authData = use(AuthContext)
-  if (authData === null)
-    throw new Error('Used auth context outside <AuthProvider>')
+  if (authData === null) throw new Error('Used auth context outside <AuthProvider>')
   return authData
 }
 
 export function useUser() {
   const auth = useAuth()
-  if (auth.user === null)
-    throw new Error('Used useUser while user is not defined')
+  if (auth.user === null) throw new Error('Used useUser while user is not defined')
   return auth.user
 }

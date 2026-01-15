@@ -1,33 +1,20 @@
+import { EventNames, EventParams, EventsMap } from '@socket.io/component-emitter'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { io, Socket } from 'socket.io-client'
 import { useAuth } from '@/contexts/auth.context'
 import { Console, SystemCvars } from '@/lib/console'
-import {
-  EventNames,
-  EventParams,
-  EventsMap,
-} from '@socket.io/component-emitter'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Socket, io } from 'socket.io-client'
 
-export type Gateway<
-  ServerEvents extends EventsMap,
-  ClientEvents extends EventsMap,
-> = {
+export type Gateway<ServerEvents extends EventsMap, ClientEvents extends EventsMap> = {
   readonly name: string
   readonly socket: Socket<ServerEvents, ClientEvents> | null
-  emit<Ev extends EventNames<ClientEvents>>(
-    event: Ev,
-    ...data: EventParams<ClientEvents, Ev>
-  ): void
+  emit<Ev extends EventNames<ClientEvents>>(event: Ev, ...data: EventParams<ClientEvents, Ev>): void
 }
 
-export function useGateway<
-  ServerEvents extends EventsMap,
-  ClientEvents extends EventsMap,
->(gateway: string, enabled = true): Gateway<ServerEvents, ClientEvents> {
-  const [socket, setSocket] = useState<Socket<
-    ServerEvents,
-    ClientEvents
-  > | null>(null)
+export function useGateway<ServerEvents extends EventsMap, ClientEvents extends EventsMap>(
+  gateway: string,
+  enabled = true
+): Gateway<ServerEvents, ClientEvents> {
+  const [socket, setSocket] = useState<Socket<ServerEvents, ClientEvents> | null>(null)
   const auth = useAuth()
   const apiurl = Console.useCvar(SystemCvars.SvApiUrl)
 

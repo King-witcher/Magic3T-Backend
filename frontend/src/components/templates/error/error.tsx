@@ -8,10 +8,7 @@ export function ErrorTemplate() {
       <p className="text-xl text-center font-sans">
         A runtime error prevented Magic3T from displaying this page.
       </p>
-      <Link
-        to="/"
-        className="text-xl font-sans font-bold !text-gold-4 underline"
-      >
+      <Link to="/" className="text-xl font-sans font-bold !text-gold-4 underline">
         Go back to home page
       </Link>
     </div>

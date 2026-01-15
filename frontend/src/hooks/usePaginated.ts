@@ -1,8 +1,5 @@
-import type {
-  PaginatedFetchFunction,
-  UsePaginatedReturnType,
-} from '@/types/pagination.ts'
 import { useCallback, useState } from 'react'
+import type { PaginatedFetchFunction, UsePaginatedReturnType } from '@/types/pagination.ts'
 
 export const usePaginated = <DataType, CursorType = string>(
   fetchFunction: PaginatedFetchFunction<DataType, CursorType>,

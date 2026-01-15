@@ -1,12 +1,11 @@
-import {
-  FirestoreDataConverter,
-  CollectionReference,
-  Firestore,
-  UpdateData,
-} from 'firebase-admin/firestore'
-
 import { WithId } from '@magic3t/types'
 import { Logger } from '@nestjs/common'
+import {
+  CollectionReference,
+  Firestore,
+  FirestoreDataConverter,
+  UpdateData,
+} from 'firebase-admin/firestore'
 import { DatabaseService } from '@/database/database.service'
 
 export abstract class BaseRepository<T extends WithId> {

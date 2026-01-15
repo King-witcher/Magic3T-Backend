@@ -1,9 +1,9 @@
+import { Choice } from '@magic3t/types'
+import { useEffect, useMemo } from 'react'
 import PugDanceGif from '@/assets/pug-dance.gif'
 import { ChoiceComponent } from '@/components/atoms'
 import { Console, SystemCvars } from '@/lib/console'
 import { getTriple } from '@/utils/getTriple'
-import { Choice } from '@magic3t/types'
-import { useEffect, useMemo } from 'react'
 import styles from './styles.module.sass'
 
 interface Props {
@@ -87,9 +87,7 @@ export function ChoiceTable({ redMoves, blueMoves, state, onSelect }: Props) {
   }
 
   return (
-    <div
-      className={`${styles.container} ${state === 'selectable' ? 'selectable' : ''}`}
-    >
+    <div className={`${styles.container} ${state === 'selectable' ? 'selectable' : ''}`}>
       {allChoices.map((number) => {
         const blueChoice = blueMoves.includes(number)
         const redChoice = redMoves.includes(number)

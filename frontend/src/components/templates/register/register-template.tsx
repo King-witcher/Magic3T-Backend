@@ -1,11 +1,11 @@
-import { Spinner } from '@/components/atoms'
-import { AuthState, useAuth } from '@/contexts/auth.context.tsx'
-import buttonStyles from '@/styles/components/button.module.sass'
-import inputStyles from '@/styles/components/input.module.sass'
 import { Link, Navigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { RiGoogleFill } from 'react-icons/ri'
+import { Spinner } from '@/components/atoms'
+import { AuthState, useAuth } from '@/contexts/auth.context.tsx'
+import buttonStyles from '@/styles/components/button.module.sass'
+import inputStyles from '@/styles/components/input.module.sass'
 import { LoadingSessionTemplate } from '../loading-session'
 
 interface FormData {
@@ -35,23 +35,20 @@ export function RegisterTemplate({ referrer = '/' }: Props) {
     'auth/weak-password': 'Senha muito fraca',
   }
 
-  const handleRegister = useCallback(
-    async ({ email, password, checkPassword }: FormData) => {
-      if (password !== checkPassword) {
-        setError('Password does not match')
-        return
-      }
+  const handleRegister = useCallback(async ({ email, password, checkPassword }: FormData) => {
+    if (password !== checkPassword) {
+      setError('Password does not match')
+      return
+    }
 
-      setWaiting(true)
-      setError(null)
-      const error = await registerEmail(email, password)
-      if (error) {
-        setError(errorMap[error] || 'Unknown error')
-      }
-      setWaiting(false)
-    },
-    []
-  )
+    setWaiting(true)
+    setError(null)
+    const error = await registerEmail(email, password)
+    if (error) {
+      setError(errorMap[error] || 'Unknown error')
+    }
+    setWaiting(false)
+  }, [])
   if (authState === AuthState.Loading || authState === AuthState.SignedIn) {
     return (
       <>
@@ -67,9 +64,7 @@ export function RegisterTemplate({ referrer = '/' }: Props) {
         className="acrylic p-[40px] flex flex-col gap-[10px] items-center w-full max-w-auto md:max-w-[400px]"
         onSubmit={handleSubmit(handleRegister)}
       >
-        <h1 className="!text-5xl font-serif !font-bold !text-gold-4 uppercase">
-          Register
-        </h1>
+        <h1 className="!text-5xl font-serif !font-bold !text-gold-4 uppercase">Register</h1>
         <Link
           className="!text-blue-2 hover:!text-blue-1"
           to="/sign-in"

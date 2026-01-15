@@ -1,10 +1,10 @@
+import { League, Team } from '@magic3t/types'
+import { Link } from '@tanstack/react-router'
 import { SmoothNumber } from '@/components/atoms'
 import { UserAvatar } from '@/components/molecules'
 import { useGame } from '@/contexts/game.context.tsx'
 import { divisionMap, leaguesMap } from '@/utils/ranks'
 import { block } from '@/utils/utils'
-import { League, Team } from '@magic3t/types'
-import { Link } from '@tanstack/react-router'
 
 interface Props {
   team: Team
@@ -43,17 +43,14 @@ export function PlayerCard({ team, className }: Props) {
           <>
             <div className="flex items-center gap-[5px]">
               <h2 className="one-line flex gap-2 !text-xl font-serif tracking-wide">
-                {profile.role === 'bot' && (
-                  <span className="text-gold-4 uppercase">Bot</span>
-                )}
+                {profile.role === 'bot' && <span className="text-gold-4 uppercase">Bot</span>}
                 <span>{profile.nickname}</span>
               </h2>
             </div>
             <div className="flex items-center text-xs xs:text-sm gap-[5px] font-serif tracking-wide whitespace-nowrap">
               <img alt="rank" className="w-[25px]" src={tierInfo?.icon} />
               <span className="capitalize">
-                {profile.rating.league}{' '}
-                {divisionMap[profile.rating.division || 0]}
+                {profile.rating.league} {divisionMap[profile.rating.division || 0]}
               </span>
               {profile.rating.points !== null && (
                 <span className="text-grey-1">
@@ -64,9 +61,7 @@ export function PlayerCard({ team, className }: Props) {
               {gain !== null && (
                 <span
                   className={`font-bold ${gain < 0 ? 'text-red-600' : gain > 0 ? 'text-green-600' : 'text-grey-1'}`}
-                  color={
-                    gain < 0 ? 'red.500' : gain > 0 ? 'green.500' : 'gray.500'
-                  }
+                  color={gain < 0 ? 'red.500' : gain > 0 ? 'green.500' : 'gray.500'}
                 >
                   {gain >= 0 && '+'}
                   {gain}

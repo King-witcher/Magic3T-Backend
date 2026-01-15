@@ -3,10 +3,7 @@ import { useCallback, useRef } from 'react'
 export type Observer<T> = (event: T) => void
 export type Subscribe<T> = (observer: Observer<T>) => () => void
 
-export function useObservable<T>(): [
-  observe: Subscribe<T>,
-  emit: (event: T) => void,
-] {
+export function useObservable<T>(): [observe: Subscribe<T>, emit: (event: T) => void] {
   const nextId = useRef(0)
   const observableItems = useRef<Map<number, Observer<T>>>(new Map())
 

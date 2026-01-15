@@ -1,5 +1,5 @@
-import type { Timer } from '@/lib/Timer'
 import { useEffect, useState } from 'react'
+import type { Timer } from '@/lib/Timer'
 
 interface Props {
   timer: Timer
@@ -13,9 +13,7 @@ function format(timer: Timer): string {
   const timeMins = time / 60_000
 
   if (time > 10_000) {
-    return `${Math.floor(timeMins)}:${Math.floor(timeSecs)
-      .toFixed()
-      .padStart(2, '0')}`
+    return `${Math.floor(timeMins)}:${Math.floor(timeSecs).toFixed().padStart(2, '0')}`
   }
   return `${timeSecs.toFixed(2)}`
 }

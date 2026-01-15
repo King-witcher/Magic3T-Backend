@@ -1,11 +1,8 @@
+import { ReactNode } from 'react'
 import { Spinner } from '@/components/atoms'
 import { useQueue } from '@/contexts/queue.context'
-import {
-  ServerStatus,
-  useServiceStatus,
-} from '@/contexts/service-status.context'
+import { ServerStatus, useServiceStatus } from '@/contexts/service-status.context'
 import type { QueueMode } from '@/types/queue'
-import { ReactNode } from 'react'
 import styles from './styles.module.sass'
 
 interface Props {
@@ -16,13 +13,7 @@ interface Props {
   isLoading: boolean
 }
 
-export function QueueModeButton({
-  children,
-  gameMode,
-  name,
-  playersInQueue,
-  isLoading,
-}: Props) {
+export function QueueModeButton({ children, gameMode, name, playersInQueue, isLoading }: Props) {
   const { enqueue, dequeue } = useQueue()
   const { serverStatus } = useServiceStatus()
   const isDisabled = serverStatus !== ServerStatus.On

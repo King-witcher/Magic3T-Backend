@@ -14,9 +14,7 @@ const months = [
 ]
 
 export function formatDate(date: Date): string {
-  return `${date.getDate()} de ${
-    months[date.getMonth()]
-  } de ${date.getFullYear()}`
+  return `${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`
 }
 
 // Chat gptzada xD

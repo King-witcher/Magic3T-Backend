@@ -1,6 +1,6 @@
-import { Console, SystemCvars } from '@/lib/console'
 import { RegisterUserCommand, UserPayload } from '@magic3t/types'
 import axios from 'axios'
+import { Console, SystemCvars } from '@/lib/console'
 
 const controller = () => {
   const apiUrl = Console.getCvarValue(SystemCvars.SvApiUrl) as string
@@ -17,9 +17,7 @@ export async function getById(id: string): Promise<UserPayload | null> {
   return data
 }
 
-export async function getByNickname(
-  nickname: string
-): Promise<UserPayload | null> {
+export async function getByNickname(nickname: string): Promise<UserPayload | null> {
   const apiUrl = Console.getCvarValue(SystemCvars.SvApiUrl) as string
   const response = await fetch(`${apiUrl}/users/nickname/${nickname}`)
   if (response.status !== 200) return null
@@ -78,10 +76,7 @@ export async function updateIcon(token: string, icon: number): Promise<void> {
   }
 }
 
-export async function updateNickname(
-  token: string,
-  nickname: string
-): Promise<void> {
+export async function updateNickname(token: string, nickname: string): Promise<void> {
   const apiUrl = Console.getCvarValue(SystemCvars.SvApiUrl) as string
   const response = await fetch(`${apiUrl}/users/me/nickname`, {
     headers: {

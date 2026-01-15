@@ -1,5 +1,5 @@
-import { NestApi } from '@/services'
 import { io } from 'socket.io-client'
+import { NestApi } from '@/services'
 import { CVar, SystemCvars } from './cvars'
 
 export type ConsoleContext = Readonly<{
@@ -36,9 +36,7 @@ export const INITIAL_CMDS: Cmd[] = [
     name: 'cmdlist',
     description: 'Lists all available commands',
     async handler({ console }: CmdContext) {
-      const cmds = console
-        .listCmds()
-        .sort((a, b) => a.name.localeCompare(b.name))
+      const cmds = console.listCmds().sort((a, b) => a.name.localeCompare(b.name))
 
       for (const cmd of cmds) {
         let line = cmd.name
@@ -54,9 +52,7 @@ export const INITIAL_CMDS: Cmd[] = [
     name: 'cvarlist',
     description: 'Lists all available cvars',
     async handler({ console }: CmdContext) {
-      const cvars = console
-        .listCvars()
-        .sort((a, b) => a.name.localeCompare(b.name))
+      const cvars = console.listCvars().sort((a, b) => a.name.localeCompare(b.name))
 
       for (const cvar of cvars) {
         let line = cvar.name

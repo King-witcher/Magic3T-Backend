@@ -1,5 +1,5 @@
-import { Console, SystemCvars } from '@/lib/console'
 import axios from 'axios'
+import { Console, SystemCvars } from '@/lib/console'
 
 const controller = () => {
   const apiUrl = Console.getCvarValue(SystemCvars.SvApiUrl) as string

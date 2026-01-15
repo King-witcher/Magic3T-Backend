@@ -1,5 +1,5 @@
-import { RegisterTemplate } from '@/components/templates'
 import { createFileRoute } from '@tanstack/react-router'
+import { RegisterTemplate } from '@/components/templates'
 
 export const Route = createFileRoute('/register/')({
   component: Page,

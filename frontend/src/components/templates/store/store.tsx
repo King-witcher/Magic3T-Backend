@@ -1,5 +1,5 @@
-import { getIconUrl } from '@/utils/utils'
 import { range } from 'lodash'
+import { getIconUrl } from '@/utils/utils'
 
 export const a = 3
 
@@ -18,10 +18,7 @@ export function StoreTemplate() {
 
             <h2 className="text-xl font-semibold">Item {icon}</h2>
             <p className="text-sm text-gray-600">Description of item {icon}</p>
-            <button
-              type="button"
-              className="bg-gold-4 text-white px-4 py-2 rounded-lg mt-2"
-            >
+            <button type="button" className="bg-gold-4 text-white px-4 py-2 rounded-lg mt-2">
               Add to cart
             </button>
           </div>

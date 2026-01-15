@@ -1,5 +1,5 @@
-import { useGame } from '@/contexts/game.context.tsx'
 import { useMemo } from 'react'
+import { useGame } from '@/contexts/game.context.tsx'
 
 export function ResultModal() {
   const game = useGame()
@@ -24,9 +24,7 @@ export function ResultModal() {
           <span className="font-bold">Match Score:</span>
           <span className="text-gold-4">{score}</span>
           <span className="font-bold ml-[10px]">LP Gain:</span>
-          <span className="text-gold-4">
-            {game.finalReport?.[game.currentTeam].lpGain || 0} LP
-          </span>
+          <span className="text-gold-4">{game.finalReport?.[game.currentTeam].lpGain || 0} LP</span>
         </div>
       </div>
     )

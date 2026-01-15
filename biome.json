@@ -6,10 +6,10 @@
     "rules": {
       "recommended": true,
       "style": {
-        "noDefaultExport": "off",
+        "useImportType": "off",
         "noUselessElse": "error",
         "noNonNullAssertion": "off",
-        "useImportType": "off",
+        "noDefaultExport": "off",
         "useTemplate": "info"
       },
       "correctness": {
