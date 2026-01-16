@@ -1,5 +1,5 @@
 import { Choice, League, Team } from '@magic3t/common-types'
-import { WithId } from '@magic3t/types'
+import { WithId } from './with-id'
 
 export const enum MatchRowGameMode {
   Casual = 0b00,

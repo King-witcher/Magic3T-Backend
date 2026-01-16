@@ -1,4 +1,4 @@
-import { WithId } from '@magic3t/types'
+import { WithId } from './with-id'
 
 export type IconAssignmentRow = WithId & {
   date: Date
