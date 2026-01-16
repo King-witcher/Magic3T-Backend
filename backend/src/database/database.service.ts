@@ -7,8 +7,6 @@ import {
   Timestamp,
   WithFieldValue,
 } from 'firebase-admin/firestore'
-import { Mutable } from '@/types/mutable'
-import { OptionalProp } from '@/types/OptionalProp'
 
 const epoch = new Date(2000, 7, 31).getTime()
 
@@ -43,9 +41,9 @@ export class DatabaseService {
     }
   }
 
-  // TODO: Remove extends WithId in later refactor
-  getConverter<T extends WithId>(): FirestoreDataConverter<T> {
-    function convert(data: object) {
+  getConverter<T extends object>(): FirestoreDataConverter<T & WithId> {
+    // Convert all Timestamps from firebase to Date objects
+    function convert(data: T) {
       for (const [key, value] of Object.entries(data)) {
         if (value instanceof Timestamp) {
           data[key] = value.toDate()
@@ -65,10 +63,9 @@ export class DatabaseService {
         }
       },
 
-      toFirestore: (data: T): WithFieldValue<DocumentData> => {
-        const output: Mutable<OptionalProp<T, '_id'>> = { ...data }
-        delete output._id
-        return output
+      toFirestore: (data: WithId & T): WithFieldValue<DocumentData> => {
+        const { _id, ...rest } = data
+        return rest
       },
     }
   }
