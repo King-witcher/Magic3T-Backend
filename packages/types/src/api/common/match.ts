@@ -1,15 +1,8 @@
-import { Choice, Team } from '../../common'
-import type { League } from './rating'
-
-export const enum MatchPayloadEvents {
-  Choice = 0,
-  Forfeit = 1,
-  Timeout = 2,
-  Message = 3,
-}
+import { Choice, League, Team } from '@magic3t/common-types'
+import { MatchRowEventType } from '@magic3t/database-types'
 
 type BaseMatchPayloadEvent = {
-  event: MatchPayloadEvents
+  event: MatchRowEventType
   side: Team
   time: number
 }
@@ -26,15 +19,15 @@ export interface MatchPayloadTeam {
 export type MatchPayloadEvent = BaseMatchPayloadEvent &
   (
     | {
-        event: MatchPayloadEvents.Choice
+        event: MatchRowEventType.Choice
         choice: Choice
       }
     | {
-        event: MatchPayloadEvents.Message
+        event: MatchRowEventType.Message
         message: string
       }
     | {
-        event: MatchPayloadEvents.Timeout | MatchPayloadEvents.Forfeit
+        event: MatchRowEventType.Timeout | MatchRowEventType.Forfeit
       }
   )
 

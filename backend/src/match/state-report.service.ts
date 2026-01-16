@@ -1,13 +1,6 @@
-import {
-  GameServerEventsMap,
-  League,
-  MatchReportPayload,
-  MatchRow,
-  MatchRowGameMode,
-  MatchServerEvents,
-  Team,
-  UserRow,
-} from '@magic3t/types'
+import { GameServerEventsMap, MatchReportPayload, MatchServerEvents } from '@magic3t/api-types'
+import { League, Team } from '@magic3t/common-types'
+import { MatchRow, MatchRowGameMode, UserRow } from '@magic3t/database-types'
 import { Inject, Injectable } from '@nestjs/common'
 import { SocketsService } from '@/common/services/sockets.service'
 import { deepClone } from '@/common/utils/misc'
@@ -67,7 +60,7 @@ export class MatchObserverService {
       [Team.Chaos]: null!,
     }
 
-    const matchModel: MatchRow = {
+    const matchRow: MatchRow = {
       _id: match.id,
       [Team.Order]: null!,
       [Team.Chaos]: null!,
@@ -102,7 +95,7 @@ export class MatchObserverService {
         lpGain,
         newRating: newRating,
       }
-      matchModel[player.team] = {
+      matchRow[player.team] = {
         uid: player.new._id,
         name: player.new.identification!.nickname,
         division: newRating.division,
@@ -113,7 +106,7 @@ export class MatchObserverService {
     }
 
     // Save everything to the database
-    this.matchRepository.create(matchModel) // Does not need to await
+    this.matchRepository.create(matchRow) // Does not need to await
     if (gameMode & MatchRowGameMode.Ranked) {
       await Promise.all([
         this.userRepository.update(newOrder),

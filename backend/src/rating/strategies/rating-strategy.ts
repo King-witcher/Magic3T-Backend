@@ -1,4 +1,4 @@
-import { UserRow } from '@magic3t/types'
+import { UserRow } from '@magic3t/database-types'
 
 /** Defines how ratings should be updated based on player scores on a match. */
 export abstract class RatingStrategy {

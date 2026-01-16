@@ -1,4 +1,4 @@
-import { UserRow } from '@magic3t/types'
+import { UserRow } from '@magic3t/database-types'
 import { Injectable } from '@nestjs/common'
 import { ConfigRepository } from '@/database'
 import { RatingStrategy } from './rating-strategy'

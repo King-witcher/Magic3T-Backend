@@ -41,7 +41,7 @@ export class DatabaseService {
     }
   }
 
-  getConverter<T extends object>(): FirestoreDataConverter<T & WithId> {
+  getConverter<T extends WithId>(): FirestoreDataConverter<T> {
     // Convert all Timestamps from firebase to Date objects
     function convert(data: T) {
       for (const [key, value] of Object.entries(data)) {
@@ -54,7 +54,7 @@ export class DatabaseService {
     }
 
     return {
-      fromFirestore(snap: QueryDocumentSnapshot<T>) {
+      fromFirestore(snap: QueryDocumentSnapshot<T>): T {
         const data = snap.data()
         convert(data)
         return {
@@ -63,7 +63,7 @@ export class DatabaseService {
         }
       },
 
-      toFirestore: (data: WithId & T): WithFieldValue<DocumentData> => {
+      toFirestore: (data: T): WithFieldValue<DocumentData> => {
         const { _id, ...rest } = data
         return rest
       },

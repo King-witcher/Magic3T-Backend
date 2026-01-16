@@ -1,12 +1,8 @@
-import { UserRow } from '@magic3t/types'
 import { Controller, Get, Redirect } from '@nestjs/common'
 import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
-import { UserRepository } from './database'
 
 @Controller()
 export class AppController {
-  constructor(private userRepository: UserRepository) {}
-
   @Get('/')
   @Redirect('/api')
   @ApiExcludeEndpoint()
@@ -14,10 +10,6 @@ export class AppController {
 
   @Get('teapot')
   async teapot() {
-    this.userRepository.save({
-      _id: 'teapot',
-      experience: 0,
-    } as UserRow)
     return Err('I am a teapot')
   }
 

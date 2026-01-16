@@ -54,18 +54,48 @@
       },
     },
     {
-      "label": "tsc: watch",
+      "label": "typecheck: backend",
       "detail": "Starts a background tsc --watch that reports all type errors in the VSCode Problems panel.",
       "icon": {
         "id": "eye-watch",
         "color": "terminal.ansiCyan"
       },
       "type": "shell",
-      "command": "bunx",
+      "command": "bun",
       "args": [
         "tsc",
         "--watch",
         "--noEmit",
+        "--project",
+        "backend/tsconfig.json"
+      ],
+      "group": "test",
+      "isBackground": true,
+      "problemMatcher": "$tsc-watch",
+      "presentation": {
+        "echo": false,
+        "reveal": "never",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+    },
+    {
+      "label": "typecheck: frontend",
+      "detail": "Starts a background tsc --watch that reports all type errors in the VSCode Problems panel.",
+      "icon": {
+        "id": "eye-watch",
+        "color": "terminal.ansiCyan"
+      },
+      "type": "shell",
+      "command": "bun",
+      "args": [
+        "tsc",
+        "--watch",
+        "--noEmit",
+        "--project",
+        "frontend/tsconfig.json"
       ],
       "group": "test",
       "isBackground": true,

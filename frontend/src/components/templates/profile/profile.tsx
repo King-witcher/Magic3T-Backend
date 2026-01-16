@@ -1,4 +1,5 @@
-import { GetMatchesResult, League, UserPayload } from '@magic3t/types'
+import { GetUserResult, ListMatchesResult } from '@magic3t/api-types'
+import { League } from '@magic3t/common-types'
 import { UseQueryResult, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 import { Spinner } from '@/components/atoms'
@@ -15,8 +16,8 @@ import { MatchRow } from './match-row'
 import { MobileRankContainer } from './mobile-rank-container'
 
 interface Props {
-  user: UserPayload
-  matchesQuery: UseQueryResult<GetMatchesResult, Error>
+  user: GetUserResult
+  matchesQuery: UseQueryResult<ListMatchesResult, Error>
   editable?: boolean
 }
 

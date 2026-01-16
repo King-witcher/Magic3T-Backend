@@ -1,6 +1,6 @@
-import { Glicko, IconAssignmentRow, UserRow } from '@magic3t/types'
+import { IconAssignmentRow, UserRow, UserRowGlicko } from '@magic3t/database-types'
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
-import { DocumentData, FirestoreDataConverter } from 'firebase-admin/firestore'
+import { FirestoreDataConverter } from 'firebase-admin/firestore'
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
 import { BaseRepository } from '../base-repository'
@@ -9,7 +9,7 @@ import { ConfigRepository } from '../config'
 @Injectable()
 export class UserRepository extends BaseRepository<UserRow> {
   private user_logger = new Logger(UserRepository.name, { timestamp: true })
-  private iconAssignmentConverter: FirestoreDataConverter<IconAssignmentRow, DocumentData>
+  private iconAssignmentConverter: FirestoreDataConverter<IconAssignmentRow>
 
   constructor(
     databaseService: DatabaseService,
@@ -20,12 +20,12 @@ export class UserRepository extends BaseRepository<UserRow> {
     this.iconAssignmentConverter = databaseService.getConverter<IconAssignmentRow>()
   }
 
-  getSlug(nickname: string): string {
+  slugify(nickname: string): string {
     return nickname.toLowerCase().replaceAll(' ', '')
   }
 
   async getByNickname(nickname: string): Promise<UserRow | null> {
-    const uniqueId = this.getSlug(nickname)
+    const uniqueId = this.slugify(nickname)
     const query = this.collection.where('identification.unique_id', '==', uniqueId).limit(1)
     const result = await query.get()
     if (result.empty) return null
@@ -33,21 +33,21 @@ export class UserRepository extends BaseRepository<UserRow> {
     return result.docs[0].data()
   }
 
-  async updateGlicko(id: string, glicko: Glicko) {
+  async updateGlicko(id: string, glicko: UserRowGlicko) {
     await super.update({ _id: id, glicko })
     this.user_logger.verbose(`update glicko for user "${id}".`)
   }
 
-  async updateNickname(userId: string, nickname: string) {
-    const uniqueId = this.getSlug(nickname)
-    await this.collection.doc(userId).update({
+  async updateNickname(id: string, nickname: string) {
+    const uniqueId = this.slugify(nickname)
+    await this.collection.doc(id).update({
       identification: {
         nickname,
         unique_id: uniqueId,
         last_changed: new Date(),
       },
     })
-    this.user_logger.verbose(`update user "${userId}" nickname to ${nickname}.`)
+    this.user_logger.verbose(`update user "${id}" nickname to ${nickname}.`)
   }
 
   /// Gets all bot profiles, sorted by the bot name (bot0, bot1, bot2 and bot3)

@@ -1,4 +1,4 @@
-import { Team } from '@magic3t/types'
+import { Team } from '@magic3t/common-types'
 import { useEffect, useRef } from 'react'
 import * as ButtonGroup from '@/components/atoms/button-group'
 import { ChoiceTable } from '@/components/organisms'

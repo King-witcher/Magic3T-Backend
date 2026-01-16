@@ -1,6 +1,6 @@
-import { AssignmentsPayload, Choice, StateReportPayload, Team } from '@magic3t/types'
+import { AssignmentsPayload, StateReportPayload } from '@magic3t/api-types'
+import { Choice, Team } from '@magic3t/common-types'
 import { Result } from '@/common'
-import { UserPayload } from '@/database'
 import { RatingService } from '@/rating'
 import { Match, MatchError, MatchEventsMap } from './match'
 
@@ -20,10 +20,14 @@ export class Perspective {
 
     return {
       [Team.Order]: {
-        profile: await UserPayload.fromRow(order, this.ratingService),
+        profile: {
+          id: order._id,
+        },
       },
       [Team.Chaos]: {
-        profile: await UserPayload.fromRow(chaos, this.ratingService),
+        profile: {
+          id: chaos._id,
+        },
       },
     }
   }

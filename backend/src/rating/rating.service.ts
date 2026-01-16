@@ -1,4 +1,5 @@
-import { Division, League, RatingPayload, UserRow } from '@magic3t/types'
+import { Division, League, RatingData } from '@magic3t/common-types'
+import { UserRow } from '@magic3t/database-types'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
 import { ConfigRepository } from '@/database'
@@ -17,7 +18,7 @@ export class RatingService {
     return this.ratingStrategy.update(...params)
   }
 
-  async getRating(userModel: UserRow): Promise<RatingPayload> {
+  async getRating(userModel: UserRow): Promise<RatingData> {
     const progress = await this.ratingStrategy.getRatingProgress(userModel)
     if (progress < 100) {
       return {

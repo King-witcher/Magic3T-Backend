@@ -26,17 +26,9 @@ export type UpdateUserCountPayload = {
 
 export interface QueueServerEventsMap {
   [QueueServerEvents.QueueRejected](reason?: string): void
-  [QueueServerEvents.QueueAccepted](payload: {
-    mode: 'casual' | 'ranked'
-  }): void
-  [QueueServerEvents.QueueModes](payload: {
-    casual: boolean
-    ranked: boolean
-  }): void
-  [QueueServerEvents.MatchFound](data: {
-    matchId: string
-    opponentId: string
-  }): void
+  [QueueServerEvents.QueueAccepted](payload: { mode: 'casual' | 'ranked' }): void
+  [QueueServerEvents.QueueModes](payload: { casual: boolean; ranked: boolean }): void
+  [QueueServerEvents.MatchFound](data: { matchId: string; opponentId: string }): void
   [QueueServerEvents.UserCount](data: UpdateUserCountPayload): void
 }
 

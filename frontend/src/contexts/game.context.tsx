@@ -1,24 +1,23 @@
 import {
-  Choice,
   GameClientEventsMap,
   GameServerEventsMap,
+  GetUserResult,
   MatchClientEvents,
   MatchReportPayload,
   MatchServerEvents,
-  Team,
-  UserPayload,
-} from '@magic3t/types'
+} from '@magic3t/api-types'
+import { Choice, Team } from '@magic3t/common-types'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   createContext,
   type ReactNode,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react'
-import { IoGameController } from 'react-icons/io5'
 import { useGateway } from '@/hooks/use-gateway'
 import { useListener } from '@/hooks/use-listener'
 import { useObservable } from '@/hooks/use-observable'
@@ -26,11 +25,10 @@ import { Console } from '@/lib/console'
 import { Timer } from '@/lib/Timer'
 import { NestApi } from '@/services'
 import { AuthState, useAuth } from './auth.context'
-import { useLiveActivity } from './live-activity.context'
 
 type Message = { sender: 'you' | 'him'; content: string; timestamp: number }
 
-type GameData2 = {
+type GameContextData = {
   matchId: string | null
   isActive: boolean
   turn: Team | null
@@ -42,7 +40,7 @@ type GameData2 = {
     Team,
     {
       timer: Timer
-      profile: UserPayload | null
+      profile: GetUserResult | null
       choices: Choice[]
       gain: number | null
       score: number | null
@@ -74,20 +72,41 @@ function teamName(team: Team | null): string {
   }
 }
 
-const GameContext = createContext<GameData2>({} as GameData2)
+const GameContext = createContext<GameContextData | null>(null)
 
 // Refactor this and use white and black isntead of player and opponent
 export function GameProvider({ children }: Props) {
   const auth = useAuth()
+  const client = useQueryClient()
   const [matchId, setMatchId] = useState<string | null>(null)
   const isActive = !!matchId
-  const [orderProfile, setOrderProfile] = useState<UserPayload | null>(null)
-  const [chaosProfile, setChaosProfile] = useState<UserPayload | null>(null)
+  const [orderId, setOrderId] = useState<null | string>(null)
+  const [chaosId, setChaosId] = useState<null | string>(null)
+  const orderQuery = useQuery({
+    queryKey: ['user', orderId],
+    queryFn: async () => {
+      if (!orderId) return null
+      return NestApi.User.getById(orderId)
+    },
+    initialData: null,
+  })
+  const chaosQuery = useQuery({
+    queryKey: ['user', chaosId],
+    queryFn: async () => {
+      if (!chaosId) return null
+      return NestApi.User.getById(chaosId)
+    },
+    initialData: null,
+  })
+
+  const orderProfile = orderQuery.data
+  const chaosProfile = chaosQuery.data
+
   const [orderChoices, setOrderChoices] = useState<Choice[]>([])
   const [chaosChoices, setChaosChoices] = useState<Choice[]>([])
   const [turn, setTurn] = useState<Team | null>(null)
   const [currentTeam, setCurrentTeam] = useState<Team | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
+  const [_messages, setMessages] = useState<Message[]>([])
   const [finalReport, setFinalReport] = useState<MatchReportPayload | null>(null)
   const [subscribeFinishMatch, emitFinishMatch] = useObservable<MatchReportPayload>()
 
@@ -99,7 +118,6 @@ export function GameProvider({ children }: Props) {
     'match',
     authState === AuthState.SignedIn
   )
-  const { push } = useLiveActivity()
 
   // Handles text messages from the server. To be done.
   useListener(gateway, MatchServerEvents.Message, (message) => {
@@ -119,15 +137,15 @@ export function GameProvider({ children }: Props) {
     MatchServerEvents.Assignments,
     (assignments) => {
       Console.log('Assignments received:')
-      Console.log(`    order: ${assignments[Team.Order].profile.nickname}`)
-      Console.log(`    chaos: ${assignments[Team.Chaos].profile.nickname}`)
+      Console.log(`    order: ${assignments[Team.Order].profile.id}`)
+      Console.log(`    chaos: ${assignments[Team.Chaos].profile.id}`)
       Console.log(
         `You are playing as: ${assignments[Team.Chaos].profile.id === auth.user?.id ? 'chaos' : 'order'}.`
       )
       Console.log()
 
-      setOrderProfile(assignments[Team.Order].profile)
-      setChaosProfile(assignments[Team.Chaos].profile)
+      setOrderId(assignments[Team.Order].profile.id)
+      setChaosId(assignments[Team.Chaos].profile.id)
 
       if (assignments[Team.Order].profile.id === auth.user?.id) {
         setCurrentTeam(Team.Order)
@@ -192,21 +210,19 @@ export function GameProvider({ children }: Props) {
       Console.log(`    winner: ${teamName(report.winner)}`)
       Console.log()
 
-      setOrderProfile((old) => {
-        return (
-          old && {
-            ...old,
-            rating: report[Team.Order].newRating,
-          }
-        )
+      client.setQueryData(['user', orderId], (oldData: GetUserResult | null) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          rating: report[Team.Order].newRating,
+        }
       })
-      setChaosProfile((old) => {
-        return (
-          old && {
-            ...old,
-            rating: report[Team.Chaos].newRating,
-          }
-        )
+      client.setQueryData(['user', chaosId], (oldData: GetUserResult | null) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          rating: report[Team.Chaos].newRating,
+        }
       })
       setFinalReport(report)
       emitFinishMatch(report)
@@ -224,8 +240,8 @@ export function GameProvider({ children }: Props) {
     chaosTimer.current.pause()
     orderTimer.current.setRemaining(0)
     chaosTimer.current.setRemaining(0)
-    setOrderProfile(null)
-    setChaosProfile(null)
+    setOrderId(null)
+    setChaosId(null)
     setOrderChoices([])
     setChaosChoices([])
     setFinalReport(null)
@@ -346,18 +362,8 @@ export function GameProvider({ children }: Props) {
     checkStatus()
   }, [getToken, connectGame, authState])
 
-  useEffect(() => {
-    if (matchId) {
-      return push({
-        content: <IoGameController size="16px" />,
-        tooltip: 'Em jogo',
-        url: '/',
-      })
-    }
-  }, [isActive])
-
   return (
-    <GameContext.Provider
+    <GameContext
       value={{
         teams: {
           [Team.Order]: {
@@ -391,8 +397,12 @@ export function GameProvider({ children }: Props) {
       }}
     >
       {children}
-    </GameContext.Provider>
+    </GameContext>
   )
 }
 
-export const useGame = () => useContext(GameContext)
+export function useGame(): GameContextData {
+  const context = use(GameContext)
+  if (!context) throw new Error('useGame must be used within a GameProvider')
+  return context
+}

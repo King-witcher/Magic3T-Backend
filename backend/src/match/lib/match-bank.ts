@@ -1,4 +1,4 @@
-import { Team } from '@magic3t/types'
+import { Team } from '@magic3t/common-types'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { BaseError } from '@/common/errors/base-error'
 import { DatabaseService } from '@/database'

@@ -4,7 +4,7 @@ import {
   QueueServerEvents,
   QueueServerEventsMap,
   UpdateUserCountPayload,
-} from '@magic3t/types'
+} from '@magic3t/api-types'
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import { useGateway } from '@/hooks/use-gateway.ts'
 import { useListener } from '@/hooks/use-listener.ts'
@@ -12,7 +12,6 @@ import { NestApi } from '@/services'
 import { QueueMode } from '@/types/queue.ts'
 import { AuthState, useAuth } from './auth.context.tsx'
 import { useGame } from './game.context.tsx'
-import { useLiveActivity } from './live-activity.context.tsx'
 
 export type QueueModesType = {
   'bot-0'?: boolean
@@ -37,8 +36,6 @@ interface QueueContextProps {
 const QueueContext = createContext<QueueContextData>({} as QueueContextData)
 
 export function QueueProvider({ children }: QueueContextProps) {
-  const { push } = useLiveActivity()
-  // const [socket, setSocket] = useState<ReturnType<typeof io>>()
   const [queueModes, setQueueModes] = useState<QueueModesType>({})
   const [queueUserCount, setQueueUserCount] = useState<UpdateUserCountPayload>({
     casual: {

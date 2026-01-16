@@ -1,9 +1,4 @@
-import {
-  GetMatchesResult as GetMatchesResultType,
-  MatchPayload as MatchPayloadType,
-} from '@magic3t/types'
 import { ApiProperty } from '@nestjs/swagger'
-import { MatchPayload as MatchPayloadClass } from './match-payload'
 
 export class GetMatchesQuery {
   @ApiProperty({
@@ -19,20 +14,4 @@ export class GetMatchesQuery {
     nullable: true,
   })
   cursor?: string
-}
-
-export class GetMatchesResult implements GetMatchesResultType {
-  @ApiProperty({
-    type: MatchPayloadClass,
-    isArray: true,
-    description: 'The list of matches',
-  })
-  matches: MatchPayloadType[]
-
-  @ApiProperty({
-    description: 'The cursor for pagination',
-    type: 'string',
-    nullable: true,
-  })
-  cursor: string | null
 }

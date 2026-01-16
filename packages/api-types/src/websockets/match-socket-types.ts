@@ -1,6 +1,4 @@
-import type { RatingPayload } from '../api/common/rating'
-import type { UserPayload } from '../api/common/user'
-import type { Choice, Team } from '../common'
+import type { Choice, RatingData, Team } from '@magic3t/common-types'
 
 export const enum MatchClientEvents {
   GetAssignments = 'get-assignments',
@@ -26,27 +24,16 @@ export type MessagePayload = {
   time: number
 }
 
-export type AssignmentsPayload = {
-  [Team.Order]: {
-    profile: UserPayload
-  }
-  [Team.Chaos]: {
-    profile: UserPayload
-  }
+export type AssignmentsPayloadProfile = {
+  id: string
 }
 
-export type MatchReportPayload = {
-  matchId: string
-  winner: Team | null
+export type AssignmentsPayload = {
   [Team.Order]: {
-    score: number
-    lpGain: number
-    newRating: RatingPayload
+    profile: AssignmentsPayloadProfile
   }
   [Team.Chaos]: {
-    score: number
-    lpGain: number
-    newRating: RatingPayload
+    profile: AssignmentsPayloadProfile
   }
 }
 
@@ -64,6 +51,21 @@ export type StateReportPayload = {
   turn: Team | null
   finished: boolean
   pending: false
+}
+
+export type MatchReportPayload = {
+  matchId: string
+  winner: Team | null
+  [Team.Order]: {
+    score: number
+    lpGain: number
+    newRating: RatingData
+  }
+  [Team.Chaos]: {
+    score: number
+    lpGain: number
+    newRating: RatingData
+  }
 }
 
 export interface GameServerEventsMap {

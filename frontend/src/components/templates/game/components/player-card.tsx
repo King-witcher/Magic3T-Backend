@@ -1,4 +1,4 @@
-import { League, Team } from '@magic3t/types'
+import { League, Team } from '@magic3t/common-types'
 import { Link } from '@tanstack/react-router'
 import { SmoothNumber } from '@/components/atoms'
 import { UserAvatar } from '@/components/molecules'

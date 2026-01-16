@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { Choice, Team, UserRow } from '@magic3t/types'
+import { Choice, Team } from '@magic3t/common-types'
+import { UserRow } from '@magic3t/database-types'
 import { delay } from '@/common'
 import { Match, MatchEventType } from './match'
 

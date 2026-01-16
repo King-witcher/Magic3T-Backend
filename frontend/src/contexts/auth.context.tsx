@@ -1,4 +1,4 @@
-import { UserPayload } from '@magic3t/types'
+import { GetUserResult } from '@magic3t/api-types'
 import { useQuery } from '@tanstack/react-query'
 import {
   createUserWithEmailAndPassword,
@@ -49,7 +49,7 @@ type AuthData =
           authState: AuthState.Loading
         }
       | {
-          user: UserPayload | null
+          user: GetUserResult | null
           userId: string
           authState: AuthState.SignedIn
         }

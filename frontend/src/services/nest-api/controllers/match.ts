@@ -1,4 +1,4 @@
-import { GetMatchesResult } from '@magic3t/types'
+import { ListMatchesResult } from '@magic3t/api-types'
 import axios from 'axios'
 import { Console, SystemCvars } from '@/lib/console'
 
@@ -23,7 +23,7 @@ export async function getCurrentMatch(token: string): Promise<{ id: string }> {
   return response.data
 }
 
-export async function getMatchesByUser(userId: string, limit: number): Promise<GetMatchesResult> {
+export async function getMatchesByUser(userId: string, limit: number): Promise<ListMatchesResult> {
   const response = await controller().get(`/user/${userId}`, {
     params: {
       limit,

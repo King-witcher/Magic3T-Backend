@@ -1,11 +1,6 @@
-import {
-  Choice,
-  MatchPayloadEvents,
-  MatchRowEvent,
-  StateReportPayload,
-  Team,
-  UserRow,
-} from '@magic3t/types'
+import { StateReportPayload } from '@magic3t/api-types'
+import { Choice, Team } from '@magic3t/common-types'
+import { MatchRowEvent, MatchRowEventType, UserRow } from '@magic3t/database-types'
 import { Observable, Result, Stopwatch } from '@/common'
 import { Player } from './player'
 
@@ -150,7 +145,7 @@ export class Match extends Observable<MatchEventsMap> {
     player.choices.push(choice)
 
     this.events.push({
-      event: MatchPayloadEvents.Choice,
+      event: MatchRowEventType.Choice,
       choice,
       side: team,
       time: this.time,
@@ -182,7 +177,7 @@ export class Match extends Observable<MatchEventsMap> {
     player.surrender = true
 
     this.events.push({
-      event: MatchPayloadEvents.Forfeit,
+      event: MatchRowEventType.Forfeit,
       side,
       time: this.time,
     })
@@ -197,7 +192,7 @@ export class Match extends Observable<MatchEventsMap> {
     const opposite = 1 - side
 
     this.events.push({
-      event: MatchPayloadEvents.Timeout,
+      event: MatchRowEventType.Timeout,
       side,
       time: this.time,
     })

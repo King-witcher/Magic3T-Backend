@@ -1,4 +1,4 @@
-import { League } from '@magic3t/types'
+import { League } from '@magic3t/common-types'
 
 export type LeagueInfo = {
   emblem: string

@@ -1,4 +1,6 @@
-import { MatchPayload, MatchPayloadEvents, Team } from '@magic3t/types'
+import { ListMatchesResultItem } from '@magic3t/api-types'
+import { Team } from '@magic3t/common-types'
+import { MatchRowEventType } from '@magic3t/database-types'
 import { Link } from '@tanstack/react-router'
 import { useMemo } from 'react'
 import { FaClock } from 'react-icons/fa'
@@ -7,7 +9,7 @@ import { getDateFromId } from '@/lib/utils'
 import { acrylicClasses } from '@/styles/tailwind'
 
 interface Props {
-  match: MatchPayload
+  match: ListMatchesResultItem
   viewAs: string
 }
 
@@ -26,7 +28,7 @@ const resultColorMap: Record<MatchResult, string> = {
 const dateTimeFormat = Intl.DateTimeFormat()
 
 export function MatchRow({ match, viewAs }: Props) {
-  const team = match.teams[Team.Order].id === viewAs ? Team.Order : Team.Chaos
+  const team = match.order.uid === viewAs ? Team.Order : Team.Chaos
   const result =
     match.winner === null
       ? MatchResult.Draw
@@ -39,10 +41,8 @@ export function MatchRow({ match, viewAs }: Props) {
   // const isDraw = result === MatchResult.Draw
   // const isVictory = result === MatchResult.Victory
 
-  const player =
-    match.teams[Team.Order].id === viewAs ? match.teams[Team.Order] : match.teams[Team.Chaos]
-  const opponent =
-    match.teams[Team.Order].id === viewAs ? match.teams[Team.Chaos] : match.teams[Team.Order]
+  const player = match.order.uid === viewAs ? match.order : match.chaos
+  const opponent = match.order.uid === viewAs ? match.chaos : match.order
 
   const durationString = useMemo(() => {
     const duration = Math.floor(match.events[match.events.length - 1].time / 1000)
@@ -54,18 +54,18 @@ export function MatchRow({ match, viewAs }: Props) {
   }, [match])
 
   return (
-    <Link to="/users/id/$userId" params={{ userId: opponent.id }}>
+    <Link to="/users/id/$userId" params={{ userId: opponent.uid }}>
       <div className="flex flex-col gap-2.5 p-5 transition-all duration-100 cursor-pointer hover-acrylic hover:bg-[#ffffff40]">
         <div className="flex">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <h3 className="font-serif tracking-wider text-lg!">{opponent.nickname}</h3>
-              {!!player.lpGain && (
+              <h3 className="font-serif tracking-wider text-lg!">{opponent.name}</h3>
+              {!!player.lp_gain && (
                 <p
-                  className={`text-sm/normal font-serif! font-bold ${player.lpGain > 0 ? 'text-green-500' : 'text-red-500'}`}
+                  className={`text-sm/normal font-serif! font-bold ${player.lp_gain > 0 ? 'text-green-500' : 'text-red-500'}`}
                 >
-                  {player.lpGain > 0 && '+'}
-                  {player.lpGain}
+                  {player.lp_gain > 0 && '+'}
+                  {player.lp_gain}
                 </p>
               )}
             </div>
@@ -83,16 +83,16 @@ export function MatchRow({ match, viewAs }: Props) {
           {match.events.map((event) => {
             const borderColor = event.side === Team.Order ? '!border-blue-400' : '!border-red-400'
 
-            if (event.event === MatchPayloadEvents.Message) return null
+            if (event.event === MatchRowEventType.Message) return null
 
             return (
               <div
                 className={`flex items-center text-sm leading-normal justify-center h-[22px] sm:h-[25px] w-[22px] sm:w-[25px] !border-2 rounded-lg ${borderColor} ${acrylicClasses}`}
                 key={event.time}
               >
-                {event.event === MatchPayloadEvents.Choice && event.choice}
-                {event.event === MatchPayloadEvents.Forfeit && <RiFlagFill />}
-                {event.event === MatchPayloadEvents.Timeout && <FaClock />}
+                {event.event === MatchRowEventType.Choice && event.choice}
+                {event.event === MatchRowEventType.Forfeit && <RiFlagFill />}
+                {event.event === MatchRowEventType.Timeout && <FaClock />}
               </div>
             )
           })}

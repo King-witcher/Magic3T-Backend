@@ -1,4 +1,4 @@
-import { RegisterUserCommand, UserPayload } from '@magic3t/types'
+import { GetUserResult, ListUsersResult, RegisterUserCommand } from '@magic3t/api-types'
 import axios from 'axios'
 import { Console, SystemCvars } from '@/lib/console'
 
@@ -9,27 +9,28 @@ const controller = () => {
   })
 }
 
-export async function getById(id: string): Promise<UserPayload | null> {
+export async function getById(id: string): Promise<GetUserResult | null> {
   const apiUrl = Console.getCvarValue(SystemCvars.SvApiUrl) as string
   const response = await fetch(`${apiUrl}/users/id/${id}`)
   if (response.status !== 200) return null
-  const data: UserPayload = await response.json()
+  const data: GetUserResult = await response.json()
   return data
 }
 
-export async function getByNickname(nickname: string): Promise<UserPayload | null> {
+export async function getByNickname(nickname: string): Promise<GetUserResult | null> {
   const apiUrl = Console.getCvarValue(SystemCvars.SvApiUrl) as string
   const response = await fetch(`${apiUrl}/users/nickname/${nickname}`)
   if (response.status !== 200) return null
-  const data: UserPayload = await response.json()
+  const data: GetUserResult = await response.json()
   return data
 }
 
-export async function getRanking(): Promise<UserPayload[]> {
+export async function getRanking(): Promise<ListUsersResult> {
   const apiUrl = Console.getCvarValue(SystemCvars.SvApiUrl) as string
   const response = await fetch(`${apiUrl}/users/ranking`)
-  if (response.status !== 200) return []
-  const data: UserPayload[] = await response.json()
+  // FIXME: Handle errors properly
+  if (response.status !== 200) return { data: [] }
+  const data: ListUsersResult = await response.json()
   return data
 }
 

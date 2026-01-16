@@ -1,19 +1,13 @@
-import {
-  Choice,
-  MatchPayloadEvents,
-  MatchPayloadTeam,
-  MatchRow,
-  MatchRowEvent,
-  Team,
-} from '@magic3t/types'
+import { Choice, Team } from '@magic3t/common-types'
+import { MatchRowEvent, MatchRowEventType, MatchRowTeam } from '@magic3t/database-types'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class MatchPayloadEvent {
   @ApiProperty({
-    description: `The event type. ${MatchPayloadEvents.Choice} = choice, ${MatchPayloadEvents.Forfeit} = surrender, ${MatchPayloadEvents.Timeout} = timeout`,
-    enum: [MatchPayloadEvents.Choice, MatchPayloadEvents.Forfeit, MatchPayloadEvents.Timeout],
+    description: `The event type. ${MatchRowEventType.Choice} = choice, ${MatchRowEventType.Forfeit} = surrender, ${MatchRowEventType.Timeout} = timeout`,
+    enum: [MatchRowEventType.Choice, MatchRowEventType.Forfeit, MatchRowEventType.Timeout],
   })
-  event: MatchPayloadEvents
+  event: MatchRowEventType
 
   @ApiProperty({
     description: 'The team that triggered the event.',
@@ -30,7 +24,7 @@ export class MatchPayloadEvent {
 
   @ApiProperty({
     nullable: true,
-    description: `The choice made, if event is ${MatchPayloadEvents.Choice}; otherwise, undefined`,
+    description: `The choice made, if event is ${MatchRowEventType.Choice}; otherwise, undefined`,
     example: 7,
   })
   choice?: Choice
@@ -47,7 +41,7 @@ export class MatchPayload {
   @ApiProperty({
     description: 'An object mapping teams into info about that team in the match',
   })
-  teams: Record<Team, MatchPayloadTeam>
+  teams: Record<Team, MatchRowTeam>
 
   @ApiProperty({
     description: 'The list of events that happened in the match',
@@ -72,35 +66,5 @@ export class MatchPayload {
 
   constructor(data: MatchPayload) {
     Object.assign(this, data)
-  }
-
-  static fromRow(row: MatchRow): MatchPayload {
-    const modelOrder = row[Team.Order]
-    const modelChaos = row[Team.Chaos]
-
-    return new MatchPayload({
-      id: row._id,
-      teams: {
-        [Team.Order]: {
-          id: modelOrder.uid,
-          matchScore: modelOrder.score,
-          nickname: modelOrder.name,
-          league: modelOrder.league,
-          division: modelOrder.division,
-          lpGain: modelOrder.lp_gain,
-        },
-        [Team.Chaos]: {
-          id: modelChaos.uid,
-          matchScore: modelChaos.score,
-          nickname: modelChaos.name,
-          league: modelChaos.league,
-          division: modelChaos.division,
-          lpGain: modelChaos.lp_gain,
-        },
-      },
-      events: [...row.events],
-      time: row.timestamp.getDate(),
-      winner: row.winner,
-    })
   }
 }

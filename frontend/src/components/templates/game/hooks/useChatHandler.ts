@@ -1,4 +1,4 @@
-import { MessagePayload } from '@magic3t/types'
+import { MessagePayload } from '@magic3t/api-types'
 import { type ChangeEvent, type FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useGame } from '@/contexts/game.context.tsx'
 

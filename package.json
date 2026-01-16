@@ -2,11 +2,12 @@
   "name": "magic3t",
   "version": "1.0.0",
   "workspaces": [
-    "frontend",
     "backend",
-    "packages/types",
+    "frontend",
+    "packages/api-types",
+    "packages/common-types",
     "packages/database-types",
-    "packages/common-types"
+    "packages/types"
   ],
   "scripts": {
     "lint": "biome check ."

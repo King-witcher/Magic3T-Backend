@@ -1,10 +1,10 @@
 import {
-  Choice,
   GameServerEventsMap,
   MatchClientEvents,
   MatchServerEvents,
   MessagePayload,
-} from '@magic3t/types'
+} from '@magic3t/api-types'
+import { Choice } from '@magic3t/common-types'
 import { Inject, Logger, UseGuards } from '@nestjs/common'
 import {
   ConnectedSocket,
@@ -13,7 +13,6 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets'
-
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { ChoicePipe, SocketsService } from '@/common'

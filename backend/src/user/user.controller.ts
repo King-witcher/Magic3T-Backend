@@ -1,7 +1,10 @@
+import { GetUserResult, ListUsersResult } from '@magic3t/api-types'
+import { UserRole, UserRow } from '@magic3t/database-types'
 import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   NotFoundException,
   Param,
   Patch,
@@ -10,31 +13,41 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { range } from 'lodash'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
+import { BaseError } from '@/common/errors/base-error'
 import { HttpFilter } from '@/common/filters/http.filter'
-import { UserPayload } from '@/database'
-import { ChangeIconDto } from './swagger/change-icon'
-import { ChangeNickDto } from './swagger/change-nick'
-import { RegisterUserCommand } from './swagger/register-user'
+import { ConfigRepository, UserRepository } from '@/database'
+import {
+  ChangeIconCommandClass,
+  ChangeNickCommandClass,
+  RegisterUserCommandClass,
+} from './swagger/user-commands'
 import { UserService } from './user.service'
+
+const baseIcons = new Set([...range(59, 79), ...range(0, 30)])
 
 @Controller('users')
 @UseFilters(HttpFilter)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly userRepository: UserRepository,
+    private readonly configRepository: ConfigRepository
+  ) {}
 
   @Get('id/:id')
   @ApiOperation({
     summary: 'Get a user by id',
   })
   @ApiResponse({
-    type: UserPayload,
+    type: 'object',
   })
-  async getById(@Param('id') id: string): Promise<UserPayload> {
-    const user = await this.userService.getById(id)
-    if (!user) throw new NotFoundException()
-    return user
+  async getById(@Param('id') id: string): Promise<GetUserResult> {
+    const row = await this.userRepository.get(id)
+    if (!row) throw new NotFoundException()
+    return this.userService.getUserByRow(row)
   }
 
   @Get('nickname/:nickname')
@@ -43,24 +56,27 @@ export class UserController {
     description: 'Casing and spaces are ignored.',
   })
   @ApiResponse({
-    type: UserPayload,
+    type: 'object',
   })
-  async getByNickname(@Param('nickname') nickname: string): Promise<UserPayload> {
-    const user = await this.userService.getByNickname(nickname)
-    if (!user) throw new NotFoundException()
-    return user
+  async getByNickname(@Param('nickname') nickname: string): Promise<GetUserResult> {
+    const row = await this.userRepository.getByNickname(nickname)
+    if (!row) throw new NotFoundException()
+    return this.userService.getUserByRow(row)
   }
 
   @Get('ranking')
   @ApiOperation({
-    summary: 'Gets the top 30 ranked players',
+    summary: 'Gets the top 10 ranked players',
   })
   @ApiResponse({
     isArray: true,
-    type: UserPayload,
+    type: 'object',
   })
-  async getRanking(): Promise<UserPayload[]> {
-    return await this.userService.getRanking()
+  async getRanking(): Promise<ListUsersResult> {
+    const rows = await this.userRepository.getBest(10)
+    return {
+      data: await Promise.all(rows.map((row) => this.userService.getListedUserByRow(row))),
+    }
   }
 
   @Get('me')
@@ -68,14 +84,14 @@ export class UserController {
     summary: 'Get the currently connected user',
   })
   @ApiResponse({
-    type: UserPayload,
+    type: 'object',
   })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   async getMe(@UserId() userId: string) {
-    const user = await this.userService.getById(userId)
+    const user = await this.userRepository.get(userId)
     if (!user) throw new NotFoundException()
-    return user
+    return this.userService.getUserByRow(user)
   }
 
   @Patch('me/nickname')
@@ -84,8 +100,34 @@ export class UserController {
   @ApiOperation({
     summary: 'Update nickname',
   })
-  async changeNickName(@UserId() userId: string, @Body() changeNickDto: ChangeNickDto) {
-    await this.userService.changeNickName(userId, changeNickDto.nickname)
+  async changeNickName(
+    @UserId() userId: string,
+    @Body() { nickname: newNickname }: ChangeNickCommandClass
+  ) {
+    const user = await this.userRepository.get(userId)
+    // User does not exist
+    if (!user) {
+      throw new BaseError('user-not-registered', HttpStatus.BAD_REQUEST)
+    }
+
+    // Check nickname change cooldown (30 days)
+    const timeSinceLastChange = Date.now() - user.identification.last_changed.getTime()
+    if (timeSinceLastChange < 1000 * 60 * 60 * 24 * 30) {
+      throw new BaseError('nickname-change-cooldown', HttpStatus.BAD_REQUEST)
+    }
+
+    // Same nickname
+    if (user.identification.nickname === newNickname) {
+      throw new BaseError('same-nickname', HttpStatus.BAD_REQUEST)
+    }
+
+    // Nickname unavailable
+    const nicknameOwner = await this.userRepository.getByNickname(newNickname)
+    if (nicknameOwner) {
+      throw new BaseError('nickname-unavailable', HttpStatus.BAD_REQUEST)
+    }
+
+    await this.userRepository.updateNickname(user._id, newNickname)
   }
 
   @Post('register')
@@ -94,9 +136,45 @@ export class UserController {
   @ApiOperation({
     summary: 'Register an authenticated user in the database information',
   })
-  async register(@UserId() userId: string, @Body() body: RegisterUserCommand) {
-    console.log('aa')
-    await this.userService.register(userId, body)
+  async register(@UserId() userId: string, @Body() body: RegisterUserCommandClass) {
+    const [previousUserRow, ratingConfigResult] = await Promise.all([
+      this.userRepository.get(userId),
+      this.configRepository.cachedGetRatingConfig(),
+    ])
+
+    if (previousUserRow) throw new BaseError('user-already-registered', HttpStatus.BAD_REQUEST)
+    const ratingConfig = ratingConfigResult.expect('Rating config not found in database.')
+
+    const userRow: UserRow = {
+      _id: userId,
+      elo: {
+        k: ratingConfig.initial_k_value,
+        score: ratingConfig.base_score,
+        matches: 0,
+      },
+      experience: 0,
+      glicko: {
+        deviation: ratingConfig.max_rd,
+        rating: ratingConfig.base_score,
+        timestamp: new Date(),
+      },
+      identification: {
+        last_changed: new Date(),
+        nickname: body.nickname,
+        unique_id: this.userRepository.slugify(body.nickname),
+      },
+      magic_points: 0,
+      perfect_squares: 0,
+      role: UserRole.Player,
+      stats: {
+        defeats: 0,
+        draws: 0,
+        wins: 0,
+      },
+      summoner_icon: 29,
+    }
+
+    await this.userRepository.create(userRow)
   }
 
   @Get('me/icons')
@@ -111,7 +189,9 @@ export class UserController {
   })
   @ApiBearerAuth()
   async getIcons(@UserId() userId: string) {
-    return await this.userService.getIcons(userId)
+    const iconAssigments = await this.userRepository.getIconAssignments(userId)
+    const assignedIcons = iconAssigments.map((assigment) => Number.parseInt(assigment._id, 10))
+    return [...assignedIcons, ...baseIcons].sort((a, b) => a - b)
   }
 
   @Patch('me/icon')
@@ -120,7 +200,16 @@ export class UserController {
     summary: 'Update summoner icon',
   })
   @ApiBearerAuth()
-  async changeSummonerIcon(@UserId() userId: string, @Body() changeIconDto: ChangeIconDto) {
-    await this.userService.changeIcon(userId, changeIconDto.iconId)
+  async changeSummonerIcon(@UserId() userId: string, @Body() { iconId }: ChangeIconCommandClass) {
+    if (!baseIcons.has(iconId)) {
+      const userIcons = await await this.userRepository.getIconAssignments(userId)
+      if (!userIcons.some((assignment) => Number(assignment._id) === iconId))
+        throw new BaseError("you don't have this icon", HttpStatus.BAD_REQUEST)
+    }
+
+    await this.userRepository.update({
+      _id: userId,
+      summoner_icon: iconId,
+    })
   }
 }

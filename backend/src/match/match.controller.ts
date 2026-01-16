@@ -1,29 +1,32 @@
-import { GetMatchesResult } from '@magic3t/types'
+import { ListMatchesResult } from '@magic3t/api-types'
 import {
   Controller,
   Get,
   HttpCode,
   NotFoundException,
-  Param,
   ParseIntPipe,
+  Param,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common'
 import { ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { clamp } from 'lodash'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
+import { MatchRepository } from '@/database'
 import { CurrentPerspective } from './decorators'
 import { MatchBank, Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
-import { GetMatchesResult as GetMatchesPayloadClass } from './swagger/get-matches'
+import { ListMatchesResultClass } from './swagger/list-matches'
 
 @Controller('matches')
 export class MatchController {
   constructor(
     private matchBank: MatchBank,
-    private matchService: MatchService
+    private matchService: MatchService,
+    private matchRepository: MatchRepository
   ) {
     // const names = [BotName.Bot0, BotName.Bot1, BotName.Bot2, BotName.Bot3]
     // function shuffle() {
@@ -96,13 +99,20 @@ export class MatchController {
     description: 'Get the most recent matches played by a user, sorted by date',
   })
   @ApiResponse({
-    type: [GetMatchesPayloadClass],
+    type: [ListMatchesResultClass],
   })
   async getMatchesByUser(
     @Query('limit', ParseIntPipe) limit: number,
     @Query('cursor') cursor: string,
     @Param('userId') userId: string
-  ): Promise<GetMatchesResult> {
-    return this.matchService.getMatchesByUser(userId, limit, cursor)
+  ): Promise<ListMatchesResult> {
+    const clampedLimit = clamp(limit, 0, 50)
+    const rows = await this.matchRepository.getByUser(userId, clampedLimit)
+    const matches = await Promise.all(
+      rows.map((model) => this.matchService.getListedMatchByRow(model))
+    )
+    return {
+      matches,
+    }
   }
 }

@@ -31,15 +31,15 @@ export function useListener<
   listener: ReservedOrUserListener<SocketReservedEvents, ServerEventsMap, Ev>,
   deps: DependencyList = []
 ) {
-  // Listener is purposely not a dependency of this useEffect since it provides a dependency list.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: I already have a dependency list
   useEffect(() => {
     if (!gateway.socket) return
-    Console.log(`Subscribed to ${gateway.name}/${event.toString()}`)
+    Console.log(`Subscribed to ${gateway.name}::${event.toString()}`)
     const socket = gateway.socket
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     socket.on(event, <any>listener)
     return () => {
-      Console.log(`Unsubscribed from ${gateway.name}/${event.toString()}`)
+      Console.log(`Unsubscribed from ${gateway.name}::${event.toString()}`)
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       socket.off(event, <any>listener)
     }

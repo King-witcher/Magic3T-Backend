@@ -1,4 +1,4 @@
-import { League } from '@magic3t/types'
+import { League } from '@magic3t/common-types'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { NestApi } from '@/services/nest-api'
@@ -21,7 +21,7 @@ export function RankingTemplate() {
       </h1>
       {rankingQuery.isSuccess && (
         <div className="flex flex-col gap-[10px] mt-[20px] overflow-hidden">
-          {rankingQuery.data.map((user, index) => {
+          {rankingQuery.data.data.map((user, index) => {
             const isProvisional = user.rating.league === League.Provisional
             const isApex = user.rating.league === League.Master
             const leagueInfo = leaguesMap[user.rating.league]

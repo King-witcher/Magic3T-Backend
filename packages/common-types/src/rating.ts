@@ -8,11 +8,11 @@ export const enum League {
   Challenger = 'challenger',
 }
 
-export type RatingPayload = {
+export type Division = 1 | 2 | 3 | 4
+
+export type RatingData = {
   league: League
   division: Division | null
   points: number | null
   progress: number
 }
-
-export type Division = 1 | 2 | 3 | 4

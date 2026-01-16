@@ -1,4 +1,4 @@
-import { Choice } from '@magic3t/types'
+import { Choice } from '@magic3t/common-types'
 import styles from './styles.module.sass'
 
 export type ChoiceStyle = 'normal' | 'selectable' | 'blueSelected' | 'opponentSelected' | 'disabled'

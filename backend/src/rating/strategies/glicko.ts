@@ -1,4 +1,4 @@
-import { Glicko } from '@magic3t/types'
+import { UserRowGlicko } from '@magic3t/database-types'
 
 const piSquare = Math.PI ** 2
 
@@ -21,8 +21,8 @@ function getExpectedScore(first: number, second: number, secondDeviation: number
 }
 
 export function newRating(
-  player: Glicko,
-  opponent: Glicko,
+  player: UserRowGlicko,
+  opponent: UserRowGlicko,
   s: number,
   inflation: number,
   maxRD: number
@@ -45,7 +45,12 @@ export function newRating(
   )
 }
 
-export function newDeviation(player: Glicko, opponent: Glicko, inflation: number, maxRD: number) {
+export function newDeviation(
+  player: UserRowGlicko,
+  opponent: UserRowGlicko,
+  inflation: number,
+  maxRD: number
+) {
   const playerDeviation = getCurrentDeviation(player.deviation, player.timestamp, inflation, maxRD)
   const opponentDeviation = getCurrentDeviation(
     opponent.deviation,

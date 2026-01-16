@@ -1,4 +1,4 @@
-import { Choice } from '@magic3t/types'
+import { Choice } from '@magic3t/common-types'
 import { useEffect, useMemo } from 'react'
 import PugDanceGif from '@/assets/pug-dance.gif'
 import { ChoiceComponent } from '@/components/atoms'

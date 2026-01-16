@@ -1,4 +1,4 @@
-import { GameServerEventsMap } from '@magic3t/types'
+import { GameServerEventsMap } from '@magic3t/api-types'
 import {
   CanActivate,
   ExecutionContext,

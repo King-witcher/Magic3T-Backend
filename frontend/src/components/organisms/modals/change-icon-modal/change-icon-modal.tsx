@@ -1,4 +1,4 @@
-import { UserPayload } from '@magic3t/types'
+import { GetUserResult } from '@magic3t/api-types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Spinner } from '@/components/atoms'
@@ -10,7 +10,7 @@ import styles from '@/styles/components/button.module.sass'
 import { SummonerIcon } from './summoner-icon'
 
 interface Props {
-  user: UserPayload
+  user: GetUserResult
   onSave: (iconId: number) => void
 }
 
@@ -40,7 +40,7 @@ export function ChangeIconModal({ user, onSave }: Props) {
     onSuccess() {
       client.setQueryData(
         ['myself', user.id],
-        (previous: UserPayload): UserPayload => ({
+        (previous: GetUserResult): GetUserResult => ({
           ...previous,
           summonerIcon: selectedIcon,
         })

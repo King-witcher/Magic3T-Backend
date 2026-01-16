@@ -1,4 +1,4 @@
-import { GameClientEventsMap, GameServerEventsMap } from '@magic3t/types'
+import { GameClientEventsMap, GameServerEventsMap } from '@magic3t/api-types'
 import { DefaultEventsMap, Socket } from 'socket.io'
 import { AuthSocketData } from '@/auth/auth-socket'
 import { Perspective } from '../lib/perspective'

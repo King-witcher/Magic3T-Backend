@@ -1,4 +1,4 @@
-import { QueueServerEventsMap } from '@magic3t/types'
+import { QueueServerEventsMap } from '@magic3t/api-types'
 import { CallHandler, ExecutionContext, Inject, NestInterceptor } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { AuthSocket } from '@/auth/auth-socket'

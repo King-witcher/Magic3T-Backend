@@ -9,7 +9,7 @@ import {
 import { deepClone } from '@/common/utils/misc'
 import { DatabaseService } from '@/database/database.service'
 
-export abstract class BaseRepository<T extends object> {
+export abstract class BaseRepository<T extends WithId> {
   protected readonly logger = new Logger(BaseRepository.name, {
     timestamp: true,
   })
@@ -42,7 +42,7 @@ export abstract class BaseRepository<T extends object> {
    * Save the document in Firestore in the corresponding _id field.
    * @param doc Document to be saved. _id field is considered to identify the document to be saved.
    */
-  async save(doc: T & WithId) {
+  async save(doc: T) {
     const clone = deepClone(doc)
     this.logger.verbose(`update "${doc._id}" on ${this.collection.id}.`)
 
@@ -53,7 +53,7 @@ export abstract class BaseRepository<T extends object> {
    * Generate a new id and store the doc in Firestore, ignoring _id field. Returns the id set in Firestore.
    * @param doc Document to be created. _id field is ignored.
    */
-  async create(doc: T & Partial<WithId>): Promise<string> {
+  async create(doc: T): Promise<string> {
     const clone = deepClone(doc)
     const id = doc._id ?? this.databaseService.getTemporalId()
     this.logger.verbose(`create "${id}" on ${this.collection.id}.`)

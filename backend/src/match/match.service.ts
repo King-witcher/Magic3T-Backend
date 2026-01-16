@@ -1,19 +1,13 @@
-import { ConfigRepository, MatchRepository, UserRepository } from '@database'
-import {
-  BotConfig,
-  BotName,
-  GetMatchesResult,
-  MatchRowGameMode,
-  Team,
-  UserRow,
-} from '@magic3t/types'
+import { ConfigRepository, UserRepository } from '@database'
+import { GetMatchResult, ListMatchesResultItem } from '@magic3t/api-types'
+import { Team } from '@magic3t/common-types'
+import { MatchRow, MatchRowGameMode, UserRow } from '@magic3t/database-types'
+import { BotConfig, BotName } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
-import { clamp } from 'lodash'
 import { Result } from '@/common'
 import { BaseBot, LmmBot, RandomBot } from './bots'
 import { MatchBank, Perspective } from './lib'
 import { MatchObserverService } from './state-report.service'
-import { MatchPayload } from './swagger/match-payload'
 
 export type MatchCreationError = 'user-not-found' | 'bot-not-found'
 
@@ -22,7 +16,6 @@ export class MatchService {
   constructor(
     private configRepository: ConfigRepository,
     private userRepository: UserRepository,
-    private matchRepository: MatchRepository,
     private matchBank: MatchBank,
     private matchObserverService: MatchObserverService
   ) {}
@@ -149,17 +142,25 @@ export class MatchService {
     return !this.matchBank.containsUser(userId)
   }
 
-  async getMatchesByUser(
-    userId: string,
-    limit: number,
-    _cursor: string | undefined
-  ): Promise<GetMatchesResult> {
-    const clampedLimit = clamp(limit, 0, 50)
-    const rows = await this.matchRepository.getByUser(userId, clampedLimit)
-    const payloads = await Promise.all(rows.map((model) => MatchPayload.fromRow(model)))
+  async getMatchByRow(matchRow: MatchRow): Promise<GetMatchResult> {
     return {
-      matches: payloads,
-      cursor: null,
+      events: matchRow.events,
+      id: matchRow._id,
+      order: matchRow[Team.Order],
+      chaos: matchRow[Team.Chaos],
+      winner: matchRow.winner,
+      date: matchRow.timestamp,
+    }
+  }
+
+  async getListedMatchByRow(matchRow: MatchRow): Promise<ListMatchesResultItem> {
+    return {
+      id: matchRow._id,
+      order: matchRow[Team.Order],
+      chaos: matchRow[Team.Chaos],
+      events: matchRow.events,
+      winner: matchRow.winner,
+      date: matchRow.timestamp,
     }
   }
 }

@@ -1,12 +1,18 @@
-import type { League, MatchPayloadEvents } from '../api'
-import type { Choice, Team } from '../common'
-import type { WithId } from './with-id'
+import { Choice, League, Team } from '@magic3t/common-types'
+import { WithId } from '@magic3t/types'
 
 export const enum MatchRowGameMode {
   Casual = 0b00,
   Ranked = 0b10,
   PvP = 0b00,
   PvC = 0b01,
+}
+
+export const enum MatchRowEventType {
+  Choice = 0,
+  Forfeit = 1,
+  Timeout = 2,
+  Message = 3,
 }
 
 export interface MatchRowTeam {
@@ -19,7 +25,7 @@ export interface MatchRowTeam {
 }
 
 type BaseMatchRowEvent = {
-  event: MatchPayloadEvents
+  event: MatchRowEventType
   side: Team
   time: number
 }
@@ -27,20 +33,20 @@ type BaseMatchRowEvent = {
 export type MatchRowEvent = BaseMatchRowEvent &
   (
     | {
-        event: MatchPayloadEvents.Choice
+        event: MatchRowEventType.Choice
         choice: Choice
       }
     | {
-        event: MatchPayloadEvents.Message
+        event: MatchRowEventType.Message
         message: string
       }
     | {
-        event: MatchPayloadEvents.Timeout | MatchPayloadEvents.Forfeit
+        event: MatchRowEventType.Timeout | MatchRowEventType.Forfeit
       }
   )
 
 /** Represents a match registry in the History. */
-export interface MatchRow extends WithId {
+export type MatchRow = WithId & {
   [Team.Order]: MatchRowTeam // TODO: put inside a teams object
   [Team.Chaos]: MatchRowTeam
   events: MatchRowEvent[]

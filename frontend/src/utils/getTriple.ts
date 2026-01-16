@@ -1,4 +1,4 @@
-import { Choice } from '@magic3t/types'
+import { Choice } from '@magic3t/common-types'
 
 export function getTriple(numbers: Choice[]): [Choice, Choice, Choice] | null {
   for (let i = 0; i < numbers.length - 2; i++)

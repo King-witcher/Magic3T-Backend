@@ -1,4 +1,4 @@
-import { QueueServerEventsMap } from '@magic3t/types'
+import { QueueServerEventsMap } from '@magic3t/api-types'
 import { Module } from '@nestjs/common'
 import { SocketsService } from '@/common/services/sockets.service'
 import { DatabaseModule } from '@/database'

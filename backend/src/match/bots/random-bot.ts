@@ -1,4 +1,5 @@
-import { StateReportPayload, Team } from '@magic3t/types'
+import { StateReportPayload } from '@magic3t/api-types'
+import { Team } from '@magic3t/common-types'
 import { delay } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
 

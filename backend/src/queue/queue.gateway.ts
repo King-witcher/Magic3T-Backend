@@ -1,4 +1,5 @@
-import { BotName, QueueServerEvents, QueueServerEventsMap } from '@magic3t/types'
+import { QueueServerEvents, QueueServerEventsMap } from '@magic3t/api-types'
+import { BotName } from '@magic3t/types'
 import { Inject, Logger, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common'
 import {
   MessageBody,

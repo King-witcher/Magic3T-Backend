@@ -1,4 +1,5 @@
-import { Choice, StateReportPayload, Team } from '@magic3t/types'
+import { StateReportPayload } from '@magic3t/api-types'
+import { Choice, Team } from '@magic3t/common-types'
 import { Channel } from '@/common/utils/channel'
 import { MatchEventType } from '@/match/lib/match'
 import { Perspective } from '../lib/perspective'

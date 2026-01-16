@@ -1,3 +1,5 @@
+import { WithId } from '@magic3t/types'
+
 export type UserRowGlicko = {
   rating: number
   deviation: number
@@ -16,9 +18,9 @@ export const enum UserRole {
   Bot = 'bot',
 }
 
-export type UserRow = {
-  identification?: {
-    unique_id: string // nickname.toLower() without spaces
+export type UserRow = WithId & {
+  identification: {
+    unique_id: string // slug
     nickname: string
     last_changed: Date
   }
