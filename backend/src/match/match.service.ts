@@ -1,5 +1,12 @@
 import { ConfigRepository, MatchRepository, UserRepository } from '@database'
-import { BotConfig, BotName, GameMode, GetMatchesResult, Team, UserRow } from '@magic3t/types'
+import {
+  BotConfig,
+  BotName,
+  GetMatchesResult,
+  MatchRowGameMode,
+  Team,
+  UserRow,
+} from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import { clamp } from 'lodash'
 import { Result } from '@/common'
@@ -59,7 +66,7 @@ export class MatchService {
       match,
       humanTeam === Team.Order ? humanProfile : botProfile,
       humanTeam === Team.Order ? botProfile : humanProfile,
-      GameMode.Ranked | GameMode.PvC
+      MatchRowGameMode.Ranked | MatchRowGameMode.PvC
     )
 
     // Start match
@@ -96,7 +103,7 @@ export class MatchService {
       match,
       botProfile1,
       botProfile2,
-      GameMode.Ranked | GameMode.PvP
+      MatchRowGameMode.Ranked | MatchRowGameMode.PvP
     )
 
     match.start()
@@ -125,7 +132,7 @@ export class MatchService {
       match,
       sideOfFirst === Team.Order ? profile1 : profile2,
       sideOfFirst === Team.Order ? profile2 : profile1,
-      GameMode.Ranked | GameMode.PvP
+      MatchRowGameMode.Ranked | MatchRowGameMode.PvP
     )
 
     // Start match

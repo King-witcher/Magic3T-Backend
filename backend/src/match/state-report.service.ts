@@ -1,9 +1,9 @@
 import {
-  GameMode,
   GameServerEventsMap,
   League,
   MatchReportPayload,
   MatchRow,
+  MatchRowGameMode,
   MatchServerEvents,
   Team,
   UserRow,
@@ -26,7 +26,7 @@ export class MatchObserverService {
   ) {}
 
   /** Does everything xD */
-  observe(match: Match, order: UserRow, chaos: UserRow, gameMode: GameMode) {
+  observe(match: Match, order: UserRow, chaos: UserRow, gameMode: MatchRowGameMode) {
     match.onMany([MatchEventType.Choice, MatchEventType.Surrender, MatchEventType.Timeout], () => {
       this.handleMatchStateUpdated(match, order, chaos)
     })
@@ -48,10 +48,10 @@ export class MatchObserverService {
     match: Match,
     order: UserRow,
     chaos: UserRow,
-    gameMode: GameMode
+    gameMode: MatchRowGameMode
   ) {
     const [newOrder, newChaos] = await (async () => {
-      if (gameMode & GameMode.Ranked) {
+      if (gameMode & MatchRowGameMode.Ranked) {
         const newOrder = deepClone(order)
         const newChaos = deepClone(chaos)
         await this.ratingService.update(newOrder, newChaos, match.getFinalScore(Team.Order)!)
@@ -114,7 +114,7 @@ export class MatchObserverService {
 
     // Save everything to the database
     this.matchRepository.create(matchModel) // Does not need to await
-    if (gameMode & GameMode.Ranked) {
+    if (gameMode & MatchRowGameMode.Ranked) {
       await Promise.all([
         this.userRepository.update(newOrder),
         this.userRepository.update(newChaos),

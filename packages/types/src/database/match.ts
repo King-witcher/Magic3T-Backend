@@ -1,19 +1,28 @@
 import type { MatchPayloadEvents } from '../api'
-import type { League } from '../api/common/rating'
 import type { Choice, Team } from '../common'
 import type { WithId } from './with-id'
 
-export const enum GameMode {
+export const enum MatchRowGameMode {
   Casual = 0b00,
   Ranked = 0b10,
   PvP = 0b00,
   PvC = 0b01,
 }
 
+export const enum MatchRowTeamLeague {
+  Provisional = 'provisional',
+  Bronze = 'bronze',
+  Silver = 'silver',
+  Gold = 'gold',
+  Diamond = 'diamond',
+  Master = 'master',
+  Challenger = 'challenger',
+}
+
 export interface MatchRowTeam {
   uid: string
   name: string
-  league: League
+  league: MatchRowTeamLeague
   division: number | null
   score: number
   lp_gain: number
@@ -46,6 +55,6 @@ export interface MatchRow extends WithId {
   [Team.Chaos]: MatchRowTeam
   events: MatchRowEvent[]
   winner: Team | null
-  game_mode: GameMode
+  game_mode: MatchRowGameMode
   timestamp: Date
 }

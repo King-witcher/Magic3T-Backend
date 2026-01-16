@@ -4,7 +4,9 @@
   "workspaces": [
     "frontend",
     "backend",
-    "lib/types"
+    "packages/types",
+    "packages/database-types",
+    "packages/common-types"
   ],
   "scripts": {
     "lint": "biome check ."

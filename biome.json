@@ -57,6 +57,12 @@
     "lineEnding": "lf"
   },
   "files": {
-    "includes": ["frontend/**/*", "backend/**/*", "!**/dist", "!frontend/src/route-tree.gen.ts"]
+    "includes": [
+      "frontend/**/*",
+      "backend/**/*",
+      "packages/**/*",
+      "!**/dist",
+      "!frontend/src/route-tree.gen.ts"
+    ]
   }
 }
