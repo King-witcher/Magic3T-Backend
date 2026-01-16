@@ -1,4 +1,4 @@
-import type { MatchPayloadEvents } from '../api'
+import type { League, MatchPayloadEvents } from '../api'
 import type { Choice, Team } from '../common'
 import type { WithId } from './with-id'
 
@@ -9,20 +9,10 @@ export const enum MatchRowGameMode {
   PvC = 0b01,
 }
 
-export const enum MatchRowTeamLeague {
-  Provisional = 'provisional',
-  Bronze = 'bronze',
-  Silver = 'silver',
-  Gold = 'gold',
-  Diamond = 'diamond',
-  Master = 'master',
-  Challenger = 'challenger',
-}
-
 export interface MatchRowTeam {
   uid: string
   name: string
-  league: MatchRowTeamLeague
+  league: League
   division: number | null
   score: number
   lp_gain: number
