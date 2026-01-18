@@ -1,10 +1,14 @@
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { FirebaseError } from 'firebase/app'
+import { AuthErrorCodes } from 'firebase/auth'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { RiGoogleFill } from 'react-icons/ri'
 import { Button, Input, Spinner } from '@/components/atoms'
 import { Label } from '@/components/atoms/label'
-import { useAuth } from '@/contexts/auth.context.tsx'
+import { authClient } from '@/lib/auth-client'
+import { Console } from '@/lib/console'
 
 interface FormData {
   email: string
@@ -16,16 +20,28 @@ export const Route = createFileRoute('/_auth/register')({
   component: RouteComponent,
 })
 
-const errorMap: Record<string, string> = {
-  'auth/email-already-in-use': 'Já existe uma conta com o este email.',
-  'auth/invalid-email': 'Email inválido',
-  'auth/weak-password': 'Senha muito fraca',
+type FirebaseAuthErrorCode = (typeof AuthErrorCodes)[keyof typeof AuthErrorCodes]
+
+const ERROR_MAP: Partial<Record<FirebaseAuthErrorCode, string>> = {
+  'auth/invalid-email': 'Invalid email address.',
+  'auth/user-disabled': 'This user account has been disabled.',
+  'auth/user-not-found': 'No account found with this email.',
+  'auth/wrong-password': 'Incorrect password. Please try again.',
+  'auth/account-exists-with-different-credential':
+    'An account already exists with the same email address but different sign-in credentials.',
+  'auth/cancelled-popup-request': 'Sign-in popup was closed before completing the sign-in.',
+  'auth/weak-password': 'The password is too weak. Please choose a stronger password.',
+  'auth/email-already-in-use': 'The email address is already in use by another account.',
+  'auth/missing-password': 'Password is required.',
+  'auth/network-request-failed':
+    'Network error. Please check your internet connection and try again.',
+  'auth/popup-blocked':
+    'The sign-in popup was blocked by the browser. Please allow popups and try again.',
+  'auth/invalid-credential': 'The provided authentication credentials are invalid.',
 }
 
 function RouteComponent() {
-  const { signInGoogle, registerEmail } = useAuth()
-  const [error, setError] = useState<string | null>(null)
-  const [waiting, setWaiting] = useState(false)
+  const [errorCode, setErrorCode] = useState<string | null>(null)
 
   const {
     register,
@@ -33,23 +49,55 @@ function RouteComponent() {
     formState: { errors },
   } = useForm<FormData>()
 
+  const registerWithEmailMutation = useMutation({
+    mutationKey: ['register-email'],
+    async mutationFn({ email, password }: { email: string; password: string }) {
+      return authClient.registerWithEmail(email, password)
+    },
+    onMutate: () => {
+      setErrorCode(null)
+    },
+    onError(e) {
+      console.error(e)
+      if (e instanceof FirebaseError) {
+        Console.log(`Failed to sign in with email: ${e.message}`)
+        setErrorCode(e.code)
+      }
+    },
+  })
+
+  const signInGoogleMutation = useMutation({
+    mutationKey: ['sign-in-google'],
+    async mutationFn() {
+      return authClient.signInWithGoogle()
+    },
+    onMutate: () => {
+      setErrorCode(null)
+    },
+    onError(e) {
+      console.error(e)
+      if (e instanceof FirebaseError) {
+        Console.log(`Failed to sign in with email: ${e.message}`)
+        setErrorCode(e.code)
+      }
+    },
+  })
+
   const handleRegister = useCallback(
     async ({ email, password, checkPassword }: FormData) => {
       if (password !== checkPassword) {
-        setError('Password does not match')
+        setErrorCode('Passwords do not match.')
         return
       }
-
-      setWaiting(true)
-      setError(null)
-      const error = await registerEmail(email, password)
-      if (error) {
-        setError(errorMap[error] || 'Unknown error')
-      }
-      setWaiting(false)
+      registerWithEmailMutation.mutate({ email, password })
     },
-    [registerEmail]
+    [registerWithEmailMutation]
   )
+
+  const waiting = signInGoogleMutation.isPending || registerWithEmailMutation.isPending
+  const errorMessage = errorCode
+    ? (ERROR_MAP[errorCode as FirebaseAuthErrorCode] ?? errorCode)
+    : null
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit(handleRegister)}>
@@ -115,9 +163,9 @@ function RouteComponent() {
       </div>
 
       {/* Error Message */}
-      {error && (
+      {errorCode && (
         <div className="bg-red-500/10 border border-red-500/30 rounded px-4 py-2">
-          <p className="text-red-400 text-sm text-center">{error}</p>
+          <p className="text-red-400 text-sm text-center">{errorMessage}</p>
         </div>
       )}
 
@@ -144,7 +192,13 @@ function RouteComponent() {
       </div>
 
       {/* Google Sign In */}
-      <Button type="button" variant="secondary" size="lg" onClick={signInGoogle} className="w-full">
+      <Button
+        type="button"
+        variant="secondary"
+        size="lg"
+        onClick={() => signInGoogleMutation.mutate()}
+        className="w-full"
+      >
         <RiGoogleFill size={24} />
         <span>Sign in with Google</span>
       </Button>

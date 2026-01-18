@@ -48,7 +48,7 @@ export function QueueProvider({ children }: QueueContextProps) {
       queue: 0,
     },
   })
-  const { user, authState, getToken } = useAuth()
+  const { user, state: authState } = useAuth()
   const gameCtx = useGame()
 
   const gateway = useGateway<QueueServerEventsMap, QueueClientEventsMap>(
@@ -95,22 +95,20 @@ export function QueueProvider({ children }: QueueContextProps) {
         [mode]: true,
       }))
 
-      const token = await getToken()
       await apiClient.queue.enqueue(mode)
     },
-    [gateway, user, setQueueModes, getToken]
+    [gateway, user, setQueueModes]
   )
 
   const dequeue = useCallback(
     async (mode: QueueMode) => {
-      const token = await getToken()
       await apiClient.queue.dequeue()
       setQueueModes((current) => ({
         ...current,
         [mode]: false,
       }))
     },
-    [gateway, getToken]
+    [gateway]
   )
 
   return (

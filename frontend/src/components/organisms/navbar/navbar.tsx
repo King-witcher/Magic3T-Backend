@@ -8,7 +8,7 @@ import { NavbarMenu } from './menu/navbar-menu'
 import { NavbarButton } from './navbar-button'
 
 export function Navbar() {
-  const { authState, user } = useAuth()
+  const { state: authState, user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
 
   const handleClickOutsideMenu = useCallback(() => {
@@ -43,10 +43,11 @@ export function Navbar() {
               id="profile-icon-container"
               className="rounded-[999px] !border-2 !border-grey-1 bg-[#00000020] size-[40px] overflow-hidden"
             >
-              {authState === AuthState.Loading && (
+              {authState === AuthState.LoadingSession && (
                 <div className="animate-pulse ease duration-1000 bg-[#ffffffa0] w-full h-full" />
               )}
-              {authState === AuthState.SignedIn && (
+              {(authState === AuthState.SignedIn ||
+                authState === AuthState.SignedInUnregistered) && (
                 <img alt="" src={getIconUrl(user?.summonerIcon ?? 29)} />
               )}
             </div>

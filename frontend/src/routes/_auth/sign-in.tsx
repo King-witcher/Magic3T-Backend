@@ -1,11 +1,14 @@
+import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { FirebaseError } from 'firebase/app'
 import { AuthErrorCodes, sendPasswordResetEmail } from 'firebase/auth'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { RiGoogleFill } from 'react-icons/ri'
 import { Button, Input, Spinner } from '@/components/atoms'
 import { Label } from '@/components/atoms/label'
-import { useAuth } from '@/contexts/auth.context'
+import { authClient } from '@/lib/auth-client'
+import { Console } from '@/lib/console'
 import { auth } from '@/services/firebase'
 import { isValidEmail } from '@/utils/isValidEmail'
 
@@ -13,11 +16,29 @@ export const Route = createFileRoute('/_auth/sign-in')({
   component: Page,
 })
 
+type FirebaseAuthErrorCode = (typeof AuthErrorCodes)[keyof typeof AuthErrorCodes]
+
+const ERROR_MAP: Partial<Record<FirebaseAuthErrorCode, string>> = {
+  'auth/invalid-email': 'Invalid email address.',
+  'auth/user-disabled': 'This user account has been disabled.',
+  'auth/user-not-found': 'No account found with this email.',
+  'auth/wrong-password': 'Incorrect password. Please try again.',
+  'auth/account-exists-with-different-credential':
+    'An account already exists with the same email address but different sign-in credentials.',
+  'auth/cancelled-popup-request': 'Sign-in popup was closed before completing the sign-in.',
+  'auth/weak-password': 'The password is too weak. Please choose a stronger password.',
+  'auth/email-already-in-use': 'The email address is already in use by another account.',
+  'auth/missing-password': 'Password is required.',
+  'auth/network-request-failed':
+    'Network error. Please check your internet connection and try again.',
+  'auth/popup-blocked':
+    'The sign-in popup was blocked by the browser. Please allow popups and try again.',
+  'auth/invalid-credential': 'The provided authentication credentials are invalid.',
+}
+
 function Page() {
-  const { signInGoogle, signInEmail } = useAuth()
-  const [error, setError] = useState<string | null>(null)
+  const [errorCode, setErrorCode] = useState<string | null>(null)
   const [hideResetPassword, setHideResetPassword] = useState(false)
-  const [waiting, setWaiting] = useState(false)
 
   const {
     register,
@@ -35,34 +56,86 @@ function Page() {
 
   const email = watch('email')
 
-  const handleSignIn = useCallback(
-    async (data: { email: string; password: string }) => {
-      setWaiting(true)
-      const error = await signInEmail(data.email, data.password)
-      if (error === AuthErrorCodes.INVALID_LOGIN_CREDENTIALS) {
-        setError('Invalid credentials')
-      }
-      setWaiting(false)
+  const signInWithEmailMutation = useMutation({
+    mutationKey: ['sign-in-email'],
+    async mutationFn(data: { email: string; password: string }) {
+      return authClient.signInWithEmail(data.email, data.password)
     },
-    [signInEmail]
-  )
+    onMutate: () => {
+      setErrorCode(null)
+    },
+    onError(e) {
+      console.error(e)
+      if (e instanceof FirebaseError) {
+        Console.log(`Failed to sign in with email: ${e.message}`)
+        setErrorCode(e.code)
+      }
+    },
+  })
+
+  const signInGoogleMutation = useMutation({
+    mutationKey: ['sign-in-google'],
+    async mutationFn() {
+      return authClient.signInWithGoogle()
+    },
+    onMutate: () => {
+      setErrorCode(null)
+    },
+    onError(e) {
+      console.error(e)
+      if (e instanceof FirebaseError) {
+        Console.log(`Failed to sign in with email: ${e.message}`)
+        setErrorCode(e.code)
+      }
+    },
+  })
+
+  const recoverPasswordMutation = useMutation({
+    mutationKey: ['recover-password'],
+    async mutationFn(email: string) {
+      return sendPasswordResetEmail(auth, email)
+    },
+    onMutate: () => {
+      setErrorCode(null)
+    },
+    onError(e) {
+      console.error(e)
+      if (e instanceof FirebaseError) {
+        Console.log(`Failed to sign in with email: ${e.message}`)
+        setErrorCode(e.code)
+      }
+    },
+  })
+
+  function signInEmail(data: { email: string; password: string }) {
+    signInWithEmailMutation.mutate(data)
+  }
 
   const handleRecover = useCallback(async () => {
     if (!isValidEmail(email)) {
       setFormError('email', {})
-      setError('Invalid email')
+      setErrorCode('auth/invalid-email')
       return
     }
 
-    setError(null)
+    setErrorCode(null)
     clearErrors()
     setHideResetPassword(true)
     setTimeout(() => setHideResetPassword(false), 5000)
     await sendPasswordResetEmail(auth, email)
   }, [email, setFormError, clearErrors])
 
+  const isPending =
+    signInWithEmailMutation.isPending ||
+    signInGoogleMutation.isPending ||
+    recoverPasswordMutation.isPending
+
+  const errorMessage = errorCode
+    ? (ERROR_MAP[errorCode as FirebaseAuthErrorCode] ?? errorCode)
+    : null
+
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(handleSignIn)}>
+    <form className="space-y-6" onSubmit={handleSubmit(signInEmail)}>
       {/* Header */}
       <div className="text-center">
         <h2 className="font-serif font-bold text-3xl text-gold-2 uppercase tracking-wide">
@@ -87,7 +160,7 @@ function Page() {
           id="email"
           type="email"
           placeholder="Enter your email"
-          disabled={waiting}
+          disabled={isPending}
           error={!!errors.email}
           {...register('email', { required: true })}
         />
@@ -101,7 +174,7 @@ function Page() {
           id="password"
           type="password"
           placeholder="Enter your password"
-          disabled={waiting}
+          disabled={isPending}
           error={!!errors.password}
           {...register('password', { required: true })}
         />
@@ -109,9 +182,9 @@ function Page() {
       </div>
 
       {/* Error Message */}
-      {error && (
+      {errorCode && (
         <div className="bg-red-500/10 border border-red-500/30 rounded px-4 py-2">
-          <p className="text-red-400 text-sm text-center">{error}</p>
+          <p className="text-red-400 text-sm text-center">{errorMessage}</p>
         </div>
       )}
 
@@ -133,8 +206,8 @@ function Page() {
       </div>
 
       {/* Sign In Button */}
-      <Button type="submit" disabled={waiting} size="lg" className="w-full">
-        {waiting ? (
+      <Button type="submit" disabled={isPending} size="lg" className="w-full">
+        {isPending ? (
           <>
             <Spinner className="size-5" />
             <span>Signing in...</span>
@@ -155,7 +228,13 @@ function Page() {
       </div>
 
       {/* Google Sign In */}
-      <Button type="button" variant="secondary" size="lg" onClick={signInGoogle} className="w-full">
+      <Button
+        type="button"
+        variant="secondary"
+        size="lg"
+        onClick={() => signInGoogleMutation.mutate()}
+        className="w-full"
+      >
         <RiGoogleFill size={24} />
         <span>Sign in with Google</span>
       </Button>

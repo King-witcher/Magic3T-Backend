@@ -7,6 +7,7 @@ import { apiClient } from '@/services/clients/api-client'
 export const Route = createFileRoute('/_auth-guarded/me')({
   component: () => {
     const user = useUser()
+    if (!user) throw new Error('User not found')
 
     const matchesQuery = useQuery({
       queryKey: ['matches', user.id],

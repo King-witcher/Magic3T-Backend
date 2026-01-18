@@ -1,196 +1,162 @@
 import { GetUserResult } from '@magic3t/api-types'
 import { useQuery } from '@tanstack/react-query'
-import {
-  createUserWithEmailAndPassword,
-  type User as FirebaseUser,
-  signOut as firebaseSignOut,
-  getIdToken,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from 'firebase/auth'
+import { onAuthStateChanged } from 'firebase/auth'
 import {
   createContext,
   type ReactNode,
   use,
-  useCallback,
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
 } from 'react'
-import { Console } from '@/lib/console'
+import { useRegisterCommand } from '@/hooks/use-register-command'
+import { authClient } from '@/lib/auth-client'
 import { apiClient } from '@/services/clients/api-client'
-import { auth, provider } from '@/services/firebase'
+import { NotFoundError } from '@/services/clients/client-error'
+import { auth } from '@/services/firebase'
 
 export enum AuthState {
+  /** The authentication session is being loaded */
+  LoadingSession = 'loading-session',
+  /** The user is not signed in */
   NotSignedIn = 'not-signed-in',
-  Loading = 'loading',
+  /** The user is signed in but the user data is still being loaded */
+  LoadingUserData = 'loading-user-data',
+  /** Means that the user is signed in but has not completed the registration process (e.g., choosing a nickname). */
+  SignedInUnregistered = 'unregistered',
+  /** The user is signed in and user data has been loaded */
   SignedIn = 'signed-in',
 }
 
-type AuthData =
-  | null
-  | ({
-      signInGoogle(): Promise<void>
-      signInEmail(email: string, password: string): Promise<string | null>
-      registerEmail(email: string, password: string): Promise<string | null>
-      refreshUser(): Promise<void>
-      getToken(): Promise<string>
-      signOut(): Promise<void>
-    } & (
-      | {
-          user: null
-          userId: null
-          authState: AuthState.NotSignedIn
-        }
-      | {
-          user: null
-          userId: null
-          authState: AuthState.Loading
-        }
-      | {
-          user: GetUserResult | null
-          userId: string
-          authState: AuthState.SignedIn
-        }
-    ))
+type AuthContextData =
+  | {
+      user: null
+      userId: null
+      signedIn: false
+      state: AuthState.NotSignedIn | AuthState.LoadingSession
+    }
+  | {
+      user: null
+      userId: string
+      signedIn: false
+      state: AuthState.LoadingUserData
+    }
+  | {
+      user: null
+      userId: string
+      signedIn: true
+      state: AuthState.SignedInUnregistered
+      refetchUser: () => Promise<void>
+    }
+  | {
+      user: GetUserResult
+      userId: string
+      signedIn: true
+      state: AuthState.SignedIn
+      refetchUser: () => Promise<void>
+    }
 
 interface Props {
   children?: ReactNode
 }
 
-const AuthContext = createContext<AuthData>(null)
+const AuthContext = createContext<AuthContextData | null>(null)
 
 export function AuthProvider({ children }: Props) {
-  const [authData, setAuthData] = useState<FirebaseUser | null>(null)
-  const [authState, setAuthState] = useState(AuthState.Loading)
+  const [loadingSession, setLoadingSession] = useState(true)
+  const userId = useSyncExternalStore(
+    (sub) => onAuthStateChanged(auth, sub),
+    () => auth.currentUser?.uid ?? null
+  )
 
   const userQuery = useQuery({
-    queryKey: ['myself', authData?.uid],
-    staleTime: Number.POSITIVE_INFINITY,
-    async queryFn() {
-      if (!authData) return null
-      const user = await apiClient.user.getById(authData.uid)
-      setAuthState(AuthState.SignedIn) // Smell
-      return user
+    queryKey: ['user-by-id', userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      if (!userId) throw new Error('No user ID')
+      return apiClient.user.getById(userId)
     },
   })
 
-  const signInGoogle = useCallback(async () => {
-    try {
-      // states will be changed by onAuthStateChanged method
-      await signInWithPopup(auth, provider)
-      setAuthState(AuthState.Loading)
-    } catch (e) {
-      console.error(e)
-      Console.log((e as unknown as Error).message)
-      setAuthState(AuthState.NotSignedIn)
-      if (import.meta.env.DEV) alert(e)
-    }
-  }, [])
-
-  const signInEmail = useCallback(
-    async (email: string, password: string): Promise<string | null> => {
-      try {
-        await signInWithEmailAndPassword(auth, email, password)
-        setAuthState(AuthState.Loading)
-      } catch (e: unknown) {
-        setAuthState(AuthState.NotSignedIn)
-        import.meta.env.DEV && alert(e)
-      }
-      return null
-    },
-    []
-  )
-
-  const registerEmail = useCallback(async (email: string, password: string) => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password)
-      setAuthState(AuthState.Loading)
-    } catch (e: unknown) {
-      setAuthState(AuthState.NotSignedIn)
-      import.meta.env.DEV && alert(e)
-    }
-  }, [])
-
-  const signOut = useCallback(async () => {
-    await firebaseSignOut(auth)
-  }, [])
-
-  const getToken = useCallback(async () => {
-    if (authData) {
-      return await getIdToken(authData, true)
-    }
-    throw new Error('No user connected')
-  }, [authData])
-
-  // Syncs authData with firebase
   useEffect(() => {
-    return onAuthStateChanged(auth, async (authData) => {
-      import.meta.env.DEV && Console.log(`Detected auth state '${authState}'`)
-      setAuthData(authData)
-      if (!authData) {
-        // setUser(null)
-        setAuthState(AuthState.NotSignedIn)
-      }
-    })
+    return onAuthStateChanged(auth, () => setLoadingSession(false))
   }, [])
 
-  useEffect(
-    function declareGentoken() {
-      if (authState !== AuthState.SignedIn) return
-      return Console.addCommand({
-        name: 'gentoken',
-        description: 'Generates and prints your authentication token',
-        async handler(ctx) {
-          ctx.console.print('Generating token')
-          const token = await getToken()
-          ctx.console.print(token)
-          return 0
-        },
-      })
+  useRegisterCommand(
+    {
+      description: 'Generate and print your authentication token',
+      name: 'gentoken',
+      async handler(ctx) {
+        if (!userId) {
+          ctx.console.print('You are not signed in')
+          return 1
+        }
+
+        ctx.console.print('Generating token')
+        const token = await authClient.token
+        ctx.console.print(token ?? 'null')
+        return 0
+      },
     },
-    [getToken, authState]
+    [userId]
   )
 
-  const contextValue = useMemo(
-    () =>
-      ({
-        authState,
-        user: userQuery.data,
-        userId: authData?.uid,
-        getToken,
-        signInGoogle,
-        signInEmail,
-        refreshUser: async () => {
-          await userQuery.refetch()
-        },
-        registerEmail,
-        signOut,
-      }) as unknown as AuthData,
-    [
-      authState,
-      userQuery.data,
-      getToken,
-      signInGoogle,
-      signInEmail,
-      registerEmail,
-      userQuery.refetch,
-      signOut,
-    ]
-  )
+  const contextData = useMemo<AuthContextData>((): AuthContextData => {
+    if (loadingSession) {
+      return { user: null, userId: null, signedIn: false, state: AuthState.LoadingSession }
+    }
+    if (!userId) {
+      return { user: null, userId: null, signedIn: false, state: AuthState.NotSignedIn }
+    }
+    switch (userQuery.status) {
+      case 'pending':
+        return { user: null, userId, signedIn: false, state: AuthState.LoadingUserData }
+      case 'error':
+        // User not found (unregistered)
+        if (userQuery.error instanceof NotFoundError) {
+          return {
+            user: null,
+            userId,
+            signedIn: true,
+            state: AuthState.SignedInUnregistered,
+            refetchUser: async () => {
+              await userQuery.refetch()
+            },
+          }
+        }
+        // Unexpected error
+        console.error('Error loading user data:', userQuery.error)
+        return { user: null, userId: null, signedIn: false, state: AuthState.NotSignedIn }
+      case 'success':
+        return {
+          user: userQuery.data,
+          userId,
+          signedIn: true,
+          state: AuthState.SignedIn,
+          refetchUser: async () => {
+            await userQuery.refetch()
+          },
+        }
+    }
+  }, [loadingSession, userId, userQuery.status, userQuery.data, userQuery.error, userQuery.refetch])
 
-  return <AuthContext value={contextValue}>{children}</AuthContext>
+  return <AuthContext value={contextData}>{children}</AuthContext>
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextData {
   const authData = use(AuthContext)
   if (authData === null) throw new Error('Used auth context outside <AuthProvider>')
   return authData
 }
 
-export function useUser() {
+export function useSignedAuth(): Exclude<AuthContextData, { signedIn: false }> {
   const auth = useAuth()
-  if (auth.user === null) throw new Error('Used useUser while user is not defined')
+  if (!auth.signedIn) throw new Error('User is not signed in')
+  return auth
+}
+
+export function useUser(): GetUserResult | null {
+  const auth = useAuth()
   return auth.user
 }

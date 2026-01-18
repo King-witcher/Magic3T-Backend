@@ -5,6 +5,8 @@ import { routeTree } from './route-tree.gen'
 import './main.css'
 import '@/styles/fonts.sass'
 import '@/styles/base.sass'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from './services/firebase'
 
 const router = createRouter({ routeTree })
 
@@ -18,3 +20,7 @@ console.clear()
 
 const root = document.getElementById('root')!
 createRoot(root).render(<RouterProvider router={router} />)
+
+onAuthStateChanged(auth, (user) => {
+  console.log('Auth state changed:', user)
+})

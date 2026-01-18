@@ -102,7 +102,7 @@ export function GameProvider({ children }: Props) {
   const orderTimer = useRef(new Timer(0))
   const chaosTimer = useRef(new Timer(0))
 
-  const { getToken, authState } = useAuth()
+  const { state: authState } = useAuth()
   const gateway = useGateway<GameServerEventsMap, GameClientEventsMap>(
     'match',
     authState === AuthState.SignedIn
@@ -177,9 +177,9 @@ export function GameProvider({ children }: Props) {
       })
       setFinalReport(report)
       emitFinishMatch(report)
-      auth.refreshUser()
+      auth.refetchUser()
     },
-    [gateway.socket, auth.refreshUser]
+    [gateway.socket, auth.refetchUser]
   )
 
   // Refactor with keys

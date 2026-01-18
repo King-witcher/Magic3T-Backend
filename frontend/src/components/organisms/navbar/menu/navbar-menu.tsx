@@ -46,7 +46,7 @@ export function NavbarMenu({ isOpen, onClose }: NavbarMenuProps) {
       ref={ref}
       className={`absolute bottom-[10px] right-0 translate-y-full duration-150 ${isOpen ? 'opacity-100' : 'opacity-0 transform-[translateY(-20px)] pointer-events-none'} !p-[10px] bg-[#ffffff30] acrylic rounded-[10px] w-[330px] backdrop-blur-sm`}
     >
-      {auth.authState === AuthState.SignedIn && auth.user?.nickname && (
+      {auth.state === AuthState.SignedIn && auth.user?.nickname && (
         <>
           <Link
             to="/me"
@@ -78,7 +78,7 @@ export function NavbarMenu({ isOpen, onClose }: NavbarMenuProps) {
         </>
       )}
       <div>
-        {auth.authState === AuthState.SignedIn && (
+        {auth.state === AuthState.SignedIn && (
           <>
             <Link to="/" onClick={onClose}>
               <MenuOption>
@@ -104,8 +104,8 @@ export function NavbarMenu({ isOpen, onClose }: NavbarMenuProps) {
             </MenuOption>
           </>
         )}
-        {auth.authState === AuthState.Loading && <br />}
-        {auth.authState === AuthState.NotSignedIn && (
+        {auth.state === AuthState.LoadingSession && <br />}
+        {auth.state === AuthState.NotSignedIn && (
           <>
             <Link to="/ranking" onClick={onClose}>
               <MenuOption className="xs:hidden">

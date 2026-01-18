@@ -1,33 +1,35 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { ChangeEvent, FormEvent, useState } from 'react'
-import { useAuth } from '@/contexts/auth.context'
+import { FaUserEdit } from 'react-icons/fa'
+import { GiCrystalShine } from 'react-icons/gi'
+import { Button, Input } from '@/components/atoms'
+import { Label } from '@/components/atoms/label'
+import { Panel } from '@/components/atoms/panel'
+import { useSignedAuth } from '@/contexts/auth.context'
 import { apiClient } from '@/services/clients/api-client'
-import buttonStyles from '@/styles/components/button.module.sass'
-import inputStyles from '@/styles/components/input.module.sass'
 
 export function ChooseNicknameTemplate() {
   const [nickname, setNickname] = useState('')
-  const { getToken, userId } = useAuth()
+  const auth = useSignedAuth()
   const [error, setError] = useState<string | null>(null)
-  const client = useQueryClient()
 
   const changeNickMutation = useMutation({
-    mutationKey: ['change-nickname', nickname],
+    mutationKey: ['register', nickname],
     async mutationFn() {
       if (nickname.length < 3) throw new Error('nickname must contain at least 3 characters')
 
-      await apiClient.user.updateNickname(nickname)
-    },
-    onMutate() {
-      setError('')
-    },
-    onSuccess() {
-      client.refetchQueries({
-        queryKey: ['myself', userId],
+      await apiClient.user.register({
+        nickname,
       })
     },
+    onMutate() {
+      setError(null)
+    },
+    onSuccess() {
+      auth.refetchUser()
+    },
     onError(e) {
-      setError(e.message.replace(/^(.)/, (match) => match.toUpperCase()) + '.')
+      setError(e.message.replace(/^(.)/, (match) => match.toUpperCase()))
     },
   })
 
@@ -47,35 +49,92 @@ export function ChooseNicknameTemplate() {
   }
 
   return (
-    <div className="center h-full">
-      <form
-        className="acrylic flex flex-col p-[30px] md:p-[40px] w-[600px]"
-        onSubmit={handleSubmit}
-      >
-        <h1 className="text-center !text-2xl font-serif !text-gold-4 uppercase">
-          Choose your unique nickname
-        </h1>
-        <p className="text-sm text-grey-1 text-center !mt-[20px]">
-          You will only be allowed to change your nickname again in <b>30 days</b>.
-        </p>
-        <input
-          className={`${inputStyles.text_field} text-center !font-serif !h-[55px] !text-2xl !mt-[20px] tracking-wide`}
-          placeholder="Nickname"
-          value={nickname}
-          onChange={handleChageNickname}
-          onPaste={(e) => e.preventDefault()}
-          disabled={changeNickMutation.isPending}
-          spellCheck={false}
-        />
-        {error && <p className="!mt-[10px] text-red-500 text-center">{error}</p>}
-        <button
-          className={`${buttonStyles.primary} h-[50px] !mt-[20px] w-full md:w-[200px] self-center`}
-          type="submit"
-          disabled={changeNickMutation.isPending}
-        >
-          Save
-        </button>
-      </form>
+    <div className="center h-full px-4">
+      <Panel className="max-w-150 w-full">
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Icon Header */}
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 animate-pulse">
+                <GiCrystalShine size={64} className="text-gold-3 opacity-20" />
+              </div>
+              <GiCrystalShine
+                size={64}
+                className="text-gold-3 drop-shadow-[0_0_20px_rgba(200,170,110,0.5)] relative"
+              />
+            </div>
+
+            <div className="text-center">
+              <h1 className="font-serif font-bold text-4xl text-gold-1 uppercase tracking-wider mb-2 drop-shadow-[0_0_20px_rgba(200,170,110,0.5)]">
+                Choose Your Name
+              </h1>
+              <p className="text-grey-1 text-sm max-w-100">
+                Your summoner name will be displayed across the Fields of Justice. Choose wisely.
+              </p>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gold-5/30" />
+            </div>
+            <div className="relative flex justify-center">
+              <FaUserEdit className="bg-grey-2 px-3 text-gold-4 text-3xl" />
+            </div>
+          </div>
+
+          {/* Nickname Input */}
+          <div className="space-y-3">
+            <Label htmlFor="nickname" className="text-gold-3 uppercase tracking-wider text-sm">
+              Summoner Name
+            </Label>
+            <Input
+              id="nickname"
+              type="text"
+              placeholder="Enter your nickname"
+              value={nickname}
+              onChange={handleChageNickname}
+              onPaste={(e) => e.preventDefault()}
+              disabled={changeNickMutation.isPending}
+              spellCheck={false}
+              error={!!error}
+              className="text-center font-serif text-2xl h-14 tracking-wide"
+            />
+            <div className="flex justify-between text-xs text-grey-1">
+              <span>3-16 characters</span>
+              <span className={nickname.length > 16 ? 'text-red-400' : ''}>
+                {nickname.length}/16
+              </span>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded px-4 py-3">
+              <p className="text-red-400 text-sm text-center">{error}</p>
+            </div>
+          )}
+
+          {/* Warning */}
+          <div className="bg-gold-6/10 border border-gold-5/30 rounded px-4 py-3">
+            <p className="text-gold-2 text-xs text-center">
+              <strong>Warning:</strong> You can only change your nickname again in{' '}
+              <strong className="text-gold-1">30 days</strong>
+            </p>
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={changeNickMutation.isPending || nickname.length < 3}
+            size="lg"
+            className="w-full"
+          >
+            {changeNickMutation.isPending ? 'Saving...' : 'Confirm Summoner Name'}
+          </Button>
+        </form>
+      </Panel>
     </div>
   )
 }

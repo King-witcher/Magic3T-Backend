@@ -2,6 +2,7 @@ import { EventNames, EventParams, EventsMap } from '@socket.io/component-emitter
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useAuth } from '@/contexts/auth.context'
+import { authClient } from '@/lib/auth-client'
 import { Console, SystemCvars } from '@/lib/console'
 
 export type Gateway<ServerEvents extends EventsMap, ClientEvents extends EventsMap> = {
@@ -27,7 +28,7 @@ export function useGateway<ServerEvents extends EventsMap, ClientEvents extends 
     let cancel = false
     let socket: Socket | null = null
     Console.log(`Connecting to gateway ${gateway}...`)
-    auth.getToken().then((token) => {
+    authClient.token.then((token) => {
       if (cancel) return
       socket = io(`${apiurl}/${gateway}`, {
         auth: {
@@ -44,7 +45,7 @@ export function useGateway<ServerEvents extends EventsMap, ClientEvents extends 
       socket?.disconnect()
       setSocket(null)
     }
-  }, [gateway, enabled, auth.user?.id, auth.getToken, apiurl])
+  }, [gateway, enabled, auth.user?.id, apiurl])
 
   useEffect(
     function logSocketConnection() {

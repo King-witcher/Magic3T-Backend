@@ -18,15 +18,14 @@ function validateSearch(search: Record<string, unknown>): {
 
 function RouteComponent() {
   const { referrer } = Route.useSearch()
-  const { authState } = useAuth()
+  const { state: authState } = useAuth()
 
-  if (authState === AuthState.Loading || authState === AuthState.SignedIn) {
-    return (
-      <>
-        {authState === AuthState.SignedIn && <Navigate to={referrer} />}
-        <LoadingSessionTemplate />
-      </>
-    )
+  if (authState === AuthState.LoadingSession || authState === AuthState.LoadingUserData) {
+    return <LoadingSessionTemplate />
+  }
+
+  if (authState === AuthState.SignedIn || authState === AuthState.SignedInUnregistered) {
+    return <Navigate to={referrer ?? '/'} replace />
   }
 
   return (

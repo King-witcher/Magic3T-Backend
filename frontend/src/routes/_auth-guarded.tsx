@@ -5,7 +5,7 @@ import { AuthState, useAuth } from '@/contexts/auth.context'
 
 export const Route = createFileRoute('/_auth-guarded')({
   component: () => {
-    const { user, authState } = useAuth()
+    const { user, state: authState } = useAuth()
 
     const navigate = useNavigate()
 
@@ -23,7 +23,11 @@ export const Route = createFileRoute('/_auth-guarded')({
         })
     }, [authState, navigate])
 
-    if (authState === AuthState.Loading || authState === AuthState.NotSignedIn) {
+    if (
+      authState === AuthState.LoadingSession ||
+      authState === AuthState.NotSignedIn ||
+      authState === AuthState.LoadingUserData
+    ) {
       return <LoadingSessionTemplate />
     }
 

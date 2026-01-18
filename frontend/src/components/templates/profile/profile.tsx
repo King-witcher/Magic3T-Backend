@@ -29,7 +29,7 @@ const divisionMap = {
 }
 
 export function ProfileTemplate({ user, matchesQuery, editable }: Props) {
-  const { user: authenticatedUser, getToken } = useAuth()
+  const { user: authenticatedUser } = useAuth()
   const leagueInfo = leaguesMap[user.rating.league]
   const client = useQueryClient()
 

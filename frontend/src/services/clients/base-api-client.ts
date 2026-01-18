@@ -111,6 +111,10 @@ export class BaseApiClient {
       }
     }
 
-    return response.json()
+    try {
+      return await response.json()
+    } catch {
+      return undefined as unknown as TResonse
+    }
   }
 }
