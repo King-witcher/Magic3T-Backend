@@ -128,27 +128,6 @@ export class Match extends Observable<MatchClassEventsMap> {
     return false
   }
 
-  private declareWinner(team: Team | null) {
-    this.globalTime.pause()
-    this[Team.Order].timer.pause()
-    this[Team.Chaos].timer.pause()
-    this.winner = team
-    this.finished = true
-    this.turn = null
-
-    this.emit(MatchClassEventType.Finish, {
-      order: {
-        timeSpent: this.timelimit - this[Team.Order].timer.remaining,
-      },
-      chaos: {
-        timeSpent: this.timelimit - this[Team.Chaos].timer.remaining,
-      },
-      events: this.events,
-      time: this.time,
-      winner: this.winner,
-    })
-  }
-
   public handleChoice(team: Team, choice: Choice): Result<[], MatchClassError> {
     if (this.turn !== team) return Err(MatchClassError.BadTurn)
     if (!this.isAvailable(choice)) return Err(MatchClassError.ChoiceUnavailable)
@@ -170,13 +149,13 @@ export class Match extends Observable<MatchClassEventsMap> {
     this[1 - team].timer.start()
 
     if (this.hasMagic3T(team)) {
-      this.declareWinner(team)
+      this.finishMatch(team)
       this.emit(MatchClassEventType.Choice, team, choice, this.time)
       return Ok([])
     }
 
     if (this.isDrawn) {
-      this.declareWinner(null)
+      this.finishMatch(null)
       this.emit(MatchClassEventType.Choice, team, choice, this.time)
       return Ok([])
     }
@@ -197,7 +176,7 @@ export class Match extends Observable<MatchClassEventsMap> {
       time: this.time,
     })
 
-    this.declareWinner(1 - side)
+    this.finishMatch(1 - side)
     this.emit(MatchClassEventType.Surrender, side, this.time)
 
     return Ok([])
@@ -212,7 +191,31 @@ export class Match extends Observable<MatchClassEventsMap> {
       time: this.time,
     })
 
-    this.declareWinner(opposite)
+    this.finishMatch(opposite)
     this.emit(MatchClassEventType.Timeout, side, this.time)
+  }
+
+  /**
+   * Finishes the match, setting the turn to null, pausing timers, and emitting the finish event.
+   */
+  private finishMatch(winner: Team | null) {
+    this.globalTime.pause()
+    this[Team.Order].timer.pause()
+    this[Team.Chaos].timer.pause()
+    this.winner = winner
+    this.finished = true
+    this.turn = null
+
+    this.emit(MatchClassEventType.Finish, {
+      order: {
+        timeSpent: this.timelimit - this[Team.Order].timer.remaining,
+      },
+      chaos: {
+        timeSpent: this.timelimit - this[Team.Chaos].timer.remaining,
+      },
+      events: this.events,
+      time: this.time,
+      winner: this.winner,
+    })
   }
 }

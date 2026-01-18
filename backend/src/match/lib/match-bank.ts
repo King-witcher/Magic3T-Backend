@@ -1,9 +1,14 @@
 import { Team } from '@magic3t/common-types'
 import { Injectable } from '@nestjs/common'
 import { DatabaseService } from '@/database'
-import { RatingService } from '@/rating'
 import { Match, MatchClassEventType } from './match'
 import { Perspective } from './perspective'
+
+export type CreatePerspectivesParams = {
+  match: Match
+  orderId: string
+  chaosId: string
+}
 
 @Injectable()
 /// Maps all matches that are currently running on the server.
@@ -11,10 +16,7 @@ export class MatchBank {
   private perspectives: Map<string, Perspective> = new Map() // Maps user ids to matchAdapters
   private opponents: Map<string, string> = new Map()
 
-  constructor(
-    private databaseService: DatabaseService,
-    private ratingService: RatingService
-  ) {}
+  constructor(private databaseService: DatabaseService) {}
 
   /// Creates a match that will be assigned to an id until it's finished.
   createAndRegisterMatch(...params: ConstructorParameters<typeof Match>): {
@@ -35,44 +37,42 @@ export class MatchBank {
   }
 
   /// Creates instances of Perspective for two different user ids and stores this relation in the bank.
-  createPerspectives(
-    match: Match,
-    [playerId1, playerId2]: [string, string],
-    teamOfFirst: Team
-  ): [Perspective, Perspective] {
-    // Get perspectives
-    const perspective1 = new Perspective({
+  createPerspectives({ match, orderId, chaosId }: CreatePerspectivesParams): {
+    orderPerspective: Perspective
+    chaosPerspective: Perspective
+  } {
+    const orderPerspective = new Perspective({
       match,
-      team: teamOfFirst,
+      team: Team.Order,
       teams: {
-        order: teamOfFirst === Team.Order ? playerId1 : playerId2,
-        chaos: teamOfFirst === Team.Chaos ? playerId1 : playerId2,
+        order: orderId,
+        chaos: chaosId,
       },
     })
-    const perspective2 = new Perspective({
+    const chaosPerspective = new Perspective({
       match,
-      team: teamOfFirst === Team.Order ? Team.Chaos : Team.Order,
+      team: Team.Chaos,
       teams: {
-        order: teamOfFirst === Team.Order ? playerId1 : playerId2,
-        chaos: teamOfFirst === Team.Chaos ? playerId1 : playerId2,
+        order: orderId,
+        chaos: chaosId,
       },
     })
 
     // Create relations in the bank
-    this.perspectives.set(playerId1, perspective1)
-    this.perspectives.set(playerId2, perspective2)
-    this.opponents.set(playerId1, playerId2)
-    this.opponents.set(playerId2, playerId1)
+    this.perspectives.set(orderId, orderPerspective)
+    this.perspectives.set(chaosId, chaosPerspective)
+    this.opponents.set(orderId, chaosId)
+    this.opponents.set(chaosId, orderId)
 
     // Remove from bank when match finishes
     match.on(MatchClassEventType.Finish, () => {
-      this.perspectives.delete(playerId1)
-      this.perspectives.delete(playerId2)
-      this.opponents.delete(playerId1)
-      this.opponents.delete(playerId2)
+      this.perspectives.delete(orderId)
+      this.perspectives.delete(chaosId)
+      this.opponents.delete(orderId)
+      this.opponents.delete(chaosId)
     })
 
-    return [perspective1, perspective2]
+    return { orderPerspective, chaosPerspective }
   }
 
   getOpponent(userId: string): string {

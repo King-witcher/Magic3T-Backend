@@ -18,6 +18,8 @@ import { MatchFinishedEvent } from './events/match-finished-event'
 import { Match, MatchBank, MatchClassEventType, MatchClassSummary, Perspective } from './lib'
 
 export type MatchCreationError = 'user-not-found' | 'bot-not-found'
+const HUMAN_VS_BOT_TIMELIMIT = 180 * 1000 // 3 minutes per player
+const HUMAN_VS_HUMAN_TIMELIMIT = 240 * 1000 // 4 minutes per player
 
 @Injectable()
 export class MatchService {
@@ -50,20 +52,25 @@ export class MatchService {
     if (!userProfile) return Err('user-not-found')
     if (!botProfile) return Err('user-not-found')
 
-    // Coin flip sides and get perspectives
+    // Coin flip sides
     const humanTeam = Math.round(Math.random()) as Team
+    const [orderProfile, chaosProfile] = humanTeam === Team.Order
+      ? [userProfile, botProfile]
+      : [botProfile, userProfile]
+
+    // Get human perspective
     const { match, id } = this.matchBank.createAndRegisterMatch({
-      timelimit: 180 * 1000,
+      timelimit: HUMAN_VS_BOT_TIMELIMIT,
     })
-    const [_, botPerspective] = this.matchBank.createPerspectives(
+    const { orderPerspective, chaosPerspective } = this.matchBank.createPerspectives({
       match,
-      [userId, botProfile.id],
-      humanTeam
-    )
-    const bot = this.getBot(botConfig, botPerspective)
+      orderId: orderProfile.id,
+      chaosId: chaosProfile.id,
+    })
+    const bot = this.getBot(botConfig, chaosPerspective)
 
     // Sync
-    this.subscribeMatchEvents(match, userProfile, botProfile, true, new Date())
+    this.subscribeMatchEvents(match, orderProfile, chaosProfile, true, new Date())
 
     // Start match
     match.start()
@@ -89,32 +96,42 @@ export class MatchService {
     ])
     if (!profile1 || !profile2) throw new Error('Could not find bot profile(s).')
 
+    // Coinflip profiles
+    const sideOfFirst = <Team>Math.round(Math.random())
+    const [orderProfile, chaosProfile] = sideOfFirst === Team.Order
+      ? [profile1, profile2]
+      : [profile2, profile1]
+
     // Create and register match
     const { match } = this.matchBank.createAndRegisterMatch({
       timelimit: 60 * 1000,
     })
 
     // Create perspectives
-    const [perspective1, perspective2] = await this.matchBank.createPerspectives(
+    const { orderPerspective, chaosPerspective } = await this.matchBank.createPerspectives({
       match,
-      [config1.uid, config2.uid],
-      Team.Order
-    )
+      orderId: config1.uid,
+      chaosId: config2.uid,
+    })
 
     // Get bots, passing perspectives
-    const bot1 = this.getBot(config1, perspective1)
-    const bot2 = this.getBot(config2, perspective2)
+    const order = this.getBot(config1, orderPerspective)
+    const chaos = this.getBot(config2, chaosPerspective)
 
     // Sync
-    this.subscribeMatchEvents(match, profile1, profile2, true, new Date())
+    this.subscribeMatchEvents(match, orderProfile, chaosProfile, true, new Date())
 
     // Start match and bots
     match.start()
-    bot1.start()
-    bot2.start()
+
+    order.start()
+    chaos.start()
     return match
   }
 
+  /**
+   * Create a new Player vs Player match.
+   */
   async createPvPMatch(uid1: string, uid2: string) {
     // Get profiles
     const [profile1, profile2] = await Promise.all([this.getProfile(uid1), this.getProfile(uid2)])
@@ -122,15 +139,24 @@ export class MatchService {
 
     // Coinflips sides
     const sideOfFirst = <Team>Math.round(Math.random())
+    const [orderProfile, chaosProfile] = sideOfFirst === Team.Order
+      ? [profile1, profile2]
+      : [profile2, profile1]
 
+    // Create and register a match in match bank
     const { match, id } = this.matchBank.createAndRegisterMatch({
-      timelimit: 240 * 1000,
+      timelimit: HUMAN_VS_HUMAN_TIMELIMIT,
     })
 
-    this.matchBank.createPerspectives(match, [uid1, uid2], sideOfFirst)
+    // Register perspectives for both players in match bank
+    this.matchBank.createPerspectives({
+      match,
+      orderId: orderProfile.id,
+      chaosId: chaosProfile.id,
+    })
 
     // Sync
-    this.subscribeMatchEvents(match, profile1, profile2, true, new Date())
+    this.subscribeMatchEvents(match, orderProfile, chaosProfile, true, new Date())
 
     // Start match
     match.start()

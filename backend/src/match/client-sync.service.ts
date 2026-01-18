@@ -4,13 +4,16 @@ import {
   MatchServerEvents,
   StateReportPayload,
 } from '@magic3t/api-types'
-import { Team } from '@magic3t/common-types'
+import { League, Team } from '@magic3t/common-types'
 import { Inject, Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { SocketsService } from '@/common'
 import { RatingService } from '@/rating'
 import { MatchFinishedEvent } from './events/match-finished-event'
 
+/**
+ * Service responsible for syncing match state and results to clients.
+ */
 @Injectable()
 export class ClientSyncService {
   constructor(
@@ -19,10 +22,17 @@ export class ClientSyncService {
     private readonly ratingService: RatingService
   ) {}
 
+  /**
+   * Sends the current match state report to a player.
+   */
+  // Since this is the only method that cares about StateReportPayload, we call it directly instead of emitting an event.
   sendStateReport(userId: string, stateReport: StateReportPayload) {
     this.gameSocketService.send(userId, MatchServerEvents.StateReport, stateReport)
   }
 
+  /**
+   * Sends the final match summary to players after the match is finished.
+   */
   @OnEvent('match.finished')
   async sendMatchSummary(summary: MatchFinishedEvent) {
     const winner =
@@ -69,6 +79,17 @@ export class ClientSyncService {
   }
 
   private async getRawLpGain(team: MatchFinishedEvent['order' | 'chaos']): Promise<number> {
+    const oldRatingData = await this.ratingService.getRatingData({
+      k: team.row.data.elo.k,
+      rating: team.row.data.elo.score,
+      matches: team.row.data.elo.matches,
+    })
+
+    // If the player was provisional, hide LP gains.
+    if (oldRatingData.league === League.Provisional) {
+      return 0
+    }
+
     const oldLp = await this.ratingService.getRawLP(team.row.data.elo.score)
     const newLp = await this.ratingService.getRawLP(team.newRating.score)
     return newLp - oldLp
