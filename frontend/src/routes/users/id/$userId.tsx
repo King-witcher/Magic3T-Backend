@@ -1,36 +1,48 @@
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Loading, NotFoundTemplate, ProfileTemplate } from '@/components/templates'
 import { apiClient } from '@/services/clients/api-client'
+import { NotFoundError } from '@/services/clients/client-error'
 
 export const Route = createFileRoute('/users/id/$userId')({
   component: Page,
-  pendingComponent: () => <Loading />,
-  notFoundComponent: () => <NotFoundTemplate />,
   shouldReload: false,
 })
 
 function Page() {
   const { userId } = Route.useParams()
 
-  const matchesQuery = useQuery({
-    queryKey: ['matches', userId],
-    async queryFn() {
-      return apiClient.match.getMatchesByUser(userId, 20)
-    },
-  })
-
-  const userQuery = useSuspenseQuery({
+  const userQuery = useQuery({
     queryKey: ['user', userId],
-    staleTime: Number.POSITIVE_INFINITY,
-    queryFn() {
+    async queryFn() {
       return apiClient.user.getById(userId)
     },
   })
 
-  if (!userQuery.data) {
-    return <NotFoundTemplate />
-  }
+  const matchesQuery = useQuery({
+    enabled: !!userQuery.data,
+    queryKey: ['matches', userQuery.data?.id],
+    staleTime: Number.POSITIVE_INFINITY,
+    async queryFn() {
+      return apiClient.match.getMatchesByUser(userQuery.data?.id || '', 20)
+    },
+  })
 
-  return <ProfileTemplate key={userId} user={userQuery.data} matchesQuery={matchesQuery} />
+  switch (userQuery.status) {
+    case 'pending': {
+      return <Loading />
+    }
+    case 'error': {
+      if (userQuery.error instanceof NotFoundError) {
+        return <NotFoundTemplate />
+      }
+      return <div>Error: {userQuery.error.message}</div>
+    }
+    case 'success': {
+      if (!userQuery.data) {
+        return <NotFoundTemplate />
+      }
+      return <ProfileTemplate matchesQuery={matchesQuery} user={userQuery.data} />
+    }
+  }
 }
