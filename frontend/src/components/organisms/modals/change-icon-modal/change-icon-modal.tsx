@@ -3,9 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Spinner } from '@/components/atoms'
 import { UserAvatar } from '@/components/molecules'
-import { useAuth } from '@/contexts/auth.context'
 import { useDialogStore } from '@/contexts/modal.store'
-import { NestApi } from '@/services/nest-api'
+import { apiClient } from '@/services/clients/api-client'
 import styles from '@/styles/components/button.module.sass'
 import { SummonerIcon } from './summoner-icon'
 
@@ -16,7 +15,6 @@ interface Props {
 
 export function ChangeIconModal({ user, onSave }: Props) {
   const [selectedIcon, setSelectedIcon] = useState(user.summonerIcon)
-  const auth = useAuth()
   const closeModal = useDialogStore((state) => state.closeModal)
 
   const client = useQueryClient()
@@ -25,17 +23,14 @@ export function ChangeIconModal({ user, onSave }: Props) {
     queryKey: ['available-icons', user.id],
     enabled: true,
     async queryFn() {
-      const token = await auth.getToken()
-      const icons = await NestApi.User.getIcons(token)
-      return icons
+      return apiClient.user.getMyIcons()
     },
   })
 
   const updateIconMutation = useMutation({
     mutationKey: ['update-icon', selectedIcon],
     async mutationFn() {
-      const token = await auth.getToken()
-      await NestApi.User.updateIcon(token, selectedIcon)
+      await apiClient.user.updateIcon(selectedIcon)
     },
     onSuccess() {
       client.setQueryData(

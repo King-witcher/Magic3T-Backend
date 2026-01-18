@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/auth.context'
 import { useDialogStore } from '@/contexts/modal.store'
 import { useRegisterCommand } from '@/hooks/use-register-command'
 import { Console } from '@/lib/console'
-import { NestApi } from '@/services'
+import { apiClient } from '@/services/clients/api-client'
 import { leaguesMap } from '@/utils/ranks'
 import { DesktopRankContainer } from './desktop-rank-container'
 import { MatchRow } from './match-row'
@@ -50,8 +50,8 @@ export function ProfileTemplate({ user, matchesQuery, editable }: Props) {
   const progress = user.rating.points ?? (user.rating.progress || 0)
 
   async function saveIconChange(iconId: number) {
-    await NestApi.User.updateIcon(await getToken(), iconId)
-    await client.refetchQueries({
+    await apiClient.user.updateIcon(iconId)
+    client.refetchQueries({
       queryKey: ['myself', authenticatedUser?.id],
     })
   }

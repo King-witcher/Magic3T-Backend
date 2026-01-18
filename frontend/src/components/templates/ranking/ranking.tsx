@@ -1,7 +1,7 @@
 import { League } from '@magic3t/common-types'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { NestApi } from '@/services/nest-api'
+import { apiClient } from '@/services/clients/api-client'
 import { divisionMap, leaguesMap } from '@/utils/ranks'
 import { getIconUrl } from '@/utils/utils'
 
@@ -10,7 +10,7 @@ export function RankingTemplate() {
     queryKey: ['ranking'],
     staleTime: 120 * 1000,
     async queryFn() {
-      return await NestApi.User.getRanking()
+      return await apiClient.user.getRanking()
     },
   })
 

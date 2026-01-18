@@ -19,8 +19,8 @@ import {
   useState,
 } from 'react'
 import { Console } from '@/lib/console'
+import { apiClient } from '@/services/clients/api-client'
 import { auth, provider } from '@/services/firebase'
-import { NestApi } from '@/services/nest-api'
 
 export enum AuthState {
   NotSignedIn = 'not-signed-in',
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: Props) {
     staleTime: Number.POSITIVE_INFINITY,
     async queryFn() {
       if (!authData) return null
-      const user = await NestApi.User.getById(authData.uid)
+      const user = await apiClient.user.getById(authData.uid)
       setAuthState(AuthState.SignedIn) // Smell
       return user
     },

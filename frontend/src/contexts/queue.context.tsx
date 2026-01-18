@@ -8,7 +8,7 @@ import {
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import { useGateway } from '@/hooks/use-gateway.ts'
 import { useListener } from '@/hooks/use-listener.ts'
-import { NestApi } from '@/services'
+import { apiClient } from '@/services/clients/api-client.ts'
 import { QueueMode } from '@/types/queue.ts'
 import { AuthState, useAuth } from './auth.context.tsx'
 import { useGame } from './game.context.tsx'
@@ -96,7 +96,7 @@ export function QueueProvider({ children }: QueueContextProps) {
       }))
 
       const token = await getToken()
-      await NestApi.Queue.enqueue(token, mode)
+      await apiClient.queue.enqueue(mode)
     },
     [gateway, user, setQueueModes, getToken]
   )
@@ -104,7 +104,7 @@ export function QueueProvider({ children }: QueueContextProps) {
   const dequeue = useCallback(
     async (mode: QueueMode) => {
       const token = await getToken()
-      await NestApi.Queue.dequeue(token)
+      await apiClient.queue.dequeue()
       setQueueModes((current) => ({
         ...current,
         [mode]: false,

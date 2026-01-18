@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useAuth } from '@/contexts/auth.context'
-import { NestApi } from '@/services'
+import { apiClient } from '@/services/clients/api-client'
 import buttonStyles from '@/styles/components/button.module.sass'
 import inputStyles from '@/styles/components/input.module.sass'
 
@@ -16,7 +16,7 @@ export function ChooseNicknameTemplate() {
     async mutationFn() {
       if (nickname.length < 3) throw new Error('nickname must contain at least 3 characters')
 
-      await NestApi.User.register(await getToken(), { nickname })
+      await apiClient.user.updateNickname(nickname)
     },
     onMutate() {
       setError('')

@@ -23,7 +23,6 @@ import { useListener } from '@/hooks/use-listener'
 import { useObservable } from '@/hooks/use-observable'
 import { Console } from '@/lib/console'
 import { Timer } from '@/lib/Timer'
-import { NestApi } from '@/services'
 import { apiClient } from '@/services/clients/api-client'
 import { AuthState, useAuth } from './auth.context'
 
@@ -74,17 +73,17 @@ export function GameProvider({ children }: Props) {
   const [chaosId, setChaosId] = useState<null | string>(null)
   const orderQuery = useQuery({
     queryKey: ['user', orderId],
-    queryFn: async () => {
+    queryFn: () => {
       if (!orderId) return null
-      return NestApi.User.getById(orderId)
+      return apiClient.user.getById(orderId)
     },
     initialData: null,
   })
   const chaosQuery = useQuery({
     queryKey: ['user', chaosId],
-    queryFn: async () => {
+    queryFn: () => {
       if (!chaosId) return null
-      return NestApi.User.getById(chaosId)
+      return apiClient.user.getById(chaosId)
     },
     initialData: null,
   })

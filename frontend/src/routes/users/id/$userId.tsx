@@ -2,7 +2,6 @@ import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Loading, NotFoundTemplate, ProfileTemplate } from '@/components/templates'
 import { apiClient } from '@/services/clients/api-client'
-import { NestApi } from '@/services/nest-api'
 
 export const Route = createFileRoute('/users/id/$userId')({
   component: Page,
@@ -24,8 +23,8 @@ function Page() {
   const userQuery = useSuspenseQuery({
     queryKey: ['user', userId],
     staleTime: Number.POSITIVE_INFINITY,
-    async queryFn() {
-      return await NestApi.User.getById(userId)
+    queryFn() {
+      return apiClient.user.getById(userId)
     },
   })
 
