@@ -31,7 +31,7 @@ export function ServiceStatusProvider({ children }: Props) {
 
   const statusQuery = useQuery({
     queryKey: ['server-status'],
-    queryFn: () => apiClient.getStatus(),
+    queryFn: async () => apiClient.getStatus(),
     refetchInterval: pollRate,
   })
 

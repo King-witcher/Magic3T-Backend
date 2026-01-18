@@ -73,7 +73,7 @@ export function GameProvider({ children }: Props) {
   const [chaosId, setChaosId] = useState<null | string>(null)
   const orderQuery = useQuery({
     queryKey: ['user', orderId],
-    queryFn: () => {
+    queryFn: async () => {
       if (!orderId) return null
       return apiClient.user.getById(orderId)
     },
@@ -81,7 +81,7 @@ export function GameProvider({ children }: Props) {
   })
   const chaosQuery = useQuery({
     queryKey: ['user', chaosId],
-    queryFn: () => {
+    queryFn: async () => {
       if (!chaosId) return null
       return apiClient.user.getById(chaosId)
     },
