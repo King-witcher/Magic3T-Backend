@@ -54,11 +54,10 @@ export class MatchService {
 
     // Coin flip sides
     const humanTeam = Math.round(Math.random()) as Team
-    const [orderProfile, chaosProfile] = humanTeam === Team.Order
-      ? [userProfile, botProfile]
-      : [botProfile, userProfile]
+    const [orderProfile, chaosProfile] =
+      humanTeam === Team.Order ? [userProfile, botProfile] : [botProfile, userProfile]
 
-    // Get human perspective
+    // Get perspectives
     const { match, id } = this.matchBank.createAndRegisterMatch({
       timelimit: HUMAN_VS_BOT_TIMELIMIT,
     })
@@ -67,7 +66,12 @@ export class MatchService {
       orderId: orderProfile.id,
       chaosId: chaosProfile.id,
     })
-    const bot = this.getBot(botConfig, chaosPerspective)
+
+    // Get bot, passing perspective
+    const bot = this.getBot(
+      botConfig,
+      humanTeam === Team.Order ? chaosPerspective : orderPerspective
+    )
 
     // Sync
     this.subscribeMatchEvents(match, orderProfile, chaosProfile, true, new Date())
@@ -98,9 +102,8 @@ export class MatchService {
 
     // Coinflip profiles
     const sideOfFirst = <Team>Math.round(Math.random())
-    const [orderProfile, chaosProfile] = sideOfFirst === Team.Order
-      ? [profile1, profile2]
-      : [profile2, profile1]
+    const [orderProfile, chaosProfile] =
+      sideOfFirst === Team.Order ? [profile1, profile2] : [profile2, profile1]
 
     // Create and register match
     const { match } = this.matchBank.createAndRegisterMatch({
@@ -132,16 +135,18 @@ export class MatchService {
   /**
    * Create a new Player vs Player match.
    */
-  async createPvPMatch(uid1: string, uid2: string) {
+  async createPvPMatch(userId1: string, userId2: string) {
     // Get profiles
-    const [profile1, profile2] = await Promise.all([this.getProfile(uid1), this.getProfile(uid2)])
+    const [profile1, profile2] = await Promise.all([
+      this.getProfile(userId1),
+      this.getProfile(userId2),
+    ])
     if (!profile1 || !profile2) panic('Could not find user profiles for PvP match.')
 
     // Coinflips sides
     const sideOfFirst = <Team>Math.round(Math.random())
-    const [orderProfile, chaosProfile] = sideOfFirst === Team.Order
-      ? [profile1, profile2]
-      : [profile2, profile1]
+    const [orderProfile, chaosProfile] =
+      sideOfFirst === Team.Order ? [profile1, profile2] : [profile2, profile1]
 
     // Create and register a match in match bank
     const { match, id } = this.matchBank.createAndRegisterMatch({
