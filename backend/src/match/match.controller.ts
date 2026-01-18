@@ -4,8 +4,9 @@ import {
   Get,
   HttpCode,
   NotFoundException,
-  ParseIntPipe,
+  NotImplementedException,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -89,7 +90,7 @@ export class MatchController {
     const perspective = this.matchBank.getPerspective(userId)
     if (!perspective) throw new NotFoundException()
     return {
-      id: perspective.match.id,
+      id: '',
     }
   }
 

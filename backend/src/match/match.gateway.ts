@@ -56,8 +56,8 @@ export class MatchGateway implements OnGatewayDisconnect {
       time: Date.now(),
     }
 
-    this.socketsService.emit(opponent, MatchServerEvents.Message, messageData)
-    this.socketsService.emit(uid, MatchServerEvents.Message, messageData)
+    this.socketsService.send(opponent, MatchServerEvents.Message, messageData)
+    this.socketsService.send(uid, MatchServerEvents.Message, messageData)
   }
 
   @SubscribeMessage(MatchClientEvents.GetAssignments)

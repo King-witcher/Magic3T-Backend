@@ -1,32 +1,44 @@
 import { AssignmentsPayload, StateReportPayload } from '@magic3t/api-types'
 import { Choice, Team } from '@magic3t/common-types'
 import { Result } from '@/common'
-import { RatingService } from '@/rating'
-import { Match, MatchError, MatchEventsMap } from './match'
+import { Match, MatchClassError, MatchClassEventsMap } from './match'
+
+export type PerspectiveParams = {
+  match: Match
+  team: Team
+  teams: {
+    order: string
+    chaos: string
+  }
+}
 
 /**
  * A perspective is a portal through which a player (human or bot) can interact with its ongoing match.
  */
 export class Perspective {
-  constructor(
-    public readonly match: Match,
-    public readonly team: Team,
-    public readonly ratingService: RatingService
-  ) {}
+  private readonly match: Match
+  public readonly team: Team
+  private readonly teamIds: {
+    order: string
+    chaos: string
+  }
+
+  constructor({ match, team, teams }: PerspectiveParams) {
+    this.match = match
+    this.team = team
+    this.teamIds = teams
+  }
 
   async getAssignments(): Promise<AssignmentsPayload> {
-    const order = this.match.assignments[Team.Order]
-    const chaos = this.match.assignments[Team.Chaos]
-
     return {
       [Team.Order]: {
         profile: {
-          id: order._id,
+          id: this.teamIds.order,
         },
       },
       [Team.Chaos]: {
         profile: {
-          id: chaos._id,
+          id: this.teamIds.chaos,
         },
       },
     }
@@ -36,17 +48,17 @@ export class Perspective {
     return this.match.stateReport
   }
 
-  pick(choice: Choice): Result<[], MatchError> {
+  pick(choice: Choice): Result<[], MatchClassError> {
     return this.match.handleChoice(this.team, choice)
   }
 
-  surrender(): Result<[], MatchError> {
+  surrender(): Result<[], MatchClassError> {
     return this.match.handleSurrender(this.team)
   }
 
-  on<Event extends keyof MatchEventsMap>(
+  on<Event extends keyof MatchClassEventsMap>(
     event: Event,
-    observer: (...data: Parameters<MatchEventsMap[Event]>) => void
+    observer: (...data: Parameters<MatchClassEventsMap[Event]>) => void
   ) {
     this.match.on(event, observer)
   }

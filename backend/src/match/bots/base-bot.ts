@@ -1,7 +1,7 @@
 import { StateReportPayload } from '@magic3t/api-types'
 import { Choice, Team } from '@magic3t/common-types'
 import { Channel } from '@/common/utils/channel'
-import { MatchEventType } from '@/match/lib/match'
+import { MatchClassEventType } from '@/match/lib/match'
 import { Perspective } from '../lib/perspective'
 
 export abstract class BaseBot {
@@ -14,9 +14,9 @@ export abstract class BaseBot {
       this.channel.send(state)
     }
 
-    perspective.on(MatchEventType.Start, callback)
-    perspective.on(MatchEventType.Choice, callback)
-    perspective.on(MatchEventType.Finish, callback)
+    perspective.on(MatchClassEventType.Start, callback)
+    perspective.on(MatchClassEventType.Choice, callback)
+    perspective.on(MatchClassEventType.Finish, callback)
   }
 
   async start(): Promise<void> {

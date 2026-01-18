@@ -45,7 +45,7 @@ export class UserController {
     type: 'object',
   })
   async getById(@Param('id') id: string): Promise<GetUserResult> {
-    const row = await this.userRepository.get(id)
+    const row = await this.userRepository.getById(id)
     if (!row) throw new NotFoundException()
     return this.userService.getUserByRow(row)
   }
@@ -89,7 +89,7 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   async getMe(@UserId() userId: string) {
-    const user = await this.userRepository.get(userId)
+    const user = await this.userRepository.getById(userId)
     if (!user) throw new NotFoundException()
     return this.userService.getUserByRow(user)
   }
@@ -104,20 +104,20 @@ export class UserController {
     @UserId() userId: string,
     @Body() { nickname: newNickname }: ChangeNickCommandClass
   ) {
-    const user = await this.userRepository.get(userId)
+    const user = await this.userRepository.getById(userId)
     // User does not exist
     if (!user) {
       throw new BaseError('user-not-registered', HttpStatus.BAD_REQUEST)
     }
 
     // Check nickname change cooldown (30 days)
-    const timeSinceLastChange = Date.now() - user.identification.last_changed.getTime()
+    const timeSinceLastChange = Date.now() - user.data.identification.last_changed.getTime()
     if (timeSinceLastChange < 1000 * 60 * 60 * 24 * 30) {
       throw new BaseError('nickname-change-cooldown', HttpStatus.BAD_REQUEST)
     }
 
     // Same nickname
-    if (user.identification.nickname === newNickname) {
+    if (user.data.identification.nickname === newNickname) {
       throw new BaseError('same-nickname', HttpStatus.BAD_REQUEST)
     }
 
@@ -127,7 +127,7 @@ export class UserController {
       throw new BaseError('nickname-unavailable', HttpStatus.BAD_REQUEST)
     }
 
-    await this.userRepository.updateNickname(user._id, newNickname)
+    await this.userRepository.updateNickname(user.id, newNickname)
   }
 
   @Post('register')
@@ -138,7 +138,7 @@ export class UserController {
   })
   async register(@UserId() userId: string, @Body() body: RegisterUserCommandClass) {
     const [previousUserRow, ratingConfigResult] = await Promise.all([
-      this.userRepository.get(userId),
+      this.userRepository.getById(userId),
       this.configRepository.cachedGetRatingConfig(),
     ])
 
@@ -146,18 +146,12 @@ export class UserController {
     const ratingConfig = ratingConfigResult.expect('Rating config not found in database.')
 
     const userRow: UserRow = {
-      _id: userId,
       elo: {
         k: ratingConfig.initial_k_value,
         score: ratingConfig.base_score,
         matches: 0,
       },
       experience: 0,
-      glicko: {
-        deviation: ratingConfig.max_rd,
-        rating: ratingConfig.base_score,
-        timestamp: new Date(),
-      },
       identification: {
         last_changed: new Date(),
         nickname: body.nickname,
@@ -174,7 +168,7 @@ export class UserController {
       summoner_icon: 29,
     }
 
-    await this.userRepository.create(userRow)
+    await this.userRepository.set(userId, userRow)
   }
 
   @Get('me/icons')
@@ -190,7 +184,7 @@ export class UserController {
   @ApiBearerAuth()
   async getIcons(@UserId() userId: string) {
     const iconAssigments = await this.userRepository.getIconAssignments(userId)
-    const assignedIcons = iconAssigments.map((assigment) => Number.parseInt(assigment._id, 10))
+    const assignedIcons = iconAssigments.map((assigment) => Number.parseInt(assigment.id, 10))
     return [...assignedIcons, ...baseIcons].sort((a, b) => a - b)
   }
 
@@ -203,12 +197,11 @@ export class UserController {
   async changeSummonerIcon(@UserId() userId: string, @Body() { iconId }: ChangeIconCommandClass) {
     if (!baseIcons.has(iconId)) {
       const userIcons = await await this.userRepository.getIconAssignments(userId)
-      if (!userIcons.some((assignment) => Number(assignment._id) === iconId))
+      if (!userIcons.some((assignment) => Number(assignment.id) === iconId))
         throw new BaseError("you don't have this icon", HttpStatus.BAD_REQUEST)
     }
 
-    await this.userRepository.update({
-      _id: userId,
+    await this.userRepository.update(userId, {
       summoner_icon: iconId,
     })
   }

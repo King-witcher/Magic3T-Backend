@@ -1,11 +1,12 @@
 import { GameServerEventsMap } from '@magic3t/api-types'
 import { Module } from '@nestjs/common'
 import { SocketsService } from '@/common'
+import { ClientSyncService } from './client-sync.service'
 import { MatchBank } from './lib/match-bank'
 import { MatchController } from './match.controller'
 import { MatchGateway } from './match.gateway'
 import { MatchService } from './match.service'
-import { MatchObserverService } from './state-report.service'
+import { PersistanceService } from './persistance.service'
 
 @Module({
   controllers: [MatchController],
@@ -13,7 +14,8 @@ import { MatchObserverService } from './state-report.service'
     MatchGateway,
     MatchBank,
     MatchService,
-    MatchObserverService,
+    PersistanceService,
+    ClientSyncService,
     {
       provide: 'MatchSocketsService',
       useClass: SocketsService<GameServerEventsMap>,

@@ -1,15 +1,15 @@
 import { StateReportPayload } from '@magic3t/api-types'
 import { Choice, Team } from '@magic3t/common-types'
-import { MatchRowEvent, MatchRowEventType, UserRow } from '@magic3t/database-types'
+import { MatchRowEvent, MatchRowEventType } from '@magic3t/database-types'
 import { Observable, Result, Stopwatch } from '@/common'
 import { Player } from './player'
 
-export enum MatchError {
+export const enum MatchClassError {
   BadTurn = 'bad-turn',
   ChoiceUnavailable = 'choice-unavailable',
 }
 
-export enum MatchEventType {
+export const enum MatchClassEventType {
   Start = 0,
   Choice = 1,
   Surrender = 2,
@@ -17,40 +17,44 @@ export enum MatchEventType {
   Finish = 4,
 }
 
-export type MatchEventsMap = {
-  [MatchEventType.Start](): void
-  [MatchEventType.Choice](side: Team, choice: Choice, timestamp: number): void
-  [MatchEventType.Surrender](side: Team, timestamp: number): void
-  [MatchEventType.Timeout](side: Team, timestamp: number): void
-  [MatchEventType.Finish](self: Match, winner: Team | null): void
+export type MatchClassSummary = {
+  order: {
+    timeSpent: number
+  }
+  chaos: {
+    timeSpent: number
+  }
+  time: number
+  winner: Team | null
+  events: MatchRowEvent[]
 }
 
-interface MatchParams {
+export type MatchClassEventsMap = {
+  [MatchClassEventType.Start](): void
+  [MatchClassEventType.Choice](side: Team, choice: Choice, timestamp: number): void
+  [MatchClassEventType.Surrender](side: Team, timestamp: number): void
+  [MatchClassEventType.Timeout](side: Team, timestamp: number): void
+  [MatchClassEventType.Finish](summary: MatchClassSummary): void
+}
+
+interface MatchClassParams {
   timelimit: number
-  [Team.Order]: UserRow
-  [Team.Chaos]: UserRow
 }
 
-export class Match extends Observable<MatchEventsMap> {
+export class Match extends Observable<MatchClassEventsMap> {
   private globalTime = new Stopwatch()
   public id: string
   public events: MatchRowEvent[] = []
   public turn: Team | null = null
   public winner: Team | null = null
   public finished = false
-  public [Team.Order]: Player
-  public [Team.Chaos]: Player
-  public timelimit: number
-  public assignments: Record<Team, UserRow>
+  public readonly [Team.Order]: Player
+  public readonly [Team.Chaos]: Player
+  public readonly timelimit: number
 
-  constructor({ timelimit, [Team.Order]: order, [Team.Chaos]: chaos }: MatchParams) {
+  constructor({ timelimit }: MatchClassParams) {
     super()
     this.timelimit = timelimit
-
-    this.assignments = {
-      [Team.Order]: order,
-      [Team.Chaos]: chaos,
-    }
 
     this[Team.Order] = new Player(timelimit, () => this.handleTimeout(Team.Order))
     this[Team.Chaos] = new Player(timelimit, () => this.handleTimeout(Team.Chaos))
@@ -101,7 +105,7 @@ export class Match extends Observable<MatchEventsMap> {
     this[Team.Order].timer.start()
     this.globalTime.start()
     this.turn = Team.Order
-    this.emit(MatchEventType.Start)
+    this.emit(MatchClassEventType.Start)
   }
 
   private isAvailable(choice: Choice) {
@@ -131,12 +135,23 @@ export class Match extends Observable<MatchEventsMap> {
     this.winner = team
     this.finished = true
     this.turn = null
-    this.emit(MatchEventType.Finish, this, team)
+
+    this.emit(MatchClassEventType.Finish, {
+      order: {
+        timeSpent: this.timelimit - this[Team.Order].timer.remaining,
+      },
+      chaos: {
+        timeSpent: this.timelimit - this[Team.Chaos].timer.remaining,
+      },
+      events: this.events,
+      time: this.time,
+      winner: this.winner,
+    })
   }
 
-  public handleChoice(team: Team, choice: Choice): Result<[], MatchError> {
-    if (this.turn !== team) return Err(MatchError.BadTurn)
-    if (!this.isAvailable(choice)) return Err(MatchError.ChoiceUnavailable)
+  public handleChoice(team: Team, choice: Choice): Result<[], MatchClassError> {
+    if (this.turn !== team) return Err(MatchClassError.BadTurn)
+    if (!this.isAvailable(choice)) return Err(MatchClassError.ChoiceUnavailable)
 
     this[Team.Order].timer.pause()
     this[Team.Chaos].timer.pause()
@@ -156,22 +171,22 @@ export class Match extends Observable<MatchEventsMap> {
 
     if (this.hasMagic3T(team)) {
       this.declareWinner(team)
-      this.emit(MatchEventType.Choice, team, choice, this.time)
+      this.emit(MatchClassEventType.Choice, team, choice, this.time)
       return Ok([])
     }
 
     if (this.isDrawn) {
       this.declareWinner(null)
-      this.emit(MatchEventType.Choice, team, choice, this.time)
+      this.emit(MatchClassEventType.Choice, team, choice, this.time)
       return Ok([])
     }
 
-    this.emit(MatchEventType.Choice, team, choice, this.time)
+    this.emit(MatchClassEventType.Choice, team, choice, this.time)
     return Ok([])
   }
 
-  public handleSurrender(side: Team): Result<[], MatchError> {
-    if (this.turn === null) return Err(MatchError.BadTurn)
+  public handleSurrender(side: Team): Result<[], MatchClassError> {
+    if (this.turn === null) return Err(MatchClassError.BadTurn)
 
     const player = this[side]
     player.surrender = true
@@ -183,7 +198,7 @@ export class Match extends Observable<MatchEventsMap> {
     })
 
     this.declareWinner(1 - side)
-    this.emit(MatchEventType.Surrender, side, this.time)
+    this.emit(MatchClassEventType.Surrender, side, this.time)
 
     return Ok([])
   }
@@ -198,6 +213,6 @@ export class Match extends Observable<MatchEventsMap> {
     })
 
     this.declareWinner(opposite)
-    this.emit(MatchEventType.Timeout, side, this.time)
+    this.emit(MatchClassEventType.Timeout, side, this.time)
   }
 }

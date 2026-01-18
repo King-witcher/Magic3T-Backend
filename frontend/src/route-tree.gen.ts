@@ -76,6 +76,7 @@ const UsersIdUserIdRoute = UsersIdUserIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthGuardedIndexRoute
   '/bianca': typeof BiancaRoute
   '/ranking': typeof RankingRoute
   '/me': typeof AuthGuardedMeRouteRoute
@@ -83,10 +84,10 @@ export interface FileRoutesByFullPath {
   '/register': typeof AuthRegisterRoute
   '/sign-in': typeof AuthSignInRoute
   '/users/$nickname': typeof UsersNicknameRoute
-  '/': typeof AuthGuardedIndexRoute
   '/users/id/$userId': typeof UsersIdUserIdRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AuthGuardedIndexRoute
   '/bianca': typeof BiancaRoute
   '/ranking': typeof RankingRoute
   '/me': typeof AuthGuardedMeRouteRoute
@@ -94,7 +95,6 @@ export interface FileRoutesByTo {
   '/register': typeof AuthRegisterRoute
   '/sign-in': typeof AuthSignInRoute
   '/users/$nickname': typeof UsersNicknameRoute
-  '/': typeof AuthGuardedIndexRoute
   '/users/id/$userId': typeof UsersIdUserIdRoute
 }
 export interface FileRoutesById {
@@ -114,6 +114,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/bianca'
     | '/ranking'
     | '/me'
@@ -121,10 +122,10 @@ export interface FileRouteTypes {
     | '/register'
     | '/sign-in'
     | '/users/$nickname'
-    | '/'
     | '/users/id/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/bianca'
     | '/ranking'
     | '/me'
@@ -132,7 +133,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/sign-in'
     | '/users/$nickname'
-    | '/'
     | '/users/id/$userId'
   id:
     | '__root__'
@@ -177,14 +177,14 @@ declare module '@tanstack/react-router' {
     '/_auth-guarded': {
       id: '/_auth-guarded'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthGuardedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }

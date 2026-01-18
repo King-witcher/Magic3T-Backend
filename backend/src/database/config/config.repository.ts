@@ -35,7 +35,7 @@ export class ConfigRepository {
   async getBotConfigs(): Promise<ConfigRepositoryResult<BotConfigRow>> {
     this.logger.verbose('read "bots" from config')
 
-    const converter = this.databaseService.getConverter<BotConfigRow>()
+    const converter = this.databaseService.getDefaultConverter<BotConfigRow>()
     const snapshot = await this.collection.withConverter(converter).doc('bots').get()
 
     const data = snapshot.data()
@@ -45,23 +45,23 @@ export class ConfigRepository {
     return Ok(data)
   }
 
-  async getBotConfig(botName: BotName): Promise<ConfigRepositoryResult<BotConfig>> {
+  async getBotConfig(botName: BotName): Promise<BotConfig | null> {
     const result = await this.getBotConfigs()
 
     return result.match({
       ok: (configs) => {
         const config = configs[botName]
-        if (!config) return Err('bot-not-found')
-        return Ok(config)
+        if (!config) return null
+        return config
       },
-      err: (error) => Err(error),
+      err: () => null,
     })
   }
 
   @CacheMethod(10)
   async getDevopsConfig(): Promise<ConfigRepositoryResult<DevopsConfigModel>> {
     this.logger.verbose('read "devops" from config')
-    const converter = this.databaseService.getConverter<DevopsConfigModel>()
+    const converter = this.databaseService.getDefaultConverter<DevopsConfigModel>()
     const snapshot = await this.collection.withConverter(converter).doc('devops').get()
 
     const data = snapshot.data()
@@ -74,7 +74,7 @@ export class ConfigRepository {
   @CacheMethod(300)
   async cachedGetRatingConfig(): Promise<ConfigRepositoryResult<RatingConfigModel>> {
     this.logger.verbose('read "rating" from config')
-    const converter = this.databaseService.getConverter<RatingConfigModel>()
+    const converter = this.databaseService.getDefaultConverter<RatingConfigModel>()
     const snapshot = await this.collection.withConverter(converter).doc('rating').get()
 
     const data = snapshot.data()

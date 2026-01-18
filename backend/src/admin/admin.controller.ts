@@ -18,12 +18,12 @@ export class AdminController {
     const ratingConfig = (await this.configRepository.cachedGetRatingConfig()).expect(
       'rating config not found'
     )
-    const users = await this.usersRepository.getAll()
+    const users = await this.usersRepository.listAll()
 
     await Promise.all(
       users.map(async (user) => {
-        this.usersRepository.save({
-          ...user,
+        this.usersRepository.set(user.id, {
+          ...user.data,
           elo: {
             score: ratingConfig.base_score,
             k: ratingConfig.initial_k_value,

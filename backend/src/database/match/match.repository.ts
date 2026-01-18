@@ -1,13 +1,14 @@
+import { Team } from '@magic3t/common-types'
+import { MatchRow } from '@magic3t/database-types'
 import { Injectable, Logger } from '@nestjs/common'
 import { FieldPath, Filter } from 'firebase-admin/firestore'
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
-import { BaseRepository } from '../base-repository'
-import { MatchRow } from '@magic3t/database-types'
-import { Team } from '@magic3t/common-types'
+import { BaseFirestoreRepository } from '../base-repository'
+import { ListResult } from '../types/query-types'
 
 @Injectable()
-export class MatchRepository extends BaseRepository<MatchRow> {
+export class MatchRepository extends BaseFirestoreRepository<MatchRow> {
   matchLogger = new Logger(MatchRepository.name, { timestamp: true })
 
   constructor(databaseService: DatabaseService, firebaseService: FirebaseService) {
@@ -19,7 +20,7 @@ export class MatchRepository extends BaseRepository<MatchRow> {
    * @param id The user id
    * @param limit How many docs should be fetched
    */
-  async getByUser(id: string, limit: number): Promise<MatchRow[]> {
+  async getByUser(id: string, limit: number): Promise<ListResult<MatchRow>> {
     this.matchLogger.verbose(`read ${limit} matches from user ${id}.`)
     const query = this.collection
       .where(
@@ -32,6 +33,12 @@ export class MatchRepository extends BaseRepository<MatchRow> {
       .limit(limit)
 
     const querySnap = await query.get()
-    return querySnap.docs.map((doc) => doc.data())
+
+    return querySnap.docs.map((doc) => ({
+      id: doc.id,
+      createdAt: doc.createTime.toDate(),
+      updatedAt: doc.updateTime?.toDate(),
+      data: doc.data(),
+    }))
   }
 }

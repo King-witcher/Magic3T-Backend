@@ -1,5 +1,4 @@
 import { Choice, League, Team } from '@magic3t/common-types'
-import { WithId } from './with-id'
 
 export const enum MatchRowGameMode {
   Casual = 0b00,
@@ -46,7 +45,7 @@ export type MatchRowEvent = BaseMatchRowEvent &
   )
 
 /** Represents a match registry in the History. */
-export type MatchRow = WithId & {
+export type MatchRow = {
   [Team.Order]: MatchRowTeam // TODO: put inside a teams object
   [Team.Chaos]: MatchRowTeam
   events: MatchRowEvent[]

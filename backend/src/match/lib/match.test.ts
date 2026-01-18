@@ -1,14 +1,11 @@
 import { faker } from '@faker-js/faker'
 import { Choice, Team } from '@magic3t/common-types'
-import { UserRow } from '@magic3t/database-types'
 import { delay } from '@/common'
-import { Match, MatchEventType } from './match'
+import { Match, MatchClassEventType } from './match'
 
 function createMatch(): Match {
   return new Match({
     timelimit: 400,
-    [Team.Order]: {} as UserRow,
-    [Team.Chaos]: {} as UserRow,
   })
 }
 
@@ -30,7 +27,7 @@ describe(Match, () => {
   it('should handle properly when someone wins the match by Magic3T tuple', () => {
     const mock = vi.fn()
     const match = createMatch()
-    match.on(MatchEventType.Finish, mock)
+    match.on(MatchClassEventType.Finish, mock)
     match.start()
 
     match.handleChoice(Team.Order, 5)
@@ -55,7 +52,7 @@ describe(Match, () => {
     vi.useRealTimers()
     const mock = vi.fn()
     const match = createMatch()
-    match.on(MatchEventType.Finish, mock)
+    match.on(MatchClassEventType.Finish, mock)
     match.start()
 
     match.handleChoice(Team.Order, 2)
@@ -85,7 +82,7 @@ describe(Match, () => {
     it('should dispatch a start event', () => {
       const mock = vi.fn()
       const match = createMatch()
-      match.on(MatchEventType.Start, mock)
+      match.on(MatchClassEventType.Start, mock)
 
       match.start()
 
@@ -112,7 +109,7 @@ describe(Match, () => {
     it('should dispatch a choice event', () => {
       const mock = vi.fn()
       const match = createMatch()
-      match.on(MatchEventType.Choice, mock)
+      match.on(MatchClassEventType.Choice, mock)
       match.start()
       const choice = faker.number.int({ min: 1, max: 9 }) as Choice
 

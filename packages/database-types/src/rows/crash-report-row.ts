@@ -1,6 +1,4 @@
-import { WithId } from './with-id'
-
-export type CrashReportRow = WithId & {
+export type CrashReportRow = {
   source: 'client' | 'server'
   date: Date
   error: object

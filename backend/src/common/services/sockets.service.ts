@@ -44,7 +44,7 @@ export class SocketsService<EmitType extends EventsMap> {
    * @param event
    * @param data
    */
-  emit<Ev extends EventNames<EmitType>>(
+  send<Ev extends EventNames<EmitType>>(
     userId: string,
     event: Ev,
     ...data: EventParams<EmitType, Ev>

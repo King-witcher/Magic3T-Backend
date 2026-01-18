@@ -1,60 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
-
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "style": {
-        "useImportType": "off",
-        "noUselessElse": "error",
-        "noNonNullAssertion": "off",
-        "noDefaultExport": "off",
-        "useTemplate": "info"
-      },
-      "correctness": {
-        "useExhaustiveDependencies": "info",
-        "noUnusedImports": "warn"
-      },
-      "performance": {
-        "noDelete": "off"
-      },
-      "a11y": {
-        "useKeyWithClickEvents": "off"
-      },
-      "suspicious": {
-        "noConstEnum": "off"
-      },
-      "complexity": {
-        "noStaticOnlyClass": "off"
-      }
-    }
-  },
-
-  "javascript": {
-    "formatter": {
-      "semicolons": "asNeeded",
-      "quoteStyle": "single",
-      "jsxQuoteStyle": "double",
-      "trailingCommas": "es5"
-    },
-    "parser": {
-      "unsafeParameterDecoratorsEnabled": true
-    }
-  },
-
   "css": {
     "parser": {
       "tailwindDirectives": true
     }
-  },
-
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100,
-    "lineEnding": "lf"
   },
   "files": {
     "includes": [
@@ -64,5 +13,62 @@
       "!**/dist",
       "!frontend/src/route-tree.gen.ts"
     ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteStyle": "single",
+      "semicolons": "asNeeded",
+      "trailingCommas": "es5"
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
+  },
+  "json": {
+    "assist": {
+      "enabled": true
+    },
+    "formatter": {},
+    "linter": {
+      "enabled": true
+    },
+    "parser": {}
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "a11y": {
+        "useKeyWithClickEvents": "off"
+      },
+      "complexity": {
+        "noStaticOnlyClass": "off"
+      },
+      "correctness": {
+        "noUnusedImports": "warn",
+        "useExhaustiveDependencies": "info"
+      },
+      "performance": {
+        "noDelete": "off"
+      },
+      "recommended": true,
+      "style": {
+        "noDefaultExport": "off",
+        "noNonNullAssertion": "off",
+        "noUselessElse": "error",
+        "useImportType": "off",
+        "useTemplate": "info"
+      },
+      "suspicious": {
+        "noConstEnum": "off"
+      }
+    }
   }
 }

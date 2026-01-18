@@ -1,3 +1,6 @@
+/**
+ * Represents the result of getting a single row from the database.
+ */
 export type GetResult<T> = {
   id: string
   createdAt: Date
@@ -5,21 +8,7 @@ export type GetResult<T> = {
   data: T
 }
 
-export type CreateCommand<T> = {
-  id?: string
-  data: T
-}
-
-export type UpdateCommand<T> = {
-  id: string
-  data: DeeplyPartial<T>
-}
-
-export type DeeplyPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeeplyPartial<T[P]> : T[P]
-}
-
-export const enum InternalValue {
-  CurrentDate,
-  Increment,
-}
+/**
+ * Represents the result of getting multiple rows from the database.
+ */
+export type ListResult<T> = GetResult<T>[]

@@ -1,5 +1,3 @@
-import { WithId } from './with-id'
-
 export type UserRowGlicko = {
   rating: number
   deviation: number
@@ -18,7 +16,7 @@ export const enum UserRole {
   Bot = 'bot',
 }
 
-export type UserRow = WithId & {
+export type UserRow = {
   identification: {
     unique_id: string // slug
     nickname: string
@@ -32,7 +30,7 @@ export type UserRow = WithId & {
 
   role: UserRole
 
-  glicko: UserRowGlicko // Deprecated
+  glicko?: UserRowGlicko // Deprecated
   elo: UserRowElo
 
   stats: {

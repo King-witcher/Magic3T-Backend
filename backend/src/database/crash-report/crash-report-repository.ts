@@ -2,10 +2,10 @@ import { CrashReportRow } from '@magic3t/database-types'
 import { Injectable, Logger } from '@nestjs/common'
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
-import { BaseRepository } from '../base-repository'
+import { BaseFirestoreRepository } from '../base-repository'
 
 @Injectable()
-export class CrashReportRepository extends BaseRepository<CrashReportRow> {
+export class CrashReportRepository extends BaseFirestoreRepository<CrashReportRow> {
   matchLogger = new Logger(CrashReportRepository.name, { timestamp: true })
 
   constructor(databaseService: DatabaseService, firebaseService: FirebaseService) {

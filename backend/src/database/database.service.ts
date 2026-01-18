@@ -1,4 +1,3 @@
-import { WithId } from '@magic3t/types'
 import { Injectable } from '@nestjs/common'
 import {
   DocumentData,
@@ -7,6 +6,7 @@ import {
   Timestamp,
   WithFieldValue,
 } from 'firebase-admin/firestore'
+import { Firestorify } from './types'
 
 const epoch = new Date(2000, 7, 31).getTime()
 
@@ -41,7 +41,7 @@ export class DatabaseService {
     }
   }
 
-  getConverter<T extends WithId>(): FirestoreDataConverter<T> {
+  getDefaultConverter<T extends {}>(): FirestoreDataConverter<T, T> {
     // Convert all Timestamps from firebase to Date objects
     function convert(data: T) {
       for (const [key, value] of Object.entries(data)) {
@@ -57,15 +57,11 @@ export class DatabaseService {
       fromFirestore(snap: QueryDocumentSnapshot<T>): T {
         const data = snap.data()
         convert(data)
-        return {
-          ...data,
-          _id: snap.id,
-        }
+        return data
       },
 
-      toFirestore: (data: T): WithFieldValue<DocumentData> => {
-        const { _id, ...rest } = data
-        return rest
+      toFirestore: (data: T): WithFieldValue<T> => {
+        return data
       },
     }
   }

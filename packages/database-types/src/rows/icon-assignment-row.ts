@@ -1,5 +1,3 @@
-import { WithId } from './with-id'
-
-export type IconAssignmentRow = WithId & {
+export type IconAssignmentRow = {
   date: Date
 }

@@ -1,15 +1,4 @@
 {
-  "name": "magic3t-frontend",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
-    "check": "biome check src --error-on-warnings --diagnostic-level=warn",
-    "preview": "vite preview"
-  },
   "dependencies": {
     "@magic3t/api-types": "*",
     "@tailwindcss/node": "^4.0.4",
@@ -42,12 +31,30 @@
     "@socket.io/component-emitter": "^3.1.2",
     "@tanstack/react-query-devtools": "^5.65.0",
     "@tanstack/router-devtools": "^1.97.24",
-    "@tanstack/router-plugin": "^1.97.24",
+    "@tanstack/router-plugin": "^1.151.2",
     "@types/lodash": "^4.17.20",
-    "@types/react": "^19.2.3",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.2",
-    "typescript": "^5.9.3",
-    "vite": "^7.3.1"
-  }
+    "@vitejs/plugin-react": "^5.1.1",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "^7.2.4"
+  },
+  "name": "magic3t-frontend",
+  "private": true,
+  "scripts": {
+    "build": "vite build",
+    "check": "biome check src --error-on-warnings --diagnostic-level=warn",
+    "dev": "vite",
+    "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
+    "preview": "vite preview"
+  },
+  "type": "module",
+  "version": "0.0.0"
 }

@@ -1,6 +1,7 @@
 import { CacheModule } from '@nestjs/cache-manager'
 import { Global, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { EventEmitterModule } from '@nestjs/event-emitter'
 import { DatabaseModule } from '@/database/database.module'
 import { FirebaseModule } from '@/firebase/firebase.module'
 import { QueueModule } from '@/queue/queue.module'
@@ -9,7 +10,6 @@ import { AppController } from './app.controller'
 import { AppGateway } from './app.gateway'
 import { AuthModule } from './auth/auth.module'
 import { RatingModule } from './rating'
-import { EloStrategy } from './rating/strategies/elo-strategy'
 import { UserModule } from './user/user.module'
 
 @Global()
@@ -19,7 +19,16 @@ import { UserModule } from './user/user.module'
     CacheModule.register({
       isGlobal: true,
     }),
-    RatingModule.forRoot(EloStrategy),
+    EventEmitterModule.forRoot({
+      wildcard: false,
+      delimiter: '.',
+      newListener: false,
+      removeListener: false,
+      maxListeners: 10,
+      verboseMemoryLeak: false,
+      ignoreErrors: false,
+    }),
+    RatingModule,
     AuthModule,
     QueueModule,
     DatabaseModule,

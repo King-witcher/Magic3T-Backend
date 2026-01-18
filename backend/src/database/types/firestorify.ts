@@ -1,4 +1,4 @@
 import { DocumentData, Timestamp } from 'firebase-admin/firestore'
 import { ModifyProp } from '@/types/ModifyProp'
 
-export type Firestorify<T extends DocumentData> = Omit<ModifyProp<T, Date, Timestamp>, '_id'>
+export type Firestorify<T extends DocumentData> = ModifyProp<T, Date, Timestamp>

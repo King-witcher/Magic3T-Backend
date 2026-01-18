@@ -1,9 +1,8 @@
-import { Body, Controller, Get, Post, Redirect } from '@nestjs/common'
-import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 import { CrashReportRepository } from '@database'
 import { CrashReportCommand } from '@magic3t/api-types'
 import { CrashReportRow, WithId } from '@magic3t/database-types'
-import { FieldValue } from 'firebase-admin/firestore'
+import { Body, Controller, Get, Post, Redirect } from '@nestjs/common'
+import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 
 @Controller()
 export class AppController {

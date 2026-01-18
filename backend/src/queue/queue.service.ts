@@ -46,11 +46,11 @@ export class QueueService {
         this.dequeue(pending)
         const matchId = await this.matchService.createPvPMatch(pending, userId)
 
-        this.queueSocketsService.emit(pending, QueueServerEvents.MatchFound, {
+        this.queueSocketsService.send(pending, QueueServerEvents.MatchFound, {
           matchId,
           opponentId: userId,
         })
-        this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
+        this.queueSocketsService.send(userId, QueueServerEvents.MatchFound, {
           matchId,
           opponentId: pending,
         })
@@ -61,10 +61,10 @@ export class QueueService {
   enqueue(userId: string, mode: 'casual' | 'ranked') {
     this.enqueueInternal(userId, mode)
     const userQueueModes = this.getQueueModes(userId)
-    this.queueSocketsService.emit(userId, QueueServerEvents.QueueAccepted, {
+    this.queueSocketsService.send(userId, QueueServerEvents.QueueAccepted, {
       mode: 'casual',
     })
-    this.queueSocketsService.emit(userId, QueueServerEvents.QueueModes, userQueueModes)
+    this.queueSocketsService.send(userId, QueueServerEvents.QueueModes, userQueueModes)
   }
 
   getQueueModes(uid: string) {
@@ -92,7 +92,7 @@ export class QueueService {
     }
 
     const userQueueModes = this.getQueueModes(userId)
-    this.queueSocketsService.emit(userId, QueueServerEvents.QueueModes, userQueueModes)
+    this.queueSocketsService.send(userId, QueueServerEvents.QueueModes, userQueueModes)
   }
 
   getUserCount() {
@@ -103,11 +103,11 @@ export class QueueService {
   }
 
   async createBotMatch(userId: string, botName: BotName) {
-    const createResult = await this.matchService.createPvCMatch(userId, botName)
+    const createResult = await this.matchService.createPlayerVsBot(userId, botName)
 
     createResult.match({
       ok: (matchId) => {
-        this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
+        this.queueSocketsService.send(userId, QueueServerEvents.MatchFound, {
           matchId,
           opponentId: '',
         })
@@ -127,11 +127,11 @@ export class QueueService {
 
   async createRandomBotMatch(userId: string) {
     const botIndex = Math.floor(Math.random() * 4) // ALERTA DE GAMBIARRA
-    const result = await this.matchService.createPvCMatch(userId, `bot${botIndex}` as BotName)
+    const result = await this.matchService.createPlayerVsBot(userId, `bot${botIndex}` as BotName)
 
     result.match({
       ok: (matchId) => {
-        this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
+        this.queueSocketsService.send(userId, QueueServerEvents.MatchFound, {
           matchId,
           opponentId: '',
         })
@@ -149,9 +149,9 @@ export class QueueService {
   }
 
   async createFairBotMatch(userId: string) {
-    const userProfile = await this.usersService.get(userId)
+    const userProfile = await this.usersService.getById(userId)
     if (!userProfile) throw new InternalServerErrorException('user not found')
-    const userRating = userProfile.glicko.rating
+    const userRating = userProfile.data.elo.score
 
     const bots = await this.usersService.getBots()
 
@@ -162,7 +162,7 @@ export class QueueService {
     {
       let closestDistance = Number.POSITIVE_INFINITY
       bots.forEach((bot, currentIndex) => {
-        const botRating = bot.glicko.rating
+        const botRating = bot.data.elo.score
         const currentDistance = Math.abs(botRating - userRating)
         if (currentDistance < closestDistance) {
           closestDistance = currentDistance
@@ -170,13 +170,16 @@ export class QueueService {
         }
       })
     }
-    const result = await this.matchService.createPvCMatch(userId, `bot${closestIndex}` as BotName)
+    const result = await this.matchService.createPlayerVsBot(
+      userId,
+      `bot${closestIndex}` as BotName
+    )
 
     result.match({
       ok: (matchId) => {
-        this.queueSocketsService.emit(userId, QueueServerEvents.MatchFound, {
+        this.queueSocketsService.send(userId, QueueServerEvents.MatchFound, {
           matchId,
-          opponentId: bots[closestIndex]._id,
+          opponentId: bots[closestIndex].id,
         })
       },
       err: (error) => {
