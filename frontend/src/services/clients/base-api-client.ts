@@ -19,12 +19,12 @@ type RequestParams<T = unknown> = {
 export class BaseApiClient {
   constructor(private readonly relativePath?: string) {}
 
-  get apiUrl(): string {
+  private get apiUrl(): string {
     // This value is stored on a CVar for easy configuration during development and production.
     return Console.getCvarString(SystemCvars.SvApiUrl)
   }
 
-  get basePath(): string {
+  private get basePath(): string {
     return this.relativePath ? `${this.apiUrl}/${this.relativePath}` : this.apiUrl
   }
 

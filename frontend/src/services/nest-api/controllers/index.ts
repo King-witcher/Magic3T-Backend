@@ -1,4 +1,3 @@
-import * as MatchController from './match'
 import * as QueueController from './queue'
 import * as UserController from './user'
 
@@ -11,11 +10,6 @@ export namespace NestApi {
     export const register = UserController.register
     export const updateIcon = UserController.updateIcon
     export const updateNickname = UserController.updateNickname
-  }
-
-  export namespace Match {
-    export const getCurrentMatch = MatchController.getCurrentMatch
-    export const getMatchesByUser = MatchController.getMatchesByUser
   }
 
   export namespace Queue {

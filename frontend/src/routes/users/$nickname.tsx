@@ -1,6 +1,7 @@
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { Loading, NotFoundTemplate, ProfileTemplate } from '@/components/templates'
+import { apiClient } from '@/services/clients/api-client'
 import { NestApi } from '@/services/nest-api'
 
 export const Route = createFileRoute('/users/$nickname')({
@@ -27,7 +28,7 @@ function RouteComponent() {
     queryKey: ['matches', userQuery.data?.id],
     staleTime: Number.POSITIVE_INFINITY,
     async queryFn() {
-      return await NestApi.Match.getMatchesByUser(userQuery.data?.id || '', 20)
+      return apiClient.match.getMatchesByUser(userQuery.data?.id || '', 20)
     },
   })
 

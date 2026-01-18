@@ -24,6 +24,7 @@ import { useObservable } from '@/hooks/use-observable'
 import { Console } from '@/lib/console'
 import { Timer } from '@/lib/Timer'
 import { NestApi } from '@/services'
+import { apiClient } from '@/services/clients/api-client'
 import { AuthState, useAuth } from './auth.context'
 
 type Message = { sender: 'you' | 'him'; content: string; timestamp: number }
@@ -299,9 +300,7 @@ export function GameProvider({ children }: Props) {
     async function checkStatus() {
       try {
         if (authState !== AuthState.SignedIn) return
-        const token = await getToken()
-        if (!token) return
-        const { id } = await NestApi.Match.getCurrentMatch(token)
+        const { id } = await apiClient.match.getCurrentMatch()
         await connectGame(id)
       } catch (e) {
         console.error(e)
@@ -310,7 +309,7 @@ export function GameProvider({ children }: Props) {
     }
 
     checkStatus()
-  }, [getToken, connectGame, authState])
+  }, [connectGame, authState])
 
   return (
     <GameContext

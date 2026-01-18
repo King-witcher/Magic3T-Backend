@@ -1,4 +1,4 @@
-import { CrashReportCommand, GetStatusResponse } from '@magic3t/api-types'
+import { CrashReportCommand, GetStatusResponse, ListMatchesResult } from '@magic3t/api-types'
 import { BaseApiClient } from './base-api-client'
 
 export class UserApiClient extends BaseApiClient {
@@ -10,6 +10,27 @@ export class UserApiClient extends BaseApiClient {
 export class MatchApiClient extends BaseApiClient {
   constructor() {
     super('matches')
+  }
+
+  /**
+   * Gets the current match for the authenticated user.
+   */
+  async getCurrentMatch(): Promise<{ id: string }> {
+    return this.get<{ id: string }>('current')
+  }
+
+  /**
+   * Checks if the authenticated user is in an active match.
+   */
+  async amActiveMatch(): Promise<boolean> {
+    return this.get<boolean>('me/am-active')
+  }
+
+  /**
+   * Gets matches by user ID.
+   */
+  async getMatchesByUser(userId: string, limit: number): Promise<ListMatchesResult> {
+    return this.get<ListMatchesResult>(`user/${userId}?limit=${limit}`, false)
   }
 }
 
