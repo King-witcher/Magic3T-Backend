@@ -23,6 +23,20 @@ export async function getCurrentMatch(token: string): Promise<{ id: string }> {
   return response.data
 }
 
+export async function amActiveMatch(token: string): Promise<boolean> {
+  const response = await controller().get('/me/am-active', {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  if (response.status !== 200) {
+    throw new Error('Failed to fetch active match status.')
+  }
+
+  return response.data
+}
+
 export async function getMatchesByUser(userId: string, limit: number): Promise<ListMatchesResult> {
   const response = await controller().get(`/user/${userId}`, {
     params: {

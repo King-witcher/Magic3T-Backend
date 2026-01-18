@@ -1,6 +1,5 @@
 import * as MatchController from './match'
 import * as QueueController from './queue'
-import * as RootController from './root'
 import * as UserController from './user'
 
 export namespace NestApi {
@@ -23,6 +22,4 @@ export namespace NestApi {
     export const dequeue = QueueController.dequeue
     export const enqueue = QueueController.enqueue
   }
-
-  export const getStatus = RootController.getStatus
 }

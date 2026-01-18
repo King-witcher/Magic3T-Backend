@@ -94,6 +94,14 @@ export class MatchController {
     }
   }
 
+  @Get('me/am-active')
+  @UseGuards(AuthGuard)
+  handleActiveMatch(@UserId() userId: string) {
+    const perspective = this.matchBank.getPerspective(userId)
+    if (!perspective) return false
+    return true
+  }
+
   @Get('user/:userId')
   @ApiOperation({
     summary: 'Get recent matches',

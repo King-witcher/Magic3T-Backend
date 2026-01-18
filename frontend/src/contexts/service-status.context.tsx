@@ -3,7 +3,7 @@ import { createContext, type ReactNode, useContext, useEffect, useMemo } from 'r
 import { IoCloud, IoCloudOffline, IoMoon } from 'react-icons/io5'
 import { SystemCvars } from '@/lib/console'
 import { Console } from '@/lib/console/console'
-import { NestApi } from '@/services/index'
+import { apiClient } from '@/services/clients/api-client'
 import { useLiveActivity } from './live-activity.context'
 
 export enum ServerStatus {
@@ -31,7 +31,7 @@ export function ServiceStatusProvider({ children }: Props) {
 
   const statusQuery = useQuery({
     queryKey: ['server-status'],
-    queryFn: NestApi.getStatus,
+    queryFn: () => apiClient.getStatus(),
     refetchInterval: pollRate,
   })
 

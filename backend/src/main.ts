@@ -16,7 +16,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
   app.useGlobalInterceptors(new ResultInterceptor())
-  app.useGlobalFilters(new ExceptionToPanicMapper(), new PanicFilter())
+  // app.useGlobalFilters(new ExceptionToPanicMapper(), new PanicFilter())
   app.enableCors()
 
   const config = new DocumentBuilder()

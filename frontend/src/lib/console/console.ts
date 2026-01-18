@@ -17,7 +17,6 @@ export type CommandHandler = (args: string) => void | Promise<void>
 export type ConsoleResult<T> = Result<T, string>
 
 type Operation = () => ConsoleResult<[]> | Promise<ConsoleResult<[]>>
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class Console {
   public static lines: string[] = []
   private static cvarsMap: Map<string, CVar> = new Map(
@@ -54,8 +53,45 @@ export class Console {
     operationLoop()
   }
 
+  /** @deprecated */
   public static getCvarValue(name: string): CVarValue | null {
     return Console.cvarsMap.get(name)?.value ?? null
+  }
+
+  /**
+   * Gets the value of a string CVar.
+   *
+   * @throws Error if the CVar does not exist or is not of type string.
+   */
+  public static getCvarString(name: string): string {
+    const cvar = Console.cvarsMap.get(name)
+    if (!cvar) throw new Error(`CVar '${name}' does not exist`)
+    if (cvar.type !== 'string') throw new Error(`CVar '${name}' is not of type string`)
+    return cvar.value
+  }
+
+  /**
+   * Gets the value of a number CVar.
+   *
+   * @throws Error if the CVar does not exist or is not of type number.
+   */
+  public static getCvarNumber(name: string): number {
+    const cvar = Console.cvarsMap.get(name)
+    if (!cvar) throw new Error(`CVar '${name}' does not exist`)
+    if (cvar.type !== 'number') throw new Error(`CVar '${name}' is not of type number`)
+    return cvar.value
+  }
+
+  /**
+   * Gets the value of a boolean CVar.
+   *
+   * @throws Error if the CVar does not exist or is not of type boolean.
+   */
+  public static getCvarBoolean(name: string): boolean {
+    const cvar = Console.cvarsMap.get(name)
+    if (!cvar) throw new Error(`CVar '${name}' does not exist`)
+    if (cvar.type !== 'boolean') throw new Error(`CVar '${name}' is not of type boolean`)
+    return cvar.value
   }
 
   public static useCvar(cvar: string): CVarValue | null {

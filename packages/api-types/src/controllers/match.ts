@@ -23,3 +23,5 @@ export type ListMatchesResult = {
   matches: ListMatchesResultItem[]
   // pagination: {}
 }
+
+export type GetCurrentMatchResult = {}

@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client'
-import { NestApi } from '@/services'
+import { apiClient } from '@/services/clients/api-client'
 import { CVar, SystemCvars } from './cvars'
 
 export type ConsoleContext = Readonly<{
@@ -136,7 +136,7 @@ export const INITIAL_CMDS: Cmd[] = [
 
 async function pingHttp(): Promise<number> {
   const now = Date.now()
-  await NestApi.getStatus()
+  await apiClient.getStatus()
   return Date.now() - now
 }
 
