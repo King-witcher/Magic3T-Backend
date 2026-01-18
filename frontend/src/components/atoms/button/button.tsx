@@ -1,9 +1,11 @@
-import { ButtonHTMLAttributes, forwardRef } from 'react'
+import { Slot } from '@radix-ui/react-slot'
+import { ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'destructive' | 'ghost' | 'outline'
   size?: 'sm' | 'md' | 'lg'
+  asChild?: boolean
 }
 
 const buttonVariants = {
@@ -59,36 +61,43 @@ const buttonSizes = {
   lg: 'px-8 py-4 text-lg rounded-lg',
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
-    const hasShineEffect = variant === 'primary' || variant === 'destructive'
+export function Button({
+  className,
+  variant = 'primary',
+  size = 'md',
+  asChild = false,
+  children,
+  ref,
+  ...props
+}: ButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+  const hasShineEffect = variant === 'primary' || variant === 'destructive'
+  const Comp = asChild ? Slot : 'button'
 
-    return (
-      <button
-        ref={ref}
-        className={cn(
-          'uppercase tracking-wider',
-          buttonVariants[variant],
-          buttonSizes[size],
-          className
-        )}
-        {...props}
-      >
-        <span className="relative z-10 flex items-center justify-center gap-2">{children}</span>
-        {hasShineEffect && (
-          <div
-            className={cn(
-              'absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700',
-              variant === 'primary' &&
-                'bg-linear-to-r from-transparent via-gold-3/20 to-transparent',
-              variant === 'destructive' &&
-                'bg-linear-to-r from-transparent via-red-400/20 to-transparent'
-            )}
-          />
-        )}
-      </button>
-    )
-  }
-)
-
-Button.displayName = 'Button'
+  return (
+    <Comp
+      ref={ref}
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
+      className={cn(
+        'uppercase tracking-wider',
+        buttonVariants[variant],
+        buttonSizes[size],
+        className
+      )}
+      {...props}
+    >
+      <span className="relative z-10 flex items-center justify-center gap-2">{children}</span>
+      {hasShineEffect && (
+        <div
+          className={cn(
+            'absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700',
+            variant === 'primary' && 'bg-linear-to-r from-transparent via-gold-3/20 to-transparent',
+            variant === 'destructive' &&
+              'bg-linear-to-r from-transparent via-red-400/20 to-transparent'
+          )}
+        />
+      )}
+    </Comp>
+  )
+}
