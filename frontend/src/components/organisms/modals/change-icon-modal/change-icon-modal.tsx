@@ -10,10 +10,9 @@ import { SummonerIcon } from './summoner-icon'
 
 interface Props {
   user: GetUserResult
-  onSave: (iconId: number) => void
 }
 
-export function ChangeIconModal({ user, onSave }: Props) {
+export function ChangeIconModal({ user }: Props) {
   const [selectedIcon, setSelectedIcon] = useState(user.summonerIcon)
   const closeModal = useDialogStore((state) => state.closeModal)
 

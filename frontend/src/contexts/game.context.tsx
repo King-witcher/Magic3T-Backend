@@ -161,6 +161,7 @@ export function GameProvider({ children }: Props) {
     gateway,
     MatchServerEvents.MatchReport,
     (report) => {
+      if (!auth.signedIn) return
       client.setQueryData(['user', orderId], (oldData: GetUserResult | null) => {
         if (!oldData) return oldData
         return {
@@ -179,7 +180,7 @@ export function GameProvider({ children }: Props) {
       emitFinishMatch(report)
       auth.refetchUser()
     },
-    [gateway.socket, auth.refetchUser]
+    [gateway.socket, auth.userId]
   )
 
   // Refactor with keys

@@ -57,7 +57,7 @@ export function ProfileTemplate({ user, matchesQuery, editable }: Props) {
   }
 
   const changeIcon = useCallback(() => {
-    openModal(<ChangeIconModal user={user} onSave={saveIconChange} />)
+    openModal(<ChangeIconModal user={user} />)
   }, [user, saveIconChange])
 
   return (

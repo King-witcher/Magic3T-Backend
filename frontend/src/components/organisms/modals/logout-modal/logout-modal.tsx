@@ -1,4 +1,3 @@
-import { useAuth } from '@/contexts/auth.context.tsx'
 import { useDialogStore } from '@/contexts/modal.store'
 import { authClient } from '@/lib/auth-client'
 import buttonStyles from '@/styles/components/button.module.sass'
