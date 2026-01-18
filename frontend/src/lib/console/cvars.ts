@@ -29,6 +29,7 @@ export enum SystemCvars {
   ClStatusPoll = 'cl_statuspoll',
   ConStyle = 'con_style',
   SvApiUrl = 'sv_apiurl',
+  SvLogWs = 'sv_logws',
   Ui3TMode = 'ui_3tmode',
   UiPugMode = 'ui_pugmode',
 }
@@ -68,6 +69,14 @@ export const INITIAL_CVARS: CVar[] = [
     value: import.meta.env.VITE_API_URL,
     readonly: false,
     description: 'URL of the backend API',
+  },
+  {
+    name: SystemCvars.SvLogWs,
+    type: 'boolean',
+    default: false,
+    value: false,
+    readonly: false,
+    description: 'Enable WebSocket logging',
   },
   {
     name: SystemCvars.Ui3TMode,

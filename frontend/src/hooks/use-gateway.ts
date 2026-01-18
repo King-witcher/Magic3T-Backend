@@ -17,6 +17,7 @@ export function useGateway<ServerEvents extends EventsMap, ClientEvents extends 
   const [socket, setSocket] = useState<Socket<ServerEvents, ClientEvents> | null>(null)
   const auth = useAuth()
   const apiurl = Console.useCvar(SystemCvars.SvApiUrl)
+  const logEnabled = Boolean(Console.useCvar(SystemCvars.SvLogWs))
 
   useEffect(() => {
     if (!enabled) {
@@ -45,24 +46,42 @@ export function useGateway<ServerEvents extends EventsMap, ClientEvents extends 
     }
   }, [gateway, enabled, auth.user?.id, auth.getToken, apiurl])
 
+  useEffect(
+    function logSocketConnection() {
+      if (!socket || !logEnabled) return () => {}
+      function logger(event: string, ...args: unknown[]) {
+        Console.log(`Received ${gateway}::${event}:`)
+        Console.log(JSON.stringify(args, null, 2))
+      }
+
+      socket.onAny(logger)
+      return () => {
+        socket.offAny(logger)
+      }
+    },
+    [gateway, socket, logEnabled]
+  )
+
   const emit = useCallback(
     <Ev extends EventNames<ClientEvents>>(
       event: Ev,
       ...data: EventParams<ClientEvents, Ev>
     ): void => {
       if (!socket) {
-        console.warn(
-          `Socket for "${gateway}" gateway is disabled and event "${event.toString()}" will not be sent.`
-        )
         Console.log(
           `Socket for "${gateway}" gateway is disabled and event "${event.toString()}" will not be sent.`
         )
         return
       }
 
+      if (logEnabled) {
+        Console.log(`Emitting ${gateway}::${event.toString()}:`)
+        Console.log(JSON.stringify(data, null, 2))
+      }
+
       socket.emit(event, ...data)
     },
-    [socket]
+    [gateway, socket, logEnabled]
   )
 
   return useMemo(

@@ -61,17 +61,6 @@ interface Props {
   children?: ReactNode
 }
 
-function teamName(team: Team | null): string {
-  switch (team) {
-    case Team.Order:
-      return 'Order'
-    case Team.Chaos:
-      return 'Chaos'
-    default:
-      return 'null'
-  }
-}
-
 const GameContext = createContext<GameContextData | null>(null)
 
 // Refactor this and use white and black isntead of player and opponent
@@ -136,14 +125,6 @@ export function GameProvider({ children }: Props) {
     gateway,
     MatchServerEvents.Assignments,
     (assignments) => {
-      Console.log('Assignments received:')
-      Console.log(`    order: ${assignments[Team.Order].profile.id}`)
-      Console.log(`    chaos: ${assignments[Team.Chaos].profile.id}`)
-      Console.log(
-        `You are playing as: ${assignments[Team.Chaos].profile.id === auth.user?.id ? 'chaos' : 'order'}.`
-      )
-      Console.log()
-
       setOrderId(assignments[Team.Order].profile.id)
       setChaosId(assignments[Team.Chaos].profile.id)
 
@@ -160,19 +141,6 @@ export function GameProvider({ children }: Props) {
 
   // Handles state updates from the server.
   useListener(gateway, MatchServerEvents.StateReport, (report) => {
-    Console.log('New state received:')
-    Console.log(`    turn:     ${teamName(report.turn)}`)
-    Console.log(`    finished: ${report.finished}`)
-    Console.log('    order:')
-    Console.log(`        time left: ${report[Team.Order].timeLeft / 1000}`)
-    Console.log(`        choices:   ${report[Team.Order].choices.join(', ')}`)
-    Console.log(`        surrender: ${report[Team.Order].surrender}`)
-    Console.log('    chaos:')
-    Console.log(`        time left: ${report[Team.Chaos].timeLeft / 1000}`)
-    Console.log(`        choices:   ${report[Team.Chaos].choices.join(', ')}`)
-    Console.log(`        surrender: ${report[Team.Chaos].surrender}`)
-    Console.log()
-
     setTurn(report.turn)
     setOrderChoices(report[Team.Order].choices)
     setChaosChoices(report[Team.Chaos].choices)
@@ -193,23 +161,6 @@ export function GameProvider({ children }: Props) {
     gateway,
     MatchServerEvents.MatchReport,
     (report) => {
-      Console.log('Match finished:')
-      Console.log(`    id: ${report.matchId}`)
-      Console.log('    order:')
-      Console.log(`        score: ${report[Team.Order].score}`)
-      Console.log(`        lp_gain: ${report[Team.Order].lpGain}`)
-      Console.log(
-        `        rating: ${report[Team.Order].newRating.league} ${report[Team.Order].newRating.division} - ${report[Team.Order].newRating.points} LP`
-      )
-      Console.log('    chaos:')
-      Console.log(`        score: ${report[Team.Chaos].score}`)
-      Console.log(`        lp_gain: ${report[Team.Chaos].lpGain}`)
-      Console.log(
-        `        rating: ${report[Team.Chaos].newRating.league} ${report[Team.Chaos].newRating.division} - ${report[Team.Chaos].newRating.points} LP`
-      )
-      Console.log(`    winner: ${teamName(report.winner)}`)
-      Console.log()
-
       client.setQueryData(['user', orderId], (oldData: GetUserResult | null) => {
         if (!oldData) return oldData
         return {
