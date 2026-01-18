@@ -261,7 +261,6 @@ export function GameProvider({ children }: Props) {
     if (finalReport) return
 
     Console.log('You surrendered the match.')
-    Console.log()
 
     gateway.emit(MatchClientEvents.Surrender)
     setTurn(null)
