@@ -80,7 +80,7 @@ export function Button({
       data-variant={variant}
       data-size={size}
       className={cn(
-        'uppercase tracking-wider',
+        'uppercase tracking-wider focus:outline-2 focus:outline-gold-1/90',
         buttonVariants[variant],
         buttonSizes[size],
         className
@@ -91,7 +91,7 @@ export function Button({
       {hasShineEffect && (
         <div
           className={cn(
-            'absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700',
+            'absolute inset-0 -translate-x-full group-hover:translate-x-full group-focus:translate-x-full transition-transform duration-700',
             variant === 'primary' && 'bg-linear-to-r from-transparent via-gold-3/20 to-transparent',
             variant === 'destructive' &&
               'bg-linear-to-r from-transparent via-red-400/20 to-transparent'
