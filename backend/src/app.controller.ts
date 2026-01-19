@@ -35,6 +35,7 @@ export class AppController {
     description: 'Endpoint to report crashes from the client.',
   })
   @Throttle({ short: { limit: 2, ttl: 60 * 1000 } })
+  @Throttle({ medium: { limit: 5, ttl: 60 * 60 * 1000 } })
   @Post('crash-report')
   reportCrash(@Body() command: CrashReportCommand) {
     const row: Omit<CrashReportRow, keyof WithId> = {
@@ -44,6 +45,6 @@ export class AppController {
       metadata: command.metadata ?? null,
     }
 
-    // this.crashReportRepository.create(row)
+    this.crashReportRepository.create(row)
   }
 }

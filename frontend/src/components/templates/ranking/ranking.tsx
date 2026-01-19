@@ -14,6 +14,8 @@ export function RankingTemplate() {
     },
   })
 
+  throw new Error('Test error')
+
   return (
     <>
       <h1 className="!text-[6vw] sm:!text-4xl font-serif !font-semibold text-gold-4 uppercase text-tred">

@@ -147,7 +147,7 @@ export class Console {
       }
 
       // If the command is a registered command, execute it
-      const result = await command.handler({
+      const _result = await command.handler({
         args,
         console: Console.context,
       })
