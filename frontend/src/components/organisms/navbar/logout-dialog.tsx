@@ -19,10 +19,8 @@ export function LogoutDialog({ isOpen, onClose, onConfirm }: LogoutDialogProps) 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl text-gold-1 uppercase tracking-wide">
-            Confirm Logout
-          </DialogTitle>
-          <DialogDescription className="font-sans text-base text-grey-1 mt-3">
+          <DialogTitle>Confirm Logout</DialogTitle>
+          <DialogDescription className="">
             Are you sure you want to log out? You'll need to sign in again to access your account.
           </DialogDescription>
         </DialogHeader>
