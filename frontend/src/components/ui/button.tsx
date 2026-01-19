@@ -56,9 +56,9 @@ const buttonVariants = {
 }
 
 const buttonSizes = {
-  sm: 'px-4 py-2 text-sm rounded',
-  md: 'px-6 py-3 text-base rounded',
-  lg: 'px-8 py-4 text-lg rounded-lg',
+  sm: 'px-5 py-2 text-sm rounded',
+  md: 'px-7.5 py-3 text-base rounded',
+  lg: 'px-10 py-4 text-lg rounded-lg',
 }
 
 export function Button({

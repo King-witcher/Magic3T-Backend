@@ -1,58 +1,186 @@
+import { League } from '@magic3t/common-types'
 import { Link } from '@tanstack/react-router'
-import { useCallback, useState } from 'react'
-import { FaRankingStar } from 'react-icons/fa6'
-import { IoBag } from 'react-icons/io5'
+import { useState } from 'react'
+import { GiShop, GiTrophy } from 'react-icons/gi'
+import { IoPerson } from 'react-icons/io5'
 import { AuthState, useAuth } from '@/contexts/auth.context.tsx'
-import { getIconUrl } from '@/utils/utils'
-import { NavbarMenu } from './menu/navbar-menu'
-import { NavbarButton } from './navbar-button'
+import { authClient } from '@/lib/auth-client'
+import { cn } from '@/lib/utils'
+import { LogoutDialog } from './logout-dialog'
+import { NavLink } from './nav-link'
+import { ProfileAvatar } from './profile-avatar'
+import { ProfileDropdown } from './profile-dropdown'
 
 export function Navbar() {
   const { state: authState, user } = useAuth()
-  const [isOpen, setIsOpen] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
 
-  const handleClickOutsideMenu = useCallback(() => {
-    setIsOpen(false)
-  }, [])
+  const handleLogout = () => {
+    authClient.signOut()
+    setIsLogoutDialogOpen(false)
+  }
 
   return (
-    <nav className="w-full h-[65px] flex gap-[10px] px-[10px] !border-b-1 !border-b-grey-1 items-center justify-between flex-[0_0_65px] bg-clip-padding z-1 shadow-[0_0_12px_0_#00000040] bg-[linear-gradient(90deg,_#ffffff20,_#ffffff30,_#ffffff20)]">
+    <nav
+      className={cn(
+        'relative w-full h-17 shrink-0',
+        'flex items-center justify-between px-4',
+        'bg-linear-to-r from-gold-5/20 to-gold-6/30',
+        'border-b-2 border-gold-5/40',
+        'backdrop-blur-xl',
+        'shadow-lg shadow-black/30',
+        'z-50'
+      )}
+    >
+      {/* Decorative top border gradient */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-gold-4 to-transparent" />
+
+      {/* Left side - Logo */}
       <Link
-        className="center p-[10px] font-serif uppercase !h-full select-none cursor-pointer gap-[3px] duration-200"
         to="/"
-      >
-        <span className="font-medium">Play</span>
-        <span className="font-bold">Magic3T</span>
-      </Link>
-      <div className="flex items-center h-full">
-        {authState === AuthState.SignedIn && (
-          <NavbarButton className="hidden xs:flex opacity-50" href=".">
-            <IoBag /> Store
-          </NavbarButton>
+        className={cn(
+          'relative flex items-center gap-3 px-4 py-2',
+          'transition-all duration-300',
+          'hover:bg-gradient-to-r hover:from-gold-6/30 hover:via-gold-5/20 hover:to-gold-6/30',
+          'group overflow-hidden',
+          'before:absolute before:inset-0 before:border-2 before:border-gold-5/40',
+          'before:transition-all before:duration-300',
+          'hover:before:border-gold-4/60 hover:before:shadow-lg hover:before:shadow-gold-5/20',
+          // Decorative corners
+          'after:absolute after:top-0 after:left-0 after:w-2 after:h-2',
+          'after:border-l-2 after:border-t-2 after:border-gold-3/60',
+          'after:transition-all after:duration-300',
+          'hover:after:w-3 hover:after:h-3 hover:after:border-gold-2'
         )}
-        <NavbarButton href="/ranking" className="hidden xs:flex">
-          <FaRankingStar /> Top players
-        </NavbarButton>
-        <div id="profile-button-container" className="relative h-full">
+      >
+        {/* Bottom right corner */}
+        <div
+          className={cn(
+            'absolute bottom-0 right-0 w-2 h-2',
+            'border-r-2 border-b-2 border-gold-3/60',
+            'transition-all duration-300',
+            'group-hover:w-3 group-hover:h-3 group-hover:border-gold-2'
+          )}
+        />
+
+        {/* Text content */}
+        <div className="flex items-baseline gap-1">
+          <span
+            className={cn(
+              'font-serif text-xl text-gold-4 uppercase tracking-wide',
+              'transition-colors duration-300',
+              'group-hover:text-gold-1'
+            )}
+          >
+            Play
+          </span>
+          <span
+            className={cn(
+              'font-serif text-xl font-bold text-gold-1 uppercase tracking-wider',
+              'transition-all duration-300',
+              'group-hover:text-gold-0 group-hover:drop-shadow-[0_0_8px_rgba(245,203,92,0.6)]'
+            )}
+          >
+            Magic3T
+          </span>
+        </div>
+
+        {/* Shine effect on hover */}
+        <div
+          className={cn(
+            'absolute inset-0 bg-gradient-to-r from-transparent via-gold-2/0 to-transparent',
+            'transition-all duration-700',
+            'group-hover:via-gold-2/20',
+            '-translate-x-full group-hover:translate-x-full'
+          )}
+        />
+      </Link>
+
+      {/* Right side - Navigation + Profile */}
+      <div className="flex items-center h-full gap-1">
+        {/* Navigation Links */}
+        {authState === AuthState.SignedIn && (
+          <NavLink href="." disabled className="hidden xs:flex">
+            <GiShop size={18} />
+            <span>Store</span>
+          </NavLink>
+        )}
+
+        <NavLink href="/ranking" className="hidden xs:flex">
+          <GiTrophy size={18} />
+          <span>Ranking</span>
+        </NavLink>
+
+        <NavLink href="/me" className="hidden xs:flex">
+          <IoPerson />
+          <span>Profile</span>
+        </NavLink>
+
+        {/* Divider */}
+        <div className="hidden xs:block w-px h-8 bg-gold-5/30 mx-2" />
+
+        <NavLink onClick={() => setIsLogoutDialogOpen(true)} className="hidden xs:flex">
+          <span>Logout</span>
+        </NavLink>
+
+        {/* Logout Dialog */}
+        <LogoutDialog
+          isOpen={isLogoutDialogOpen}
+          onClose={() => setIsLogoutDialogOpen(false)}
+          onConfirm={handleLogout}
+        />
+
+        {/* Profile Button */}
+        <div className="relative hidden">
           <button
             type="button"
-            className="flex items-center justify-center hover:!bg-[#ffffff20] duration-200 aspect-square h-full gap-[10px] !px-[10px]"
-            onClick={() => setIsOpen(true)}
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            className={cn(
+              'flex items-center gap-3 px-3 py-2 rounded-lg',
+              'transition-all duration-200',
+              'hover:bg-gold-6/20',
+              'focus:outline-none focus:ring-2 focus:ring-gold-4/50',
+              isDropdownOpen && 'bg-gold-6/20'
+            )}
           >
-            <div
-              id="profile-icon-container"
-              className="rounded-[999px] !border-2 !border-grey-1 bg-[#00000020] size-[40px] overflow-hidden"
+            <ProfileAvatar
+              icon={user?.summonerIcon ?? 29}
+              league={user?.rating.league ?? League.Provisional}
+              isLoading={authState === AuthState.LoadingSession}
+              size="md"
+            />
+
+            {/* Show nickname on larger screens when signed in */}
+            {authState === AuthState.SignedIn && user?.nickname && (
+              <span className="hidden md:block font-serif text-sm text-gold-2 max-w-30 truncate">
+                {user.nickname}
+              </span>
+            )}
+
+            {/* Dropdown indicator */}
+            <svg
+              className={cn(
+                'hidden xs:block w-4 h-4 text-gold-3 transition-transform duration-200',
+                isDropdownOpen && 'rotate-180'
+              )}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
             >
-              {authState === AuthState.LoadingSession && (
-                <div className="animate-pulse ease duration-1000 bg-[#ffffffa0] w-full h-full" />
-              )}
-              {(authState === AuthState.SignedIn ||
-                authState === AuthState.SignedInUnregistered) && (
-                <img alt="" src={getIconUrl(user?.summonerIcon ?? 29)} />
-              )}
-            </div>
+              <title>Toggle menu</title>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </button>
-          <NavbarMenu isOpen={isOpen} onClose={handleClickOutsideMenu} />
+
+          {/* Dropdown Menu */}
+          <ProfileDropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} />
         </div>
       </div>
     </nav>

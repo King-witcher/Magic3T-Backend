@@ -5,7 +5,7 @@ export function Panel({ className, children, ...props }: ComponentProps<'div'>) 
   return (
     <div
       className={cn(
-        'relative backdrop-blur-xl bg-linear-to-b from-grey-3/90 to-grey-2/80 border-2 border-gold-5/30 p-8 shadow-2xl shadow-black/50',
+        'relative backdrop-blur-xl bg-linear-to-b from-gold-4/20 to-gold-5/30 border-2 border-gold-5/30 p-8 shadow-2xl shadow-black/50',
         className
       )}
       {...props}

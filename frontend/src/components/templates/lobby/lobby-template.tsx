@@ -7,7 +7,8 @@ import {
   GiRobotGrab,
 } from 'react-icons/gi'
 import { IoMdPeople } from 'react-icons/io'
-import { Panel } from '@/components/atoms/panel'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Panel } from '@/components/ui/panel'
 import { useQueue } from '@/contexts/queue.context'
 import { ServerStatus, useServiceStatus } from '@/contexts/service-status.context'
 import { QueueMode } from '@/types/queue'

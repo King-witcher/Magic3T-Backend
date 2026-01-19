@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { GiBrokenShield } from 'react-icons/gi'
 import { MdHome } from 'react-icons/md'
 import { Button } from '@/components/atoms'
-import { Panel } from '@/components/atoms/panel'
+import { Panel } from '@/components/ui/panel'
 
 export function NotFoundTemplate() {
   return (
