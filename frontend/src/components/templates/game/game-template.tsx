@@ -1,79 +1,112 @@
 import { Team } from '@magic3t/common-types'
 import { useEffect, useRef } from 'react'
-import * as ButtonGroup from '@/components/atoms/button-group'
-import { ChoiceTable } from '@/components/organisms'
+import { GiCrossedSwords } from 'react-icons/gi'
+import { Button } from '@/components/atoms'
 import { useGame } from '@/contexts/game.context.tsx'
 import { useDialogStore } from '@/contexts/modal.store'
-import { ChatBox, ForfeitModal, PlayerCard, TimeCounter } from './components'
-import { ResultModal } from './components/result-modal'
+import { GameBoard } from './components/game-board'
+import { GameChat } from './components/game-chat'
+import { GameResultModal } from './components/game-result-modal'
+import { PlayerPanel } from './components/player-panel'
+import { SurrenderModal } from './components/surrender-modal'
 
 export function GameTemplate() {
   const gameCtx = useGame()
   const showDialog = useDialogStore((state) => state.showDialog)
-  const downTeam = gameCtx.currentTeam || Team.Order
-  const upTeam = (1 - downTeam) as Team
-  const downPlayer = gameCtx.teams[downTeam]
-  const upPlayer = gameCtx.teams[upTeam]
   const chatInputRef = useRef<HTMLInputElement>(null)
-  // parei aqui
 
+  // Current player's team and opponent's team
+  const myTeam = gameCtx.currentTeam || Team.Order
+  const enemyTeam = (1 - myTeam) as Team
+  const myPlayer = gameCtx.teams[myTeam]
+  const enemyPlayer = gameCtx.teams[enemyTeam]
+
+  // Is it my turn?
+  const isMyTurn = gameCtx.turn !== null && gameCtx.turn === gameCtx.currentTeam
+
+  // Show result modal when game ends
   useEffect(() => {
-    return gameCtx.onMatchReport((report) => {
+    return gameCtx.onMatchReport(() => {
       setTimeout(() => {
-        showDialog(<ResultModal />, { closeOnOutsideClick: true })
+        showDialog(<GameResultModal />, { closeOnOutsideClick: true })
       }, 500)
     })
-  }, [])
+  }, [gameCtx, showDialog])
 
-  function showForfeitModal() {
-    showDialog(<ForfeitModal onClose={() => {}} />, {
+  const handleSurrender = () => {
+    showDialog(<SurrenderModal onClose={() => {}} />, {
       closeOnOutsideClick: true,
     })
   }
 
-  if (!gameCtx.isActive) return null // Improve
+  if (!gameCtx.isActive) return null
+
   return (
-    <div className="w-full">
-      <div className="flex flex-col gap-[20px] lg:gap-[40px] w-full">
-        <p className="text-center hidden xs:block text-grey-1">
-          Be the first to select three numbers that add up to exactly 15.
-        </p>
-        <div className="flex flex-col h-min gap-[20px] items-stretch justify-center lg:flex-row w-full">
-          <div className="lg:flex hidden flex-col gap-[20px] items-center justify-between">
-            <PlayerCard team={upTeam} />
-            <span>vs</span>
-            <PlayerCard team={downTeam} />
-          </div>
-          <div className="flex flex-col gap-[20px] justify-center">
-            <div className="flex flex-col gap-[20px] w-full items-center">
-              <PlayerCard team={upTeam} className="w-full lg:hidden" />
-              <TimeCounter timer={upPlayer.timer} pause={gameCtx.turn === null} />
-              <ChoiceTable
-                redMoves={upPlayer.choices}
-                blueMoves={downPlayer.choices}
-                state={
-                  !gameCtx.finished
-                    ? gameCtx.turn !== null && gameCtx.turn === gameCtx.currentTeam
-                      ? 'selectable'
-                      : 'static'
-                    : 'disabled'
-                }
-                onSelect={gameCtx.pick}
-              />
-              <TimeCounter
-                timer={downPlayer.timer}
-                pause={gameCtx.turn === null}
-                showSurrender={!gameCtx.finished}
-                onClickSurrender={showForfeitModal}
-              />
+    <div className="flex flex-col items-center justify-center min-h-full p-4 md:p-8">
+      <div className="w-full max-w-6xl space-y-4">
+        {/* Main game area */}
+        <div className="flex flex-col lg:flex-row items-stretch justify-center gap-6">
+          {/* Left side - Players and Board */}
+          <div className="flex flex-col items-center gap-4 flex-1">
+            {/* Enemy Player Panel */}
+            <PlayerPanel
+              profile={enemyPlayer.profile}
+              timer={enemyPlayer.timer}
+              isPaused={gameCtx.turn === null}
+              isActive={gameCtx.turn === enemyTeam}
+              position="top"
+              lpGain={enemyPlayer.gain}
+            />
+
+            {/* VS Divider */}
+            <div className="flex items-center gap-4 w-full max-w-md">
+              <div className="flex-1 h-px bg-linear-to-r from-transparent via-gold-5/50 to-gold-5/50" />
+              <GiCrossedSwords className="text-gold-4 text-2xl" />
+              <div className="flex-1 h-px bg-linear-to-l from-transparent via-gold-5/50 to-gold-5/50" />
             </div>
+
+            {/* Game Board */}
+            <GameBoard
+              allyChoices={myPlayer.choices}
+              enemyChoices={enemyPlayer.choices}
+              isMyTurn={isMyTurn}
+              isGameOver={gameCtx.finished}
+              onSelect={gameCtx.pick}
+            />
+
+            {/* VS Divider */}
+            <div className="flex items-center gap-4 w-full max-w-md">
+              <div className="flex-1 h-px bg-linear-to-r from-transparent via-gold-5/50 to-gold-5/50" />
+              <GiCrossedSwords className="text-gold-4 text-2xl" />
+              <div className="flex-1 h-px bg-linear-to-l from-transparent via-gold-5/50 to-gold-5/50" />
+            </div>
+
+            {/* My Player Panel */}
+            <PlayerPanel
+              profile={myPlayer.profile}
+              timer={myPlayer.timer}
+              isPaused={gameCtx.turn === null}
+              isActive={gameCtx.turn === myTeam}
+              position="bottom"
+              lpGain={myPlayer.gain}
+              showSurrender={!gameCtx.finished}
+              onSurrender={handleSurrender}
+            />
           </div>
-          <ChatBox inputRef={chatInputRef} className="h-[400px] lg:h-[unset]" />
+
+          {/* Right side - Chat */}
+          {/* <div className="lg:w-96 h-100 lg:h-auto">
+            <GameChat inputRef={chatInputRef} className="h-full" />
+          </div> */}
         </div>
+
+        {/* Leave button when game is finished */}
         {gameCtx.finished && (
-          <ButtonGroup.Root>
-            <ButtonGroup.Button onClick={gameCtx.disconnect}>Leave Room</ButtonGroup.Button>
-          </ButtonGroup.Root>
+          <div className="flex justify-center">
+            <Button variant="secondary" size="lg" onClick={gameCtx.disconnect}>
+              Leave Room
+            </Button>
+          </div>
         )}
       </div>
     </div>
