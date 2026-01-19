@@ -43,7 +43,7 @@ export function GlobalErrorTemplate({ error, info }: ErrorComponentProps) {
           {/* Title */}
           <div className="space-y-2">
             <h1 className="font-serif text-3xl md:text-4xl text-red-400 uppercase tracking-wide">
-              Bug Found
+              Application Crashed
             </h1>
             <div className="h-0.5 w-32 mx-auto bg-linear-to-r from-transparent via-red-500/60 to-transparent" />
           </div>
