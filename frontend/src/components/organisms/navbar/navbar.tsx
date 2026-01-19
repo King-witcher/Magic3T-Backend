@@ -112,17 +112,21 @@ export function Navbar() {
           <span>Ranking</span>
         </NavLink>
 
-        <NavLink href="/me" className="hidden xs:flex">
-          <IoPerson />
-          <span>Profile</span>
-        </NavLink>
+        {authState === AuthState.SignedIn && (
+          <>
+            <NavLink href="/me" className="hidden xs:flex">
+              <IoPerson />
+              <span>Profile</span>
+            </NavLink>
 
-        {/* Divider */}
-        <div className="hidden xs:block w-px h-8 bg-gold-5/30 mx-2" />
+            {/* Divider */}
+            <div className="hidden xs:block w-px h-8 bg-gold-5/30 mx-2" />
 
-        <NavLink onClick={() => setIsLogoutDialogOpen(true)} className="hidden xs:flex">
-          <span>Logout</span>
-        </NavLink>
+            <NavLink onClick={() => setIsLogoutDialogOpen(true)} className="hidden xs:flex">
+              <span>Logout</span>
+            </NavLink>
+          </>
+        )}
 
         {/* Logout Dialog */}
         <LogoutDialog
@@ -152,7 +156,7 @@ export function Navbar() {
             />
 
             {/* Show nickname on larger screens when signed in */}
-            {authState === AuthState.SignedIn && user?.nickname && (
+            {authState === AuthState.SignedIn && (
               <span className="hidden md:block font-serif text-sm text-gold-2 max-w-30 truncate">
                 {user.nickname}
               </span>
