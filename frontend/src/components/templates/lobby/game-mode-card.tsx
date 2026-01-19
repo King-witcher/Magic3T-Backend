@@ -123,7 +123,7 @@ export function GameModeCard({
         </div>
 
         {/* Description */}
-        <p className="text-grey-1 text-sm leading-relaxed">{description}</p>
+        <p className="text-grey-1 text-sm leading-snug">{description}</p>
 
         {/* Players in queue (for PvP modes) */}
         {playersInQueue !== undefined && (
@@ -146,11 +146,8 @@ export function GameModeCard({
           variant={isInQueue ? 'destructive' : 'primary'}
           size="md"
           disabled={isDisabled}
-          className="w-full"
-          onClick={(e) => {
-            e.stopPropagation()
-            handleClick()
-          }}
+          type="button"
+          className="w-full cursor-pointer"
         >
           {isInQueue ? 'Leave Queue' : 'Enter Queue'}
         </Button>

@@ -35,7 +35,7 @@ export function ServerStatusBanner({ status, playersOnline }: ServerStatusBanner
   return (
     <div
       className={cn(
-        'rounded-lg border-2 backdrop-blur-md p-4',
+        'rounded-lg border-2 backdrop-blur-md p-3',
         'bg-linear-to-r',
         config.bg,
         'transition-all duration-300'

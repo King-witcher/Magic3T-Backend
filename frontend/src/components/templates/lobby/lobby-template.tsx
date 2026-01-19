@@ -1,4 +1,11 @@
-import { GiArtificialIntelligence, GiBrain, GiCrossedSwords, GiRobotGrab } from 'react-icons/gi'
+import {
+  GiArtificialHive,
+  GiArtificialIntelligence,
+  GiBrain,
+  GiCrossedSwords,
+  GiGoose,
+  GiRobotGrab,
+} from 'react-icons/gi'
 import { IoMdPeople } from 'react-icons/io'
 import { Panel } from '@/components/atoms/panel'
 import { useQueue } from '@/contexts/queue.context'
@@ -19,20 +26,20 @@ export function LobbyTemplate() {
 
   return (
     <div className="flex items-center justify-center min-h-full p-4 md:p-8">
-      <div className="w-full max-w-7xl space-y-8">
+      <div className="w-full max-w-7xl space-y-6">
         {/* Header Section */}
         <div className="text-center space-y-4">
           <div className="relative inline-block">
-            <h1 className="font-serif font-bold text-6xl md:text-8xl text-gold-1 uppercase tracking-wider drop-shadow-[0_0_30px_rgba(200,170,110,0.6)]">
+            <h1 className="font-serif font-bold text-6xl md:text-7xl text-gold-1 uppercase tracking-wider drop-shadow-[0_0_30px_rgba(200,170,110,0.6)]">
               Magic3T
             </h1>
             {/* Glow */}
-            <div className="absolute inset-0 font-serif font-bold text-6xl md:text-8xl text-gold-3 uppercase tracking-wider opacity-20 blur-sm animate-pulse">
+            <div className="absolute inset-0 font-serif font-bold text-6xl md:text-7xl text-gold-3 uppercase tracking-wider opacity-20 blur-sm animate-pulse">
               Magic3T
             </div>
           </div>
 
-          <p className="text-grey-1 text-lg md:text-xl max-w-2xl mx-auto">
+          <p className="text-grey-1 text-md md:text-lg max-w-2xl mx-auto">
             Master the ancient art of numbers. Three numbers that sum to{' '}
             <span className="text-gold-3 font-bold">15</span> claim victory.
           </p>
@@ -62,7 +69,7 @@ export function LobbyTemplate() {
                 mode={QueueMode.Bot0}
                 title="Recruit"
                 description="Perfect for learning the basics. The bot makes random moves."
-                icon={<GiArtificialIntelligence className="text-green-400" />}
+                icon={<GiGoose className="text-green-400" />}
                 difficulty="easy"
                 variant="bot"
               />
@@ -89,7 +96,7 @@ export function LobbyTemplate() {
                 mode={QueueMode.Bot3}
                 title="Legend"
                 description="The ultimate challenge. An invincible strategic mastermind."
-                icon={<GiBrain className="text-red-400" />}
+                icon={<GiArtificialHive className="text-red-400" />}
                 difficulty="unbeatable"
                 variant="bot"
               />
@@ -118,7 +125,7 @@ export function LobbyTemplate() {
             <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
               <GameModeCard
                 mode={QueueMode.Ranked}
-                title="Ranked Match"
+                title="PvP Match"
                 description="Compete against real players. Prove your mastery and climb the ranks!"
                 icon={<IoMdPeople className="text-blue-400" />}
                 playersInQueue={queueUserCount.ranked.queue}
@@ -130,7 +137,7 @@ export function LobbyTemplate() {
 
         {/* Footer tip */}
         <div className="text-center text-grey-1 text-sm">
-          <p>Click on any game mode to join the queue and start your journey</p>
+          <p>Click on any game mode to join the queue</p>
         </div>
       </div>
     </div>
