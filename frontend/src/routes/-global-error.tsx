@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { ErrorPanel } from '@/components/ui/error-panel'
 import { apiClient } from '@/services/clients/api-client'
 
-export function ErrorTemplate({ error, info }: ErrorComponentProps) {
+export function GlobalErrorTemplate({ error, info }: ErrorComponentProps) {
   const [errorSent, setErrorSent] = useState(false)
 
   useEffect(() => {
@@ -43,15 +43,15 @@ export function ErrorTemplate({ error, info }: ErrorComponentProps) {
           {/* Title */}
           <div className="space-y-2">
             <h1 className="font-serif text-3xl md:text-4xl text-red-400 uppercase tracking-wide">
-              Critical Error
+              Bug Found
             </h1>
             <div className="h-0.5 w-32 mx-auto bg-linear-to-r from-transparent via-red-500/60 to-transparent" />
           </div>
 
           {/* Description */}
           <p className="font-sans text-base md:text-lg text-grey-1 max-w-md">
-            A critical error prevented Magic3T from displaying this page. Our team has been
-            automatically notified and will investigate the issue.
+            A bug prevented Magic3T from displaying this page. Our team has been automatically
+            notified and will investigate the issue.
           </p>
 
           {/* Actions */}

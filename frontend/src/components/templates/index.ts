@@ -1,5 +1,4 @@
 export * from './choose-nickname'
-export * from './error'
 export * from './game'
 export * from './loading'
 export * from './loading-session'

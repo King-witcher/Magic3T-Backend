@@ -4,7 +4,8 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Analytics } from '@vercel/analytics/react'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import { ConsoleTab } from '@/components/organisms'
-import { ErrorTemplate, NotFoundTemplate, RootLayout } from '@/components/templates'
+import { NotFoundTemplate, RootLayout } from '@/components/templates'
+import { GlobalErrorTemplate } from './-global-error'
 import { Providers } from './-providers'
 
 export const Route = createRootRoute({
@@ -21,5 +22,5 @@ export const Route = createRootRoute({
     </Providers>
   ),
   notFoundComponent: () => <NotFoundTemplate />,
-  errorComponent: ErrorTemplate,
+  errorComponent: GlobalErrorTemplate,
 })
