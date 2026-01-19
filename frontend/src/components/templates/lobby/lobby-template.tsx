@@ -109,7 +109,7 @@ export function LobbyTemplate() {
               <div className="w-full border-t-2 border-gold-5/30" />
             </div>
             <div className="relative flex justify-center">
-              <GiCrossedSwords className="bg-grey-2 px-4 text-gold-4 text-5xl" />
+              <GiCrossedSwords className="bg-grey-2 px-3 text-gold-4 text-5xl" />
             </div>
           </div>
 
