@@ -101,19 +101,22 @@ export function Navbar() {
       <div className="flex items-center h-full gap-1">
         {/* Navigation Links */}
         {authState === AuthState.SignedIn && (
-          <NavLink href="." disabled className="hidden xs:flex" tooltip="Store (Coming Soon)">
+          <NavLink href="." disabled className="hidden md:flex" tooltip="Store (Coming Soon)">
             <GiShoppingBag size={20} />
+            Store
           </NavLink>
         )}
 
-        <NavLink href="/ranking" className="hidden xs:flex" tooltip="Rankings">
+        <NavLink href="/ranking" tooltip="The best Magic3T players">
           <GiTrophy size={20} />
+          <span className="hidden sm:inline-block">Ranking</span>
         </NavLink>
 
         {authState === AuthState.SignedIn && (
           <>
             <NavLink href="/me" tooltip="My Profile">
               <IoPerson size={20} />
+              <span className="hidden sm:inline-block">Profile</span>
             </NavLink>
 
             {/* Divider */}
