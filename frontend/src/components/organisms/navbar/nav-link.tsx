@@ -1,16 +1,18 @@
 import { Link } from '@tanstack/react-router'
-import { ReactNode } from 'react'
+import React, { ReactNode } from 'react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 interface NavLinkProps {
   href?: string
   children: ReactNode
+  tooltip?: string
   className?: string
   disabled?: boolean
   onClick?: () => void
 }
 
-export function NavLink({ children, href, className, disabled, onClick }: NavLinkProps) {
+export function NavLink({ children, href, tooltip, className, disabled, onClick }: NavLinkProps) {
   const baseClassName = cn(
     'relative flex items-center gap-2 px-4 h-full',
     'font-serif text-sm uppercase tracking-wider',
@@ -25,26 +27,39 @@ export function NavLink({ children, href, className, disabled, onClick }: NavLin
     className
   )
 
+  const Wrapper = tooltip
+    ? ({ children }: { children: ReactNode }) => (
+        <Tooltip>
+          <TooltipTrigger asChild>{children}</TooltipTrigger>
+          <TooltipContent sideOffset={2}>{tooltip}</TooltipContent>
+        </Tooltip>
+      )
+    : React.Fragment
+
   if (disabled) {
     return (
-      <span
-        className={cn(
-          'flex items-center gap-2 px-4 h-full',
-          'font-serif text-sm uppercase tracking-wider',
-          'text-grey-1/50 cursor-not-allowed',
-          className
-        )}
-      >
-        {children}
-      </span>
+      <Wrapper>
+        <span
+          className={cn(
+            'flex items-center gap-2 px-4 h-full',
+            'font-serif text-sm uppercase tracking-wider',
+            'text-grey-1/50 cursor-not-allowed',
+            className
+          )}
+        >
+          {children}
+        </span>
+      </Wrapper>
     )
   }
 
   if (onClick) {
     return (
-      <button type="button" onClick={onClick} className={baseClassName}>
-        {children}
-      </button>
+      <Wrapper>
+        <button type="button" onClick={onClick} className={baseClassName}>
+          {children}
+        </button>
+      </Wrapper>
     )
   }
 
@@ -53,8 +68,10 @@ export function NavLink({ children, href, className, disabled, onClick }: NavLin
   }
 
   return (
-    <Link to={href} className={baseClassName}>
-      {children}
-    </Link>
+    <Wrapper>
+      <Link to={href} className={baseClassName}>
+        {children}
+      </Link>
+    </Wrapper>
   )
 }

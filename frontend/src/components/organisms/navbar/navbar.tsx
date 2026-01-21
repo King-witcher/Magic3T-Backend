@@ -1,7 +1,7 @@
 import { League } from '@magic3t/common-types'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { GiShop, GiTrophy } from 'react-icons/gi'
+import { GiShoppingBag, GiTrophy } from 'react-icons/gi'
 import { IoPerson } from 'react-icons/io5'
 import { AuthState, useAuth } from '@/contexts/auth.context.tsx'
 import { authClient } from '@/lib/auth-client'
@@ -68,7 +68,7 @@ export function Navbar() {
         <div className="flex items-baseline gap-1">
           <span
             className={cn(
-              'font-serif text-xl text-gold-4 uppercase tracking-wide',
+              'font-serif text-xl text-gold-1/80 uppercase tracking-wide',
               'transition-colors duration-300',
               'group-hover:text-gold-1'
             )}
@@ -77,7 +77,7 @@ export function Navbar() {
           </span>
           <span
             className={cn(
-              'font-serif text-xl font-bold text-gold-1 uppercase tracking-wider',
+              'font-serif text-xl font-bold text-gold-4 uppercase tracking-wider',
               'transition-all duration-300',
               'group-hover:text-gold-0 group-hover:drop-shadow-[0_0_8px_rgba(245,203,92,0.6)]'
             )}
@@ -101,22 +101,19 @@ export function Navbar() {
       <div className="flex items-center h-full gap-1">
         {/* Navigation Links */}
         {authState === AuthState.SignedIn && (
-          <NavLink href="." disabled className="hidden xs:flex">
-            <GiShop size={18} />
-            <span>Store</span>
+          <NavLink href="." disabled className="hidden xs:flex" tooltip="Store (Coming Soon)">
+            <GiShoppingBag size={20} />
           </NavLink>
         )}
 
-        <NavLink href="/ranking" className="hidden xs:flex">
-          <GiTrophy size={18} />
-          <span>Ranking</span>
+        <NavLink href="/ranking" className="hidden xs:flex" tooltip="Rankings">
+          <GiTrophy size={20} />
         </NavLink>
 
         {authState === AuthState.SignedIn && (
           <>
-            <NavLink href="/me" className="hidden xs:flex">
-              <IoPerson />
-              <span>Profile</span>
+            <NavLink href="/me" tooltip="My Profile">
+              <IoPerson size={20} />
             </NavLink>
 
             {/* Divider */}
