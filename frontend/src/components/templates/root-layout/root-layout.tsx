@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Navbar } from '@/components/organisms'
+import { useAuth } from '@/contexts/auth-context'
 import { ModalLayout } from './modal-layout'
 
 const BACKGROUND_URL = `${import.meta.env.VITE_CDN_URL}/ui/background.png`
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export function RootLayout({ children }: Props) {
+  const auth = useAuth()
+
   return (
     <>
       {/* <div className={styles.brightness_container} /> */}
@@ -18,7 +21,7 @@ export function RootLayout({ children }: Props) {
       />
 
       <div className="flex flex-col items-center h-dvh relative">
-        <Navbar />
+        {auth.signedIn && <Navbar />}
         <main className="flex-1 relative w-full h-full overflow-hidden">
           {/* Background decorative elements */}
           <div className="absolute inset-0 opacity-30">
