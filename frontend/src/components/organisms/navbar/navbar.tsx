@@ -151,7 +151,7 @@ export function Navbar() {
                   src={getIconUrl(user.summonerIcon)}
                   className="size-10 border-gold-7 border"
                 />
-                <span className="normal-case text-gold-1 text-lg font-serif hidden sm:inline-block">
+                <span className="text-gold-1 text-lg font-serif tracking-wide hidden sm:inline-block">
                   {user.nickname}
                 </span>
               </div>
