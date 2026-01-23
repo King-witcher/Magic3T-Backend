@@ -1,6 +1,6 @@
 $acrylic-background: #00000050
 $acrylic-background-hover: #00000080
-$acrylic-border: #424242
+$acrylic-border: #00000080
 
 p
   font-family: spiegel !important
@@ -14,6 +14,7 @@ p
   border: 1px solid $acrylic-border
   background: padding-box $acrylic-background
   border-radius: 10px
+  backdrop-filter: blur(10px)
 
 .hover-acrylic
   @extend .acrylic
