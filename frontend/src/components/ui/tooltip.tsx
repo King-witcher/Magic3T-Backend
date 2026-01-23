@@ -57,4 +57,20 @@ function TooltipContent({
   )
 }
 
-export { TooltipRoot as Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+function Tooltip({
+  children,
+  text,
+  ...props
+}: {
+  children: React.ReactNode
+  text: string
+} & React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  return (
+    <TooltipRoot {...props}>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent>{text}</TooltipContent>
+    </TooltipRoot>
+  )
+}
+
+export { TooltipRoot, TooltipTrigger, TooltipContent, TooltipProvider, Tooltip }

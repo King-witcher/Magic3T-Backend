@@ -1,24 +1,24 @@
 {
-  "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Backend",
-      "type": "node-terminal",
-      "request": "launch",
       "command": "npm run dev",
-      "cwd": "${workspaceFolder}/backend"
+      "cwd": "${workspaceFolder}/backend",
+      "name": "Launch Backend",
+      "request": "launch",
+      "type": "node-terminal"
     },
     {
-      "name": "Launch Frontend",
-      "type": "msedge",
-      "request": "launch",
-      "url": "http://localhost:3000",
-      "preLaunchTask": "vite: dev",
-      "webRoot": "${workspaceFolder}/frontend",
       "cwd": "${workspaceFolder}/frontend",
+      "name": "Launch Frontend",
+      "preLaunchTask": "vite: dev",
+      "request": "launch",
       "skipFiles": [
         "${workspaceFolder}/node_modules/**/*.js"
-      ]
+      ],
+      "type": "msedge",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}/frontend"
     },
-  ]
+  ],
+  "version": "0.2.0"
 }

@@ -9,7 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as RankingRouteImport } from './routes/ranking'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as BiancaRouteImport } from './routes/bianca'
 import { Route as AuthGuardedRouteImport } from './routes/_auth-guarded'
 import { Route as AuthRouteImport } from './routes/_auth'
@@ -21,9 +21,9 @@ import { Route as AuthGuardedStoreRouteImport } from './routes/_auth-guarded/sto
 import { Route as AuthGuardedMeRouteRouteImport } from './routes/_auth-guarded/me/route'
 import { Route as UsersIdUserIdRouteImport } from './routes/users/id/$userId'
 
-const RankingRoute = RankingRouteImport.update({
-  id: '/ranking',
-  path: '/ranking',
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BiancaRoute = BiancaRouteImport.update({
@@ -78,7 +78,7 @@ const UsersIdUserIdRoute = UsersIdUserIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthGuardedIndexRoute
   '/bianca': typeof BiancaRoute
-  '/ranking': typeof RankingRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/me': typeof AuthGuardedMeRouteRoute
   '/store': typeof AuthGuardedStoreRoute
   '/register': typeof AuthRegisterRoute
@@ -89,7 +89,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof AuthGuardedIndexRoute
   '/bianca': typeof BiancaRoute
-  '/ranking': typeof RankingRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/me': typeof AuthGuardedMeRouteRoute
   '/store': typeof AuthGuardedStoreRoute
   '/register': typeof AuthRegisterRoute
@@ -102,7 +102,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_auth-guarded': typeof AuthGuardedRouteWithChildren
   '/bianca': typeof BiancaRoute
-  '/ranking': typeof RankingRoute
+  '/leaderboard': typeof LeaderboardRoute
   '/_auth-guarded/me': typeof AuthGuardedMeRouteRoute
   '/_auth-guarded/store': typeof AuthGuardedStoreRoute
   '/_auth/register': typeof AuthRegisterRoute
@@ -116,7 +116,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/bianca'
-    | '/ranking'
+    | '/leaderboard'
     | '/me'
     | '/store'
     | '/register'
@@ -127,7 +127,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/bianca'
-    | '/ranking'
+    | '/leaderboard'
     | '/me'
     | '/store'
     | '/register'
@@ -139,7 +139,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_auth-guarded'
     | '/bianca'
-    | '/ranking'
+    | '/leaderboard'
     | '/_auth-guarded/me'
     | '/_auth-guarded/store'
     | '/_auth/register'
@@ -153,18 +153,18 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   AuthGuardedRoute: typeof AuthGuardedRouteWithChildren
   BiancaRoute: typeof BiancaRoute
-  RankingRoute: typeof RankingRoute
+  LeaderboardRoute: typeof LeaderboardRoute
   UsersNicknameRoute: typeof UsersNicknameRoute
   UsersIdUserIdRoute: typeof UsersIdUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/ranking': {
-      id: '/ranking'
-      path: '/ranking'
-      fullPath: '/ranking'
-      preLoaderRoute: typeof RankingRouteImport
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bianca': {
@@ -272,7 +272,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   AuthGuardedRoute: AuthGuardedRouteWithChildren,
   BiancaRoute: BiancaRoute,
-  RankingRoute: RankingRoute,
+  LeaderboardRoute: LeaderboardRoute,
   UsersNicknameRoute: UsersNicknameRoute,
   UsersIdUserIdRoute: UsersIdUserIdRoute,
 }

@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import React, { ReactNode } from 'react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { TooltipContent, TooltipRoot, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 interface NavLinkProps {
@@ -29,10 +29,10 @@ export function NavLink({ children, href, tooltip, className, disabled, onClick 
 
   const Wrapper = tooltip
     ? ({ children }: { children: ReactNode }) => (
-        <Tooltip>
+        <TooltipRoot>
           <TooltipTrigger asChild>{children}</TooltipTrigger>
           <TooltipContent sideOffset={2}>{tooltip}</TooltipContent>
-        </Tooltip>
+        </TooltipRoot>
       )
     : React.Fragment
 
