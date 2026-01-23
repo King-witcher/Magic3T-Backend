@@ -5,7 +5,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import { AppModule } from './app.module'
 import { ResultInterceptor } from './common/interceptors/result.interceptor'
-import { ddosMain } from './ddos'
 
 async function bootstrap() {
   const logger = new Logger('bootstrap function')
@@ -15,7 +14,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
   app.useGlobalInterceptors(new ResultInterceptor())
-  // app.useGlobalFilters(new ExceptionToPanicMapper(), new PanicFilter())
   app.enableCors()
 
   const config = new DocumentBuilder()
@@ -36,7 +34,6 @@ async function bootstrap() {
 
   await app.listen(port)
   keepServerAlive()
-  ddosMain()
   logger.log(`Max concurrency: ${navigator.hardwareConcurrency}`)
   logger.log(`Swagger available on ${backend_url}/api`)
 }
