@@ -7,23 +7,13 @@ import {
   GiRobotGrab,
 } from 'react-icons/gi'
 import { IoMdPeople } from 'react-icons/io'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { Panel } from '@/components/ui/panel'
+import { Panel, PanelDivider } from '@/components/ui/panel'
 import { useQueue } from '@/contexts/queue.context'
-import { ServerStatus, useServiceStatus } from '@/contexts/service-status.context'
 import { QueueMode } from '@/types/queue'
 import { GameModeCard } from './game-mode-card'
-import { ServerStatusBanner } from './server-status-banner'
 
 export function LobbyTemplate() {
   const { queueUserCount } = useQueue()
-  const { serverStatus } = useServiceStatus()
-
-  const serverStatusMap = {
-    [ServerStatus.On]: 'on' as const,
-    [ServerStatus.Loading]: 'loading' as const,
-    [ServerStatus.Off]: 'off' as const,
-  }
 
   return (
     <div className="flex items-center justify-center min-h-full p-4 md:p-8">
@@ -54,14 +44,9 @@ export function LobbyTemplate() {
           </div>
 
           {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t-2 border-gold-5/30" />
-            </div>
-            <div className="relative flex justify-center">
-              <GiCrossedSwords className="bg-grey-2 px-3 text-gold-4 text-5xl" />
-            </div>
-          </div>
+          <PanelDivider />
+
+          {/* VS Bots Section */}
           <div className="flex items-center gap-3 border-b border-gold-4/30 pb-3">
             <GiRobotGrab className="text-gold-3 text-3xl" />
             <h2 className="font-serif font-bold text-2xl text-gold-2 uppercase tracking-wide">
@@ -69,7 +54,6 @@ export function LobbyTemplate() {
             </h2>
           </div>
 
-          {/* VS Bots Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <GameModeCard
               mode={QueueMode.Bot0}
