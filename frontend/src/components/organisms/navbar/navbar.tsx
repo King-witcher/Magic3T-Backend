@@ -1,15 +1,24 @@
 import { League } from '@magic3t/common-types'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { GiShoppingBag, GiTrophy } from 'react-icons/gi'
-import { IoPerson } from 'react-icons/io5'
-import { AuthState, useAuth } from '@/contexts/auth.context.tsx'
+import { GiBlood, GiCrown, GiShoppingBag, GiTrophy } from 'react-icons/gi'
+import { IoClose, IoLogOut, IoLogOutOutline, IoPerson, IoPersonRemove } from 'react-icons/io5'
+import { MdBlock } from 'react-icons/md'
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { AuthState, useAuth } from '@/contexts/auth-context'
 import { authClient } from '@/lib/auth-client'
 import { cn } from '@/lib/utils'
+import { getIconUrl } from '@/utils/utils'
+import { UserRole } from '../../../../../packages/database-types/src/rows'
 import { LogoutDialog } from './logout-dialog'
 import { NavLink } from './nav-link'
-import { ProfileAvatar } from './profile-avatar'
-import { ProfileDropdown } from './profile-dropdown'
 
 export function Navbar() {
   const { state: authState, user } = useAuth()
@@ -25,11 +34,11 @@ export function Navbar() {
     <nav
       className={cn(
         'relative w-full h-17 shrink-0',
-        'flex items-center justify-between px-4',
-        'bg-linear-to-r from-gold-5/20 to-gold-6/30',
-        'border-b-2 border-gold-5/40',
-        'backdrop-blur-xl',
-        'shadow-lg shadow-black/30',
+        'flex items-center px-4',
+        // 'bg-linear-to-r from-gold-5/20 to-gold-6/30',
+        'bg-hextech-black/50 backdrop-blur-sm',
+        'border-b-2 border-gold-4',
+        'shadow-lg shadow-black/40',
         'z-50'
       )}
     >
@@ -42,16 +51,17 @@ export function Navbar() {
         className={cn(
           'relative flex items-center gap-3 px-4 py-2',
           'transition-all duration-300',
-          'hover:bg-gradient-to-r hover:from-gold-6/30 hover:via-gold-5/20 hover:to-gold-6/30',
+          'hover:bg-linear-to-r hover:from-gold-6/30 hover:via-gold-5/20 hover:to-gold-6/30',
           'group overflow-hidden',
-          'before:absolute before:inset-0 before:border-2 before:border-gold-5/40',
+          'before:absolute before:inset-0 before:border-2 before:border-gold-4/40',
           'before:transition-all before:duration-300',
           'hover:before:border-gold-4/60 hover:before:shadow-lg hover:before:shadow-gold-5/20',
           // Decorative corners
           'after:absolute after:top-0 after:left-0 after:w-2 after:h-2',
           'after:border-l-2 after:border-t-2 after:border-gold-3/60',
           'after:transition-all after:duration-300',
-          'hover:after:w-3 hover:after:h-3 hover:after:border-gold-2'
+          'hover:after:w-3 hover:after:h-3 hover:after:border-gold-2',
+          'mr-auto'
         )}
       >
         {/* Bottom right corner */}
@@ -68,7 +78,7 @@ export function Navbar() {
         <div className="flex items-baseline gap-1">
           <span
             className={cn(
-              'font-serif text-xl text-gold-1/80 uppercase tracking-wide',
+              'font-serif text-xl text-gold-1/70 uppercase tracking-wide',
               'transition-colors duration-300',
               'group-hover:text-gold-1'
             )}
@@ -97,96 +107,81 @@ export function Navbar() {
         />
       </Link>
 
-      {/* Right side - Navigation + Profile */}
-      <div className="flex items-center h-full gap-1">
-        {/* Navigation Links */}
-        {authState === AuthState.SignedIn && (
-          <NavLink href="." disabled className="hidden md:flex" tooltip="Store (Coming Soon)">
-            <GiShoppingBag size={20} />
-            Store
-          </NavLink>
-        )}
-
-        <NavLink href="/ranking" tooltip="The best Magic3T players">
-          <GiTrophy size={20} />
-          <span className="hidden sm:inline-block">Ranking</span>
+      {/* Store */}
+      {authState === AuthState.SignedIn && (
+        <NavLink href="." disabled className="hidden md:flex" tooltip="Store (Coming Soon)">
+          <GiShoppingBag size={20} />
+          Store
         </NavLink>
+      )}
 
-        {authState === AuthState.SignedIn && (
-          <>
-            <NavLink href="/me" tooltip="My Profile">
-              <IoPerson size={20} />
-              <span className="hidden sm:inline-block">Profile</span>
-            </NavLink>
+      {/* Ranking */}
+      <NavLink href="/ranking" tooltip="The best Magic3T players" className="hover:animate-out">
+        <GiTrophy size={20} />
+        <span className="hidden sm:inline-block">Ranking</span>
+      </NavLink>
 
-            {/* Divider */}
-            <div className="hidden xs:block w-px h-8 bg-gold-5/30 mx-2" />
+      {/* Admin Button */}
+      {authState === AuthState.SignedIn && user.role === UserRole.Creator && (
+        <NavLink href="/admin" tooltip="Creator Zone" className="hidden md:flex">
+          <GiCrown size={20} />
+          Admin
+        </NavLink>
+      )}
 
-            <NavLink onClick={() => setIsLogoutDialogOpen(true)} className="hidden xs:flex">
-              <span>Logout</span>
-            </NavLink>
-          </>
-        )}
+      {/* Profile button */}
+      {authState === AuthState.SignedIn && (
+        <>
+          {/* Divider */}
+          <div className="hidden xs:block w-px h-8 bg-gold-5/30 mx-2" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <div
+                className={cn(
+                  'flex items-center gap-2 px-4 h-full',
+                  'cursor-pointer select-none',
+                  'transition-all duration-200',
+                  'hover:bg-blue-4/20'
+                )}
+              >
+                <img
+                  alt="icon"
+                  src={getIconUrl(user.summonerIcon)}
+                  className="size-10 border-gold-7 border"
+                />
+                <span className="normal-case text-gold-1 text-lg hidden sm:inline-block">
+                  {user.nickname}
+                </span>
+              </div>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="flex flex-col gap-2 text-gold-2">
+                <Link
+                  to="/me"
+                  className="flex gap-2 items-center hover:bg-blue-4/20 p-3 cursor-pointer"
+                >
+                  <IoPerson />
+                  My Profile
+                </Link>
+                <div
+                  className="flex gap-2 items-center hover:bg-blue-4/20 p-3 cursor-pointer"
+                  onClick={() => setIsLogoutDialogOpen(true)}
+                >
+                  <IoLogOutOutline />
+                  Logout
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </>
+      )}
 
-        {/* Logout Dialog */}
-        <LogoutDialog
-          isOpen={isLogoutDialogOpen}
-          onClose={() => setIsLogoutDialogOpen(false)}
-          onConfirm={handleLogout}
-        />
-
-        {/* Profile Button */}
-        <div className="relative hidden">
-          <button
-            type="button"
-            onClick={() => setIsDropdownOpen((prev) => !prev)}
-            className={cn(
-              'flex items-center gap-3 px-3 py-2 rounded-lg',
-              'transition-all duration-200',
-              'hover:bg-gold-6/20',
-              'focus:outline-none focus:ring-2 focus:ring-gold-4/50',
-              isDropdownOpen && 'bg-gold-6/20'
-            )}
-          >
-            <ProfileAvatar
-              icon={user?.summonerIcon ?? 29}
-              league={user?.rating.league ?? League.Provisional}
-              isLoading={authState === AuthState.LoadingSession}
-              size="md"
-            />
-
-            {/* Show nickname on larger screens when signed in */}
-            {authState === AuthState.SignedIn && (
-              <span className="hidden md:block font-serif text-sm text-gold-2 max-w-30 truncate">
-                {user.nickname}
-              </span>
-            )}
-
-            {/* Dropdown indicator */}
-            <svg
-              className={cn(
-                'hidden xs:block w-4 h-4 text-gold-3 transition-transform duration-200',
-                isDropdownOpen && 'rotate-180'
-              )}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            >
-              <title>Toggle menu</title>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
-          {/* Dropdown Menu */}
-          <ProfileDropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} />
-        </div>
-      </div>
+      {/* Logout Dialog */}
+      <LogoutDialog
+        isOpen={isLogoutDialogOpen}
+        onClose={() => setIsLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
+      />
     </nav>
   )
 }

@@ -1,8 +1,10 @@
 import {
   createUserWithEmailAndPassword,
   getIdToken,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signInWithPopup,
+  signOut,
 } from 'firebase/auth'
 import { auth, provider } from '@/services/firebase'
 
@@ -20,7 +22,14 @@ export class AuthClient {
   }
 
   async signOut(): Promise<void> {
-    await auth.signOut()
+    await signOut(auth)
+  }
+
+  onAuthStateChanged(callback: (userId: string | null) => void): () => void {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      callback(user ? user.uid : null)
+    })
+    return unsubscribe
   }
 
   public get token(): Promise<string | null> {

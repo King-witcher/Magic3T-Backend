@@ -65,7 +65,7 @@ export function GameModeCard({
       role="button"
       tabIndex={-1}
       className={cn(
-        'relative group overflow-hidden rounded-lg border-2 transition-transform duration-200',
+        'relative group overflow-hidden border-2 transition-transform duration-200',
         'bg-linear-to-br backdrop-blur-md',
         'focus-within:outline-blue-2 focus-within:outline-3',
         bgGradient,

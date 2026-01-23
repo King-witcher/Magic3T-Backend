@@ -138,7 +138,7 @@ function Page() {
     <form className="space-y-6" onSubmit={handleSubmit(signInEmail)}>
       {/* Header */}
       <div className="text-center">
-        <h2 className="font-serif font-bold text-3xl text-gold-2 uppercase tracking-wide">
+        <h2 className="font-serif font-bold text-4xl text-gold-4 uppercase tracking-wide">
           Sign In
         </h2>
         <p className="text-grey-1 text-sm mt-2">

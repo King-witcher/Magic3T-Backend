@@ -1,6 +1,6 @@
 import { GiRaiseSkeleton } from 'react-icons/gi'
 import { Button } from '@/components/atoms'
-import { useGame } from '@/contexts/game.context.tsx'
+import { useGame } from '@/contexts/game-context'
 import { cn } from '@/lib/utils'
 
 interface SurrenderModalProps {

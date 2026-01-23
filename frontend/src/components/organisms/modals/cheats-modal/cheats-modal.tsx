@@ -1,5 +1,5 @@
 import { type FormEvent, useCallback, useState } from 'react'
-import { useDialogStore } from '@/contexts/modal.store'
+import { useDialogStore } from '@/contexts/modal-store'
 import { runCommand } from '@/lib/commands'
 import buttonStyles from '@/styles/components/button.module.sass'
 import inputStyles from '@/styles/components/input.module.sass'

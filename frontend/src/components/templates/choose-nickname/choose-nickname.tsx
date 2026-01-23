@@ -5,7 +5,7 @@ import { GiCrystalShine } from 'react-icons/gi'
 import { Button, Input } from '@/components/atoms'
 import { Label } from '@/components/ui/label'
 import { Panel } from '@/components/ui/panel'
-import { useSignedAuth } from '@/contexts/auth.context'
+import { useSignedAuth } from '@/contexts/auth-context'
 import { apiClient } from '@/services/clients/api-client'
 
 export function ChooseNicknameTemplate() {

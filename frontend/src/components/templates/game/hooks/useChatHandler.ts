@@ -1,6 +1,6 @@
 import { MessagePayload } from '@magic3t/api-types'
 import { type ChangeEvent, type FormEvent, useCallback, useEffect, useRef, useState } from 'react'
-import { useGame } from '@/contexts/game.context.tsx'
+import { useGame } from '@/contexts/game-context'
 
 export function useChatHandler() {
   const gameCtx = useGame()

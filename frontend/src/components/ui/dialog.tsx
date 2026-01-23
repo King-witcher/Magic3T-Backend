@@ -54,17 +54,16 @@ function DialogContent({
           'fixed top-1/2 left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4',
           'p-8 shadow-2xl shadow-black/60 duration-200 outline-none sm:max-w-lg',
           // League of Legends style background
-          'backdrop-blur-xl bg-linear-to-b from-grey-2/85 to-grey-2/75',
-          'border-2 border-gold-5/40',
+          'backdrop-blur-lg bg-linear-to-b from-grey-3/85 to-grey-3/75 border-2 border-gold-5/60',
           className
         )}
         {...props}
       >
         {/* Decorative corner elements */}
-        <div className="absolute -top-1 -left-1 w-8 h-8 border-t-2 border-l-2 border-gold-3 pointer-events-none" />
-        <div className="absolute -top-1 -right-1 w-8 h-8 border-t-2 border-r-2 border-gold-3 pointer-events-none" />
-        <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-2 border-l-2 border-gold-3 pointer-events-none" />
-        <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-2 border-r-2 border-gold-3 pointer-events-none" />
+        <div className="absolute -top-1 -left-1 w-8 h-8 border-t-3 border-l-3 border-gold-4" />
+        <div className="absolute -top-1 -right-1 w-8 h-8 border-t-3 border-r-3 border-gold-4" />
+        <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-3 border-l-3 border-gold-4" />
+        <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-3 border-r-3 border-gold-4" />
 
         {/* Subtle top glow */}
         <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-gold-4/60 to-transparent pointer-events-none" />
@@ -119,7 +118,7 @@ function DialogTitle({ className, ...props }: React.ComponentProps<typeof Dialog
     <DialogPrimitive.Title
       data-slot="dialog-title"
       className={cn(
-        'leading-none font-semibold font-serif text-gold-2 text-3xl uppercase tracking-wide',
+        'leading-none font-semibold font-serif text-gold-3 text-3xl uppercase tracking-wide',
         className
       )}
       {...props}

@@ -1,7 +1,7 @@
 import { createFileRoute, Navigate, Outlet } from '@tanstack/react-router'
 import { Panel } from '@/components/atoms'
 import { LoadingSessionTemplate } from '@/components/templates'
-import { AuthState, useAuth } from '@/contexts/auth.context'
+import { AuthState, useAuth } from '@/contexts/auth-context'
 
 export const Route = createFileRoute('/_auth')({
   component: RouteComponent,
@@ -29,7 +29,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-full w-full flex items-center justify-center">
+    <div className="min-h-full w-full flex items-center justify-center lg:justify-start lg:px-20 xl:px-30 2xl:px-40">
       <div className="w-full max-w-md">
         {/* Logo/Title Section */}
         <div className="text-center mb-8">

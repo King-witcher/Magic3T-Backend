@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { useDialogStore } from '@/contexts/modal.store'
+import { useDialogStore } from '@/contexts/modal-store'
 import { useOutsideClick } from '@/hooks'
 
 export function ModalLayout() {

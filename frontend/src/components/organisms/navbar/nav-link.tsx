@@ -18,7 +18,7 @@ export function NavLink({ children, href, tooltip, className, disabled, onClick 
     'font-serif text-sm uppercase tracking-wider',
     'text-gold-2 hover:text-gold-1',
     'transition-all duration-200',
-    'hover:bg-gold-6/20',
+    'hover:bg-blue-4/20',
     // Bottom border highlight on hover
     'after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2',
     'after:w-0 after:h-0.5 after:bg-gold-3',

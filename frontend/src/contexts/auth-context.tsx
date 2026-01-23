@@ -1,6 +1,5 @@
 import { GetUserResult } from '@magic3t/api-types'
 import { useQuery } from '@tanstack/react-query'
-import { onAuthStateChanged } from 'firebase/auth'
 import {
   createContext,
   type ReactNode,
@@ -14,7 +13,6 @@ import { useRegisterCommand } from '@/hooks/use-register-command'
 import { authClient } from '@/lib/auth-client'
 import { apiClient } from '@/services/clients/api-client'
 import { NotFoundError } from '@/services/clients/client-error'
-import { auth } from '@/services/firebase'
 
 export enum AuthState {
   /** The authentication session is being loaded */
@@ -64,10 +62,13 @@ interface Props {
 const AuthContext = createContext<AuthContextData | null>(null)
 
 export function AuthProvider({ children }: Props) {
+  // This state is only true while we're waiting for the initial auth state to load
   const [loadingSession, setLoadingSession] = useState(true)
+  useEffect(() => authClient.onAuthStateChanged(() => setLoadingSession(false)), [])
+
   const userId = useSyncExternalStore(
-    (sub) => onAuthStateChanged(auth, sub),
-    () => auth.currentUser?.uid ?? null
+    (sub) => authClient.onAuthStateChanged(sub),
+    () => authClient.userId ?? null
   )
 
   const userQuery = useQuery({
@@ -78,10 +79,6 @@ export function AuthProvider({ children }: Props) {
       return apiClient.user.getById(userId)
     },
   })
-
-  useEffect(() => {
-    return onAuthStateChanged(auth, () => setLoadingSession(false))
-  }, [])
 
   useRegisterCommand(
     {

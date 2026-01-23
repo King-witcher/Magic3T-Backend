@@ -9,6 +9,8 @@ export function GlobalErrorTemplate({ error, info }: ErrorComponentProps) {
   const [errorSent, setErrorSent] = useState(false)
 
   useEffect(() => {
+    if (import.meta.env.DEV) return
+
     // Send crash report
     apiClient
       .reportCrash({

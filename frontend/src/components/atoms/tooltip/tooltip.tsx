@@ -1,4 +1,4 @@
-import { Tooltip as RadixTooltip } from 'radix-ui'
+import * as RadixTooltip from '@radix-ui/react-tooltip'
 import { ReactNode } from 'react'
 import { twMerge } from 'tailwind-merge'
 
@@ -7,6 +7,7 @@ interface Props {
   label: string
 }
 
+/** @deprecated */
 export function Tooltip({ children, label }: Props) {
   return (
     <RadixTooltip.Provider delayDuration={100}>

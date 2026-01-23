@@ -1,4 +1,4 @@
-import { useDialogStore } from '@/contexts/modal.store'
+import { useDialogStore } from '@/contexts/modal-store'
 import { authClient } from '@/lib/auth-client'
 import buttonStyles from '@/styles/components/button.module.sass'
 

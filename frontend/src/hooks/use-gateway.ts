@@ -1,7 +1,7 @@
 import { EventNames, EventParams, EventsMap } from '@socket.io/component-emitter'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
-import { useAuth } from '@/contexts/auth.context'
+import { useAuth } from '@/contexts/auth-context'
 import { authClient } from '@/lib/auth-client'
 import { Console, SystemCvars } from '@/lib/console'
 
