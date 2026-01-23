@@ -19,3 +19,26 @@ export function Panel({ className, children, ...props }: ComponentProps<'div'>) 
     </div>
   )
 }
+
+export function PanelDivider() {
+  return (
+    <div className="relative w-full">
+      {/* Horizontal Line */}
+      <div className="absolute inset-0 flex items-center">
+        <div className="w-full border-t border-gold-5" />
+      </div>
+
+      <div className="relative flex h-8 justify-center items-center">
+        {/* <div className="size-2 bg-gold-4 rotate-45" /> */}
+        <svg preserveAspectRatio="none" viewBox="0 0 22 13" className="h-[13px] w-[22px]">
+          <title>Diamond</title>
+          <polygon
+            points="0,6.5 11,1 22,6.5 11,12"
+            className="fill-gold-2 stroke-gold-5"
+            strokeWidth={1}
+          />
+        </svg>
+      </div>
+    </div>
+  )
+}

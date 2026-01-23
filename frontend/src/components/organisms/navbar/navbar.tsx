@@ -13,11 +13,11 @@ import { NavLink } from './nav-link'
 
 export function Navbar() {
   const { state: authState, user } = useAuth()
-  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
+  const [logoutOpen, setLogoutOpen] = useState(false)
 
   const handleLogout = () => {
     authClient.signOut()
-    setIsLogoutDialogOpen(false)
+    setLogoutOpen(false)
   }
 
   return (
@@ -64,7 +64,7 @@ export function Navbar() {
           )}
         />
 
-        {/* Text content */}
+        {/* Play Magic3T */}
         <div className="flex items-baseline gap-1">
           <span
             className={cn(
@@ -105,7 +105,7 @@ export function Navbar() {
         </NavLink>
       )}
 
-      {/* Ranking */}
+      {/* Leaderboard */}
       <NavLink href="/leaderboard" tooltip="The best Magic3T players" className="hover:animate-out">
         <GiTrophy size={20} />
         <span className="hidden sm:inline-block">Leaderboard</span>
@@ -116,6 +116,18 @@ export function Navbar() {
         <NavLink href="/admin" tooltip="Creator Zone" className="hidden md:flex">
           <GiCrown size={20} />
           Admin
+        </NavLink>
+      )}
+
+      {/* Logout button for unregistered users */}
+      {authState === AuthState.SignedInUnregistered && (
+        <NavLink
+          onClick={() => setLogoutOpen(true)}
+          tooltip="Finish session"
+          className="hover:animate-out"
+        >
+          <IoLogOutOutline size={20} />
+          <span className="hidden sm:inline-block">Logout</span>
         </NavLink>
       )}
 
@@ -156,7 +168,7 @@ export function Navbar() {
                 <button
                   type="button"
                   className="flex gap-2 items-center hover:bg-blue-4/20 p-3 cursor-pointer"
-                  onClick={() => setIsLogoutDialogOpen(true)}
+                  onClick={() => setLogoutOpen(true)}
                 >
                   <IoLogOutOutline />
                   Logout
@@ -169,8 +181,8 @@ export function Navbar() {
 
       {/* Logout Dialog */}
       <LogoutDialog
-        isOpen={isLogoutDialogOpen}
-        onClose={() => setIsLogoutDialogOpen(false)}
+        isOpen={logoutOpen}
+        onClose={() => setLogoutOpen(false)}
         onConfirm={handleLogout}
       />
     </nav>

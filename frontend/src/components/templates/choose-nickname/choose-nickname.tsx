@@ -1,10 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { ChangeEvent, FormEvent, useState } from 'react'
-import { FaUserEdit } from 'react-icons/fa'
 import { GiCrystalShine } from 'react-icons/gi'
 import { Button, Input } from '@/components/atoms'
 import { Label } from '@/components/ui/label'
-import { Panel } from '@/components/ui/panel'
+import { Panel, PanelDivider } from '@/components/ui/panel'
 import { useSignedAuth } from '@/contexts/auth-context'
 import { apiClient } from '@/services/clients/api-client'
 
@@ -69,20 +68,14 @@ export function ChooseNicknameTemplate() {
                 Choose Your Name
               </h1>
               <p className="text-grey-1 text-sm max-w-100">
-                Your summoner name will be displayed across the Fields of Justice. Choose wisely.
+                Your summoner name will be displayed across all corners of the Magic Square. Choose
+                wisely.
               </p>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gold-5/30" />
-            </div>
-            <div className="relative flex justify-center">
-              <FaUserEdit className="bg-grey-2 px-3 text-gold-4 text-3xl" />
-            </div>
-          </div>
+          <PanelDivider />
 
           {/* Nickname Input */}
           <div className="space-y-3">

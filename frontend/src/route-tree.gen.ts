@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TutorialRouteImport } from './routes/tutorial'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as BiancaRouteImport } from './routes/bianca'
 import { Route as AuthGuardedRouteImport } from './routes/_auth-guarded'
@@ -21,6 +22,11 @@ import { Route as AuthGuardedStoreRouteImport } from './routes/_auth-guarded/sto
 import { Route as AuthGuardedMeRouteRouteImport } from './routes/_auth-guarded/me/route'
 import { Route as UsersIdUserIdRouteImport } from './routes/users/id/$userId'
 
+const TutorialRoute = TutorialRouteImport.update({
+  id: '/tutorial',
+  path: '/tutorial',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthGuardedIndexRoute
   '/bianca': typeof BiancaRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/tutorial': typeof TutorialRoute
   '/me': typeof AuthGuardedMeRouteRoute
   '/store': typeof AuthGuardedStoreRoute
   '/register': typeof AuthRegisterRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthGuardedIndexRoute
   '/bianca': typeof BiancaRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/tutorial': typeof TutorialRoute
   '/me': typeof AuthGuardedMeRouteRoute
   '/store': typeof AuthGuardedStoreRoute
   '/register': typeof AuthRegisterRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/_auth-guarded': typeof AuthGuardedRouteWithChildren
   '/bianca': typeof BiancaRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/tutorial': typeof TutorialRoute
   '/_auth-guarded/me': typeof AuthGuardedMeRouteRoute
   '/_auth-guarded/store': typeof AuthGuardedStoreRoute
   '/_auth/register': typeof AuthRegisterRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bianca'
     | '/leaderboard'
+    | '/tutorial'
     | '/me'
     | '/store'
     | '/register'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/bianca'
     | '/leaderboard'
+    | '/tutorial'
     | '/me'
     | '/store'
     | '/register'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/_auth-guarded'
     | '/bianca'
     | '/leaderboard'
+    | '/tutorial'
     | '/_auth-guarded/me'
     | '/_auth-guarded/store'
     | '/_auth/register'
@@ -154,12 +166,20 @@ export interface RootRouteChildren {
   AuthGuardedRoute: typeof AuthGuardedRouteWithChildren
   BiancaRoute: typeof BiancaRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  TutorialRoute: typeof TutorialRoute
   UsersNicknameRoute: typeof UsersNicknameRoute
   UsersIdUserIdRoute: typeof UsersIdUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tutorial': {
+      id: '/tutorial'
+      path: '/tutorial'
+      fullPath: '/tutorial'
+      preLoaderRoute: typeof TutorialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -273,6 +293,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthGuardedRoute: AuthGuardedRouteWithChildren,
   BiancaRoute: BiancaRoute,
   LeaderboardRoute: LeaderboardRoute,
+  TutorialRoute: TutorialRoute,
   UsersNicknameRoute: UsersNicknameRoute,
   UsersIdUserIdRoute: UsersIdUserIdRoute,
 }
