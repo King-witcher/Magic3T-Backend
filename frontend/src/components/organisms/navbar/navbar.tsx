@@ -97,11 +97,11 @@ export function Navbar() {
         />
       </Link>
 
-      {/* Store */}
+      {/* Shop */}
       {authState === AuthState.SignedIn && (
-        <NavLink href="." disabled tooltip="Store (Coming Soon)">
+        <NavLink href="." disabled tooltip="Shop (Coming Soon)">
           <GiShoppingBag size={20} />
-          <span className="hidden lg:inline-block">Store</span>
+          <span className="hidden lg:inline-block">Shop</span>
         </NavLink>
       )}
 
@@ -129,7 +129,7 @@ export function Navbar() {
       {authState === AuthState.SignedInUnregistered && (
         <>
           {/* Divider */}
-          <div className="hidden xs:block w-px h-8 bg-gold-5/30 mx-2" />
+          <div className="hidden xs:block w-px h-8 bg-gold-6 mx-2" />
           <NavLink
             onClick={() => setLogoutOpen(true)}
             tooltip="Finish session"
@@ -145,7 +145,7 @@ export function Navbar() {
       {authState === AuthState.SignedIn && (
         <>
           {/* Divider */}
-          <div className="hidden xs:block w-px h-8 bg-gold-5/30 mx-2" />
+          <div className="hidden xs:block w-px h-8 bg-gold-6 mx-2" />
           <Popover>
             <PopoverTrigger asChild>
               <div
