@@ -18,7 +18,7 @@ export function useLocalStorage<T>(
 
   useEffect(() => {
     localStorage.setItem(`magic3t.${key}`, JSON.stringify(value))
-  }, [value])
+  }, [value, key])
 
   return [value, setValue]
 }

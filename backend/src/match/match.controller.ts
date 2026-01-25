@@ -4,7 +4,6 @@ import {
   Get,
   HttpCode,
   NotFoundException,
-  NotImplementedException,
   Param,
   ParseIntPipe,
   Post,
@@ -112,7 +111,6 @@ export class MatchController {
   })
   async getMatchesByUser(
     @Query('limit', ParseIntPipe) limit: number,
-    @Query('cursor') cursor: string,
     @Param('userId') userId: string
   ): Promise<ListMatchesResult> {
     const clampedLimit = clamp(limit, 0, 50)

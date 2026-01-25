@@ -2,7 +2,6 @@ import {
   GiArtificialHive,
   GiArtificialIntelligence,
   GiBrain,
-  GiCrossedSwords,
   GiGoose,
   GiRobotGrab,
 } from 'react-icons/gi'
