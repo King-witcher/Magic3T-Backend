@@ -13,7 +13,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
     <div className="flex flex-col items-center gap-4">
       <div className="flex flex-col items-center gap-6">
         {/* Profile Avatar */}
-        <AvatarRoot className="mt-16">
+        <AvatarRoot className="mt-24">
           <AvatarImage icon={user.summonerIcon} />
           <AvatarWing league={user.rating.league} />
           {user.rating.division && <AvatarDivision division={user.rating.division} />}
@@ -37,18 +37,6 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               {user.nickname}
             </h1>
           </div>
-        </div>
-      </div>
-      {/* Rank Emblem */}
-      <div className="flex">
-        <div className="flex flex-col items-center">
-          <img
-            src={`${import.meta.env.VITE_CDN_URL}/leagues/emblems/challenger.png`}
-            alt=""
-            className="w-56 object-contain"
-          />
-          <p className="text-gold-1 tracking-wider font-serif font-medium text-2xl">Challenger</p>
-          <p className="text-gold-4 tracking-wider font-serif font-bold text-lg">1200 LP</p>
         </div>
       </div>
     </div>

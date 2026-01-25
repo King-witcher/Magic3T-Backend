@@ -3,10 +3,10 @@ import { UseQueryResult } from '@tanstack/react-query'
 import { Panel, PanelDivider } from '@/components/ui/panel'
 import { useRegisterCommand } from '@/hooks/use-register-command'
 import { Console } from '@/lib/console'
-import { MatchHistory } from './match-history'
-import { ProfileHeader } from './profile-header'
-import { ProfileSearch } from './profile-search'
-import { ProfileStats } from './profile-stats'
+import { MatchHistory } from './components/match-history'
+import { ProfileHeader } from './components/profile-header'
+import { ProfileSearch } from './components/profile-search'
+import { ProfileStats } from './components/profile-stats'
 
 interface Props {
   user: GetUserResult
@@ -31,21 +31,10 @@ export function ProfileTemplate({ user, matchesQuery }: Props) {
     <div className="min-h-full p-4 sm:p-8 flex justify-center items-start">
       <div className="w-full max-w-4xl space-y-6">
         {/* Main Profile Card */}
-        <Panel className="flex flex-col">
-          {/* Search Other Players */}
-          <ProfileSearch />
-
-          <PanelDivider />
-
-          {/* Profile Header - Icon, Name, Rank */}
+        <Panel className="flex flex-col gap-2">
           <ProfileHeader user={user} />
-
-          <PanelDivider />
-
-          {/* Stats Section */}
           <ProfileStats user={user} />
-
-          <PanelDivider />
+          <ProfileSearch />
         </Panel>
 
         {/* Match History Card */}
