@@ -32,6 +32,11 @@ export function ProfileTemplate({ user, matchesQuery }: Props) {
       <div className="w-full max-w-4xl space-y-6">
         {/* Main Profile Card */}
         <Panel className="flex flex-col">
+          {/* Search Other Players */}
+          <ProfileSearch />
+
+          <PanelDivider />
+
           {/* Profile Header - Icon, Name, Rank */}
           <ProfileHeader user={user} />
 
@@ -41,9 +46,6 @@ export function ProfileTemplate({ user, matchesQuery }: Props) {
           <ProfileStats user={user} />
 
           <PanelDivider />
-
-          {/* Search Other Players */}
-          <ProfileSearch />
         </Panel>
 
         {/* Match History Card */}
