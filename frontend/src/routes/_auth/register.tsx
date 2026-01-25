@@ -100,7 +100,7 @@ function RouteComponent() {
     : null
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(handleRegister)}>
+    <form className="space-y-5 sm:space-y-6" onSubmit={handleSubmit(handleRegister)}>
       {/* Header */}
       <div className="text-center">
         <h2 className="font-serif font-bold text-4xl text-gold-4 uppercase tracking-wide">

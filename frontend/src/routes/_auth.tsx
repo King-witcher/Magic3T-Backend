@@ -29,11 +29,11 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-full w-full flex items-center justify-center lg:justify-start lg:px-20 xl:px-30 2xl:px-40">
-      <div className="w-full max-w-md">
+    <div className="min-h-full w-full flex items-center justify-center p-8 lg:justify-start lg:px-[6vw]">
+      <div className="w-full max-w-md flex-2">
         {/* Logo/Title Section */}
         <div className="text-center mb-8">
-          <h1 className="font-serif font-bold text-6xl text-gold-1 uppercase tracking-wider mb-2 drop-shadow-[0_0_20px_rgba(200,170,110,0.5)]">
+          <h1 className="font-serif font-bold text-5xl md:text-6xl text-gold-1 uppercase tracking-wider mb-2 drop-shadow-[0_0_20px_rgba(200,170,110,0.5)]">
             Magic3T
           </h1>
           <div className="h-0.5 w-32 mx-auto bg-linear-to-r from-transparent via-gold-3 to-transparent" />
