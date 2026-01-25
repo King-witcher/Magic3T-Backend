@@ -1,3 +1,4 @@
+// DO NOT USE THIS COMPONENT, IT IS DEPRECATED
 import { Division, League } from '@magic3t/common-types'
 import { ComponentProps } from 'react'
 import { RiEdit2Fill } from 'react-icons/ri'

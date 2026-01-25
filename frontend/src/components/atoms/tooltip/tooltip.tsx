@@ -16,7 +16,7 @@ export function Tooltip({ children, label }: Props) {
         <RadixTooltip.Portal>
           <RadixTooltip.Content
             className={twMerge(
-              'bg-[#ffffff40] backdrop-blur-md border-1 border-[#A09B8C] px-2 py-1 rounded-md',
+              'bg-[#ffffff40] backdrop-blur-md border border-[#A09B8C] px-2 py-1 rounded-md',
               'text-sans text-xs text-gold-1 tracking-wide',
               'data-[state=delayed-open]:animate-fade-in data-[state=closed]:bg-red-500'
             )}
