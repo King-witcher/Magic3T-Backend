@@ -8,8 +8,10 @@ import { cn, getIconUrl } from '@/utils/utils'
 // Avatar space starts at 467/992 from the top
 // The division text is centered at 230/497 from the top of the image
 // The division text is at -3/97 avatar diameters from the top of the avatar space
+// Level borders are at scale 683/1265
 
-export function AvatarRoot({ className, ...props }: ComponentProps<'div'>) {
+type AvatarRootProps = ComponentProps<'div'>
+export function AvatarRoot({ className, ...props }: AvatarRootProps) {
   return <div className={cn('relative size-32', className)} {...props} />
 }
 
@@ -31,7 +33,14 @@ export function AvatarWing({ league }: AvatarWingProps) {
 
   return (
     <div className="absolute inset-0">
-      <div className="absolute w-287/96 h-auto left-1/2 -translate-x-1/2 -translate-y-467/992">
+      <div
+        className={cn(
+          'absolute h-auto left-1/2 -translate-x-1/2 ',
+          league === League.Provisional
+            ? 'top-1/2 w-1264/683 -translate-y-1/2' // Unranked
+            : 'w-287/96 -translate-y-467/992' // Ranked
+        )}
+      >
         <img className="w-full h-auto" src={leagueInfo.wing} alt={leagueInfo.name} />
       </div>
     </div>
