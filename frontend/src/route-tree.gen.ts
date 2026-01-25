@@ -9,11 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TutorialRouteImport } from './routes/tutorial'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as BiancaRouteImport } from './routes/bianca'
 import { Route as AuthGuardedRouteImport } from './routes/_auth-guarded'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as TutorialRouteRouteImport } from './routes/tutorial/route'
 import { Route as AuthGuardedIndexRouteImport } from './routes/_auth-guarded/index'
 import { Route as UsersNicknameRouteImport } from './routes/users/$nickname'
 import { Route as AuthSignInRouteImport } from './routes/_auth/sign-in'
@@ -22,11 +22,6 @@ import { Route as AuthGuardedStoreRouteImport } from './routes/_auth-guarded/sto
 import { Route as AuthGuardedMeRouteRouteImport } from './routes/_auth-guarded/me/route'
 import { Route as UsersIdUserIdRouteImport } from './routes/users/id/$userId'
 
-const TutorialRoute = TutorialRouteImport.update({
-  id: '/tutorial',
-  path: '/tutorial',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -43,6 +38,11 @@ const AuthGuardedRoute = AuthGuardedRouteImport.update({
 } as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TutorialRouteRoute = TutorialRouteRouteImport.update({
+  id: '/tutorial',
+  path: '/tutorial',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthGuardedIndexRoute = AuthGuardedIndexRouteImport.update({
@@ -82,10 +82,10 @@ const UsersIdUserIdRoute = UsersIdUserIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/tutorial': typeof TutorialRouteRoute
   '/': typeof AuthGuardedIndexRoute
   '/bianca': typeof BiancaRoute
   '/leaderboard': typeof LeaderboardRoute
-  '/tutorial': typeof TutorialRoute
   '/me': typeof AuthGuardedMeRouteRoute
   '/store': typeof AuthGuardedStoreRoute
   '/register': typeof AuthRegisterRoute
@@ -94,10 +94,10 @@ export interface FileRoutesByFullPath {
   '/users/id/$userId': typeof UsersIdUserIdRoute
 }
 export interface FileRoutesByTo {
+  '/tutorial': typeof TutorialRouteRoute
   '/': typeof AuthGuardedIndexRoute
   '/bianca': typeof BiancaRoute
   '/leaderboard': typeof LeaderboardRoute
-  '/tutorial': typeof TutorialRoute
   '/me': typeof AuthGuardedMeRouteRoute
   '/store': typeof AuthGuardedStoreRoute
   '/register': typeof AuthRegisterRoute
@@ -107,11 +107,11 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/tutorial': typeof TutorialRouteRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_auth-guarded': typeof AuthGuardedRouteWithChildren
   '/bianca': typeof BiancaRoute
   '/leaderboard': typeof LeaderboardRoute
-  '/tutorial': typeof TutorialRoute
   '/_auth-guarded/me': typeof AuthGuardedMeRouteRoute
   '/_auth-guarded/store': typeof AuthGuardedStoreRoute
   '/_auth/register': typeof AuthRegisterRoute
@@ -123,10 +123,10 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/tutorial'
     | '/'
     | '/bianca'
     | '/leaderboard'
-    | '/tutorial'
     | '/me'
     | '/store'
     | '/register'
@@ -135,10 +135,10 @@ export interface FileRouteTypes {
     | '/users/id/$userId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/tutorial'
     | '/'
     | '/bianca'
     | '/leaderboard'
-    | '/tutorial'
     | '/me'
     | '/store'
     | '/register'
@@ -147,11 +147,11 @@ export interface FileRouteTypes {
     | '/users/id/$userId'
   id:
     | '__root__'
+    | '/tutorial'
     | '/_auth'
     | '/_auth-guarded'
     | '/bianca'
     | '/leaderboard'
-    | '/tutorial'
     | '/_auth-guarded/me'
     | '/_auth-guarded/store'
     | '/_auth/register'
@@ -162,24 +162,17 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  TutorialRouteRoute: typeof TutorialRouteRoute
   AuthRoute: typeof AuthRouteWithChildren
   AuthGuardedRoute: typeof AuthGuardedRouteWithChildren
   BiancaRoute: typeof BiancaRoute
   LeaderboardRoute: typeof LeaderboardRoute
-  TutorialRoute: typeof TutorialRoute
   UsersNicknameRoute: typeof UsersNicknameRoute
   UsersIdUserIdRoute: typeof UsersIdUserIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/tutorial': {
-      id: '/tutorial'
-      path: '/tutorial'
-      fullPath: '/tutorial'
-      preLoaderRoute: typeof TutorialRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -206,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tutorial': {
+      id: '/tutorial'
+      path: '/tutorial'
+      fullPath: '/tutorial'
+      preLoaderRoute: typeof TutorialRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth-guarded/': {
@@ -289,11 +289,11 @@ const AuthGuardedRouteWithChildren = AuthGuardedRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  TutorialRouteRoute: TutorialRouteRoute,
   AuthRoute: AuthRouteWithChildren,
   AuthGuardedRoute: AuthGuardedRouteWithChildren,
   BiancaRoute: BiancaRoute,
   LeaderboardRoute: LeaderboardRoute,
-  TutorialRoute: TutorialRoute,
   UsersNicknameRoute: UsersNicknameRoute,
   UsersIdUserIdRoute: UsersIdUserIdRoute,
 }

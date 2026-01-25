@@ -6,7 +6,7 @@ import { ErrorPanel } from '@/components/ui/error-panel'
 import { apiClient } from '@/services/clients/api-client'
 
 export function GlobalErrorTemplate({ error, info }: ErrorComponentProps) {
-  const [errorSent, setErrorSent] = useState(false)
+  const [_errorSent, setErrorSent] = useState(false)
 
   useEffect(() => {
     if (import.meta.env.DEV) return
@@ -30,7 +30,7 @@ export function GlobalErrorTemplate({ error, info }: ErrorComponentProps) {
         console.error('Failed to send crash report:', reportError)
       })
       .then(() => setErrorSent(true))
-  }, [])
+  }, [error, info])
 
   return (
     <div className="flex items-center justify-center min-h-dvh bg-hextech-black p-4">

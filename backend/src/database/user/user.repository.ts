@@ -75,7 +75,10 @@ export class UserRepository extends BaseFirestoreRepository<UserRow> {
    */
   async getBest(minMatches: number, limit: number): Promise<ListResult<UserRow>> {
     this.user_logger.verbose(`read ${limit} best players from.`)
-    const rankingQuery = this.collection.orderBy('elo.score', 'desc').where('elo.matches', '>', minMatches).limit(limit)
+    const rankingQuery = this.collection
+      .orderBy('elo.score', 'desc')
+      .where('elo.matches', '>', minMatches)
+      .limit(limit)
     const result = await rankingQuery.get()
     const players = result.docs.map((doc) => {
       const data = doc.data()

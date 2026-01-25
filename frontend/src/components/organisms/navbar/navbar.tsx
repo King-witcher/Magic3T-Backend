@@ -1,7 +1,7 @@
 import { UserRole } from '@magic3t/database-types'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { GiCrown, GiShoppingBag, GiTrophy } from 'react-icons/gi'
+import { GiBookCover, GiCrown, GiShoppingBag, GiTrophy } from 'react-icons/gi'
 import { IoLogOutOutline, IoPerson } from 'react-icons/io5'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { AuthState, useAuth } from '@/contexts/auth-context'
@@ -97,45 +97,55 @@ export function Navbar() {
         />
       </Link>
 
-      {/* Store */}
+      {/* Shop */}
       {authState === AuthState.SignedIn && (
-        <NavLink href="." disabled className="hidden md:flex" tooltip="Store (Coming Soon)">
+        <NavLink href="." disabled tooltip="Shop (Coming Soon)">
           <GiShoppingBag size={20} />
-          Store
+          <span className="hidden lg:inline-block">Shop</span>
         </NavLink>
       )}
 
       {/* Leaderboard */}
-      <NavLink href="/leaderboard" tooltip="The best Magic3T players" className="hover:animate-out">
+      <NavLink href="/leaderboard" tooltip="The best Magic3T players">
         <GiTrophy size={20} />
-        <span className="hidden sm:inline-block">Leaderboard</span>
+        <span className="hidden lg:inline-block">Leaderboard</span>
+      </NavLink>
+
+      {/* Tutorial */}
+      <NavLink href="/tutorial" tooltip="Learn how to play Magic3T" className="hidden xs:flex">
+        <GiBookCover size={20} />
+        <span className="hidden lg:inline-block">Tutorial</span>
       </NavLink>
 
       {/* Admin Button */}
       {authState === AuthState.SignedIn && user.role === UserRole.Creator && (
         <NavLink href="/admin" tooltip="Creator Zone" className="hidden md:flex">
           <GiCrown size={20} />
-          Admin
+          <span className="hidden lg:inline-block">Admin</span>
         </NavLink>
       )}
 
       {/* Logout button for unregistered users */}
       {authState === AuthState.SignedInUnregistered && (
-        <NavLink
-          onClick={() => setLogoutOpen(true)}
-          tooltip="Finish session"
-          className="hover:animate-out"
-        >
-          <IoLogOutOutline size={20} />
-          <span className="hidden sm:inline-block">Logout</span>
-        </NavLink>
+        <>
+          {/* Divider */}
+          <div className="hidden xs:block w-px h-8 bg-gold-6 mx-2" />
+          <NavLink
+            onClick={() => setLogoutOpen(true)}
+            tooltip="Finish session"
+            className="hover:animate-out"
+          >
+            <IoLogOutOutline size={20} />
+            <span className="hidden sm:inline-block">Logout</span>
+          </NavLink>
+        </>
       )}
 
       {/* Profile button */}
       {authState === AuthState.SignedIn && (
         <>
           {/* Divider */}
-          <div className="hidden xs:block w-px h-8 bg-gold-5/30 mx-2" />
+          <div className="hidden xs:block w-px h-8 bg-gold-6 mx-2" />
           <Popover>
             <PopoverTrigger asChild>
               <div
@@ -164,6 +174,13 @@ export function Navbar() {
                 >
                   <IoPerson />
                   My Profile
+                </Link>
+                <Link
+                  to="/tutorial"
+                  className="flex gap-2 items-center hover:bg-blue-4/20 p-3 cursor-pointer sm:hidden"
+                >
+                  <GiBookCover />
+                  Tutorial
                 </Link>
                 <button
                   type="button"

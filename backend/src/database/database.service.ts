@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import {
-  DocumentData,
   FirestoreDataConverter,
   QueryDocumentSnapshot,
   Timestamp,
   WithFieldValue,
 } from 'firebase-admin/firestore'
-import { Firestorify } from './types'
 
 const epoch = new Date(2000, 7, 31).getTime()
 

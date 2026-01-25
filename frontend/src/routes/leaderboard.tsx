@@ -5,7 +5,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { GiCrown, GiRobotGrab } from 'react-icons/gi'
 import { Loading } from '@/components/templates'
 import { Panel } from '@/components/ui'
-import { Tooltip, TooltipRoot } from '@/components/ui/tooltip'
+import { Tooltip } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { apiClient } from '@/services/clients/api-client'
 import { divisionMap, leaguesMap } from '@/utils/ranks'
@@ -69,7 +69,7 @@ export function RankingTemplate() {
                     params={{ nickname: user.nickname?.replaceAll(' ', '') ?? '' }}
                     key={user.id}
                   >
-                    <div className="flex items-center sm:gap-4 p-3 sm:p-4 sm:p-5">
+                    <div className="flex items-center sm:gap-4 p-3 sm:p-5">
                       {/* Rank Number */}
                       {!isTop1 && (
                         <div
@@ -131,7 +131,7 @@ export function RankingTemplate() {
 
                     {/* Top 3 Special Indicator */}
                     {isTopThree && (
-                      <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-3/4 bg-gradient-to-b from-gold-3 via-gold-4 to-gold-5 rounded-r" />
+                      <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-3/4 bg-linear-to-b from-gold-3 via-gold-4 to-gold-5 rounded-r" />
                     )}
                   </Link>
                 )

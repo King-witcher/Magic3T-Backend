@@ -1,11 +1,11 @@
 import { Team } from '@magic3t/common-types'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { GiCrossedSwords } from 'react-icons/gi'
 import { Button } from '@/components/atoms'
 import { useGame } from '@/contexts/game-context'
 import { useDialogStore } from '@/contexts/modal-store'
 import { GameBoard } from './components/game-board'
-import { GameChat } from './components/game-chat'
+// import { GameChat } from './components/game-chat'
 import { GameResultModal } from './components/game-result-modal'
 import { PlayerPanel } from './components/player-panel'
 import { SurrenderModal } from './components/surrender-modal'
@@ -13,7 +13,7 @@ import { SurrenderModal } from './components/surrender-modal'
 export function GameTemplate() {
   const gameCtx = useGame()
   const showDialog = useDialogStore((state) => state.showDialog)
-  const chatInputRef = useRef<HTMLInputElement>(null)
+  // const chatInputRef = useRef<HTMLInputElement>(null)
 
   // Current player's team and opponent's team
   const myTeam = gameCtx.currentTeam || Team.Order

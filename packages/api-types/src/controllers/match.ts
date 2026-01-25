@@ -24,4 +24,4 @@ export type ListMatchesResult = {
   // pagination: {}
 }
 
-export type GetCurrentMatchResult = {}
+export type GetCurrentMatchResult = object

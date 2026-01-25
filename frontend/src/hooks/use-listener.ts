@@ -36,11 +36,11 @@ export function useListener<
     if (!gateway.socket) return
     Console.log(`Subscribed to ${gateway.name}::${event.toString()}`)
     const socket = gateway.socket
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    // biome-ignore lint/suspicious/noExplicitAny: There is no other way to type this
     socket.on(event, <any>listener)
     return () => {
       Console.log(`Unsubscribed from ${gateway.name}::${event.toString()}`)
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      // biome-ignore lint/suspicious/noExplicitAny: There is no other way to type this
       socket.off(event, <any>listener)
     }
   }, [gateway, event, ...deps])

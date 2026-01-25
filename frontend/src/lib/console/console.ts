@@ -107,6 +107,45 @@ export class Console {
     )
   }
 
+  public static useCvarString(cvar: string): string {
+    return useSyncExternalStore(
+      (callback) => {
+        return Console.on('changeCvar', (changedCvar) => {
+          if (changedCvar === cvar) {
+            callback()
+          }
+        })
+      },
+      () => Console.getCvarString(cvar)
+    )
+  }
+
+  public static useCvarNumber(cvar: string): number {
+    return useSyncExternalStore(
+      (callback) => {
+        return Console.on('changeCvar', (changedCvar) => {
+          if (changedCvar === cvar) {
+            callback()
+          }
+        })
+      },
+      () => Console.getCvarNumber(cvar)
+    )
+  }
+
+  public static useCvarBoolean(cvar: string): boolean {
+    return useSyncExternalStore(
+      (callback) => {
+        return Console.on('changeCvar', (changedCvar) => {
+          if (changedCvar === cvar) {
+            callback()
+          }
+        })
+      },
+      () => Console.getCvarBoolean(cvar)
+    )
+  }
+
   public static log(message?: string) {
     console.log(message)
     Console.lines = [...Console.lines, message ?? '']
