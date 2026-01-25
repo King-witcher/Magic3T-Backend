@@ -1,5 +1,12 @@
 import { cn } from '@/utils/utils'
-import { CellState } from './cell-state'
+
+export type CellState =
+  | 'available'
+  | 'ally'
+  | 'enemy'
+  | 'disabled'
+  | 'highlight-ally'
+  | 'highlight-enemy'
 
 const cellStyles: Record<CellState, string> = {
   available: `
