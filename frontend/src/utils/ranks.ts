@@ -12,8 +12,8 @@ export const leaguesMap: Record<League, LeagueInfo> = {
   [League.Provisional]: {
     emblem: `${import.meta.env.VITE_CDN_URL}/leagues/emblems/unranked.png`,
     icon: `${import.meta.env.VITE_CDN_URL}/leagues/icons/unranked.svg`,
-    wing: '',
-    plate: '',
+    wing: `${import.meta.env.VITE_CDN_URL}/leagues/wings/provisional-1.png`,
+    plate: `${import.meta.env.VITE_CDN_URL}/leagues/wings/provisional-1.png`,
     name: 'Unranked',
   },
   [League.Bronze]: {
