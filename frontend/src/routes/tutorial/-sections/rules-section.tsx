@@ -14,7 +14,7 @@ const exampleBoardState: BoardState = {
   9: 'highlight-ally',
 }
 
-export function WelcomeSection() {
+export function RulesSection() {
   return (
     <section>
       <SectionTitle icon={IoSchool}>The Rules</SectionTitle>

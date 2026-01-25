@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { GiCrossedSwords, GiPodium, GiTrophyCup } from 'react-icons/gi'
 import { Button } from '@/components/atoms'
 import { Panel } from '@/components/ui/panel'
-import { RankingSection, StrategySection, SummarySection, WelcomeSection } from './-sections'
+import { RankingSection, RulesSection, StrategySection, SummarySection } from './-sections'
 
 export const Route = createFileRoute('/tutorial')({
   component: TutorialPage,
@@ -12,7 +12,7 @@ function TutorialPage() {
   return (
     <div className="w-full min-h-full p-4 sm:p-8 flex justify-center items-start">
       <div className="w-full max-w-5xl">
-        <Panel className="flex-col gap-8">
+        <Panel className="flex flex-col gap-8">
           {/* Header */}
           <div className="text-center border-b-2 border-gold-5 pb-6">
             <h1 className="font-serif font-bold text-4xl sm:text-5xl text-gold-4 uppercase tracking-wide">
@@ -23,7 +23,7 @@ function TutorialPage() {
             </p>
           </div>
 
-          <WelcomeSection />
+          <RulesSection />
 
           <StrategySection />
 
