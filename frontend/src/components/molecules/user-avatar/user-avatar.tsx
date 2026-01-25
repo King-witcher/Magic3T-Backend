@@ -19,6 +19,7 @@ interface Props extends ComponentProps<'div'> {
 
 const numbers = ['', 'I', 'II', 'III', 'IV', 'V']
 
+/** @deprecated */
 export function UserAvatar({
   icon,
   league,
