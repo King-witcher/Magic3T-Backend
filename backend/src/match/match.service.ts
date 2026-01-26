@@ -244,10 +244,12 @@ export class MatchService {
         first: {
           rating: order.data.elo.score,
           k: order.data.elo.k,
+          challenger: order.data.elo.challenger,
         },
         second: {
           rating: chaos.data.elo.score,
           k: chaos.data.elo.k,
+          challenger: chaos.data.elo.challenger,
         },
         scoreOfFirst: orderScore,
       })
@@ -262,6 +264,7 @@ export class MatchService {
             k: newRatings.first.k,
             score: newRatings.first.rating,
             matches: order.data.elo.matches + 1,
+            challenger: newRatings.first.challenger,
           },
         },
         chaos: {
@@ -273,6 +276,7 @@ export class MatchService {
             k: newRatings.second.k,
             score: newRatings.second.rating,
             matches: chaos.data.elo.matches + 1,
+            challenger: newRatings.second.challenger,
           },
         },
         events: match.events,

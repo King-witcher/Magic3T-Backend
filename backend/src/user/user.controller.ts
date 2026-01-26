@@ -151,6 +151,7 @@ export class UserController {
       elo: {
         k: ratingConfig.initial_k_value,
         score: ratingConfig.base_score,
+        challenger: false,
         matches: 0,
       },
       experience: 0,

@@ -23,6 +23,7 @@ export class RatingService {
     const newRating1 = params.first.rating + params.first.k * (score1 - expected1)
     const newRating2 = params.second.rating + params.second.k * (score2 - expected2)
 
+
     const newK1 =
       config.final_k_value * config.k_deflation_factor +
       params.first.k * (1 - config.k_deflation_factor)
@@ -30,9 +31,34 @@ export class RatingService {
       config.final_k_value * config.k_deflation_factor +
       params.second.k * (1 - config.k_deflation_factor)
 
+    const resultFirst: GetNewRatingsResult['first'] = {
+      rating: newRating1,
+      k: newK1,
+      challenger: params.first.challenger,
+    }
+
+    const resultSecond: GetNewRatingsResult['second'] = {
+      rating: newRating2,
+      k: newK2,
+      challenger: params.second.challenger,
+    }
+
+    // Workaround to remove challenger flag if players fall below diamond
+    if (params.first.challenger) {
+      const lp = await this.getTotalLp(newRating1)
+      if (lp < 4 * 400)
+        resultFirst.challenger = false
+    }
+
+    if (params.second.challenger) {
+      const lp = await this.getTotalLp(newRating2)
+      if (lp < 4 * 400)
+        resultSecond.challenger = false
+    }
+
     return {
-      first: { rating: newRating1, k: newK1 },
-      second: { rating: newRating2, k: newK2 },
+      first: resultFirst,
+      second: resultSecond,
     }
   }
 
@@ -60,16 +86,16 @@ export class RatingService {
     // 3 - Diamond
     // 4 - Master
     const leagueIndex = clamp(Math.floor(rawLP / 400), 0, 4)
-    const league = leagueIndexes[leagueIndex]
+    const league = params.challenger ? League.Challenger : leagueIndexes[leagueIndex]
     const division = (() => {
-      if (league === League.Master) return null
+      if (league === League.Master || league === League.Challenger) return null
 
       const divsAbove4 = Math.floor((rawLP % 400) / 100)
       return (4 - divsAbove4) as Division
     })()
 
     const points = (() => {
-      if (league === League.Master) return Math.floor(rawLP - 1600)
+      if (league === League.Master || league === League.Challenger) return Math.floor(rawLP - 1600)
       return Math.floor(rawLP % 100)
     })()
 
@@ -81,6 +107,7 @@ export class RatingService {
     }
   }
 
+  /** Gets how much LP the player has relative to the lowest League */
   private async getTotalLp(rating: number): Promise<number> {
     const config = (await this.configRepository.cachedGetRatingConfig()).expect(
       'Rating config not found.'

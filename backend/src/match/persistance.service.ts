@@ -49,11 +49,13 @@ export class PersistanceService {
       k: matchSummary.order.newRating.k,
       rating: matchSummary.order.newRating.score,
       matches: matchSummary.order.newRating.matches,
+      challenger: matchSummary.order.newRating.challenger,
     })
     const chaosRating = await this.ratingService.getRatingData({
       k: matchSummary.chaos.newRating.k,
       rating: matchSummary.chaos.newRating.score,
       matches: matchSummary.chaos.newRating.matches,
+      challenger: matchSummary.chaos.newRating.challenger,
     })
 
     // Calculate LP gains

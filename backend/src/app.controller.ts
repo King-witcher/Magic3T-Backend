@@ -1,4 +1,4 @@
-import { CrashReportRepository } from '@database'
+import { CrashReportRepository, UserRepository } from '@database'
 import { CrashReportCommand } from '@magic3t/api-types'
 import { CrashReportRow, WithId } from '@magic3t/database-types'
 import { Body, Controller, Get, Post, Redirect } from '@nestjs/common'
@@ -7,7 +7,7 @@ import { Throttle } from '@nestjs/throttler'
 
 @Controller()
 export class AppController {
-  constructor(private readonly crashReportRepository: CrashReportRepository) {}
+  constructor(private readonly crashReportRepository: CrashReportRepository, private usersRepository: UserRepository) {}
 
   @Get('/')
   @Redirect('/api')
@@ -16,6 +16,14 @@ export class AppController {
 
   @Get('teapot')
   async teapot() {
+    const users = await this.usersRepository.listAll()
+    await Promise.all(users.map(async (user) => {
+      await this.usersRepository.update(user.id, {
+        'elo.challenger': false,
+      })
+    }))
+    console.log(`Updated ${users.length} users to remove glicko field.`)
+
     return Err('I am a teapot')
   }
 

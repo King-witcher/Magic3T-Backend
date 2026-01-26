@@ -16,7 +16,7 @@ export interface RatingConfigModel extends WithId<'rating'> {
   /** The max rd a player can have to have their ranking revealed. */
   rd_threshold: number
 
-  /** The legth of each league in score points. */
+  /** The length of each league in elo points. */
   league_length: number
 
   /** The league where a player would be with the base score. This number can be fractionary. */

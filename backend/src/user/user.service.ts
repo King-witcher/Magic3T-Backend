@@ -13,6 +13,7 @@ export class UserService {
       k: row.data.elo.k,
       matches: row.data.elo.matches,
       rating: row.data.elo.score,
+      challenger: row.data.elo.challenger,
     })
 
     return {
@@ -30,6 +31,7 @@ export class UserService {
       k: row.data.elo.k,
       matches: row.data.elo.matches,
       rating: row.data.elo.score,
+      challenger: row.data.elo.challenger,
     })
 
     return {

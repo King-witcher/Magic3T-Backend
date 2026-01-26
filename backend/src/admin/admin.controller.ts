@@ -25,14 +25,10 @@ export class AdminController {
         this.usersRepository.set(user.id, {
           ...user.data,
           elo: {
+            challenger: false,
             score: ratingConfig.base_score,
             k: ratingConfig.initial_k_value,
             matches: 0,
-          },
-          glicko: {
-            rating: ratingConfig.base_score,
-            deviation: ratingConfig.max_rd,
-            timestamp: new Date(),
           },
         })
       })

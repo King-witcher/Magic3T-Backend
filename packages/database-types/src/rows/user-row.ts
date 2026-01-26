@@ -1,13 +1,8 @@
-export type UserRowGlicko = {
-  rating: number
-  deviation: number
-  timestamp: Date
-}
-
 export type UserRowElo = {
   score: number
   matches: number
   k: number
+  challenger: boolean
 }
 
 export const enum UserRole {
@@ -30,7 +25,6 @@ export type UserRow = {
 
   role: UserRole
 
-  glicko?: UserRowGlicko // Deprecated
   elo: UserRowElo
 
   stats: {

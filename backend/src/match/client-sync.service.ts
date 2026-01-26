@@ -49,12 +49,14 @@ export class ClientSyncService {
       k: summary.order.newRating.k,
       rating: summary.order.newRating.score,
       matches: summary.order.newRating.matches,
+      challenger: summary.order.newRating.challenger,
     })
 
     const newChaosRating = await this.ratingService.getRatingData({
       k: summary.chaos.newRating.k,
       rating: summary.chaos.newRating.score,
       matches: summary.chaos.newRating.matches,
+      challenger: summary.chaos.newRating.challenger,
     })
 
     const socketSummary: MatchReportPayload = {
@@ -83,6 +85,7 @@ export class ClientSyncService {
       k: team.row.data.elo.k,
       rating: team.row.data.elo.score,
       matches: team.row.data.elo.matches,
+      challenger: team.row.data.elo.challenger,
     })
 
     // If the player was provisional, hide LP gains.
