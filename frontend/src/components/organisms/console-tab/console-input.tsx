@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 import { useKeyListener } from '@/hooks/use-key-listener'
 
 interface Props {
@@ -110,51 +110,93 @@ const printableChars = new Set([
 ])
 
 export function ConsoleInput({ onSubmit, focused }: Props) {
-  const [value, setValue] = useState('')
-  const [cursorPosition, setCursorPosition] = useState(0)
-  const spacesBeforeCursor = ' '.repeat(cursorPosition + 1)
+  // History of commands sent
+  const [history, setHistory] = useState<string[]>([])
 
+  // Replica of the story that the user can navigate. Reset after submit
+  const [inputs, setInputs] = useState<string[]>([''])
+
+  // Cursor in the inputs
+  const [inputsCursor, setInputsCursor] = useState(0)
+
+  // Cursor in current line
+  const [lineCursor, setLineCursor] = useState(0)
+
+  // Current value to be shown
+  const currentInput = inputs[inputsCursor]
+  const setCurrentInput: Dispatch<SetStateAction<string>> = useCallback(
+    (value) => {
+      setInputs((prevInputs: string[]) => {
+        const newInputs = [...prevInputs]
+        newInputs[inputsCursor] =
+          typeof value === 'function' ? value(newInputs[inputsCursor]) : value
+        return newInputs
+      })
+    },
+    [inputsCursor]
+  )
+
+  // Spaces before cursor for rendering
+  const spacesBeforeCursor = ' '.repeat(lineCursor + 1)
+
+  // Submit on Enter
   useKeyListener(
     'Enter',
-    (event) => {
-      event.preventDefault()
-      if (value.trim()) {
-        onSubmit(value)
-        setValue('')
-        setCursorPosition(0)
+    (e) => {
+      e.preventDefault()
+      if (currentInput.trim()) {
+        // Update history
+        setHistory((prev) => [...prev, currentInput])
+
+        // Update inputs with history
+        setInputs([...history, currentInput, ''])
+
+        // Point current input to the last line
+        setInputsCursor(history.length + 1)
+
+        // Reset line cursor
+        setLineCursor(0)
+
+        // Call onSubmit
+        onSubmit(currentInput)
       }
     },
-    [value, onSubmit],
+    [inputs, inputsCursor, onSubmit],
     focused
   )
 
+  // Handle Backspace
   useKeyListener(
     'Backspace',
-    () => {
-      if (cursorPosition > 0) {
-        setValue((prev) => prev.slice(0, cursorPosition - 1) + prev.slice(cursorPosition))
-        setCursorPosition(cursorPosition - 1)
+    (e) => {
+      e.preventDefault()
+      if (lineCursor > 0) {
+        setCurrentInput((prev) => prev.slice(0, lineCursor - 1) + prev.slice(lineCursor))
+        setLineCursor(lineCursor - 1)
       }
     },
-    [cursorPosition],
+    [lineCursor],
     focused
   )
 
+  // Handle Delete
   useKeyListener(
     'Delete',
-    () => {
-      if (cursorPosition < value.length) {
-        setValue((prev) => prev.slice(0, cursorPosition) + prev.slice(cursorPosition + 1))
+    (e) => {
+      e.preventDefault()
+      if (lineCursor < currentInput.length) {
+        setCurrentInput((prev) => prev.slice(0, lineCursor) + prev.slice(lineCursor + 1))
       }
     },
-    [value, cursorPosition],
+    [currentInput, lineCursor],
     focused
   )
 
   useKeyListener(
     'ArrowLeft',
-    () => {
-      setCursorPosition((prev) => Math.max(0, prev - 1))
+    (e) => {
+      e.preventDefault()
+      setLineCursor((prev) => Math.max(0, prev - 1))
     },
     [],
     focused
@@ -162,10 +204,41 @@ export function ConsoleInput({ onSubmit, focused }: Props) {
 
   useKeyListener(
     'ArrowRight',
-    () => {
-      setCursorPosition((prev) => Math.min(value.length, prev + 1))
+    (e) => {
+      e.preventDefault()
+      setLineCursor((prev) => Math.min(currentInput.length, prev + 1))
     },
-    [value],
+    [currentInput],
+    focused
+  )
+
+  // Navigate command history
+  useKeyListener(
+    'ArrowUp',
+    (e) => {
+      e.preventDefault()
+      setInputsCursor((prev) => {
+        const newCursor = Math.max(0, prev - 1)
+        setLineCursor(inputs[newCursor].length)
+        return newCursor
+      })
+    },
+    [currentInput, inputs],
+    focused
+  )
+
+  // Navigate command history
+  useKeyListener(
+    'ArrowDown',
+    (e) => {
+      e.preventDefault()
+      setInputsCursor((prev) => {
+        const newCursor = Math.min(inputs.length - 1, prev + 1)
+        setLineCursor(inputs[newCursor].length)
+        return newCursor
+      })
+    },
+    [currentInput, inputs],
     focused
   )
 
@@ -175,8 +248,8 @@ export function ConsoleInput({ onSubmit, focused }: Props) {
     const handleKeyDown = (event: KeyboardEvent) => {
       event.preventDefault()
       if (printableChars.has(event.key)) {
-        setValue((prev) => prev.slice(0, cursorPosition) + event.key + prev.slice(cursorPosition))
-        setCursorPosition((prev) => prev + 1)
+        setCurrentInput((prev) => prev.slice(0, lineCursor) + event.key + prev.slice(lineCursor))
+        setLineCursor((prev) => prev + 1)
       }
     }
 
@@ -184,11 +257,11 @@ export function ConsoleInput({ onSubmit, focused }: Props) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [cursorPosition, focused])
+  }, [lineCursor, focused])
 
   return (
     <pre className="relative">
-      ]{value}
+      ]{currentInput}
       <pre className="absolute inset-0 animate-blink pointer-events-none">
         {spacesBeforeCursor}_
       </pre>
