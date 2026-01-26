@@ -4,6 +4,7 @@ import { CrashReportRow, WithId } from '@magic3t/database-types'
 import { Body, Controller, Get, Post, Redirect } from '@nestjs/common'
 import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
+import { FieldValue } from 'firebase-admin/firestore'
 
 @Controller()
 export class AppController {
@@ -16,14 +17,6 @@ export class AppController {
 
   @Get('teapot')
   async teapot() {
-    const users = await this.usersRepository.listAll()
-    await Promise.all(users.map(async (user) => {
-      await this.usersRepository.update(user.id, {
-        'elo.challenger': false,
-      })
-    }))
-    console.log(`Updated ${users.length} users to remove glicko field.`)
-
     return Err('I am a teapot')
   }
 
