@@ -1,14 +1,52 @@
 import { Division, League, RatingData } from '@magic3t/common-types'
 import { Injectable } from '@nestjs/common'
+import { Cron } from '@nestjs/schedule'
 import { clamp } from 'lodash'
-import { ConfigRepository } from '@/database'
+import { ConfigRepository, UserRepository } from '@/database'
 import { GetNewRatingsParams, GetNewRatingsResult, GetRatingDataParams } from './types'
 
 const leagueIndexes = [League.Bronze, League.Silver, League.Gold, League.Diamond, League.Master]
 
 @Injectable()
 export class RatingService {
-  constructor(private configRepository: ConfigRepository) {}
+  constructor(
+    private configRepository: ConfigRepository,
+    private usersRepository: UserRepository
+  ) {}
+
+  @Cron('0 0 12 * * *')
+  async updateChallenger() {
+    console.log('Updating challenger player')
+    const [previousChallenger, bestPlayers] = await Promise.all([
+      this.usersRepository.getChallenger(),
+      this.usersRepository.getBest(5, 1),
+    ])
+
+    if (previousChallenger) {
+      await this.usersRepository.update(previousChallenger.id, {
+        "elo.challenger": false,
+      })
+    }
+
+    if (bestPlayers.length === 0) {
+      console.log('No players found to set as challenger.')
+      return
+    }
+
+    const bestPlayer = bestPlayers[0]
+    const ratingData = await this.getRatingData({
+      challenger: false,
+      k: bestPlayer.data.elo.k,
+      matches: bestPlayer.data.elo.matches,
+      rating: bestPlayer.data.elo.score,
+    })
+    if (ratingData.league === League.Master && ratingData.points || 0 >= 100) {
+      await this.usersRepository.update(bestPlayer.id, {
+        "elo.challenger": true,
+      })
+      console.log(`New challenger defined: ${bestPlayer.data.identification.nickname}`)
+    }
+  }
 
   async getNewRatings(params: GetNewRatingsParams): Promise<GetNewRatingsResult> {
     const configResult = await this.configRepository.cachedGetRatingConfig()
@@ -22,7 +60,6 @@ export class RatingService {
 
     const newRating1 = params.first.rating + params.first.k * (score1 - expected1)
     const newRating2 = params.second.rating + params.second.k * (score2 - expected2)
-
 
     const newK1 =
       config.final_k_value * config.k_deflation_factor +
@@ -46,14 +83,12 @@ export class RatingService {
     // Workaround to remove challenger flag if players fall below diamond
     if (params.first.challenger) {
       const lp = await this.getTotalLp(newRating1)
-      if (lp < 4 * 400)
-        resultFirst.challenger = false
+      if (lp < 4 * 400) resultFirst.challenger = false
     }
 
     if (params.second.challenger) {
       const lp = await this.getTotalLp(newRating2)
-      if (lp < 4 * 400)
-        resultSecond.challenger = false
+      if (lp < 4 * 400) resultSecond.challenger = false
     }
 
     return {

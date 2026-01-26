@@ -42,6 +42,22 @@ export class UserRepository extends BaseFirestoreRepository<UserRow> {
     }
   }
 
+  async getChallenger(): Promise<GetResult<UserRow> | null> {
+    const query = this.collection.where('elo.challenger', '==', true).limit(1)
+    const snapshot = await query.get()
+    if (snapshot.empty) return null
+    this.user_logger.verbose(`queried challenger player`)
+    const doc = snapshot.docs[0]
+    const data = doc.data()
+
+    return {
+      id: doc.id,
+      createdAt: doc.createTime.toDate(),
+      updatedAt: doc.updateTime.toDate(),
+      data: data,
+    }
+  }
+
   async updateNickname(id: string, nickname: string) {
     const uniqueId = this.slugify(nickname)
     await this.collection.doc(id).update({

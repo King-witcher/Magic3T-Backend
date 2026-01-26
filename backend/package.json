@@ -21,6 +21,7 @@
     "@nestjs/event-emitter": "^3.0.1",
     "@nestjs/platform-express": "^11.1.8",
     "@nestjs/platform-socket.io": "^11.1.8",
+    "@nestjs/schedule": "^6.1.0",
     "@nestjs/swagger": "^11.2.1",
     "@nestjs/throttler": "^6.5.0",
     "@nestjs/websockets": "^11.1.8",

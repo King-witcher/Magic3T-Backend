@@ -12,6 +12,7 @@ import { AppGateway } from './app.gateway'
 import { AuthModule } from './auth/auth.module'
 import { RatingModule } from './rating'
 import { UserModule } from './user/user.module'
+import { ScheduleModule } from '@nestjs/schedule'
 
 @Global()
 @Module({
@@ -41,6 +42,7 @@ import { UserModule } from './user/user.module'
       verboseMemoryLeak: false,
       ignoreErrors: false,
     }),
+    ScheduleModule.forRoot(),
     RatingModule,
     AuthModule,
     QueueModule,
