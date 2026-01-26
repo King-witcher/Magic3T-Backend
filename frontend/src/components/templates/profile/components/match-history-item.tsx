@@ -1,11 +1,10 @@
 import { ListMatchesResultItem } from '@magic3t/api-types'
 import { Team } from '@magic3t/common-types'
 import { Link } from '@tanstack/react-router'
-import { FaCrown, FaHandshake, FaSkull } from 'react-icons/fa'
 import { Tooltip } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { leaguesMap } from '@/utils/ranks'
-import { getIconUrl } from '@/utils/utils'
+import { AvatarImage, AvatarRoot, AvatarWing } from './profile-avatar'
 
 interface MatchHistoryItemProps {
   match: ListMatchesResultItem
@@ -13,6 +12,8 @@ interface MatchHistoryItemProps {
 }
 
 type MatchResult = 'victory' | 'defeat' | 'draw'
+
+const DIVISIONS = ['I', 'II', 'III', 'IV', 'V']
 
 export function MatchHistoryItem({ match, currentUserId }: MatchHistoryItemProps) {
   // Determine which side the current user played on
@@ -51,21 +52,18 @@ export function MatchHistoryItem({ match, currentUserId }: MatchHistoryItemProps
     victory: {
       bg: 'from-green-900/30 to-green-900/10',
       border: 'border-green-600/40 hover:border-green-500/60',
-      icon: <FaCrown className="text-yellow-400" />,
       text: 'Victory',
       textColor: 'text-green-400',
     },
     defeat: {
       bg: 'from-red-900/30 to-red-900/10',
       border: 'border-red-600/40 hover:border-red-500/60',
-      icon: <FaSkull className="text-red-400" />,
       text: 'Defeat',
       textColor: 'text-red-400',
     },
     draw: {
       bg: 'from-grey-2/30 to-grey-2/10',
       border: 'border-grey-1/40 hover:border-grey-1/60',
-      icon: <FaHandshake className="text-grey-1" />,
       text: 'Draw',
       textColor: 'text-grey-1',
     },
@@ -89,13 +87,12 @@ export function MatchHistoryItem({ match, currentUserId }: MatchHistoryItemProps
       <div className="flex items-center gap-3 py-3 px-4 sm:py-4 sm:px-5">
         {/* Match Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-4 sm:gap-5">
             {/* Opponent Icon */}
-            <img
-              src={getIconUrl()}
-              alt={opponent.name}
-              className="size-8 rounded-full border border-gold-5/50"
-            />
+            <AvatarRoot className="size-8">
+              <AvatarImage icon={29} />
+              <AvatarWing league={opponent.league} />
+            </AvatarRoot>
 
             {/* Opponent Name */}
             <div className="min-w-0">
@@ -106,7 +103,10 @@ export function MatchHistoryItem({ match, currentUserId }: MatchHistoryItemProps
                 <Tooltip text={opponentLeagueInfo.name}>
                   <img src={opponentLeagueInfo.icon} alt="" className="size-4" />
                 </Tooltip>
-                <span>{opponentLeagueInfo.name}</span>
+                <span className="font-serif">
+                  {opponentLeagueInfo.name}{' '}
+                  {opponent.division ? DIVISIONS[opponent.division - 1] : ''}
+                </span>
               </div>
             </div>
           </div>
@@ -114,8 +114,19 @@ export function MatchHistoryItem({ match, currentUserId }: MatchHistoryItemProps
 
         {/* Result & LP */}
         <div className="shrink-0 text-right">
-          <div className={cn('font-serif font-bold uppercase', config.textColor)}>
+          <div
+            className={cn(
+              'font-serif font-bold uppercase flex items-center gap-1',
+              config.textColor
+            )}
+          >
             {config.text}
+            {result === 'draw' && (
+              <span className="text-sm font-sans font-medium">
+                ({currentPlayer.score > 0.5 && '+'}
+                {Math.round(currentPlayer.score * 200 - 100)})
+              </span>
+            )}
           </div>
           {lpGain !== 0 && (
             <div className={cn('text-sm font-semibold', lpColor)}>

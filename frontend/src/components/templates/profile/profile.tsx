@@ -1,6 +1,6 @@
 import { GetUserResult, ListMatchesResult } from '@magic3t/api-types'
 import { UseQueryResult } from '@tanstack/react-query'
-import { Panel, PanelDivider } from '@/components/ui/panel'
+import { Panel } from '@/components/ui/panel'
 import { useRegisterCommand } from '@/hooks/use-register-command'
 import { Console } from '@/lib/console'
 import { MatchHistory } from './components/match-history'

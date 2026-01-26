@@ -27,8 +27,11 @@ export function AvatarImage({ icon, className, ...props }: AvatarImageProps) {
   )
 }
 
-type AvatarWingProps = { league: League }
-export function AvatarWing({ league }: AvatarWingProps) {
+type AvatarWingProps = {
+  league: League
+  type?: 'wing' | 'plate'
+}
+export function AvatarWing({ league, type = 'plate' }: AvatarWingProps) {
   const leagueInfo = leaguesMap[league]
 
   return (
@@ -41,7 +44,11 @@ export function AvatarWing({ league }: AvatarWingProps) {
             : 'w-287/96 -translate-y-467/992' // Ranked
         )}
       >
-        <img className="w-full h-auto" src={leagueInfo.wing} alt={leagueInfo.name} />
+        <img
+          className="w-full h-auto"
+          src={type === 'wing' ? leagueInfo.wing : leagueInfo.plate}
+          alt={leagueInfo.name}
+        />
       </div>
     </div>
   )
