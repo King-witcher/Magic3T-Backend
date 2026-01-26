@@ -86,13 +86,10 @@ export function MatchHistoryItem({ match, currentUserId }: MatchHistoryItemProps
         'hover:shadow-lg hover:shadow-black/20'
       )}
     >
-      <div className="flex items-center gap-3 p-3 sm:p-4">
-        {/* Result Icon */}
-        <div className="shrink-0 size-10 flex items-center justify-center">{config.icon}</div>
-
+      <div className="flex items-center gap-3 py-3 px-4 sm:py-4 sm:px-5">
         {/* Match Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Opponent Icon */}
             <img
               src={getIconUrl()}
@@ -102,7 +99,9 @@ export function MatchHistoryItem({ match, currentUserId }: MatchHistoryItemProps
 
             {/* Opponent Name */}
             <div className="min-w-0">
-              <span className="text-gold-1 font-semibold truncate block">vs {opponent.name}</span>
+              <span className="text-gold-1 font-bold font-serif truncate block">
+                {opponent.name}
+              </span>
               <div className="flex items-center gap-1 text-xs text-grey-1">
                 <Tooltip text={opponentLeagueInfo.name}>
                   <img src={opponentLeagueInfo.icon} alt="" className="size-4" />
@@ -127,7 +126,7 @@ export function MatchHistoryItem({ match, currentUserId }: MatchHistoryItemProps
         </div>
 
         {/* Date */}
-        <div className="hidden sm:block shrink-0 text-right text-grey-1 text-sm w-20">
+        <div className="hidden sm:block shrink-0 text-right text-grey-1 text-sm w-16">
           <div>{formattedDate}</div>
           <div className="text-xs opacity-70">{formattedTime}</div>
         </div>
