@@ -75,7 +75,7 @@ export class UserController {
   async getRanking(): Promise<ListUsersResult> {
     const MIN_RANKED_MATCHES = 5
 
-    const rows = await this.userRepository.getBest(MIN_RANKED_MATCHES, 10)
+    const rows = await this.userRepository.listBestPlayers(MIN_RANKED_MATCHES, 10)
     return {
       data: await Promise.all(rows.map((row) => this.userService.getListedUserByRow(row))),
     }

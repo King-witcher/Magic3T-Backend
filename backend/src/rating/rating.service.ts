@@ -1,14 +1,18 @@
 import { Division, League, RatingData } from '@magic3t/common-types'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { clamp } from 'lodash'
 import { ConfigRepository, UserRepository } from '@/database'
 import { GetNewRatingsParams, GetNewRatingsResult, GetRatingDataParams } from './types'
+import { RatingConverter } from './rating-object'
 
 const leagueIndexes = [League.Bronze, League.Silver, League.Gold, League.Diamond, League.Master]
+const MAX_CHALLENGERS = 1
 
 @Injectable()
 export class RatingService {
+  private logger = new Logger(RatingService.name)
+
   constructor(
     private configRepository: ConfigRepository,
     private usersRepository: UserRepository
@@ -16,36 +20,17 @@ export class RatingService {
 
   @Cron('0 0 12 * * *')
   async updateChallenger() {
-    console.log('Updating challenger player')
-    const [previousChallenger, bestPlayers] = await Promise.all([
-      this.usersRepository.getChallenger(),
-      this.usersRepository.getBest(5, 1),
-    ])
+    this.logger.log('Updating Challengers')
+    const config = (await this.configRepository.cachedGetRatingConfig()).expect('failed to get config')
+    const bestPlayers = await this.usersRepository.listBestPlayers(5, MAX_CHALLENGERS)
 
-    if (previousChallenger) {
-      await this.usersRepository.update(previousChallenger.id, {
-        "elo.challenger": false,
-      })
-    }
-
-    if (bestPlayers.length === 0) {
-      console.log('No players found to set as challenger.')
-      return
-    }
-
-    const bestPlayer = bestPlayers[0]
-    const ratingData = await this.getRatingData({
-      challenger: false,
-      k: bestPlayer.data.elo.k,
-      matches: bestPlayer.data.elo.matches,
-      rating: bestPlayer.data.elo.score,
+    const challengers = bestPlayers.filter((user) => {
+      const ratingConverter = new RatingConverter(user.data.elo, config)
+      return ratingConverter.isChallengerEligible
     })
-    if (ratingData.league === League.Master && ratingData.points || 0 >= 100) {
-      await this.usersRepository.update(bestPlayer.id, {
-        "elo.challenger": true,
-      })
-      console.log(`New challenger defined: ${bestPlayer.data.identification.nickname}`)
-    }
+
+    await this.usersRepository.setOrReplaceChallengers(challengers.map(c => c.id))
+    this.logger.log(`Updated Challengers: ${challengers.map(c => c.id).join(', ')}`)
   }
 
   async getNewRatings(params: GetNewRatingsParams): Promise<GetNewRatingsResult> {
