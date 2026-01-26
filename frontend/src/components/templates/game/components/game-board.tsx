@@ -1,6 +1,7 @@
 import { Choice } from '@magic3t/common-types'
 import { useMemo } from 'react'
 import { Panel } from '@/components/atoms'
+import { Console, SystemCvars } from '@/lib/console'
 import { cn } from '@/lib/utils'
 import { getTriple } from '@/utils/getTriple'
 import { NumberCell } from './number-cell'
@@ -13,7 +14,8 @@ interface GameBoardProps {
   onSelect: (choice: Choice) => void
 }
 
-const allNumbers: Choice[] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+const normalNumbers: Choice[] = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+const magicSquareNumbers: Choice[] = [8, 1, 6, 3, 5, 7, 4, 9, 2]
 
 export function GameBoard({
   allyChoices,
@@ -22,6 +24,9 @@ export function GameBoard({
   isGameOver,
   onSelect,
 }: GameBoardProps) {
+  const magicSquare = Console.useCvarBoolean(SystemCvars.Ui3TMode)
+  const numbers = magicSquare ? magicSquareNumbers : normalNumbers
+
   // Find winning triple if exists
   const winningTriple = useMemo(() => {
     if (allyChoices.length >= 3) {
@@ -48,7 +53,7 @@ export function GameBoard({
       <Panel className={cn('relative p-5 md:p-6', 'bg-linear-to-br from-grey-3/80 to-grey-2/80')}>
         {/* 3x3 Grid */}
         <div className="grid grid-cols-3 gap-2 md:gap-3">
-          {allNumbers.map((num) => (
+          {numbers.map((num) => (
             <NumberCell
               key={num}
               value={num}

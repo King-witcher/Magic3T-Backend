@@ -6,6 +6,9 @@ export type ConsoleContext = Readonly<{
   print: (message: string) => void
   clear: () => void
   getCvar: (cvar: string) => CVar | null
+  getCvarBoolean: (cvar: string) => boolean
+  getCvarNumber: (cvar: string) => number
+  getCvarString: (cvar: string) => string
   setCvar: (cvar: string, valueString: string) => Result<[], string>
   listCmds: () => Cmd[]
   listCvars: () => CVar[]
@@ -24,6 +27,16 @@ export type Cmd = {
 }
 
 export const INITIAL_CMDS: Cmd[] = [
+  {
+    name: '3tmode',
+    description: 'Enables magic square number arrangement',
+    async handler({ console }: CmdContext) {
+      const enabled = console.getCvarBoolean(SystemCvars.Ui3TMode)
+      console.setCvar(SystemCvars.Ui3TMode, enabled ? '0' : '1')
+      console.print(`3tmode ${enabled ? 'OFF' : 'ON'}`)
+      return 0
+    },
+  },
   {
     name: 'clear',
     description: 'Clears the console buffer',

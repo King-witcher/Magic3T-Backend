@@ -173,6 +173,7 @@ export function ConsoleInput({ onSubmit, focused }: Props) {
     if (!focused) return
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      event.preventDefault()
       if (printableChars.has(event.key)) {
         setValue((prev) => prev.slice(0, cursorPosition) + event.key + prev.slice(cursorPosition))
         setCursorPosition((prev) => prev + 1)
