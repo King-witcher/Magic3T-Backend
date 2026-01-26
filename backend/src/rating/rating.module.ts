@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common'
 import { DatabaseModule } from '@/database'
-import { RatingService } from './rating.service.ts'
+import { RatingService } from './rating.service'
 
 @Global()
 @Module({

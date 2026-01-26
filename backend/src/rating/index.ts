@@ -1,2 +1,2 @@
 export * from './rating.module'
-export * from './rating.service.ts'
+export * from './rating.service'
