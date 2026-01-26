@@ -22,7 +22,11 @@ export function RankingEmblem({ rating }: Props) {
           {rating.points} LP
         </p>
       )}
-      <p className="text-grey-1 tracking-wider font-serif font-bold text-lg">{bestOf5Status} / 5</p>
+      {rating.league === League.Provisional && (
+        <p className="text-grey-1 tracking-wider font-serif font-bold text-lg">
+          {bestOf5Status} / 5
+        </p>
+      )}
     </div>
   )
 }

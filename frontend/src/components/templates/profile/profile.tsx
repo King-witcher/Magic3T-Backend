@@ -31,7 +31,7 @@ export function ProfileTemplate({ user, matchesQuery }: Props) {
     <div className="min-h-full p-4 sm:p-8 flex justify-center items-start">
       <div className="w-full max-w-4xl space-y-6">
         {/* Main Profile Card */}
-        <Panel className="flex flex-col gap-2">
+        <Panel className="flex flex-col gap-4">
           <ProfileHeader user={user} />
           <ProfileStats user={user} />
           <ProfileSearch />
