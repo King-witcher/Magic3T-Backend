@@ -30,7 +30,7 @@ export class UserRepository extends BaseFirestoreRepository<UserRow> {
     const query = this.collection.where('identification.unique_id', '==', uniqueId).limit(1)
     const snapshot = await query.get()
     if (snapshot.empty) return null
-    this.user_logger.verbose(`read user by nickname ${nickname} best players from.`)
+    this.user_logger.verbose(`read user by nickname ${nickname}`)
     const doc = snapshot.docs[0]
     const data = doc.data()
 
@@ -42,20 +42,60 @@ export class UserRepository extends BaseFirestoreRepository<UserRow> {
     }
   }
 
-  async getChallenger(): Promise<GetResult<UserRow> | null> {
-    const query = this.collection.where('elo.challenger', '==', true).limit(1)
+  /** List all challengers. */
+  async listChallengers(): Promise<ListResult<UserRow>> {
+    const query = this.collection.where('elo.challenger', '==', true)
     const snapshot = await query.get()
-    if (snapshot.empty) return null
-    this.user_logger.verbose(`queried challenger player`)
-    const doc = snapshot.docs[0]
-    const data = doc.data()
+    this.user_logger.verbose(`Queried ${snapshot.size} challengers`)
 
-    return {
-      id: doc.id,
-      createdAt: doc.createTime.toDate(),
-      updatedAt: doc.updateTime.toDate(),
-      data: data,
-    }
+    return snapshot.docs.map((doc) => {
+      return {
+        id: doc.id,
+        createdAt: doc.createTime.toDate(),
+        updatedAt: doc.updateTime.toDate(),
+        data: doc.data(),
+      }
+    })
+  }
+
+  /**
+   * Updates the current users that are challengers in a transactional way.
+   *
+   * Any user whose id is not in the provided list will have their challenger status removed.
+   */
+  async setOrReplaceChallengers(newChallengerIds: string[]): Promise<void> {
+    const oldChallengers = await this.listChallengers()
+    const oldChallengerIdsSet = new Set(oldChallengers.map((c) => c.id))
+    const newChallengerIdsSet = new Set(newChallengerIds)
+
+    let removed = 0
+    let added = 0
+
+    this.collection.firestore.runTransaction(async (transaction) => {
+      // Remove challenger status from old challengers not in the new list
+      for (const oldChallengerId of oldChallengerIdsSet) {
+        if (newChallengerIdsSet.has(oldChallengerId)) continue
+
+        const docRef = this.collection.doc(oldChallengerId)
+        transaction.update(docRef, {
+          'elo.challenger': false,
+        })
+        removed++
+      }
+
+      // Add challenger status to new challengers not in the old list
+      for (const newChallengerId of newChallengerIdsSet) {
+        if (oldChallengerIdsSet.has(newChallengerId)) continue
+
+        const docRef = this.collection.doc(newChallengerId)
+        transaction.update(docRef, {
+          'elo.challenger': true,
+        })
+        added++
+      }
+    })
+
+    this.user_logger.verbose(`Updated challengers: ${added} joined, ${removed} left.`)
   }
 
   async updateNickname(id: string, nickname: string) {
@@ -89,11 +129,12 @@ export class UserRepository extends BaseFirestoreRepository<UserRow> {
    * @param limit The amount of players to be fetched
    * @returns The `limit` best ranked players
    */
-  async getBest(minMatches: number, limit: number): Promise<ListResult<UserRow>> {
+  async listBestPlayers(minMatches: number, limit: number): Promise<ListResult<UserRow>> {
     this.user_logger.verbose(`read ${limit} best players from.`)
     const rankingQuery = this.collection
       .orderBy('elo.score', 'desc')
       .where('elo.matches', '>', minMatches)
+      .where('role', '!=', 'bot')
       .limit(limit)
     const result = await rankingQuery.get()
     const players = result.docs.map((doc) => {
