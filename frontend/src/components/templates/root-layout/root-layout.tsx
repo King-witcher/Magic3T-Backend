@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Navbar } from '@/components/organisms'
+import { ConsoleTab, Navbar } from '@/components/organisms'
 import { useAuth } from '@/contexts/auth-context'
 import { ModalLayout } from './modal-layout'
 
@@ -14,7 +14,6 @@ export function RootLayout({ children }: Props) {
 
   return (
     <>
-      {/* <div className={styles.brightness_container} /> */}
       <div
         className="absolute inset-0 bg-center bg-no-repeat bg-cover"
         style={{ backgroundImage: `url(${BACKGROUND_URL})` }}
@@ -44,6 +43,7 @@ export function RootLayout({ children }: Props) {
       </div>
 
       <ModalLayout />
+      <ConsoleTab />
     </>
   )
 }

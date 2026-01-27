@@ -4,20 +4,15 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
-  NotFoundException,
   Param,
   Patch,
   Post,
-  UseFilters,
   UseGuards,
 } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { range } from 'lodash'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { BaseError } from '@/common/errors/base-error'
-import { HttpFilter } from '@/common/filters/http.filter'
 import { ConfigRepository, UserRepository } from '@/database'
 import {
   ChangeIconCommandClass,
@@ -25,11 +20,11 @@ import {
   RegisterUserCommandClass,
 } from './swagger/user-commands'
 import { UserService } from './user.service'
+import { respondError } from '@/common'
 
 const baseIcons = new Set([...range(59, 79), ...range(0, 30)])
 
 @Controller('users')
-@UseFilters(HttpFilter)
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -46,7 +41,7 @@ export class UserController {
   })
   async getById(@Param('id') id: string): Promise<GetUserResult> {
     const row = await this.userRepository.getById(id)
-    if (!row) throw new NotFoundException()
+    if (!row) respondError('user-not-found', 404, 'User not found')
     return this.userService.getUserByRow(row)
   }
 
@@ -60,19 +55,20 @@ export class UserController {
   })
   async getByNickname(@Param('nickname') nickname: string): Promise<GetUserResult> {
     const row = await this.userRepository.getByNickname(nickname)
-    if (!row) throw new NotFoundException()
+    if (!row) respondError('user-not-found', 404, 'User not found')
     return this.userService.getUserByRow(row)
   }
 
   @Get('ranking')
   @ApiOperation({
-    summary: 'Gets the top 10 ranked players',
+    summary: 'Get leaderboard ranking',
+    description: 'Gets the top 10 ranked players'
   })
   @ApiResponse({
     isArray: true,
     type: 'object',
   })
-  async getRanking(): Promise<ListUsersResult> {
+  async getLeaderboard(): Promise<ListUsersResult> {
     const MIN_RANKED_MATCHES = 5
 
     const rows = await this.userRepository.listBestPlayers(MIN_RANKED_MATCHES, 10)
@@ -92,7 +88,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   async getMe(@UserId() userId: string) {
     const user = await this.userRepository.getById(userId)
-    if (!user) throw new NotFoundException()
+    if (!user) respondError('user-not-found', 404, 'User not found')
     return this.userService.getUserByRow(user)
   }
 
@@ -108,25 +104,23 @@ export class UserController {
   ) {
     const user = await this.userRepository.getById(userId)
     // User does not exist
-    if (!user) {
-      throw new BaseError('user-not-registered', HttpStatus.BAD_REQUEST)
-    }
+    if (!user) respondError('user-not-found', 404, 'User not found')
 
     // Check nickname change cooldown (30 days)
     const timeSinceLastChange = Date.now() - user.data.identification.last_changed.getTime()
     if (timeSinceLastChange < 1000 * 60 * 60 * 24 * 30) {
-      throw new BaseError('nickname-change-cooldown', HttpStatus.BAD_REQUEST)
+      respondError('nickname-change-cooldown', 400, 'Nickname can only be changed every 30 days')
     }
 
     // Same nickname
     if (user.data.identification.nickname === newNickname) {
-      throw new BaseError('same-nickname', HttpStatus.BAD_REQUEST)
+      respondError('same-nickname', 400, 'New nickname is the same as the current one')
     }
 
     // Nickname unavailable
     const nicknameOwner = await this.userRepository.getByNickname(newNickname)
     if (nicknameOwner) {
-      throw new BaseError('nickname-unavailable', HttpStatus.BAD_REQUEST)
+      respondError('nickname-unavailable', 400, 'This nickname is already taken')
     }
 
     await this.userRepository.updateNickname(user.id, newNickname)
@@ -139,13 +133,12 @@ export class UserController {
     summary: 'Register an authenticated user in the database information',
   })
   async register(@UserId() userId: string, @Body() body: RegisterUserCommandClass) {
-    const [previousUserRow, ratingConfigResult] = await Promise.all([
+    const [previousUserRow, ratingConfig] = await Promise.all([
       this.userRepository.getById(userId),
       this.configRepository.cachedGetRatingConfig(),
     ])
 
-    if (previousUserRow) throw new BaseError('user-already-registered', HttpStatus.BAD_REQUEST)
-    const ratingConfig = ratingConfigResult.expect('Rating config not found in database.')
+    if (previousUserRow) respondError('user-already-registered')
 
     const userRow: UserRow = {
       elo: {
@@ -201,7 +194,7 @@ export class UserController {
     if (!baseIcons.has(iconId)) {
       const userIcons = await await this.userRepository.getIconAssignments(userId)
       if (!userIcons.some((assignment) => Number(assignment.id) === iconId))
-        throw new BaseError("you don't have this icon", HttpStatus.BAD_REQUEST)
+        respondError('icon-unavailable', 400, 'The user does not own this icon')
     }
 
     await this.userRepository.update(userId, {

@@ -74,7 +74,7 @@ export function ConsoleTab() {
     <div
       data-open={isOpen}
       className={twMerge(
-        'fixed w-dvw h-dvh left-0 top-0 z-10',
+        'fixed w-dvw h-dvh left-0 top-0 z-20',
         'font-mono text-sm font-semibold text-gold-2',
         'transition-all duration-200 data-[open=false]:top-[-50dvh] data-[open=false]:pointer-events-none',
         con_style === ConStyle.Q3 && 'text-white'

@@ -1,7 +1,7 @@
 import { HttpStatus, PipeTransform } from '@nestjs/common'
-import { BaseError } from '@/common/errors/base-error'
+import { OldBaseError } from '@/common'
 
-class InvalidGameModeError extends BaseError {
+class InvalidGameModeError extends OldBaseError {
   constructor(value: unknown) {
     super(
       `invalid game mode "${value}". game mode must be "casual" or "ranked"`,

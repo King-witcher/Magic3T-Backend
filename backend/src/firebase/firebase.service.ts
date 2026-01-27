@@ -1,3 +1,4 @@
+import { unexpected } from '@/common'
 import { Injectable } from '@nestjs/common'
 import { App, cert, getApps, initializeApp, ServiceAccount } from 'firebase-admin/app'
 import { Auth, getAuth } from 'firebase-admin/auth'
@@ -24,7 +25,7 @@ export class FirebaseService {
 
   getCredentials(): ServiceAccount {
     if (!process.env.FIREBASE_ADMIN_CREDENTIALS)
-      panic('Firebase Admin credentials not found on environment')
+      unexpected('firebase-credentials-not-found', 'Firebase Admin credentials not found on environment')
 
     return JSON.parse(Buffer.from(process.env.FIREBASE_ADMIN_CREDENTIALS, 'base64').toString())
   }

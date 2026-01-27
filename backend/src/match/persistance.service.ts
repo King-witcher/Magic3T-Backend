@@ -21,18 +21,19 @@ export class PersistanceService {
   // Updates user rows after match is finished, considering rating changes if ranked.
   @OnEvent('match.finished')
   async updateUser(matchSummary: MatchFinishedEvent) {
-    const winner = this.determineWinner(matchSummary)
+    const winner = this.getWinner(matchSummary)
 
-    // MatchRow.stats update
+    // Get UpdateData for wins, draws and losses
     const orderUpdate = this.buildStatsUpdate(winner, 'order')
     const chaosUpdate = this.buildStatsUpdate(winner, 'chaos')
 
-    // MatchRow.elo update if ranked
+    // Update Elos if ranked
     if (matchSummary.ranked) {
       orderUpdate.elo = matchSummary.order.newRating
       chaosUpdate.elo = matchSummary.chaos.newRating
     }
 
+    // Update both users
     await Promise.all([
       this.usersRepository.update(matchSummary.order.id, orderUpdate),
       this.usersRepository.update(matchSummary.chaos.id, chaosUpdate),
@@ -42,38 +43,33 @@ export class PersistanceService {
   // Persists the match row after match is finished.
   @OnEvent('match.finished')
   async persistMatch(matchSummary: MatchFinishedEvent) {
-    const winner = this.determineWinner(matchSummary)
+    const winner = this.getWinner(matchSummary)
 
-    // Get RatingData from the rating service (to get division, league, etc)
-    const orderRating = await this.ratingService.getRatingData({
-      k: matchSummary.order.newRating.k,
-      rating: matchSummary.order.newRating.score,
-      matches: matchSummary.order.newRating.matches,
-      challenger: matchSummary.order.newRating.challenger,
-    })
-    const chaosRating = await this.ratingService.getRatingData({
-      k: matchSummary.chaos.newRating.k,
-      rating: matchSummary.chaos.newRating.score,
-      matches: matchSummary.chaos.newRating.matches,
-      challenger: matchSummary.chaos.newRating.challenger,
-    })
+    // Get old and new ratings
+    const oldOrderRating = await this.ratingService.getRatingConverter(matchSummary.order.row.data.elo)
+    const oldChaosRating = await this.ratingService.getRatingConverter(matchSummary.chaos.row.data.elo)
+
+    // Get up to date ratings
+    const newOrderRating = await this.ratingService.getRatingConverter(matchSummary.order.newRating)
+    const newChaosRating = await this.ratingService.getRatingConverter(matchSummary.chaos.newRating)
 
     // Calculate LP gains
-    const orderLpGain = await this.getRawLpGain(matchSummary.order)
-    const chaosLpGain = await this.getRawLpGain(matchSummary.chaos)
+    const orderLpGain = newOrderRating.getLpGapAgainst(oldOrderRating)
+    const chaosLpGain = newChaosRating.getLpGapAgainst(oldChaosRating)
 
+    // Create a match row to persist
     const row: MatchRow = {
       [Team.Order]: {
-        division: orderRating.division,
-        league: orderRating.league,
+        division: newOrderRating.division,
+        league: newOrderRating.league,
         lp_gain: orderLpGain,
         name: matchSummary.order.row.data.identification.nickname,
         score: matchSummary.order.matchScore,
         uid: matchSummary.order.id,
       },
       [Team.Chaos]: {
-        division: chaosRating.division,
-        league: chaosRating.league,
+        division: newChaosRating.division,
+        league: newChaosRating.league,
         lp_gain: chaosLpGain,
         name: matchSummary.chaos.row.data.identification.nickname,
         score: matchSummary.chaos.matchScore,
@@ -85,19 +81,14 @@ export class PersistanceService {
       timestamp: matchSummary.startedAt,
     }
 
+    // Persist the match row
     await this.matchesRepository.create(row)
   }
 
-  private determineWinner(matchSummary: MatchFinishedEvent): 'order' | 'chaos' | 'draw' {
+  private getWinner(matchSummary: MatchFinishedEvent): 'order' | 'chaos' | 'draw' {
     if (matchSummary.order.matchScore === 1) return 'order'
     if (matchSummary.chaos.matchScore === 1) return 'chaos'
     return 'draw'
-  }
-
-  private async getRawLpGain(team: MatchFinishedEvent['order' | 'chaos']): Promise<number> {
-    const oldLp = await this.ratingService.getRawLP(team.row.data.elo.score)
-    const newLp = await this.ratingService.getRawLP(team.newRating.score)
-    return newLp - oldLp
   }
 
   private buildStatsUpdate(

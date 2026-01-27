@@ -35,6 +35,7 @@ export class ClientSyncService {
    */
   @OnEvent('match.finished')
   async sendMatchSummary(summary: MatchFinishedEvent) {
+    // Determine winner
     const winner =
       summary.order.matchScore === 1
         ? Team.Order
@@ -42,59 +43,38 @@ export class ClientSyncService {
           ? Team.Chaos
           : null
 
-    const orderLpGain = await this.getRawLpGain(summary.order)
-    const chaosLpGain = await this.getRawLpGain(summary.chaos)
+    // Get old and new ratings
+    const oldOrderRating = await this.ratingService.getRatingConverter(summary.order.row.data.elo)
+    const oldChaosRating = await this.ratingService.getRatingConverter(summary.chaos.row.data.elo)
 
-    const newOrderRating = await this.ratingService.getRatingData({
-      k: summary.order.newRating.k,
-      rating: summary.order.newRating.score,
-      matches: summary.order.newRating.matches,
-      challenger: summary.order.newRating.challenger,
-    })
+    // Get up to date ratings
+    const newOrderRating = await this.ratingService.getRatingConverter(summary.order.newRating)
+    const newChaosRating = await this.ratingService.getRatingConverter(summary.chaos.newRating)
 
-    const newChaosRating = await this.ratingService.getRatingData({
-      k: summary.chaos.newRating.k,
-      rating: summary.chaos.newRating.score,
-      matches: summary.chaos.newRating.matches,
-      challenger: summary.chaos.newRating.challenger,
-    })
+    // Calculate LP gains
+    const orderLpGain = newOrderRating.getLpGapAgainst(oldOrderRating)
+    const chaosLpGain = newChaosRating.getLpGapAgainst(oldChaosRating)
 
+    // Create a match summary to be sent via socket
     const socketSummary: MatchReportPayload = {
       matchId: '',
       [Team.Order]: {
         lpGain: orderLpGain,
-        newRating: newOrderRating,
+        newRating: newOrderRating.ratingData,
         score: summary.order.matchScore,
       },
       [Team.Chaos]: {
         lpGain: chaosLpGain,
-        newRating: newChaosRating,
+        newRating: newChaosRating.ratingData,
         score: summary.chaos.matchScore,
       },
       winner,
     }
 
+    // Send the summary to both players, unless one of them is a bot
     for (const player of [summary.chaos, summary.order]) {
       if (player.row.data.role === 'bot') continue
       this.gameSocketService.send(player.id, MatchServerEvents.MatchReport, socketSummary)
     }
-  }
-
-  private async getRawLpGain(team: MatchFinishedEvent['order' | 'chaos']): Promise<number> {
-    const oldRatingData = await this.ratingService.getRatingData({
-      k: team.row.data.elo.k,
-      rating: team.row.data.elo.score,
-      matches: team.row.data.elo.matches,
-      challenger: team.row.data.elo.challenger,
-    })
-
-    // If the player was provisional, hide LP gains.
-    if (oldRatingData.league === League.Provisional) {
-      return 0
-    }
-
-    const oldLp = await this.ratingService.getRawLP(team.row.data.elo.score)
-    const newLp = await this.ratingService.getRawLP(team.newRating.score)
-    return newLp - oldLp
   }
 }

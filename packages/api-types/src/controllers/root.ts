@@ -1,8 +1,10 @@
 export type CrashReportCommand = {
-  error: object
-  metadata?: object
+  errorCode: string
+  description: string
+  metadata?: unknown
 }
 
 export type GetStatusResponse = {
   status: 'available'
+  timestamp: string
 }

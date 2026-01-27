@@ -10,6 +10,9 @@ export const enum League {
 
 export type Division = 1 | 2 | 3 | 4
 
+/**
+ * Represents the rating data of a user from the client's perspective.
+ */
 export type RatingData = {
   league: League
   division: Division | null

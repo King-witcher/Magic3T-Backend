@@ -1,6 +1,7 @@
 import { createParamDecorator, ExecutionContext, NotImplementedException } from '@nestjs/common'
 import { AuthRequest } from './auth-request'
 import { AuthSocket } from './auth-socket'
+import { respondError } from '@/common'
 
 export const UserId = createParamDecorator((_, ctx: ExecutionContext): string => {
   switch (ctx.getType()) {
@@ -15,6 +16,6 @@ export const UserId = createParamDecorator((_, ctx: ExecutionContext): string =>
     }
 
     default:
-      throw new NotImplementedException()
+      respondError('not-implemented', 501, 'UserId decorator is not implemented for this context type.')
   }
 })

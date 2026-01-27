@@ -17,7 +17,7 @@ export class SocketsService<EmitType extends EventsMap> {
 
     if (this.socketMap[userId]) this.socketMap[userId].push(socket)
     else this.socketMap[userId] = [socket]
-    this.logger.log(`bound socket ${socket.id} to user id ${userId}`)
+    this.logger.verbose(`bound socket ${socket.id} to user id ${userId}`)
   }
 
   getUserCount() {
@@ -35,7 +35,7 @@ export class SocketsService<EmitType extends EventsMap> {
 
     sockets.splice(sockets.indexOf(socket), 1)
     if (sockets.length === 0) delete this.socketMap[userId]
-    this.logger.log(`unbound socket ${socket.id} from user id ${userId}`)
+    this.logger.verbose(`unbound socket ${socket.id} from user id ${userId}`)
   }
 
   /**

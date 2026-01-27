@@ -20,6 +20,7 @@ import { MatchBank, Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
 import { ListMatchesResultClass } from './swagger/list-matches'
+import { respondError } from '@/common'
 
 @Controller('matches')
 export class MatchController {
@@ -87,7 +88,8 @@ export class MatchController {
   @UseGuards(AuthGuard)
   handleCurrentMatch(@UserId() userId: string) {
     const perspective = this.matchBank.getPerspective(userId)
-    if (!perspective) throw new NotFoundException()
+    // TODO: shouldn't return 404
+    if (!perspective) respondError('no-active-match', 404, 'The user has no active match.')
     return {
       id: '',
     }

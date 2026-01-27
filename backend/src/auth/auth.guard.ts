@@ -8,6 +8,7 @@ import {
 import { AuthService } from './auth.service'
 import { AuthRequest } from './auth-request'
 import { AuthSocket } from './auth-socket'
+import { respondError } from '@/common'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -27,7 +28,7 @@ export class AuthGuard implements CanActivate {
           return await this.validateWs(socket)
         }
         default: {
-          throw new NotImplementedException()
+          respondError('not-implemented', 501, 'AuthGuard not implemented for this context')
         }
       }
     } catch (e) {
@@ -38,7 +39,7 @@ export class AuthGuard implements CanActivate {
 
   private async validateHttp(request: AuthRequest): Promise<boolean> {
     const token = request.headers.authorization as string | undefined
-    if (!token) throw new Error('"Authorization" header is missing')
+    if (!token) respondError('unauthorized', 401, '"Authorization" header is missing')
     const userId = await this.authService.validateToken(token.replace('Bearer ', ''))
     request.userId = userId
     return true
@@ -46,14 +47,14 @@ export class AuthGuard implements CanActivate {
 
   private async validateWs(socket: AuthSocket): Promise<boolean> {
     const token = socket.handshake.auth.token as string | undefined
-    if (!token) throw new Error('auth token is missing')
+    if (!token) respondError('unauthorized', 401, 'WebSocket auth token is missing')
 
     // Socket has already been validated.
     if (socket.data.userId) return true
     const userId = await this.authService.validateToken(token.replace('Bearer ', ''))
     socket.data.userId = userId
 
-    this.logger.log(`ws connection from user ${userId} accepted`)
+    this.logger.verbose(`ws connection from user ${userId} accepted`)
     return true
   }
 }

@@ -1,20 +1,18 @@
-import { InternalServerErrorException } from '@nestjs/common'
-
 /**
- * Represents an unexpected error that occurred in the application.
+ * Represents an unexpected error that occurred in the application and shouldn't be seen by the user.
+ *
+ * Results in an opaque 500 Internal Server Error response.
  */
-export class UnexpectedError extends InternalServerErrorException {
+/** biome-ignore-all lint/suspicious/noExplicitAny: Anything can be logged */
+export class UnexpectedError extends Error {
   constructor(
-    public readonly code: string,
-    message?: string
+    public readonly message: string,
+    public readonly metadata?: any
   ) {
-    super(code, message)
+    super(message)
   }
 }
 
-export function unexpected(
-  code = 'unexpected_error',
-  message = 'An unexpected error occurred'
-): never {
-  throw new UnexpectedError(code, message)
+export function unexpected(message = 'An unexpected state was reached.', metadata?: any): never {
+  throw new UnexpectedError(message, metadata)
 }

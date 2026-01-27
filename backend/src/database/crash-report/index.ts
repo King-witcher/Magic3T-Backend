@@ -1,1 +1,1 @@
-export * from './crash-report-repository'
+export * from './crash-reports-repository'

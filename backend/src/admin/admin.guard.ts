@@ -1,7 +1,8 @@
-import { CanActivate, ExecutionContext, Injectable, NotImplementedException } from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { AuthRequest } from '@/auth/auth-request'
 import { AuthSocket } from '@/auth/auth-socket'
 import { UserRepository } from '@/database'
+import { respondError } from '@/common'
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -22,7 +23,7 @@ export class AdminGuard implements CanActivate {
         break
       }
       default: {
-        throw new NotImplementedException()
+        respondError('not-implemented', 501, 'Auth guard not implemented for this context type')
       }
     }
 

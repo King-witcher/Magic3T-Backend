@@ -6,6 +6,7 @@ import { FirebaseService } from '@/firebase/firebase.service'
 import { BaseFirestoreRepository } from '../base-repository'
 import { ConfigRepository } from '../config'
 import { GetResult, ListResult } from '../types/query-types'
+import { unexpected } from '@/common'
 
 @Injectable()
 export class UserRepository extends BaseFirestoreRepository<UserRow> {
@@ -112,12 +113,12 @@ export class UserRepository extends BaseFirestoreRepository<UserRow> {
 
   /// Gets all bot profiles, sorted by the bot name (bot0, bot1, bot2 and bot3)
   async getBots(): Promise<ListResult<UserRow>> {
-    const bots = (await this.configService.getBotConfigs()).unwrap()
+    const bots = await this.configService.getBotConfigs()
     const uids = [bots.bot0.uid, bots.bot1.uid, bots.bot2.uid, bots.bot3.uid]
     return await Promise.all(
       uids.map(async (uid) => {
         const user = await super.getById(uid)
-        if (!user) throw new InternalServerErrorException(`user not found for bot ${uid}`)
+        if (!user) unexpected('Bot user not found', { uid })
         return user
       })
     )

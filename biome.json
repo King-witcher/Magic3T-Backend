@@ -70,5 +70,6 @@
         "noConstEnum": "off"
       }
     }
-  }
+  },
+  "root": true
 }

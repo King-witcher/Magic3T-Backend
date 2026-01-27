@@ -3,6 +3,7 @@ import {
   GameServerEventsMap,
   GetMatchResult,
   ListMatchesResultItem,
+  MatchError,
   MatchServerEvents,
 } from '@magic3t/api-types'
 import { Team } from '@magic3t/common-types'
@@ -10,12 +11,13 @@ import { MatchRow, UserRow } from '@magic3t/database-types'
 import { BotConfig, BotName } from '@magic3t/types'
 import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { Result, SocketsService } from '@/common'
+import { SocketsService, unexpected } from '@/common'
 import { GetResult } from '@/database/types/query-types'
 import { RatingService } from '@/rating'
 import { BaseBot, LmmBot, RandomBot } from './bots'
 import { MatchFinishedEvent } from './events/match-finished-event'
 import { Match, MatchBank, MatchClassEventType, MatchClassSummary, Perspective } from './lib'
+import { matchException } from './types/match-error'
 
 export type MatchCreationError = 'user-not-found' | 'bot-not-found'
 const HUMAN_VS_BOT_TIMELIMIT = 180 * 1000 // 3 minutes per player
@@ -34,23 +36,21 @@ export class MatchService {
   ) {}
 
   /**
-   * Create a new Player vs Bot match.
+   * Create a new Player vs Bot match, returning the match id.
    */
   async createPlayerVsBot(
     userId: string,
     botId: BotName
-  ): Promise<Result<string, MatchCreationError>> {
+  ): Promise<string> {
     // Get profiles
     const userProfilePromise = this.getProfile(userId)
     const botConfig = await this.configRepository.getBotConfig(botId)
-    if (!botConfig) return Err('bot-not-found')
+    if (!botConfig) matchException(MatchError.BotNotFound, 404)
+
     const [userProfile, botProfile] = await Promise.all([
       userProfilePromise,
       this.getProfile(botConfig.uid),
     ])
-
-    if (!userProfile) return Err('user-not-found')
-    if (!botProfile) return Err('user-not-found')
 
     // Coin flip sides
     const humanTeam = Math.round(Math.random()) as Team
@@ -79,7 +79,7 @@ export class MatchService {
     // Start match
     match.start()
     bot.start()
-    return Ok(id)
+    return id
   }
 
   /**
@@ -91,14 +91,13 @@ export class MatchService {
       this.configRepository.getBotConfig(name1),
       this.configRepository.getBotConfig(name2),
     ])
-    if (!config1 || !config2) throw new Error('Could not find bot config(s).')
+    if (!config1 || !config2) unexpected('Could not find bot config(s) for bot vs bot match.')
 
     // Get bot profiles
     const [profile1, profile2] = await Promise.all([
       this.getProfile(config1.uid),
       this.getProfile(config2.uid),
     ])
-    if (!profile1 || !profile2) throw new Error('Could not find bot profile(s).')
 
     // Coinflip profiles
     const sideOfFirst = <Team>Math.round(Math.random())
@@ -141,7 +140,6 @@ export class MatchService {
       this.getProfile(userId1),
       this.getProfile(userId2),
     ])
-    if (!profile1 || !profile2) panic('Could not find user profiles for PvP match.')
 
     // Coinflips sides
     const sideOfFirst = <Team>Math.round(Math.random())
@@ -171,7 +169,7 @@ export class MatchService {
   /**
    * Returns the oponent user id for a given user id.
    */
-  getOpponent(userId: string): string {
+  getOpponent(userId: string): string | null {
     return this.matchBank.getOpponent(userId)
   }
 
@@ -239,51 +237,43 @@ export class MatchService {
     match.on(MatchClassEventType.Finish, async (summary) => {
       const orderScore = computeOrderScore(summary)
 
-      // FIXME: Avoid computing ratings if not ranked.
-      const newRatings = await this.ratingService.getNewRatings({
-        first: {
-          rating: order.data.elo.score,
-          k: order.data.elo.k,
-          challenger: order.data.elo.challenger,
-        },
-        second: {
-          rating: chaos.data.elo.score,
-          k: chaos.data.elo.k,
-          challenger: chaos.data.elo.challenger,
-        },
-        scoreOfFirst: orderScore,
-      })
+      // Get rating converters
+      const orderRatingConverter = await this.ratingService.getRatingConverter(order.data.elo)
+      const chaosRatingConverter = await this.ratingService.getRatingConverter(chaos.data.elo)
 
+      if (ranked) {
+        // Update ratings
+        orderRatingConverter.updateRatings(chaosRatingConverter, orderScore)
+
+        // Update K-factors and match counts
+        orderRatingConverter.updateKFactor()
+        chaosRatingConverter.updateKFactor()
+        orderRatingConverter.eloRow.matches++
+        chaosRatingConverter.eloRow.matches++
+      }
+
+      // Create a finished event
       const finishEvent: MatchFinishedEvent = {
         order: {
           id: order.id,
           matchScore: orderScore,
           row: order,
           time: summary.order.timeSpent,
-          newRating: {
-            k: newRatings.first.k,
-            score: newRatings.first.rating,
-            matches: order.data.elo.matches + 1,
-            challenger: newRatings.first.challenger,
-          },
+          newRating: orderRatingConverter.eloRow,
         },
         chaos: {
           id: chaos.id,
           row: chaos,
           matchScore: 1 - orderScore,
           time: summary.chaos.timeSpent,
-          newRating: {
-            k: newRatings.second.k,
-            score: newRatings.second.rating,
-            matches: chaos.data.elo.matches + 1,
-            challenger: newRatings.second.challenger,
-          },
+          newRating: chaosRatingConverter.eloRow,
         },
         events: match.events,
         ranked,
         startedAt,
       }
 
+      // Emit the finished event for other services to persist results, send events, etc.
       this.eventEmitter.emit('match.finished', finishEvent)
     })
 
@@ -300,8 +290,9 @@ export class MatchService {
       : new RandomBot(perspective)
   }
 
-  private async getProfile(userId: string): Promise<GetResult<UserRow> | null> {
+  private async getProfile(userId: string): Promise<GetResult<UserRow>> {
     const profile = await this.userRepository.getById(userId)
+    if (!profile) unexpected('match service should never try to get a profile that does not exist', userId)
     return profile
   }
 }

@@ -1,17 +1,8 @@
 import { QueueServerEvents, QueueServerEventsMap } from '@magic3t/api-types'
 import { BotName } from '@magic3t/types'
-import {
-  HttpStatus,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common'
-import { SocketsService } from '@/common'
-import { BaseError } from '@/common/errors/base-error'
-import { UserRepository } from '@/database'
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
+import { respondError, SocketsService } from '@/common'
 import { MatchService } from '@/match'
-import { AlreadyInGameError } from './errors/already-in-game.error'
 
 @Injectable()
 export class QueueService {
@@ -21,7 +12,6 @@ export class QueueService {
 
   constructor(
     private matchService: MatchService,
-    private usersService: UserRepository,
     @Inject('QueueSocketsService')
     private queueSocketsService: SocketsService<QueueServerEventsMap>
   ) {}
@@ -29,11 +19,15 @@ export class QueueService {
   private async enqueueInternal(userId: string, mode: 'casual' | 'ranked') {
     if (!this.matchService.isAvailable(userId)) {
       this.logger.error(`player "${userId}" unavailable for queue: in game`)
-      throw new AlreadyInGameError()
+      respondError(
+        'already-in-game',
+        HttpStatus.CONFLICT,
+        'You are already in a match and cannot queue until the match ends'
+      )
     }
 
     if (mode === 'casual') {
-      throw new BaseError('casual mode is temporarily disabled', HttpStatus.INTERNAL_SERVER_ERROR)
+      respondError('not-implemented', 501, 'Casual mode is not implemented yet')
     }
     if (mode === 'ranked') {
       if (!this.rankedPendingUid) {
@@ -58,15 +52,17 @@ export class QueueService {
     }
   }
 
+  /** Adds a user to the queue in the specified mode. */
   enqueue(userId: string, mode: 'casual' | 'ranked') {
     this.enqueueInternal(userId, mode)
     const userQueueModes = this.getQueueModes(userId)
     this.queueSocketsService.send(userId, QueueServerEvents.QueueAccepted, {
-      mode: 'casual',
+      mode,
     })
     this.queueSocketsService.send(userId, QueueServerEvents.QueueModes, userQueueModes)
   }
 
+  /** Gets the queue modes a user is currently in. */
   getQueueModes(uid: string) {
     return {
       casual: this.casualPendingUid === uid,
@@ -74,12 +70,12 @@ export class QueueService {
     }
   }
 
-  /// Tells if a user is already in the queue.
+  /** Determines if a user is already in the queue. */
   isInQueue(userId: string) {
     return this.casualPendingUid === userId || this.rankedPendingUid === userId
   }
 
-  /// Dequeues a user from whatever mode he could be in.
+  /** Dequeues a user from a game mode. If no mode is specified, removes from both */
   dequeue(userId: string, mode?: 'casual' | 'ranked') {
     if ((mode || 'casual') === 'casual' && this.casualPendingUid === userId) {
       this.casualPendingUid = null
@@ -95,6 +91,7 @@ export class QueueService {
     this.queueSocketsService.send(userId, QueueServerEvents.QueueModes, userQueueModes)
   }
 
+  /** Gets the count of users currently in each queue mode. */
   getUserCount() {
     return {
       casual: this.casualPendingUid ? 1 : 0,
@@ -102,95 +99,15 @@ export class QueueService {
     }
   }
 
+  /** Creates a match between a user and a specified bot. */
   async createBotMatch(userId: string, botName: BotName) {
-    const createResult = await this.matchService.createPlayerVsBot(userId, botName)
+    // Create a match
+    const matchId = await this.matchService.createPlayerVsBot(userId, botName)
 
-    createResult.match({
-      ok: (matchId) => {
-        this.queueSocketsService.send(userId, QueueServerEvents.MatchFound, {
-          matchId,
-          opponentId: '',
-        })
-      },
-      err: (error) => {
-        switch (error) {
-          // biome-ignore lint/suspicious/noFallthroughSwitchClause: panic
-          case 'user-not-found':
-            panic('unreachable by now')
-          case 'bot-not-found':
-            console.error('bot not found')
-            return
-        }
-      },
-    })
-  }
-
-  async createRandomBotMatch(userId: string) {
-    const botIndex = Math.floor(Math.random() * 4) // ALERTA DE GAMBIARRA
-    const result = await this.matchService.createPlayerVsBot(userId, `bot${botIndex}` as BotName)
-
-    result.match({
-      ok: (matchId) => {
-        this.queueSocketsService.send(userId, QueueServerEvents.MatchFound, {
-          matchId,
-          opponentId: '',
-        })
-      },
-      err: (error) => {
-        switch (error) {
-          // biome-ignore lint/suspicious/noFallthroughSwitchClause: panic
-          case 'user-not-found':
-            panic('unreachable by now')
-          case 'bot-not-found':
-            return
-        }
-      },
-    })
-  }
-
-  async createFairBotMatch(userId: string) {
-    const userProfile = await this.usersService.getById(userId)
-    if (!userProfile) throw new InternalServerErrorException('user not found')
-    const userRating = userProfile.data.elo.score
-
-    const bots = await this.usersService.getBots()
-
-    // TODO: Work with probabilities instead of always making the player play against the nearest.
-
-    // Finds the bot with the closest rating
-    let closestIndex = 0
-    {
-      let closestDistance = Number.POSITIVE_INFINITY
-      bots.forEach((bot, currentIndex) => {
-        const botRating = bot.data.elo.score
-        const currentDistance = Math.abs(botRating - userRating)
-        if (currentDistance < closestDistance) {
-          closestDistance = currentDistance
-          closestIndex = currentIndex
-        }
-      })
-    }
-    const result = await this.matchService.createPlayerVsBot(
-      userId,
-      `bot${closestIndex}` as BotName
-    )
-
-    result.match({
-      ok: (matchId) => {
-        this.queueSocketsService.send(userId, QueueServerEvents.MatchFound, {
-          matchId,
-          opponentId: bots[closestIndex].id,
-        })
-      },
-      err: (error) => {
-        switch (error) {
-          // biome-ignore lint/suspicious/noFallthroughSwitchClause: panic
-          case 'user-not-found':
-            panic('unreachable by now')
-          case 'bot-not-found':
-            return
-        }
-      },
+    // Notify the user
+    this.queueSocketsService.send(userId, QueueServerEvents.MatchFound, {
+      matchId,
+      opponentId: '', // FIXME: bot id
     })
   }
 }

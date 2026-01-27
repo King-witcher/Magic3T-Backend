@@ -1,6 +1,6 @@
 import { StateReportPayload } from '@magic3t/api-types'
 import { Team } from '@magic3t/common-types'
-import { delay } from '@/common'
+import { delay, unexpected } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
 
 export class RandomBot extends BaseBot {
@@ -12,7 +12,7 @@ export class RandomBot extends BaseBot {
 
     await delay(Math.random() * 2000 + 3000) // Waits from 3 to 5 seconds before deciding
 
-    if (!available.length) throw new Error('No available choices.')
+    if (!available.length) unexpected('RandomBot has no available choices to pick from.')
 
     const index = Math.trunc(Math.random() * available.length)
 

@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { DatabaseService } from '@/database'
 import { Match, MatchClassEventType } from './match'
 import { Perspective } from './perspective'
+import { unexpected } from '@/common'
 
 export type CreatePerspectivesParams = {
   match: Match
@@ -18,7 +19,7 @@ export class MatchBank {
 
   constructor(private databaseService: DatabaseService) {}
 
-  /// Creates a match that will be assigned to an id until it's finished.
+  /** Create a match, assign it an internal id, register it in the bank and return the match id. */
   createAndRegisterMatch(...params: ConstructorParameters<typeof Match>): {
     id: string
     match: Match
@@ -75,10 +76,10 @@ export class MatchBank {
     return { orderPerspective, chaosPerspective }
   }
 
-  getOpponent(userId: string): string {
+  /** Returns the opponent user id for a given user id. */
+  getOpponent(userId: string): string | null {
     const opponentUid = this.opponents.get(userId)
-    if (!opponentUid) throw new Error(`bad uid ${userId}.`)
-    return opponentUid
+    return opponentUid ?? null
   }
 
   getPerspective(userId: string): Perspective | null {

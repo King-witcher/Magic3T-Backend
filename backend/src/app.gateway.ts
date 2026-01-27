@@ -1,4 +1,3 @@
-import { UseFilters } from '@nestjs/common'
 import {
   ConnectedSocket,
   MessageBody,
@@ -6,9 +5,7 @@ import {
   WebSocketGateway,
 } from '@nestjs/websockets'
 import { Socket } from 'socket.io'
-import { WsFilter } from './common/filters/ws.filter'
 
-@UseFilters(WsFilter)
 @WebSocketGateway({ cors: '*' })
 export class AppGateway {
   @SubscribeMessage('ping')

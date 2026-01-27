@@ -2,6 +2,7 @@ import { createParamDecorator, ExecutionContext, NotImplementedException } from 
 import { Perspective } from '../lib'
 import { MatchSocket } from '../types'
 import { MatchRequest } from '../types/match-request'
+import { respondError } from '@/common'
 
 export const CurrentPerspective = createParamDecorator((_, ctx: ExecutionContext): Perspective => {
   switch (ctx.getType()) {
@@ -14,6 +15,6 @@ export const CurrentPerspective = createParamDecorator((_, ctx: ExecutionContext
       return client.data.perspective
     }
     case 'rpc':
-      throw new NotImplementedException()
+      respondError('invalid-request', 400, 'CurrentPerspective decorator is not implemented for rpc context.')
   }
 })

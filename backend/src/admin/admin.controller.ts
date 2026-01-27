@@ -3,6 +3,7 @@ import { ApiOperation } from '@nestjs/swagger'
 import { AuthGuard } from '@/auth/auth.guard'
 import { ConfigRepository, UserRepository } from '@/database'
 import { AdminGuard } from './admin.guard'
+import { respondError, ErrorResponseException } from '@/common'
 
 @Controller('admin')
 @UseGuards(AuthGuard, AdminGuard)
@@ -15,9 +16,9 @@ export class AdminController {
   @ApiOperation({})
   @Post('reset-ratings')
   async resetRatings() {
-    const ratingConfig = (await this.configRepository.cachedGetRatingConfig()).expect(
-      'rating config not found'
-    )
+    respondError('removed', 400, 'This endpoint was removed and is no longer available.')
+
+    const ratingConfig = await this.configRepository.cachedGetRatingConfig()
     const users = await this.usersRepository.listAll()
 
     await Promise.all(

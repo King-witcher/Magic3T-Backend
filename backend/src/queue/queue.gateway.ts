@@ -1,6 +1,6 @@
 import { QueueServerEvents, QueueServerEventsMap } from '@magic3t/api-types'
 import { BotName } from '@magic3t/types'
-import { Inject, Logger, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common'
+import { Inject, Logger, UseGuards, UseInterceptors } from '@nestjs/common'
 import {
   MessageBody,
   OnGatewayDisconnect,
@@ -11,7 +11,6 @@ import {
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
 import { SocketsService } from '@/common'
-import { WsFilter } from '@/common/filters/ws.filter'
 import { GameModePipe } from './pipes/game-mode.pipe'
 import { QueueInterceptor } from './queue.interceptor'
 import { QueueService } from './queue.service'
@@ -19,7 +18,6 @@ import { QueueServer, QueueSocket } from './types'
 
 @UseGuards(AuthGuard)
 @UseInterceptors(QueueInterceptor)
-@UseFilters(WsFilter)
 @WebSocketGateway({ cors: '*', namespace: 'queue' })
 export class QueueGateway implements OnGatewayDisconnect {
   private readonly logger = new Logger(QueueGateway.name, { timestamp: true })
@@ -52,11 +50,6 @@ export class QueueGateway implements OnGatewayDisconnect {
   @SubscribeMessage('interact')
   handleInteract() {
     return
-  }
-
-  @SubscribeMessage('fair')
-  async handleFairBot(@UserId() userId: string) {
-    await this.queueService.createFairBotMatch(userId)
   }
 
   @SubscribeMessage('bot-0')
@@ -97,7 +90,7 @@ export class QueueGateway implements OnGatewayDisconnect {
   handleDisconnect(client: QueueSocket) {
     const userId = client.data.userId
     if (userId) {
-      this.logger.log(`user ${userId} disconnected`)
+      this.logger.verbose(`user ${userId} disconnected`)
       this.queueService.dequeue(userId)
       this.queueSocketsService.remove(userId, client)
     }

@@ -1,23 +1,33 @@
-import { CrashReportRepository, UserRepository } from '@database'
-import { CrashReportCommand } from '@magic3t/api-types'
-import { CrashReportRow, WithId } from '@magic3t/database-types'
+import { CrashReportsRepository, UserRepository } from '@database'
+import { CrashReportCommand, GetStatusResponse } from '@magic3t/api-types'
+import { CrashReportRow } from '@magic3t/database-types'
 import { Body, Controller, Get, Post, Redirect } from '@nestjs/common'
-import { ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
+import { ApiBody, ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 import { Throttle } from '@nestjs/throttler'
-import { FieldValue } from 'firebase-admin/firestore'
+import { respondError } from './common'
+import * as z from 'zod'
+import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface'
 
+const a = z.toJSONSchema(z.object({
+  a: z.string(),
+  description: z.string(),
+}))
 @Controller()
 export class AppController {
-  constructor(private readonly crashReportRepository: CrashReportRepository, private usersRepository: UserRepository) {}
+  constructor(private readonly crashReportRepository: CrashReportsRepository, private usersRepository: UserRepository) {}
 
   @Get('/')
   @Redirect('/api')
   @ApiExcludeEndpoint()
   root() {}
 
+  @ApiOperation({
+    summary: 'Teapot endpoint',
+    description: 'Fails with HTTP status code 418.',
+  })
   @Get('teapot')
   async teapot() {
-    return Err('I am a teapot')
+    respondError('teapot', 418, 'I am a teapot')
   }
 
   @ApiOperation({
@@ -25,9 +35,10 @@ export class AppController {
     description: 'Returns the service status for tracking downtimes.',
   })
   @Get('status')
-  async status() {
+  status(): GetStatusResponse {
     return {
       status: 'available',
+      timestamp: new Date().toISOString(),
     }
   }
 
@@ -35,14 +46,23 @@ export class AppController {
     summary: 'Report a crash',
     description: 'Endpoint to report crashes from the client.',
   })
-  @Throttle({ short: { limit: 2, ttl: 60 * 1000 } })
+  @ApiBody({
+    schema: z.toJSONSchema(z.object({
+      errorCode: z.string().describe('Unique error code identifying the crash').default('auth/unknown-error'),
+      description: z.string().describe('Detailed description of the crash'),
+      metadata: z.optional(z.unknown()),
+    })) as SchemaObject
+  })
   @Throttle({ medium: { limit: 5, ttl: 60 * 60 * 1000 } })
   @Post('crash-report')
   reportCrash(@Body() command: CrashReportCommand) {
-    const row: Omit<CrashReportRow, keyof WithId> = {
+    const row: CrashReportRow = {
       source: 'client',
       date: new Date(),
-      error: command.error,
+      error: {
+        errorCode: command.errorCode,
+        description: command.description,
+      },
       metadata: command.metadata ?? null,
     }
 

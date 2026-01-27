@@ -29,7 +29,7 @@ export function Navbar() {
         'bg-hextech-black/50 backdrop-blur-sm',
         'border-b-2 border-gold-4',
         'shadow-lg shadow-black/40',
-        'z-50'
+        'z-10'
       )}
     >
       {/* Decorative top border gradient */}

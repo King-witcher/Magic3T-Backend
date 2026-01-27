@@ -1,17 +1,4 @@
 {
-  "name": "magic3t-backend",
-  "version": "2.0.1",
-  "license": "UNLICENSED",
-  "scripts": {
-    "build": "nest build",
-    "dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
-    "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
-    "typecheck": "tsc --noEmit",
-    "typeorm": "typeorm-ts-node-commonjs",
-    "test": "vitest"
-  },
   "dependencies": {
     "@magic3t/api-types": "*",
     "@nestjs/cache-manager": "^3.0.1",
@@ -33,7 +20,8 @@
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
@@ -57,5 +45,18 @@
     "tsconfig-paths": "4.2.0",
     "typescript": "^5.7.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "license": "UNLICENSED",
+  "name": "magic3t-backend",
+  "scripts": {
+    "build": "nest build",
+    "dev": "nest start --watch",
+    "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit",
+    "typeorm": "typeorm-ts-node-commonjs"
+  },
+  "version": "2.0.1"
 }

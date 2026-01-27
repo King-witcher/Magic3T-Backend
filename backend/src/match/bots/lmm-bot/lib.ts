@@ -1,3 +1,4 @@
+import { unexpected } from '@/common'
 import { Choice } from '@magic3t/common-types'
 
 export type Tree = {
@@ -45,7 +46,7 @@ function evaluateWhite(match: Choice[]): 1 | 0 | -1 {
   if (whiteValue === 1 && blackValue === 0) return 1
   if (blackValue === 1 && whiteValue === 0) return -1
   if (whiteValue === blackValue && blackValue === 0) return 0
-  throw new Error('Bad match')
+  unexpected()
 }
 
 export function createTree(depth: number, previous: Choice[] = []): Tree {

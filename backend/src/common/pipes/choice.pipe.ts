@@ -1,16 +1,16 @@
 import { Choice } from '@magic3t/common-types'
 import { HttpStatus, PipeTransform } from '@nestjs/common'
-import { BaseError } from '../errors'
+import { respondError } from '../errors'
 
 export class ChoicePipe implements PipeTransform {
   transform(value: unknown): Choice {
     if (typeof value === 'string') {
       const value_ = Number.parseInt(value, 10)
-      if (!this.isChoice(value_)) throw new BaseError('Invalid choice', HttpStatus.BAD_REQUEST)
+      if (!this.isChoice(value_)) respondError('invalid-choice', HttpStatus.BAD_REQUEST, 'Invalid choice')
       return value_
     }
 
-    if (!this.isChoice(value)) throw new BaseError('Invalid choice', HttpStatus.BAD_REQUEST)
+    if (!this.isChoice(value)) respondError('invalid-choice', HttpStatus.BAD_REQUEST, 'Invalid choice')
     return value
   }
 

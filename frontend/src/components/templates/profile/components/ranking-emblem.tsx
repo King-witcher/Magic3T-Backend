@@ -13,7 +13,7 @@ export function RankingEmblem({ rating }: Props) {
 
   return (
     <div className="flex flex-col items-center">
-      <img src={leagueInfo.emblem} alt="" className="w-56 object-contain" />
+      <img src={leagueInfo.emblemOldest} alt="" className="w-56 object-contain" />
       <p className="text-gold-1 tracking-wider font-serif font-medium text-2xl">
         {leagueInfo.name} {rating.division ? DIVISION_STRINGS[rating.division - 1] : ''}
       </p>

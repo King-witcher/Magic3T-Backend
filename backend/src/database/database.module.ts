@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common'
 import { FirebaseModule } from '@/firebase'
 import { ConfigRepository } from './config'
-import { CrashReportRepository } from './crash-report'
+import { CrashReportsRepository } from './crash-report'
 import { DatabaseService } from './database.service'
 import { MatchRepository } from './match'
 import { UserRepository } from './user'
@@ -14,14 +14,14 @@ import { UserRepository } from './user'
     UserRepository,
     MatchRepository,
     ConfigRepository,
-    CrashReportRepository,
+    CrashReportsRepository,
   ],
   exports: [
     DatabaseService,
     UserRepository,
     MatchRepository,
     ConfigRepository,
-    CrashReportRepository,
+    CrashReportsRepository,
   ],
 })
 export class DatabaseModule {}

@@ -7,7 +7,7 @@ import {
   Logger,
   NotImplementedException,
 } from '@nestjs/common'
-import { SocketsService } from '@/common'
+import { respondError, SocketsService } from '@/common'
 import { MatchBank } from './lib'
 import { MatchSocket } from './types'
 import { MatchRequest } from './types/match-request'
@@ -34,7 +34,7 @@ export class MatchGuard implements CanActivate {
           return this.validateWs(client)
         }
         case 'rpc':
-          throw new NotImplementedException()
+          respondError('not-implemented', 501, 'MatchGuard is not implemented for rpc context.')
       }
     } catch (e) {
       this.logger.error(`request rejected: ${(<Error>e).message}`)
@@ -44,7 +44,7 @@ export class MatchGuard implements CanActivate {
 
   private validateHttp(request: MatchRequest): boolean {
     const userId = request.userId
-    if (!userId) throw new Error('socket is not authenticated. auth guard must run before.')
+    if (!userId) throw new Error('http client is not authenticated. auth guard must run before.')
 
     const perspective = this.matchBank.getPerspective(userId)
     if (!perspective) {

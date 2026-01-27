@@ -1,7 +1,6 @@
 import { AssignmentsPayload, StateReportPayload } from '@magic3t/api-types'
 import { Choice, Team } from '@magic3t/common-types'
-import { Result } from '@/common'
-import { Match, MatchClassError, MatchClassEventsMap } from './match'
+import { Match, MatchClassEventsMap } from './match'
 
 export type PerspectiveParams = {
   match: Match
@@ -48,12 +47,12 @@ export class Perspective {
     return this.match.stateReport
   }
 
-  pick(choice: Choice): Result<[], MatchClassError> {
-    return this.match.handleChoice(this.team, choice)
+  pick(choice: Choice): void {
+    this.match.handleChoice(this.team, choice)
   }
 
-  surrender(): Result<[], MatchClassError> {
-    return this.match.handleSurrender(this.team)
+  surrender(): void {
+    this.match.handleSurrender(this.team)
   }
 
   on<Event extends keyof MatchClassEventsMap>(

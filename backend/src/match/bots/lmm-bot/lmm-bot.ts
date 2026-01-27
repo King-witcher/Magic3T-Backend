@@ -1,6 +1,6 @@
 import { StateReportPayload } from '@magic3t/api-types'
 import { Choice, Team } from '@magic3t/common-types'
-import { delay } from '@/common'
+import { delay, unexpected } from '@/common'
 import { BaseBot } from '@/match/bots/base-bot'
 import { Perspective } from '@/match/lib'
 import { createTree } from './lib'
@@ -73,6 +73,6 @@ export class LmmBot extends BaseBot {
       return values.loses[Math.floor(Math.random() * values.loses.length)]
     }
 
-    throw new Error('No available choices.')
+    unexpected('LmmBot could not determine a valid choice to make.')
   }
 }

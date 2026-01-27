@@ -1,6 +1,7 @@
 import {
   GameServerEventsMap,
   MatchClientEvents,
+  MatchError,
   MatchServerEvents,
   MessagePayload,
 } from '@magic3t/api-types'
@@ -15,12 +16,13 @@ import {
 } from '@nestjs/websockets'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { ChoicePipe, SocketsService } from '@/common'
+import { ChoicePipe, respondError, SocketsService } from '@/common'
 import { CurrentPerspective } from './decorators'
 import { Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
 import { MatchSocket } from './types'
+import { matchException } from './types/match-error'
 
 @UseGuards(AuthGuard, MatchGuard)
 @WebSocketGateway({ cors: '*', namespace: 'match' })
@@ -50,6 +52,8 @@ export class MatchGateway implements OnGatewayDisconnect {
   @SubscribeMessage(MatchClientEvents.Message)
   handleMessage(@UserId() uid: string, @MessageBody() body: string) {
     const opponent = this.matchService.getOpponent(uid)
+    if (!opponent) matchException(MatchError.MatchNotFound)
+
     const messageData: MessagePayload = {
       message: body,
       sender: uid,

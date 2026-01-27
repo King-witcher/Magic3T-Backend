@@ -5,17 +5,16 @@ import { FirebaseService } from '@/firebase/firebase.service'
 
 import CollectionReference = firestore.CollectionReference
 
-import { CacheMethod, Result } from '@common'
+import { CacheMethod, unexpected } from '@common'
 import {
   BotConfig,
   BotConfigRow,
   BotName,
-  DevopsConfigModel,
+  DevopsConfigModel as DevopsConfigRow,
   RatingConfigModel,
 } from '@magic3t/types'
 
 export type ConfigRepositoryError = 'configs-not-found' | 'bot-not-found'
-type ConfigRepositoryResult<T> = Result<T, ConfigRepositoryError>
 
 @Injectable()
 export class ConfigRepository {
@@ -32,7 +31,7 @@ export class ConfigRepository {
   }
 
   @CacheMethod(300)
-  async getBotConfigs(): Promise<ConfigRepositoryResult<BotConfigRow>> {
+  async getBotConfigs(): Promise<BotConfigRow> {
     this.logger.verbose('read "bots" from config')
 
     const converter = this.databaseService.getDefaultConverter<BotConfigRow>()
@@ -40,47 +39,38 @@ export class ConfigRepository {
 
     const data = snapshot.data()
 
-    if (!data) return Err('configs-not-found')
+    if (!data) unexpected('Could not find bot configs in the database.')
 
-    return Ok(data)
+    return data
   }
 
   async getBotConfig(botName: BotName): Promise<BotConfig | null> {
-    const result = await this.getBotConfigs()
-
-    return result.match({
-      ok: (configs) => {
-        const config = configs[botName]
-        if (!config) return null
-        return config
-      },
-      err: () => null,
-    })
+    const configs = await this.getBotConfigs()
+    return configs[botName] ?? null
   }
 
   @CacheMethod(10)
-  async getDevopsConfig(): Promise<ConfigRepositoryResult<DevopsConfigModel>> {
+  async getDevopsConfig(): Promise<DevopsConfigRow> {
     this.logger.verbose('read "devops" from config')
-    const converter = this.databaseService.getDefaultConverter<DevopsConfigModel>()
+    const converter = this.databaseService.getDefaultConverter<DevopsConfigRow>()
     const snapshot = await this.collection.withConverter(converter).doc('devops').get()
 
     const data = snapshot.data()
 
-    if (!data) return Err('configs-not-found')
+    if (!data) unexpected('Could not find devops configs in the database.')
 
-    return Ok(data)
+    return data
   }
 
   @CacheMethod(300)
-  async cachedGetRatingConfig(): Promise<ConfigRepositoryResult<RatingConfigModel>> {
+  async cachedGetRatingConfig(): Promise<RatingConfigModel> {
     this.logger.verbose('read "rating" from config')
     const converter = this.databaseService.getDefaultConverter<RatingConfigModel>()
     const snapshot = await this.collection.withConverter(converter).doc('rating').get()
 
     const data = snapshot.data()
+    if (!data) unexpected('rating-config-not-found')
 
-    if (!data) return Err('configs-not-found')
-
-    return Ok(data)
+    return data
   }
 }

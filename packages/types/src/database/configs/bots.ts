@@ -10,6 +10,11 @@ export type BotConfig = { uid: string } & (
     }
 )
 
+/**
+ * A bot name as sent by the user (bot0, bot1, bot2).
+ *
+ * Not to be confused with bot id.
+ */
 export const enum BotName {
   Bot0 = 'bot0',
   Bot1 = 'bot1',
