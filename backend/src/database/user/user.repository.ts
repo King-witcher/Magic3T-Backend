@@ -1,5 +1,5 @@
 import { IconAssignmentRow, UserRow } from '@magic3t/database-types'
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { FirestoreDataConverter } from 'firebase-admin/firestore'
 import { unexpected } from '@/common'
 import { DatabaseService } from '@/database/database.service'

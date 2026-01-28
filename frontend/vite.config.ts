@@ -31,6 +31,17 @@ export default defineConfig({
     host: true,
   },
   resolve: {
-    alias: [{ find: '@', replacement: resolve(__dirname, './src') }],
+    alias: [
+      { find: '@', replacement: resolve(__dirname, './src') },
+      {
+        find: '@magic3t/common-types',
+        replacement: resolve(__dirname, '../packages/common-types/src'),
+      },
+      { find: '@magic3t/api-types', replacement: resolve(__dirname, '../packages/api-types/src') },
+      {
+        find: '@magic3t/database-types',
+        replacement: resolve(__dirname, '../packages/database-types/src'),
+      },
+    ],
   },
 })

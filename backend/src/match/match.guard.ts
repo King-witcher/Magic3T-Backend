@@ -1,12 +1,5 @@
 import { GameServerEventsMap } from '@magic3t/api-types'
-import {
-  CanActivate,
-  ExecutionContext,
-  Inject,
-  Injectable,
-  Logger,
-  NotImplementedException,
-} from '@nestjs/common'
+import { CanActivate, ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common'
 import { respondError, SocketsService } from '@/common'
 import { MatchBank } from './lib'
 import { MatchSocket } from './types'

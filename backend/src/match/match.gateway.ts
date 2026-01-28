@@ -16,7 +16,7 @@ import {
 } from '@nestjs/websockets'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
-import { ChoicePipe, respondError, SocketsService } from '@/common'
+import { ChoicePipe, SocketsService } from '@/common'
 import { CurrentPerspective } from './decorators'
 import { Perspective } from './lib'
 import { MatchGuard } from './match.guard'

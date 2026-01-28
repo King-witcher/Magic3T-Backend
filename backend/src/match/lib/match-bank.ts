@@ -1,6 +1,5 @@
 import { Team } from '@magic3t/common-types'
 import { Injectable } from '@nestjs/common'
-import { unexpected } from '@/common'
 import { DatabaseService } from '@/database'
 import { Match, MatchClassEventType } from './match'
 import { Perspective } from './perspective'

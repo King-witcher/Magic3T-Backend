@@ -4,7 +4,7 @@ import {
   MatchServerEvents,
   StateReportPayload,
 } from '@magic3t/api-types'
-import { League, Team } from '@magic3t/common-types'
+import { Team } from '@magic3t/common-types'
 import { Inject, Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
 import { SocketsService } from '@/common'

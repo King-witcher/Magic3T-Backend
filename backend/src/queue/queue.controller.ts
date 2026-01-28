@@ -1,5 +1,5 @@
 import { BotName } from '@magic3t/database-types'
-import { Body, Controller, Delete, NotImplementedException, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'

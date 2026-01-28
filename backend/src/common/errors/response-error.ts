@@ -38,6 +38,8 @@ export class ErrorResponseException<T extends string = string>
 /**
  * Throws an ErrorResponseException with the given parameters.
  */
+
+// biome-ignore lint/suspicious/noExplicitAny: metadata can be anything for now
 export function respondError(errorCode: string, httpStatus = 400, metadata?: any): never {
   throw new ErrorResponseException(errorCode, httpStatus, metadata)
 }

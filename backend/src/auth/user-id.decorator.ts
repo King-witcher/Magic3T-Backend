@@ -1,4 +1,4 @@
-import { createParamDecorator, ExecutionContext, NotImplementedException } from '@nestjs/common'
+import { createParamDecorator, ExecutionContext } from '@nestjs/common'
 import { respondError } from '@/common'
 import { AuthRequest } from './auth-request'
 import { AuthSocket } from './auth-socket'
