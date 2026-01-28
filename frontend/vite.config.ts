@@ -19,9 +19,6 @@ export default defineConfig({
     }),
     tailwindcss(),
   ],
-  build: {
-    outDir: 'dist',
-  },
   server: {
     port: 3000,
     host: true,
@@ -33,15 +30,9 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@', replacement: resolve(__dirname, './src') },
-      {
-        find: '@magic3t/common-types',
-        replacement: resolve(__dirname, '../packages/common-types/src'),
-      },
-      { find: '@magic3t/api-types', replacement: resolve(__dirname, '../packages/api-types/src') },
-      {
-        find: '@magic3t/database-types',
-        replacement: resolve(__dirname, '../packages/database-types/src'),
-      },
     ],
+  },
+  build: {
+    outDir: 'dist',
   },
 })

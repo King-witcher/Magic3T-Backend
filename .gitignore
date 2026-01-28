@@ -5,3 +5,5 @@ build
 .VSCodeCounter
 .idea
 postgres
+ignore.*
+*.ignore
