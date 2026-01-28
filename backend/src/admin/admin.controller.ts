@@ -1,7 +1,7 @@
 import { Controller, Post, UseGuards } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { AuthGuard } from '@/auth/auth.guard'
-import type { ConfigRepository, UserRepository } from '@/database'
+import { ConfigRepository, UserRepository } from '@/database'
 import { AdminGuard } from './admin.guard'
 
 @Controller('admin')
