@@ -27,8 +27,8 @@ export class AdminController {
           ...user.data,
           elo: {
             challenger: false,
-            score: ratingConfig.base_score,
-            k: ratingConfig.initial_k_value,
+            score: ratingConfig.initial_elo,
+            k: ratingConfig.initial_k_factor,
             matches: 0,
           },
         })

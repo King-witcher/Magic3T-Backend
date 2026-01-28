@@ -8,12 +8,6 @@ import * as z from 'zod'
 import { respondError } from './common'
 import { CrashReportsRepository } from './database'
 
-const a = z.toJSONSchema(
-  z.object({
-    a: z.string(),
-    description: z.string(),
-  })
-)
 @Controller()
 export class AppController {
   constructor(private readonly crashReportRepository: CrashReportsRepository) {}

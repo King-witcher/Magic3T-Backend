@@ -29,9 +29,9 @@ export class RatingConverter {
   /** Gets how much League Points the user has in total, since the lowest league. */
   public get totalPoints(): number | null {
     if (this.provisional) return null
-    const eloAboveBase = this.eloRow.score - this.config.base_score
-    const leaguesAboveBase = eloAboveBase / this.config.league_length
-    const leaguesAboveLowest = leaguesAboveBase + this.config.base_league
+    const eloAboveBase = this.eloRow.score - this.config.initial_elo
+    const leaguesAboveBase = eloAboveBase / this.config.elo_per_league
+    const leaguesAboveLowest = leaguesAboveBase + this.config.initial_league_index
     const lPAboveLowest = 400 * leaguesAboveLowest
     return Math.floor(lPAboveLowest)
   }
@@ -81,12 +81,12 @@ export class RatingConverter {
 
   /** Updates the K-factor after a match */
   public updateKFactor(): void {
-    if (this.eloRow.k - this.config.final_k_value < 0.5) {
-      this.eloRow.k = this.config.final_k_value
+    if (this.eloRow.k - this.config.least_k_factor < 0.5) {
+      this.eloRow.k = this.config.least_k_factor
     }
 
     this.eloRow.k =
-      this.config.final_k_value * this.config.k_deflation_factor +
+      this.config.least_k_factor * this.config.k_deflation_factor +
       this.eloRow.k * (1 - this.config.k_deflation_factor)
   }
 

@@ -47,6 +47,6 @@ export class RatingService {
 
   async getRawLP(rating: number): Promise<number> {
     const config = await this.ratingConfig
-    return Math.round((400 * rating) / config.league_length)
+    return Math.round((400 * rating) / config.elo_per_league)
   }
 }

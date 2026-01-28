@@ -134,8 +134,8 @@ export class UserController {
 
     const userRow: UserRow = {
       elo: {
-        k: ratingConfig.initial_k_value,
-        score: ratingConfig.base_score,
+        k: ratingConfig.initial_k_factor,
+        score: ratingConfig.initial_elo,
         challenger: false,
         matches: 0,
       },

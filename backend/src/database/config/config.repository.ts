@@ -7,6 +7,7 @@ import CollectionReference = firestore.CollectionReference
 
 import { BotConfigRow, BotName, RatingConfigRow, SingleBotConfig } from '@magic3t/database-types'
 import { CacheMethod, unexpected } from '@/common'
+import { UpdateData } from 'firebase-admin/firestore'
 
 export type ConfigRepositoryError = 'configs-not-found' | 'bot-not-found'
 
@@ -53,5 +54,11 @@ export class ConfigRepository {
     if (!data) unexpected('rating-config-not-found')
 
     return data
+  }
+
+  async updateRatingConfig(updateData: any): Promise<void> {
+    this.logger.verbose('update "rating" config')
+    const converter = this.databaseService.getDefaultConverter<RatingConfigRow>()
+    await this.collection.withConverter(converter).doc('rating').update(updateData)
   }
 }

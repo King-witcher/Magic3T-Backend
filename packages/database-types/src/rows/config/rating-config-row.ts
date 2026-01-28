@@ -1,33 +1,18 @@
 export interface RatingConfigRow {
-  /**
-   * How much time a player with RD=40 would take to go back to 350, in days
-   * @deprecated
-   */
-  rd_inflation_time?: number
-
   /** The base rating in the game, which is assigned to every player at the beginning. */
-  base_score: number
-
-  /** The max RD a player can reach, which is also the initial RD for every player. */
-  max_rd?: number
-
-  /** The min RD a player can reach. */
-  min_rd?: number
-
-  /** The max rd a player can have to have their ranking revealed. */
-  rd_threshold?: number
+  initial_elo: number
 
   /** The length of each league in elo points. */
-  league_length: number
+  elo_per_league: number
 
   /** The league where a player would be with the base score. This number can be fractionary. */
-  base_league: number
+  initial_league_index: number
 
   /** The lowest possible K value for elo system. */
-  final_k_value: number
+  least_k_factor: number
 
   /** The initial user K value for elo system. */
-  initial_k_value: number
+  initial_k_factor: number
 
   /** The factor by which the K value is deflated towards the final K value after each match. */
   k_deflation_factor: number
