@@ -44,6 +44,7 @@ export type MatchRowEvent = BaseMatchRowEvent &
       }
   )
 
+// TODO: improve this type later
 /** Represents a match registry in the History. */
 export type MatchRow = {
   [Team.Order]: MatchRowTeam // TODO: put inside a teams object
