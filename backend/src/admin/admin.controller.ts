@@ -1,9 +1,9 @@
 import { Controller, Post, UseGuards } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { AuthGuard } from '@/auth/auth.guard'
+import { ErrorResponseException, respondError } from '@/common'
 import { ConfigRepository, UserRepository } from '@/database'
 import { AdminGuard } from './admin.guard'
-import { respondError, ErrorResponseException } from '@/common'
 
 @Controller('admin')
 @UseGuards(AuthGuard, AdminGuard)

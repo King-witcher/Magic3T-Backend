@@ -22,7 +22,7 @@
     {
       "label": "vite: dev",
       "type": "shell",
-      "command": "bun dev",
+      "command": "npm run dev",
       "options": {
         "cwd": "frontend",
         "env": {
@@ -61,7 +61,7 @@
         "color": "terminal.ansiCyan"
       },
       "type": "shell",
-      "command": "bun",
+      "command": "npx",
       "args": [
         "tsc",
         "--watch",
@@ -89,7 +89,7 @@
         "color": "terminal.ansiCyan"
       },
       "type": "shell",
-      "command": "bun",
+      "command": "npx",
       "args": [
         "tsc",
         "--watch",
@@ -109,5 +109,106 @@
         "clear": false
       },
     },
+
+
+    //////////////// CI Test
+
+    // build backend
+    {
+      "label": "build: backend",
+      "icon": {
+        "id": "tools",
+        "color": "terminal.ansiWhite"
+      },
+      "type": "shell",
+      "options": {
+        "cwd": "backend"
+      },
+      "command": "npm",
+      "args": [
+        "run", "build"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+
+    // build frontend
+    {
+      "label": "build: frontend",
+      "icon": {
+        "id": "tools",
+        "color": "terminal.ansiWhite"
+      },
+      "type": "shell",
+      "options": {
+        "cwd": "frontend"
+      },
+      "command": "npm",
+      "args": [
+        "run", "build"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+
+    // npm audit
+    {
+      "label": "npm audit",
+      "icon": {
+        "id": "tools",
+        "color": "terminal.ansiWhite"
+      },
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "audit"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+
+    // npm run lint
+    {
+      "label": "biome lint",
+      "icon": {
+        "id": "tools",
+        "color": "terminal.ansiWhite"
+      },
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run", "lint"
+      ],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+
+    // Build everything
+    {
+      "label": "build",
+      "dependsOn": [
+        "build: backend",
+        "build: frontend",
+        "biome lint",
+        "npm audit"
+      ],
+      "group": {
+        "isDefault": true,
+        "kind": "build"
+      },
+      "dependsOrder": "parallel"
+    }
 	]
 }

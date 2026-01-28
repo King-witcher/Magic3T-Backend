@@ -14,11 +14,8 @@ export function GlobalErrorTemplate({ error, info }: ErrorComponentProps) {
     // Send crash report
     apiClient
       .reportCrash({
-        error: {
-          message: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined,
-          name: error instanceof Error ? error.name : 'Unknown Error',
-        },
+        errorCode: 'unnamed',
+        description: (error as Error).message,
         metadata: {
           timestamp: new Date().toISOString(),
           url: window.location.href,

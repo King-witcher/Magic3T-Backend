@@ -2,8 +2,8 @@ import { MatchError, StateReportPayload } from '@magic3t/api-types'
 import { Choice, Team } from '@magic3t/common-types'
 import { MatchRowEvent, MatchRowEventType } from '@magic3t/database-types'
 import { Observable, Stopwatch } from '@/common'
-import { Player } from './player'
 import { matchException } from '../types/match-error'
+import { Player } from './player'
 
 export const enum MatchClassEventType {
   Start = 0,

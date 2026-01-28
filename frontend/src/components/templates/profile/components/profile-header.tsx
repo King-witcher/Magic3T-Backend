@@ -15,7 +15,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         {/* Profile Avatar */}
         <AvatarRoot className="mt-24">
           <AvatarImage icon={user.summonerIcon} />
-          <AvatarWing league={user.rating.league} type='wing' />
+          <AvatarWing league={user.rating.league} type="wing" />
           {user.rating.division && <AvatarDivision division={user.rating.division} />}
         </AvatarRoot>
 

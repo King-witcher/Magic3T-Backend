@@ -5,10 +5,10 @@ import {
   Logger,
   NotImplementedException,
 } from '@nestjs/common'
+import { respondError } from '@/common'
 import { AuthService } from './auth.service'
 import { AuthRequest } from './auth-request'
 import { AuthSocket } from './auth-socket'
-import { respondError } from '@/common'
 
 @Injectable()
 export class AuthGuard implements CanActivate {

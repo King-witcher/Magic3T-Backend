@@ -1,5 +1,5 @@
 import { QueueServerEvents, QueueServerEventsMap } from '@magic3t/api-types'
-import { BotName } from '@magic3t/types'
+import { BotName } from '@magic3t/database-types'
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common'
 import { respondError, SocketsService } from '@/common'
 import { MatchService } from '@/match'

@@ -1,4 +1,3 @@
-import { ConfigRepository, UserRepository } from '@database'
 import {
   GameServerEventsMap,
   GetMatchResult,
@@ -7,11 +6,11 @@ import {
   MatchServerEvents,
 } from '@magic3t/api-types'
 import { Team } from '@magic3t/common-types'
-import { MatchRow, UserRow } from '@magic3t/database-types'
-import { BotConfig, BotName } from '@magic3t/types'
+import { BotName, MatchRow, SingleBotConfig, UserRow } from '@magic3t/database-types'
 import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { SocketsService, unexpected } from '@/common'
+import { ConfigRepository, UserRepository } from '@/database'
 import { GetResult } from '@/database/types/query-types'
 import { RatingService } from '@/rating'
 import { BaseBot, LmmBot, RandomBot } from './bots'
@@ -38,10 +37,7 @@ export class MatchService {
   /**
    * Create a new Player vs Bot match, returning the match id.
    */
-  async createPlayerVsBot(
-    userId: string,
-    botId: BotName
-  ): Promise<string> {
+  async createPlayerVsBot(userId: string, botId: BotName): Promise<string> {
     // Get profiles
     const userProfilePromise = this.getProfile(userId)
     const botConfig = await this.configRepository.getBotConfig(botId)
@@ -284,7 +280,7 @@ export class MatchService {
     }
   }
 
-  private getBot(botConfig: BotConfig, perspective: Perspective): BaseBot {
+  private getBot(botConfig: SingleBotConfig, perspective: Perspective): BaseBot {
     return botConfig.model === 'lmm'
       ? new LmmBot(perspective, botConfig.depth)
       : new RandomBot(perspective)
@@ -292,7 +288,8 @@ export class MatchService {
 
   private async getProfile(userId: string): Promise<GetResult<UserRow>> {
     const profile = await this.userRepository.getById(userId)
-    if (!profile) unexpected('match service should never try to get a profile that does not exist', userId)
+    if (!profile)
+      unexpected('match service should never try to get a profile that does not exist', userId)
     return profile
   }
 }

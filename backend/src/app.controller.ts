@@ -1,20 +1,22 @@
-import { CrashReportsRepository, UserRepository } from '@database'
 import { CrashReportCommand, GetStatusResponse } from '@magic3t/api-types'
 import { CrashReportRow } from '@magic3t/database-types'
 import { Body, Controller, Get, Post, Redirect } from '@nestjs/common'
 import { ApiBody, ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
-import { Throttle } from '@nestjs/throttler'
-import { respondError } from './common'
-import * as z from 'zod'
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface'
+import { Throttle } from '@nestjs/throttler'
+import * as z from 'zod'
+import { respondError } from './common'
+import { CrashReportsRepository } from './database'
 
-const a = z.toJSONSchema(z.object({
-  a: z.string(),
-  description: z.string(),
-}))
+const a = z.toJSONSchema(
+  z.object({
+    a: z.string(),
+    description: z.string(),
+  })
+)
 @Controller()
 export class AppController {
-  constructor(private readonly crashReportRepository: CrashReportsRepository, private usersRepository: UserRepository) {}
+  constructor(private readonly crashReportRepository: CrashReportsRepository) {}
 
   @Get('/')
   @Redirect('/api')
@@ -47,11 +49,16 @@ export class AppController {
     description: 'Endpoint to report crashes from the client.',
   })
   @ApiBody({
-    schema: z.toJSONSchema(z.object({
-      errorCode: z.string().describe('Unique error code identifying the crash').default('auth/unknown-error'),
-      description: z.string().describe('Detailed description of the crash'),
-      metadata: z.optional(z.unknown()),
-    })) as SchemaObject
+    schema: z.toJSONSchema(
+      z.object({
+        errorCode: z
+          .string()
+          .describe('Unique error code identifying the crash')
+          .default('auth/unknown-error'),
+        description: z.string().describe('Detailed description of the crash'),
+        metadata: z.optional(z.unknown()),
+      })
+    ) as SchemaObject,
   })
   @Throttle({ medium: { limit: 5, ttl: 60 * 60 * 1000 } })
   @Post('crash-report')

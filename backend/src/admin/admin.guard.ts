@@ -1,8 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { AuthRequest } from '@/auth/auth-request'
 import { AuthSocket } from '@/auth/auth-socket'
-import { UserRepository } from '@/database'
 import { respondError } from '@/common'
+import { UserRepository } from '@/database'
 
 @Injectable()
 export class AdminGuard implements CanActivate {

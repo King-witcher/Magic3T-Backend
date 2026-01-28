@@ -46,8 +46,12 @@ export class PersistanceService {
     const winner = this.getWinner(matchSummary)
 
     // Get old and new ratings
-    const oldOrderRating = await this.ratingService.getRatingConverter(matchSummary.order.row.data.elo)
-    const oldChaosRating = await this.ratingService.getRatingConverter(matchSummary.chaos.row.data.elo)
+    const oldOrderRating = await this.ratingService.getRatingConverter(
+      matchSummary.order.row.data.elo
+    )
+    const oldChaosRating = await this.ratingService.getRatingConverter(
+      matchSummary.chaos.row.data.elo
+    )
 
     // Get up to date ratings
     const newOrderRating = await this.ratingService.getRatingConverter(matchSummary.order.newRating)

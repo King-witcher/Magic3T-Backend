@@ -1,11 +1,11 @@
-import { BotName } from '@magic3t/types'
+import { BotName } from '@magic3t/database-types'
 import { Body, Controller, Delete, NotImplementedException, Post, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
+import { respondError } from '@/common'
 import { EnqueueDto, QueueMode } from './dtos/enqueue-dto'
 import { QueueService } from './queue.service'
-import { respondError } from '@/common'
 
 @Controller('queue')
 @ApiBearerAuth()
@@ -25,6 +25,7 @@ export class QueueController {
     switch (body.queueMode) {
       case QueueMode.Ranked:
         return this.queueService.enqueue(userId, 'ranked')
+      // biome-ignore lint/suspicious/noFallthroughSwitchClause: returns never
       case QueueMode.Casual:
         respondError('not-implemented', 501, 'Casual mode is not implemented.')
       case QueueMode.Bot0:

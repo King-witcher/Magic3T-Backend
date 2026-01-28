@@ -1,5 +1,5 @@
-import { unexpected } from '@/common'
 import { Choice } from '@magic3t/common-types'
+import { unexpected } from '@/common'
 
 export type Tree = {
   branches: {

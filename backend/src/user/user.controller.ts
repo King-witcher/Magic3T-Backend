@@ -1,18 +1,11 @@
 import { GetUserResult, ListUsersResult } from '@magic3t/api-types'
 import { UserRole, UserRow } from '@magic3t/database-types'
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { range } from 'lodash'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
+import { respondError } from '@/common'
 import { ConfigRepository, UserRepository } from '@/database'
 import {
   ChangeIconCommandClass,
@@ -20,7 +13,6 @@ import {
   RegisterUserCommandClass,
 } from './swagger/user-commands'
 import { UserService } from './user.service'
-import { respondError } from '@/common'
 
 const baseIcons = new Set([...range(59, 79), ...range(0, 30)])
 
@@ -62,7 +54,7 @@ export class UserController {
   @Get('ranking')
   @ApiOperation({
     summary: 'Get leaderboard ranking',
-    description: 'Gets the top 10 ranked players'
+    description: 'Gets the top 10 ranked players',
   })
   @ApiResponse({
     isArray: true,

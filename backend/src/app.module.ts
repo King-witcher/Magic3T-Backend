@@ -2,6 +2,7 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { Global, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { EventEmitterModule } from '@nestjs/event-emitter'
+import { ScheduleModule } from '@nestjs/schedule'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { DatabaseModule } from '@/database/database.module'
 import { FirebaseModule } from '@/firebase/firebase.module'
@@ -12,7 +13,6 @@ import { AppGateway } from './app.gateway'
 import { AuthModule } from './auth/auth.module'
 import { RatingModule } from './rating'
 import { UserModule } from './user/user.module'
-import { ScheduleModule } from '@nestjs/schedule'
 
 @Global()
 @Module({

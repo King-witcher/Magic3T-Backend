@@ -38,10 +38,6 @@ export class ErrorResponseException<T extends string = string>
 /**
  * Throws an ErrorResponseException with the given parameters.
  */
-export function respondError(
-  errorCode: string,
-  httpStatus = 400,
-  metadata?: any
-): never {
+export function respondError(errorCode: string, httpStatus = 400, metadata?: any): never {
   throw new ErrorResponseException(errorCode, httpStatus, metadata)
 }

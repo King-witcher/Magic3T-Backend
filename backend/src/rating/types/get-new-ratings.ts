@@ -8,7 +8,6 @@ export type GetNewRatingsParams = {
     rating: number
     k: number
     challenger: boolean
-
   }
   scoreOfFirst: number
 }

@@ -1,6 +1,4 @@
-import type { WithId } from '../with-id'
-
-export type BotConfig = { uid: string } & (
+export type SingleBotConfig = { uid: string } & (
   | {
       model: 'lmm'
       depth: number
@@ -22,4 +20,4 @@ export const enum BotName {
   Bot3 = 'bot3',
 }
 
-export type BotConfigRow = WithId<'bots'> & Record<BotName, BotConfig>
+export type BotConfigRow = Record<BotName, SingleBotConfig>

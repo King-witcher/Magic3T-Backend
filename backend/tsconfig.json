@@ -1,35 +1,28 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "declaration": false,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2022",
+    "target": "ES2023",
     "sourceMap": true,
-    "strict": true,
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "types": ["vitest/globals"],
-    "strictPropertyInitialization": false,
-    "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false,
-    "noUnusedLocals": false,
     "paths": {
-      "@/*": ["./src/*"],
-      "@common": ["./src/common"],
-      "@database": ["./src/database"],
-      "@firebase": ["./src/firebase"],
-      "@match": ["./src/match"],
-      "@queue": ["./src/queue"],
-      "@rating": ["./src/rating"],
-      "@types": ["./src/rating"]
-    }
+      "@/*": ["./src/*"]
+    },
+    "types": ["vitest/globals"]
   },
   "include": ["src/**/*.ts", "src/rating/rating.service.ts"]
 }

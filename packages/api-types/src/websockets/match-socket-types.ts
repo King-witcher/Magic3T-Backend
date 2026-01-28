@@ -18,6 +18,7 @@ export const enum MatchServerEvents {
   MatchReport = 'match-report',
 }
 
+/** Represents a message data sent by the server */
 export type MessagePayload = {
   message: string
   sender: string

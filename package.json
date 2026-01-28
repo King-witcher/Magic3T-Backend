@@ -1,18 +1,17 @@
 {
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.11"
+  },
   "name": "magic3t",
+  "scripts": {
+    "lint": "biome check . --write"
+  },
   "version": "1.0.0",
   "workspaces": [
     "backend",
     "frontend",
     "packages/api-types",
     "packages/common-types",
-    "packages/database-types",
-    "packages/types"
-  ],
-  "scripts": {
-    "lint": "biome check ."
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.3.11"
-  }
+    "packages/database-types"
+  ]
 }

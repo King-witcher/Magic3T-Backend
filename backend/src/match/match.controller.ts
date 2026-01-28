@@ -14,13 +14,13 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { clamp } from 'lodash'
 import { AuthGuard } from '@/auth/auth.guard'
 import { UserId } from '@/auth/user-id.decorator'
+import { respondError } from '@/common'
 import { MatchRepository } from '@/database'
 import { CurrentPerspective } from './decorators'
 import { MatchBank, Perspective } from './lib'
 import { MatchGuard } from './match.guard'
 import { MatchService } from './match.service'
 import { ListMatchesResultClass } from './swagger/list-matches'
-import { respondError } from '@/common'
 
 @Controller('matches')
 export class MatchController {

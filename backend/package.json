@@ -50,9 +50,8 @@
   "name": "magic3t-backend",
   "scripts": {
     "build": "nest build",
-    "dev": "nest start --watch",
+    "dev": "nest start -wd",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
-    "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "test": "vitest",
     "typecheck": "tsc --noEmit",

@@ -6,11 +6,13 @@ export class ChoicePipe implements PipeTransform {
   transform(value: unknown): Choice {
     if (typeof value === 'string') {
       const value_ = Number.parseInt(value, 10)
-      if (!this.isChoice(value_)) respondError('invalid-choice', HttpStatus.BAD_REQUEST, 'Invalid choice')
+      if (!this.isChoice(value_))
+        respondError('invalid-choice', HttpStatus.BAD_REQUEST, 'Invalid choice')
       return value_
     }
 
-    if (!this.isChoice(value)) respondError('invalid-choice', HttpStatus.BAD_REQUEST, 'Invalid choice')
+    if (!this.isChoice(value))
+      respondError('invalid-choice', HttpStatus.BAD_REQUEST, 'Invalid choice')
     return value
   }
 

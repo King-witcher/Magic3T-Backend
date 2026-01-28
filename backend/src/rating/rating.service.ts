@@ -1,14 +1,9 @@
-import { Division, League, RatingData } from '@magic3t/common-types'
-import { Injectable, Logger, Scope } from '@nestjs/common'
+import { RatingConfigRow, UserRowElo } from '@magic3t/database-types'
+import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
-import { clamp } from 'lodash'
 import { ConfigRepository, UserRepository } from '@/database'
-import { GetNewRatingsParams, GetNewRatingsResult, GetRatingDataParams } from './types'
 import { RatingConverter } from './rating-converter'
-import { RatingConfigModel } from '@magic3t/types'
-import { UserRowElo } from '@magic3t/database-types'
 
-const leagueIndexes = [League.Bronze, League.Silver, League.Gold, League.Diamond, League.Master]
 const MAX_CHALLENGERS = 1
 
 @Injectable()
@@ -20,10 +15,9 @@ export class RatingService {
     private usersRepository: UserRepository
   ) {}
 
-  private get ratingConfig(): Promise<RatingConfigModel> {
+  private get ratingConfig(): Promise<RatingConfigRow> {
     return this.configRepository.cachedGetRatingConfig()
   }
-
 
   @Cron('0 12 * * *')
   async updateChallengers() {
@@ -36,8 +30,10 @@ export class RatingService {
       return rating.isChallengerEligible
     })
 
-    await this.usersRepository.setOrReplaceChallengers(challengers.map(c => c.id))
-    this.logger.log(`Updated Challengers: ${challengers.map(c => c.data.identification.unique_id).join(', ')}`)
+    await this.usersRepository.setOrReplaceChallengers(challengers.map((c) => c.id))
+    this.logger.log(
+      `Updated Challengers: ${challengers.map((c) => c.data.identification.unique_id).join(', ')}`
+    )
   }
 
   /**

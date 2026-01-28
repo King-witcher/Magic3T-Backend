@@ -16,6 +16,6 @@ export const Route = createFileRoute('/_auth-guarded/me')({
       },
     })
 
-    return <ProfileTemplate user={user} matchesQuery={matchesQuery} editable />
+    return <ProfileTemplate user={user} matchesQuery={matchesQuery} />
   },
 })

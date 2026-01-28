@@ -1,13 +1,8 @@
 import { Division, League, RatingData } from '@magic3t/common-types'
-import { UserRowElo } from '@magic3t/database-types'
-import { RatingConfigModel } from '@magic3t/types'
+import { RatingConfigRow, UserRowElo } from '@magic3t/database-types'
 import { clamp } from 'lodash'
 
 const baseLeagueIndexes = [League.Bronze, League.Silver, League.Gold, League.Diamond]
-const TOTAL_BRONZE_LP = 0 * 400
-const TOTAL_SILVER_LP = 1 * 400
-const TOTAL_GOLD_LP = 2 * 400
-const TOTAL_DIAMOND_LP = 3 * 400
 const TOTAL_MASTER_LP = 4 * 400
 
 /** Represents a user rating. */
@@ -16,7 +11,7 @@ export class RatingConverter {
 
   constructor(
     elo: Readonly<UserRowElo>,
-    private config: Readonly<RatingConfigModel>
+    private config: Readonly<RatingConfigRow>
   ) {
     this.eloRow = { ...elo }
   }
@@ -45,7 +40,7 @@ export class RatingConverter {
    * Gets how much League Points the user has in their current league+division.
    *
    * Returns an integer value, or null if the user is provisional.
-  */
+   */
   public get lp(): number | null {
     const totalPoints = this.totalPoints
     if (totalPoints === null) return null

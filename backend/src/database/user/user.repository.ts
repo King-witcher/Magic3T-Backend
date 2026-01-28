@@ -1,12 +1,12 @@
 import { IconAssignmentRow, UserRow } from '@magic3t/database-types'
 import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common'
 import { FirestoreDataConverter } from 'firebase-admin/firestore'
+import { unexpected } from '@/common'
 import { DatabaseService } from '@/database/database.service'
 import { FirebaseService } from '@/firebase/firebase.service'
 import { BaseFirestoreRepository } from '../base-repository'
 import { ConfigRepository } from '../config'
 import { GetResult, ListResult } from '../types/query-types'
-import { unexpected } from '@/common'
 
 @Injectable()
 export class UserRepository extends BaseFirestoreRepository<UserRow> {
