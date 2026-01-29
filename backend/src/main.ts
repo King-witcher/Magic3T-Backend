@@ -1,11 +1,11 @@
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import helmet from 'helmet'
 import { apiReference } from '@scalar/nestjs-api-reference'
-import { AppModule } from './app.module';
-import { ResponseErrorFilter } from './common/filters/response-error.filter'
+import helmet from 'helmet'
+import { AppModule } from './app.module'
 import { UnexpectedErrorFilter } from './common/filters/unexpected-error.filter'
+import { ResponseErrorFilter } from './common/filters/response-error.filter'
 
 const ALLOWED_ORIGINS = [
   'https://magic3t.com.br',
