@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import helmet from 'helmet'
 import { apiReference } from '@scalar/nestjs-api-reference'
-import { AppModule } from './app.module'
+import { AppModule } from './app.module';
 import { ResponseErrorFilter } from './common/filters/response-error.filter'
 import { UnexpectedErrorFilter } from './common/filters/unexpected-error.filter'
 
