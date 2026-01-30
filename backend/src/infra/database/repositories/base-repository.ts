@@ -80,7 +80,7 @@ export abstract class BaseFirestoreRepository<T extends {}> {
     this.logger.verbose(`update "${id}" on ${this.collection.id}.`)
   }
 
-  // FIXME: UpdateData here breaks encapsulation over Firestore
+  // TODO: UpdateData here breaks encapsulation over Firestore
   /**
    * Update a document in Firestore.
    */

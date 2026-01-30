@@ -8,7 +8,6 @@ import {
 } from '@magic3t/api-types'
 import { Choice } from '@magic3t/common-types'
 import { UseGuards } from '@nestjs/common'
-// import { Logger } from '@nestjs/common'
 import {
   ConnectedSocket,
   MessageBody,
@@ -38,8 +37,6 @@ const ALLOWED_ORIGINS = [
 @UseGuards(AuthGuard, MatchGuard)
 @WebSocketGateway({ cors: { origin: ALLOWED_ORIGINS, credentials: true }, namespace: 'match' })
 export class MatchGateway extends BaseGateway<GameClientEventsMap, GameServerEventsMap, 'match'> {
-  // private readonly logger = new Logger(MatchGateway.name, { timestamp: true })
-
   constructor(
     private matchService: MatchService,
     private websocketEmitterService: WebsocketEmitterService

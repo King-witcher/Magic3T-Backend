@@ -1,7 +1,9 @@
 import { QueueClientEventsMap, QueueServerEvents, QueueServerEventsMap } from '@magic3t/api-types'
 import { BotName } from '@magic3t/database-types'
+import { Cron } from '@nestjs/schedule'
 import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
 import { BaseGateway } from '@/common/websocket/base.gateway'
+import { WebsocketCountingService } from '@/infra/websocket/websocket-counting.service'
 import { UserId } from '@/modules/auth/user-id.decorator'
 import { GameModePipe } from './pipes/game-mode.pipe'
 import { QueueService } from './queue.service'
@@ -15,23 +17,27 @@ const ALLOWED_ORIGINS = [
 
 @WebSocketGateway({ cors: { origin: ALLOWED_ORIGINS, credentials: true }, namespace: 'queue' })
 export class QueueGateway extends BaseGateway<QueueClientEventsMap, QueueServerEventsMap, 'queue'> {
-  constructor(private queueService: QueueService) {
+  constructor(
+    private queueService: QueueService,
+    private wsCountingService: WebsocketCountingService
+  ) {
     super('queue')
-    // Counts how many users are online and update everyone
-    setInterval(() => {
-      const queueCount = this.queueService.getUserCount()
-      this.broadcast(QueueServerEvents.UserCount, {
-        casual: {
-          inGame: 0,
-          queue: queueCount.casual,
-        },
-        connected: 0, // FIXME: implement connected count
-        ranked: {
-          inGame: 0,
-          queue: queueCount.ranked,
-        },
-      })
-    }, process.env.QUEUE_STATUS_POLLING_RATE || 2000)
+  }
+
+  @Cron('*/1 * * * * *')
+  sendQueueStatus() {
+    const queueCount = this.queueService.getUserCount()
+    this.broadcast(QueueServerEvents.UserCount, {
+      casual: {
+        inGame: 0,
+        queue: queueCount.casual,
+      },
+      connected: this.wsCountingService.countUsers('queue'), // FIXME: implement connected count
+      ranked: {
+        inGame: 0,
+        queue: queueCount.ranked,
+      },
+    })
   }
 
   @SubscribeMessage('interact')

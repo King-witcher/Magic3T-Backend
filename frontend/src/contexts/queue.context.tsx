@@ -102,8 +102,7 @@ export function QueueProvider({ children }: QueueContextProps) {
 
   const dequeue = useCallback(
     async (mode: QueueMode) => {
-      // await apiClient.queue.dequeue()
-      gateway.emit(QueueClientEvents.Dequeue)
+      await apiClient.queue.dequeue()
       setQueueModes((current) => ({
         ...current,
         [mode]: false,

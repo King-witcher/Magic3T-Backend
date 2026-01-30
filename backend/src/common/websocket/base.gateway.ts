@@ -6,6 +6,7 @@ import { DefaultEventsMap, Namespace, Server, Socket } from 'socket.io'
 
 import { UserRepository } from '@/infra/database'
 import { WebsocketEmitterEvent } from '@/infra/websocket/types'
+import { WebsocketCountingService } from '@/infra/websocket/websocket-counting.service'
 import { AuthService } from '@/modules/auth/auth.service'
 import { AuthenticSocket } from '@/modules/auth/auth-socket'
 import { SKIP_AUTH_KEY } from '@/modules/auth/skip-auth.decorator'
@@ -22,10 +23,16 @@ export class BaseGateway<
   TNamespace extends keyof NamespacesMap = '',
 > implements OnGatewayConnection, OnGatewayInit
 {
-  @WebSocketServer() private server?: Server<TClient, TServer> | Namespace<TClient, TServer>
+  @WebSocketServer()
+  private server?: Server<TClient, TServer> | Namespace<TClient, TServer>
   private ioNamespace?: Namespace<TClient, TServer>
-  @Inject(AuthService) protected readonly authService: AuthService
-  @Inject(UserRepository) protected readonly usersRepository: UserRepository
+
+  @Inject(AuthService)
+  protected readonly authService: AuthService
+  @Inject(UserRepository)
+  protected readonly usersRepository: UserRepository
+  @Inject(WebsocketCountingService)
+  protected readonly websocketCountingService: WebsocketCountingService
 
   constructor(public readonly namespace: TNamespace) {}
 
@@ -33,6 +40,7 @@ export class BaseGateway<
     if (this.server instanceof Server) this.ioNamespace = this.server.of(this.namespace)
     else if (this.server instanceof Namespace) this.ioNamespace = this.server
     else unexpected('WebSocketServer is not initialized properly.')
+    this.websocketCountingService.setServer(this.namespace, this.ioNamespace)
   }
 
   /** Send an event to a specific user in a namespace. */
