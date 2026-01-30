@@ -1,15 +1,15 @@
 import { BanRow } from '@magic3t/database-types'
 import { Injectable, Logger } from '@nestjs/common'
-import { Firestore } from 'firebase-admin/firestore'
 import { DatabaseService } from '@/infra/database/database.service'
 import { BaseFirestoreRepository } from '@/infra/database/repositories/base-repository'
+import { FirebaseService } from '@/infra/firebase'
 
 @Injectable()
 export class BanRepository extends BaseFirestoreRepository<BanRow> {
   protected logger = new Logger(BanRepository.name)
 
-  constructor(firestore: Firestore, databaseService: DatabaseService) {
-    super(firestore, databaseService, 'bans')
+  constructor(firebaseService: FirebaseService, databaseService: DatabaseService) {
+    super(firebaseService.firestore, databaseService, 'bans')
   }
 
   /**
