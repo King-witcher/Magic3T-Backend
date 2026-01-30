@@ -1,12 +1,14 @@
 import { CrashReportCommand, GetStatusResponse } from '@magic3t/api-types'
 import { CrashReportRow } from '@magic3t/database-types'
+
 import { Body, Controller, Get, Post, Redirect } from '@nestjs/common'
 import { ApiBody, ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface'
 import { Throttle } from '@nestjs/throttler'
 import * as z from 'zod'
-import { respondError } from './common'
-import { CrashReportsRepository } from './database'
+
+import { respondError } from '@/common'
+import { CrashReportsRepository } from '@/infra'
 
 @Controller()
 export class AppController {

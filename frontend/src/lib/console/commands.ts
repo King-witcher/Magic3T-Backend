@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client'
 import { apiClient } from '@/services/clients/api-client'
 import { CVar, SystemCvars } from './cvars'
+import { authClient } from '../auth-client'
 
 export type ConsoleContext = Readonly<{
   print: (message: string) => void
@@ -154,8 +155,10 @@ async function pingHttp(): Promise<number> {
 }
 
 async function pingWs(url: string): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const socket = io(url)
+  return new Promise(async (resolve, reject) => {
+    const socket = io(url, {
+      transports: ['websocket']
+    })
 
     socket.on('connect', () => {
       const timeout = setTimeout(() => {

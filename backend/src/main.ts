@@ -4,8 +4,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import helmet from 'helmet'
 import { AppModule } from './app.module'
-import { UnexpectedErrorFilter } from './common/filters/unexpected-error.filter'
-import { ResponseErrorFilter } from './common/filters/response-error.filter'
 
 const ALLOWED_ORIGINS = [
   'https://magic3t.com.br',
@@ -25,9 +23,6 @@ async function bootstrap() {
 
   // Enable class validator globally
   app.useGlobalPipes(new ValidationPipe())
-
-  // Global error filters
-  app.useGlobalFilters(new UnexpectedErrorFilter(), new ResponseErrorFilter())
 
   // Enable CORS
   app.enableCors({

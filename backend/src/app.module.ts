@@ -1,18 +1,19 @@
 import { CacheModule } from '@nestjs/cache-manager'
 import { Global, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { APP_FILTER, APP_GUARD } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ScheduleModule } from '@nestjs/schedule'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
-import { DatabaseModule } from '@/database/database.module'
-import { FirebaseModule } from '@/firebase/firebase.module'
-import { QueueModule } from '@/queue/queue.module'
-import { AdminModule } from './admin/admin.module'
+
+import { ResponseErrorFilter, ThrottlingFilter, UnexpectedErrorFilter } from '@/common'
+import { DatabaseModule, FirebaseModule } from '@/infra'
+import { AdminModule, AuthModule, QueueModule, RatingModule, UserModule } from '@/modules'
+
 import { AppController } from './app.controller'
 import { AppGateway } from './app.gateway'
-import { AuthModule } from './auth/auth.module'
-import { RatingModule } from './rating'
-import { UserModule } from './user/user.module'
+import { WebsocketModule } from './infra/websocket/websocket.module'
+import { WebsocketEmitterService } from './infra/websocket/websocket-emitter.service'
 
 @Global()
 @Module({
@@ -50,12 +51,25 @@ import { UserModule } from './user/user.module'
     FirebaseModule,
     UserModule,
     AdminModule,
+    WebsocketModule,
   ],
   controllers: [AppController],
   providers: [
     {
-      provide: 'APP_GUARD',
+      provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: UnexpectedErrorFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ResponseErrorFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ThrottlingFilter,
     },
     AppGateway,
   ],
