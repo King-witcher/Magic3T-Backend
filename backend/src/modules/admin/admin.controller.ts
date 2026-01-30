@@ -9,6 +9,30 @@ import { AuthGuard } from '@/modules/auth/auth.guard'
 import { UserId } from '@/modules/auth/user-id.decorator'
 import { AdminGuard } from './admin.guard'
 
+export class BanUserCommandClass implements BanUserCommand {
+  @ApiProperty({
+    enum: [UserBanType.Temporary, UserBanType.Permanent],
+  })
+  @IsEnum([UserBanType.Temporary, UserBanType.Permanent])
+  type: UserBanType
+
+  @ApiProperty({
+    required: false,
+    description: 'Required for temporary bans. Duration in seconds.',
+  })
+  @ValidateIf((o) => o.type === UserBanType.Temporary)
+  @IsNumber()
+  @Min(1)
+  durationSeconds?: number
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  reason?: string
+}
+
 @Controller('admin')
 @UseGuards(AuthGuard, AdminGuard)
 @ApiBearerAuth()
@@ -72,28 +96,4 @@ export class AdminController {
       })
     )
   }
-}
-
-export class BanUserCommandClass implements BanUserCommand {
-  @ApiProperty({
-    enum: [UserBanType.Temporary, UserBanType.Permanent],
-  })
-  @IsEnum([UserBanType.Temporary, UserBanType.Permanent])
-  type: UserBanType
-
-  @ApiProperty({
-    required: false,
-    description: 'Required for temporary bans. Duration in seconds.',
-  })
-  @ValidateIf((o) => o.type === UserBanType.Temporary)
-  @IsNumber()
-  @Min(1)
-  durationSeconds?: number
-
-  @ApiProperty({
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  reason?: string
 }
