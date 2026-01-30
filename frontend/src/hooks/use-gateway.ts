@@ -34,6 +34,7 @@ export function useGateway<ServerEvents extends EventsMap, ClientEvents extends 
         auth: {
           token,
         },
+        transports: ['websocket'],
       })
       Console.log(`Connected to gateway '${gateway}'`)
 

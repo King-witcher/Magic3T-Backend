@@ -9,9 +9,9 @@ export class UnexpectedErrorFilter implements ExceptionFilter {
     const context = argumentsHost.getType()
 
     if (error instanceof UnexpectedError) {
-      this.logger.error(`UnexpectedError caught: ${error.message}`)
+      this.logger.error(`UnexpectedError caught: ${error}`)
     } else {
-      this.logger.error(`Unknown error caught: ${error.message}`)
+      this.logger.error(`Unknown error caught: ${error}`)
     }
     console.error(error)
 

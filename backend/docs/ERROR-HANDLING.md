@@ -174,6 +174,19 @@ class UnexpectedErrorFilter implements ExceptionFilter {
 }
 ```
 
+### ThrottlingFilter
+
+```typescript
+@Catch(ThrottlerException)
+class ThrottlingFilter implements ExceptionFilter {
+  // Captura exceções de rate limiting
+  // Retorna resposta 429 Too Many Requests
+  // Funciona tanto para HTTP quanto WebSocket
+}
+```
+
+**Localização:** `backend/src/common/filters/throttling.filter.ts`
+
 ### Ordem de Execução
 
 ```
@@ -181,20 +194,26 @@ Exceção lançada
        │
        ▼
 ┌──────────────────────────┐
-│ É ErrorResponseException? │
+│ É ThrottlerException?    │
 └────────────┬─────────────┘
              │
      Sim     │     Não
        ▼     │       ▼
-┌────────────┐  ┌────────────────────┐
-│ Response   │  │ UnexpectedError    │
-│ ErrorFilter│  │ Filter (catch-all) │
-└────────────┘  └────────────────────┘
-       │                 │
-       ▼                 ▼
-   Resposta          Log + Resposta
-   com código        genérica 500
-   específico
+┌────────────┐  ┌──────────────────────────┐
+│ Throttling │  │ É ErrorResponseException? │
+│ Filter     │  └────────────┬─────────────┘
+└────────────┘             │
+       │             Sim     │     Não
+       ▼               ▼     │       ▼
+   Resposta      ┌────────────┐  ┌────────────────────┐
+   429           │ Response   │  │ UnexpectedError    │
+                 │ ErrorFilter│  │ Filter (catch-all) │
+                 └────────────┘  └────────────────────┘
+                       │                 │
+                       ▼                 ▼
+                   Resposta          Log + Resposta
+                   com código        genérica 500
+                   específico
 ```
 
 ---
