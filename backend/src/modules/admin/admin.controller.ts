@@ -76,9 +76,9 @@ export class AdminController {
 
 export class BanUserCommandClass implements BanUserCommand {
   @ApiProperty({
-    enum: UserBanType,
+    enum: [UserBanType.Temporary, UserBanType.Permanent],
   })
-  @IsEnum(UserBanType)
+  @IsEnum([UserBanType.Temporary, UserBanType.Permanent])
   type: UserBanType
 
   @ApiProperty({
