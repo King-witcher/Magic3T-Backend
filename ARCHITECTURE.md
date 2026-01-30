@@ -10,6 +10,7 @@ Este documento descreve a arquitetura técnica do projeto Magic3T, um jogo multi
 | **Backend** | NestJS, TypeScript, WebSockets (Socket.IO) |
 | **Database** | Firebase Firestore |
 | **Autenticação** | Firebase Authentication (Google Provider) |
+| **Observabilidade** | Sentry (Error tracking, Performance monitoring, Session Replay) |
 | **Monorepo** | npm Workspaces |
 | **Linting** | Biome |
 | **Deploy** | Render (backend), Vercel (frontend) |

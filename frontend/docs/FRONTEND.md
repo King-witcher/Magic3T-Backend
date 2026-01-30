@@ -16,8 +16,7 @@ Documentação técnica do frontend do Magic3T.
 | **Tailwind CSS v4** | Estilização utility-first |
 | **Firebase Auth** | Autenticação (Google provider) |
 | **Socket.IO Client** | Comunicação em tempo real |
-| **Radix UI** | Primitivos de UI acessíveis |
-
+| **Radix UI** | Primitivos de UI acessíveis || **Sentry** | Error tracking, performance monitoring e session replay |
 ---
 
 ## Estrutura de Pastas
@@ -25,6 +24,8 @@ Documentação técnica do frontend do Magic3T.
 ```
 frontend/src/
 ├── main.tsx                 # Entry point
+├── instrument.ts            # 🔍 Inicialização do Sentry (importado antes de tudo)
+├── router.ts                # Configuração do router (separado para uso no Sentry)
 ├── main.css                 # Estilos globais (Tailwind + tema)
 ├── route-tree.gen.ts        # Rotas geradas automaticamente
 │
@@ -567,3 +568,94 @@ export * from './button'
 export * from './input'
 export * from './panel'
 ```
+
+---
+
+## Observabilidade com Sentry
+
+O frontend utiliza o **Sentry** para monitoramento de erros, performance e comportamento do usuário.
+
+### Configuração
+
+A inicialização do Sentry acontece em [`instrument.ts`](c:\code\pessoal\magic3t\Magic3T\frontend\src\instrument.ts), que é importado **antes de tudo** no [`main.tsx`](c:\code\pessoal\magic3t\Magic3T\frontend\src\main.tsx):
+
+```typescript
+// instrument.ts
+import * as Sentry from '@sentry/react'
+import { router } from './router'
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  enabled: import.meta.env.PROD,
+  integrations: [
+    Sentry.tanstackRouterBrowserTracingIntegration(router),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: Number(import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE) || 0.0,
+  replaysSessionSampleRate: Number(import.meta.env.VITE_SENTRY_REPLAY_SESSION_SAMPLE_RATE) || 0.0,
+  replaysOnErrorSampleRate: 1.0,
+  sendDefaultPii: true,
+})
+```
+
+### Variáveis de Ambiente
+
+Configure as seguintes variáveis no `.env`:
+
+| Variável | Descrição | Exemplo |
+|----------|-----------|---------|
+| `VITE_SENTRY_DSN` | URL do projeto Sentry | `https://xxx@sentry.io/xxx` |
+| `VITE_SENTRY_TRACES_SAMPLE_RATE` | % de transações para rastrear (0.0 - 1.0) | `1.0` |
+| `VITE_SENTRY_REPLAY_SESSION_SAMPLE_RATE` | % de sessões para replay (0.0 - 1.0) | `1.0` |
+| `SENTRY_AUTH_TOKEN` | Token para upload de sourcemaps | `sntrys_xxx` |
+
+> ⚠️ O Sentry só é ativado em **produção** (`import.meta.env.PROD`).
+
+### Funcionalidades Ativas
+
+#### 1. Error Tracking
+- Captura automática de erros não tratados
+- Error boundaries integrados no React
+- Callbacks personalizados em `createRoot`:
+  ```typescript
+  createRoot(rootElement, {
+    onUncaughtError: Sentry.reactErrorHandler((error, errorInfo) => {...}),
+    onCaughtError: Sentry.reactErrorHandler(),
+    onRecoverableError: Sentry.reactErrorHandler(),
+  })
+  ```
+
+#### 2. Performance Monitoring
+- Rastreamento de navegação com `tanstackRouterBrowserTracingIntegration`
+- Monitoramento de transações HTTP
+- Métricas de performance (LCP, FID, CLS)
+
+#### 3. Session Replay
+- Gravação de sessões de usuários (quando `replaysSessionSampleRate > 0`)
+- **Sempre** grava sessões quando ocorre um erro (`replaysOnErrorSampleRate: 1.0`)
+- Permite ver o que o usuário fez antes do erro
+
+#### 4. Build-time Features
+- Upload automático de sourcemaps via `@sentry/vite-plugin`
+- Sourcemaps são gerados em builds de produção
+- Configuração em [`vite.config.ts`](c:\code\pessoal\magic3t\Magic3T\frontend\vite.config.ts):
+  ```typescript
+  sentryVitePlugin({
+    org: 'magic3t',
+    project: 'magic3t-frontend',
+  })
+  ```
+
+### Decisões de Design
+
+#### Por que `router.ts` separado?
+O Sentry precisa ter acesso ao router **antes** da inicialização do React para instalar a integração do TanStack Router. Por isso, a criação do router foi movida para um arquivo separado.
+
+#### Sourcemaps em Produção
+Os sourcemaps são gerados em builds de produção (`sourcemap: true` no Vite) e enviados para o Sentry automaticamente. Eles **não** são servidos publicamente, permitindo debugging detalhado sem expor o código-fonte.
+
+### Próximas Melhorias
+
+- [ ] Implementar tunneling para evitar bloqueio por ad-blockers ([docs](https://docs.sentry.io/platforms/javascript/guides/react/#avoid-ad-blockers-with-tunneling-optional))
+- [ ] Configurar tags customizadas para identificar versões e ambientes
+- [ ] Adicionar breadcrumbs customizados para ações importantes (ex: jogadas, entradas em fila)

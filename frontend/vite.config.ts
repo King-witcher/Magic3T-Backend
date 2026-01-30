@@ -1,4 +1,5 @@
 import { resolve } from 'node:path'
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
@@ -18,6 +19,10 @@ export default defineConfig({
       },
     }),
     tailwindcss(),
+    sentryVitePlugin({
+      org: 'magic3t',
+      project: 'magic3t-frontend',
+    }),
   ],
   server: {
     port: 3000,
@@ -28,11 +33,10 @@ export default defineConfig({
     host: true,
   },
   resolve: {
-    alias: [
-      { find: '@', replacement: resolve(__dirname, './src') },
-    ],
+    alias: [{ find: '@', replacement: resolve(__dirname, './src') }],
   },
   build: {
     outDir: 'dist',
+    sourcemap: true,
   },
 })

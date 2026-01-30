@@ -23,3 +23,6 @@ dist-ssr
 build
 .VSCodeCounter
 .tanstack
+
+# Sentry Config File
+.env.sentry-build-plugin

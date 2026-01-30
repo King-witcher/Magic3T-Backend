@@ -37,10 +37,18 @@ npm run start:dev
 
 - Navigate to the `frontend` directory.
 
-- Provide the necessary environment variables by copying the `.env.example` file to `.env` and filling in the required values, if any.
+- Provide the necessary environment variables by copying the `.env.example` file to `.env` and filling in the required values.
+
+> **Important environment variables:**
+> - Firebase configuration (`VITE_FIREBASE_*`)
+> - API URL (`VITE_API_URL`)
+> - CDN URL (`VITE_CDN_URL`)
+> - Sentry configuration (`VITE_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, etc.) - optional for development
 
 - To run the frontend application locally, use the following command:
 
 ```bash
 npm run dev
 ```
+
+> **Note:** Sentry is only enabled in production builds. During development, no errors or traces will be sent to Sentry.

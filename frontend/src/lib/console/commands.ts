@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client'
 import { apiClient } from '@/services/clients/api-client'
-import { CVar, SystemCvars } from './cvars'
 import { authClient } from '../auth-client'
+import { CVar, SystemCvars } from './cvars'
 
 export type ConsoleContext = Readonly<{
   print: (message: string) => void
@@ -155,9 +155,11 @@ async function pingHttp(): Promise<number> {
 }
 
 async function pingWs(url: string): Promise<number> {
+  // TODO: user um promise with resolvers aqui
+  // biome-ignore lint/suspicious/noAsyncPromiseExecutor: preguiça, proojeto é meu mesmo
   return new Promise(async (resolve, reject) => {
     const socket = io(url, {
-      transports: ['websocket']
+      transports: ['websocket'],
     })
 
     socket.on('connect', () => {
