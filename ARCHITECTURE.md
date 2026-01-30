@@ -528,28 +528,45 @@ Headers configurados automaticamente:
 
 ### CORS (Cross-Origin Resource Sharing)
 
-O CORS está configurado para aceitar apenas origens autorizadas:
+O CORS está configurado para aceitar apenas origens autorizadas, centralizadas em um arquivo de configuração:
+
+**Arquivo de configuração:**
 
 ```typescript
-// Origens permitidas
-const ALLOWED_ORIGINS = [
+// backend/src/shared/constants/cors.ts
+export const CORS_ALLOWED_ORIGINS = [
   'https://magic3t.com.br',
   'https://www.magic3t.com.br',
   'http://localhost:3000',  // Desenvolvimento
 ]
+```
 
-// HTTP
+**Uso em HTTP requests:**
+
+```typescript
+// backend/src/main.ts
+import { CORS_ALLOWED_ORIGINS } from './shared/constants/cors'
+
 app.enableCors({
-  origin: ALLOWED_ORIGINS,
+  origin: CORS_ALLOWED_ORIGINS,
   credentials: true,
 })
+```
 
-// WebSocket Gateways
+**Uso em WebSocket Gateways:**
+
+```typescript
+// backend/src/modules/match/match.gateway.ts
+import { CORS_ALLOWED_ORIGINS } from '@/shared/constants/cors'
+
 @WebSocketGateway({
-  cors: { origin: ALLOWED_ORIGINS, credentials: true },
+  cors: { origin: CORS_ALLOWED_ORIGINS, credentials: true },
   namespace: 'match'
 })
+export class MatchGateway extends BaseGateway { ... }
 ```
+
+Todos os gateways (`AppGateway`, `QueueGateway`, `MatchGateway`) importam esta mesma constante, garantindo consistência e facilitando manutenção.
 
 ### Rate Limiting
 
@@ -698,4 +715,25 @@ export * from './database.module'
 export * from './database.service'
 export * from './user'
 export * from './match'
+```
+
+### Constantes Compartilhadas
+
+Constantes que são usadas em múltiplos lugares devem ser centralizadas em `backend/src/shared/constants/`:
+
+| Arquivo | Uso |
+|---------|-----|
+| `cors.ts` | Origens CORS permitidas - importada em `main.ts` e todos os gateways |
+
+**Exemplo:**
+```typescript
+// backend/src/shared/constants/cors.ts
+export const CORS_ALLOWED_ORIGINS = [
+  'https://magic3t.com.br',
+  'https://www.magic3t.com.br',
+  'http://localhost:3000',
+]
+
+// Uso em qualquer lugar
+import { CORS_ALLOWED_ORIGINS } from '@/shared/constants/cors'
 ```

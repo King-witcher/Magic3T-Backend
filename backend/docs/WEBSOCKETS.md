@@ -369,23 +369,39 @@ export const GatewayEvent = (eventName: string): MethodDecorator => {
 
 ## CORS
 
-Todos os gateways são configurados com CORS restrito:
+Todos os gateways são configurados com CORS restrito usando uma constante centralizada:
+
+**Arquivo de configuração:**
 
 ```typescript
-const ALLOWED_ORIGINS = [
+// backend/src/shared/constants/cors.ts
+export const CORS_ALLOWED_ORIGINS = [
   'https://magic3t.com.br',
   'https://www.magic3t.com.br',
   'http://localhost:3000',
 ]
+```
+
+**Uso nos gateways:**
+
+```typescript
+import { CORS_ALLOWED_ORIGINS } from '@/shared/constants/cors'
 
 @WebSocketGateway({
   cors: {
-    origin: ALLOWED_ORIGINS,
+    origin: CORS_ALLOWED_ORIGINS,
     credentials: true
   },
   namespace: 'match'
 })
+export class MatchGateway extends BaseGateway { ... }
 ```
+
+**Benefícios:**
+- ✅ Configuração centralizada em um único lugar
+- ✅ Fácil de manter e atualizar
+- ✅ Consistência entre HTTP e WebSocket
+- ✅ Reduz duplicação de código
 
 ---
 

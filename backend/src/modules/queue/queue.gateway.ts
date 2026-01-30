@@ -26,7 +26,7 @@ export class QueueGateway extends BaseGateway<QueueClientEventsMap, QueueServerE
         inGame: 0,
         queue: queueCount.casual,
       },
-      connected: this.wsCountingService.countUsers('queue'), // FIXME: implement connected count
+      connected: this.wsCountingService.countUsers('queue'),
       ranked: {
         inGame: 0,
         queue: queueCount.ranked,
