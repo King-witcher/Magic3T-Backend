@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
-import { UserRepository } from '@/infra/database'
 import { respondError } from '@/common'
+import { UserRepository } from '@/infra/database'
 
 @Injectable()
 export class AdminService {
@@ -32,7 +32,9 @@ export class AdminService {
     }
 
     const bannedAt = new Date()
-    const expiresAt = durationMinutes ? new Date(bannedAt.getTime() + durationMinutes * 60000) : undefined
+    const expiresAt = durationMinutes
+      ? new Date(bannedAt.getTime() + durationMinutes * 60000)
+      : new Date(0)
 
     await this.userRepository.set(userId, {
       ...user.data,

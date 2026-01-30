@@ -11,15 +11,15 @@ export function BanNotificationHandler() {
     // Listen for global errors
     const handleError = async (event: ErrorEvent) => {
       const error = event.error
-      
+
       if (error instanceof ForbiddenError) {
         const errorDesc = await error.errorDescription
         const errorCode = await error.errorCode
-        
+
         if (errorCode === 'forbidden' && errorDesc?.includes('banned')) {
           setIsBanned(true)
           setBanMessage(errorDesc || 'You have been banned from the platform.')
-          
+
           // Sign out the user
           await authClient.signOut()
         }
@@ -27,19 +27,19 @@ export function BanNotificationHandler() {
     }
 
     window.addEventListener('error', handleError)
-    
+
     // Also listen for unhandled promise rejections
     const handleRejection = async (event: PromiseRejectionEvent) => {
       const error = event.reason
-      
+
       if (error instanceof ForbiddenError) {
         const errorDesc = await error.errorDescription
         const errorCode = await error.errorCode
-        
+
         if (errorCode === 'forbidden' && errorDesc?.includes('banned')) {
           setIsBanned(true)
           setBanMessage(errorDesc || 'You have been banned from the platform.')
-          
+
           // Sign out the user
           await authClient.signOut()
         }
@@ -77,13 +77,13 @@ export function BanNotificationHandler() {
             <h2 className="text-2xl font-bold text-red-400 mb-2">Account Banned</h2>
             <p className="text-grey-1 mb-6">{banMessage}</p>
           </div>
-          
+
           <div className="bg-red-900/20 border border-red-500/30 rounded p-4 text-left">
             <p className="text-sm text-grey-1">
               If you believe this is a mistake, please contact support with your user ID.
             </p>
           </div>
-          
+
           <p className="text-xs text-grey-1/70 mt-6">
             You will be signed out automatically.
           </p>

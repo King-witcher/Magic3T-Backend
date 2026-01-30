@@ -1,6 +1,6 @@
+import { BanUserBody, BanUserResult, UnbanUserBody, UnbanUserResult } from '@magic3t/api-types'
 import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
-import { BanUserBody, BanUserResult, UnbanUserBody, UnbanUserResult } from '@magic3t/api-types'
 import { ConfigRepository, UserRepository } from '@/infra/database'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { UserId } from '@/modules/auth/user-id.decorator'
