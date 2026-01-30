@@ -18,6 +18,7 @@ import { ChoicePipe } from '@/common'
 import { BaseGateway } from '@/common/websocket/base.gateway'
 import { WebsocketEmitterService } from '@/infra/websocket/websocket-emitter.service'
 import { UserId } from '@/modules/auth/user-id.decorator'
+import { CORS_ALLOWED_ORIGINS } from '@/shared/constants/cors'
 import { AuthGuard } from '../auth'
 import { CurrentPerspective } from './decorators'
 import { Perspective } from './lib'
@@ -28,14 +29,8 @@ import { matchException } from './types/match-error'
 
 const MAX_MESSAGE_LENGTH = 500
 
-const ALLOWED_ORIGINS = [
-  'https://magic3t.com.br',
-  'https://www.magic3t.com.br',
-  'http://localhost:3000',
-]
-
 @UseGuards(AuthGuard, MatchGuard)
-@WebSocketGateway({ cors: { origin: ALLOWED_ORIGINS, credentials: true }, namespace: 'match' })
+@WebSocketGateway({ cors: { origin: CORS_ALLOWED_ORIGINS, credentials: true }, namespace: 'match' })
 export class MatchGateway extends BaseGateway<GameClientEventsMap, GameServerEventsMap, 'match'> {
   constructor(
     private matchService: MatchService,

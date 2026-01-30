@@ -7,14 +7,9 @@ import {
 import { Socket } from 'socket.io'
 import { BaseGateway } from '@/common/websocket/base.gateway'
 import { SkipAuth } from './modules/auth/skip-auth.decorator'
+import { CORS_ALLOWED_ORIGINS } from './shared/constants/cors'
 
-const ALLOWED_ORIGINS = [
-  'https://magic3t.com.br',
-  'https://www.magic3t.com.br',
-  'http://localhost:3000',
-]
-
-@WebSocketGateway({ cors: { origin: ALLOWED_ORIGINS, credentials: true } })
+@WebSocketGateway({ cors: { origin: CORS_ALLOWED_ORIGINS, credentials: true } })
 @SkipAuth()
 export class AppGateway extends BaseGateway {
   constructor() {

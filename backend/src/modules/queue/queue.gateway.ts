@@ -5,17 +5,11 @@ import { MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websock
 import { BaseGateway } from '@/common/websocket/base.gateway'
 import { WebsocketCountingService } from '@/infra/websocket/websocket-counting.service'
 import { UserId } from '@/modules/auth/user-id.decorator'
+import { CORS_ALLOWED_ORIGINS } from '@/shared/constants/cors'
 import { GameModePipe } from './pipes/game-mode.pipe'
 import { QueueService } from './queue.service'
 
-// TODO: move to config
-const ALLOWED_ORIGINS = [
-  'https://magic3t.com.br',
-  'https://www.magic3t.com.br',
-  'http://localhost:3000',
-]
-
-@WebSocketGateway({ cors: { origin: ALLOWED_ORIGINS, credentials: true }, namespace: 'queue' })
+@WebSocketGateway({ cors: { origin: CORS_ALLOWED_ORIGINS, credentials: true }, namespace: 'queue' })
 export class QueueGateway extends BaseGateway<QueueClientEventsMap, QueueServerEventsMap, 'queue'> {
   constructor(
     private queueService: QueueService,

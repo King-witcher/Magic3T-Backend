@@ -4,12 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
 import helmet from 'helmet'
 import { AppModule } from './app.module'
+import { CORS_ALLOWED_ORIGINS } from './shared/constants/cors'
 
-const ALLOWED_ORIGINS = [
-  'https://magic3t.com.br',
-  'https://www.magic3t.com.br',
-  'http://localhost:3000',
-]
 const PORT = process.env.PORT || 4000
 const BACKEND_URL = process.env.MAGIC3T_BACKEND_URL
 
@@ -26,7 +22,7 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: ALLOWED_ORIGINS,
+    origin: CORS_ALLOWED_ORIGINS,
     credentials: true,
   })
 
