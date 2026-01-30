@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { banUser, BanUserPayload } from '@/services/clients/ban-user'
+import { ProfileStats } from './components/profile-stats'
 
 interface Props {
   user: GetUserResult

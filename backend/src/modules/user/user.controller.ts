@@ -56,7 +56,7 @@ export class UserController {
         type: body.type,
         reason: body.reason,
         bannedAt: now,
-        expiresAt,
+        expiresAt: expiresAt ?? null,
         bannedBy: creatorId,
       },
     })
