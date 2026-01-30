@@ -22,16 +22,16 @@ export const enum UserRole {
 export type UserBan = {
   /** Whether the user is currently banned */
   isBanned: boolean
-  
+
   /** The reason for the ban */
   reason?: string
-  
+
   /** Date when the user was banned */
   bannedAt?: Date
-  
+
   /** Date when the ban expires (undefined for permanent bans) */
   expiresAt?: Date
-  
+
   /** ID of the admin who banned the user */
   bannedBy?: string
 }
@@ -64,7 +64,7 @@ export type UserRow = {
     draws: number
     defeats: number
   }
-  
+
   /** Ban information */
   ban?: UserBan
 }

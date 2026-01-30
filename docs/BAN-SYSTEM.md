@@ -72,10 +72,10 @@ Authorization: Bearer <token>
 
 O `BanGuard` foi implementado para proteger automaticamente as seguintes áreas:
 
-- **Queue System**: 
+- **Queue System**:
   - `QueueGateway` (WebSocket)
   - `QueueController` (REST)
-  
+
 - **Match System**:
   - `MatchGateway` (WebSocket)
   - Endpoints específicos em `MatchController`:
@@ -170,7 +170,7 @@ O sistema registra todas as ações de banimento:
 ## Mensagens de Erro
 
 - `404 Not Found`: Usuário não encontrado
-- `403 Forbidden`: 
+- `403 Forbidden`:
   - Tentativa de banir um creator
   - Usuário está banido
 - `400 Bad Request`: Tentativa de desbanir usuário que não está banido
