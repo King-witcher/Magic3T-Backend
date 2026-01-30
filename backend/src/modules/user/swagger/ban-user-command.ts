@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsDefined, IsEnum, IsOptional, IsString, IsDateString } from 'class-validator'
 import { BanType } from '@magic3t/database-types'
+import { ApiProperty } from '@nestjs/swagger'
+import { IsDateString, IsDefined, IsEnum, IsOptional, IsString } from 'class-validator'
 
 export class BanUserCommand {
   @ApiProperty({ enum: ['temporary', 'permanent'] })

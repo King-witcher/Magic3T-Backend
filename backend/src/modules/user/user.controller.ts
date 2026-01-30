@@ -5,17 +5,16 @@ import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger'
 import { range } from 'lodash'
 import { respondError } from '@/common'
 import { ConfigRepository, UserRepository } from '@/infra/database'
+import { AdminGuard } from '@/modules/admin/admin.guard'
 import { AuthGuard } from '@/modules/auth/auth.guard'
 import { UserId } from '@/modules/auth/user-id.decorator'
+import { BanUserCommand } from './swagger/ban-user-command'
 import {
   ChangeIconCommandClass,
   ChangeNickCommandClass,
   RegisterUserCommandClass,
 } from './swagger/user-commands'
 import { UserService } from './user.service'
-
-import { BanUserCommand } from './swagger/ban-user-command'
-import { AdminGuard } from '@/modules/admin/admin.guard'
 
 const baseIcons = new Set([...range(59, 79), ...range(0, 30)])
 
@@ -39,14 +38,17 @@ export class UserController {
     if (creatorId === userId) respondError('cannot-ban-self', 400, 'You cannot ban yourself')
     const user = await this.userRepository.getById(userId)
     if (!user) respondError('user-not-found', 404, 'User not found')
-    if (user.data.role === 'creator') respondError('cannot-ban-creator', 403, 'Cannot ban another creator')
+    if (user.data.role === 'creator')
+      respondError('cannot-ban-creator', 403, 'Cannot ban another creator')
 
     const now = new Date()
-    let expiresAt: Date | undefined = undefined
+    let expiresAt: Date | undefined
     if (body.type === 'temporary') {
-      if (!body.expiresAt) respondError('missing-expiry', 400, 'expiresAt is required for temporary bans')
+      if (!body.expiresAt)
+        respondError('missing-expiry', 400, 'expiresAt is required for temporary bans')
       expiresAt = new Date(body.expiresAt)
-      if (Number.isNaN(expiresAt.getTime()) || expiresAt <= now) respondError('invalid-expiry', 400, 'expiresAt must be a future date')
+      if (Number.isNaN(expiresAt.getTime()) || expiresAt <= now)
+        respondError('invalid-expiry', 400, 'expiresAt must be a future date')
     }
 
     await this.userRepository.update(userId, {

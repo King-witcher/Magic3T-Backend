@@ -2,11 +2,10 @@ import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/commo
 import { Reflector } from '@nestjs/core'
 import { Socket } from 'socket.io'
 import { respondError } from '@/common'
+import { UserRepository } from '@/infra/database'
 import { AuthService } from './auth.service'
 import { AuthenticRequest } from './auth-request'
 import { SKIP_AUTH_KEY } from './skip-auth.decorator'
-
-import { UserRepository } from '@/infra/database'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -56,8 +55,17 @@ export class AuthGuard implements CanActivate {
     if (user?.data?.ban) {
       const ban = user.data.ban
       const now = new Date()
-      if (ban.type === 'permanent' || (ban.type === 'temporary' && ban.expiresAt && now < new Date(ban.expiresAt))) {
-        respondError('banned', 403, ban.type === 'permanent' ? 'User is permanently banned' : `User is banned until ${ban.expiresAt}`)
+      if (
+        ban.type === 'permanent' ||
+        (ban.type === 'temporary' && ban.expiresAt && now < new Date(ban.expiresAt))
+      ) {
+        respondError(
+          'banned',
+          403,
+          ban.type === 'permanent'
+            ? 'User is permanently banned'
+            : `User is banned until ${ban.expiresAt}`
+        )
       }
     }
     request.userId = userId
@@ -77,7 +85,10 @@ export class AuthGuard implements CanActivate {
     if (user?.data?.ban) {
       const ban = user.data.ban
       const now = new Date()
-      if (ban.type === 'permanent' || (ban.type === 'temporary' && ban.expiresAt && now < new Date(ban.expiresAt))) {
+      if (
+        ban.type === 'permanent' ||
+        (ban.type === 'temporary' && ban.expiresAt && now < new Date(ban.expiresAt))
+      ) {
         this.logger.warn(`banned user ${socket.data.userId} tried to connect`)
         return false
       }
