@@ -44,97 +44,131 @@ backend/src/
 ├── app.gateway.ts           # WebSocket gateway principal
 ├── app.controller.ts        # Controller de health check
 │
-├── auth/                    # 🔐 Autenticação
-│   ├── auth.module.ts       # Módulo de autenticação
-│   ├── auth.service.ts      # Validação de tokens Firebase
-│   ├── auth.guard.ts        # Guard para HTTP e WebSocket
-│   ├── auth-request.ts      # Tipo de request autenticado
-│   └── auth-socket.ts       # Tipo de socket autenticado
+├── infra/                   # 🏗️ Infraestrutura (external services)
+│   ├── database/            # 💾 Camada de dados
+│   │   ├── database.module.ts
+│   │   ├── database.service.ts
+│   │   └── repositories/    # Repositories por entidade
+│   │       ├── base-repository.ts
+│   │       ├── user/
+│   │       ├── match/
+│   │       ├── config/
+│   │       └── crash-report/
+│   │
+│   ├── firebase/            # 🔥 Integração Firebase
+│   │   ├── firebase.module.ts
+│   │   └── firebase.service.ts
+│   │
+│   └── websocket/           # 🔌 Infraestrutura WebSocket
+│       ├── websocket.module.ts
+│       ├── websocket-emitter.service.ts
+│       └── types.ts
 │
-├── firebase/                # 🔥 Integração Firebase
-│   ├── firebase.module.ts   # Módulo Firebase
-│   └── firebase.service.ts  # Firestore + Firebase Auth Admin
-│
-├── database/                # 💾 Camada de dados
-│   ├── database.module.ts   # Módulo do banco
-│   ├── database.service.ts  # Utilitários (IDs temporais, converters)
-│   ├── base-repository.ts   # Repository base abstrato
-│   ├── user/                # Repository de usuários
-│   ├── match/               # Repository de partidas
-│   ├── config/              # Repository de configurações
-│   └── crash-report/        # Repository de crash reports
-│
-├── match/                   # 🎮 Lógica de Partidas
-│   ├── match.module.ts      # Módulo de partidas
-│   ├── match.service.ts     # Criação e gerenciamento de matches
-│   ├── match.controller.ts  # Endpoints REST
-│   ├── match.gateway.ts     # WebSocket para partidas em tempo real
-│   ├── client-sync.service.ts # Sincronização de estado com clientes
-│   ├── persistance.service.ts # Persistência de resultados
-│   ├── lib/                 # Lógica do jogo (Match, MatchBank)
-│   ├── bots/                # Implementações de bots (Random, LMM)
-│   └── events/              # Eventos internos (MatchFinishedEvent)
-│
-├── queue/                   # ⏳ Fila de Matchmaking
-│   ├── queue.module.ts      # Módulo da fila
-│   ├── queue.service.ts     # Lógica de enfileiramento
-│   ├── queue.controller.ts  # Endpoints REST
-│   └── queue.gateway.ts     # WebSocket para notificações
-│
-├── rating/                  # ⭐ Sistema de Rating/ELO
-│   ├── rating.module.ts     # Módulo de rating
-│   ├── rating.service.ts    # Cálculos de rating, atualização de Challengers
-│   └── rating-converter.ts  # Conversão de ELO para LP/League
-│
-├── user/                    # 👤 Usuários
-│   ├── user.module.ts       # Módulo de usuários
-│   ├── user.service.ts      # Lógica de usuários
-│   └── user.controller.ts   # Endpoints REST (perfil, ranking)
-│
-├── admin/                   # 🛡️ Administração
-│   ├── admin.module.ts      # Módulo admin
-│   ├── admin.guard.ts       # Guard de admin
-│   └── admin.service.ts     # Operações administrativas
+├── modules/                 # 📦 Módulos de Negócio
+│   ├── auth/                # 🔐 Autenticação
+│   │   ├── auth.module.ts
+│   │   ├── auth.service.ts
+│   │   ├── auth.guard.ts
+│   │   ├── auth-request.ts
+│   │   ├── auth-socket.ts
+│   │   ├── skip-auth.decorator.ts
+│   │   └── user-id.decorator.ts
+│   │
+│   ├── match/               # 🎮 Lógica de Partidas
+│   │   ├── match.module.ts
+│   │   ├── match.service.ts
+│   │   ├── match.controller.ts
+│   │   ├── match.gateway.ts
+│   │   ├── match.guard.ts
+│   │   ├── client-sync.service.ts
+│   │   ├── persistance.service.ts
+│   │   ├── lib/             # Lógica do jogo (Match, MatchBank)
+│   │   ├── bots/            # Implementações de bots
+│   │   └── events/          # Eventos internos
+│   │
+│   ├── queue/               # ⏳ Fila de Matchmaking
+│   │   ├── queue.module.ts
+│   │   ├── queue.service.ts
+│   │   ├── queue.controller.ts
+│   │   └── queue.gateway.ts
+│   │
+│   ├── rating/              # ⭐ Sistema de Rating/ELO
+│   │   ├── rating.module.ts
+│   │   ├── rating.service.ts
+│   │   └── rating-converter.ts
+│   │
+│   ├── user/                # 👤 Usuários
+│   │   ├── user.module.ts
+│   │   ├── user.service.ts
+│   │   └── user.controller.ts
+│   │
+│   └── admin/               # 🛡️ Administração
+│       ├── admin.module.ts
+│       ├── admin.guard.ts
+│       └── admin.service.ts
 │
 ├── common/                  # 🔧 Utilitários Compartilhados
 │   ├── decorators/          # Decorators customizados
+│   │   └── gateway-event.decorator.ts
 │   ├── errors/              # Classes de erro
 │   ├── filters/             # Exception filters
-│   ├── interceptors/        # Interceptors (logging, etc.)
+│   │   ├── response-error.filter.ts
+│   │   ├── unexpected-error.filter.ts
+│   │   └── throttling.filter.ts
+│   ├── guards/              # Guards compartilhados
+│   │   └── ws-throttler.guard.ts
 │   ├── pipes/               # Validation pipes
-│   ├── services/            # Serviços utilitários (SocketsService)
+│   ├── websocket/           # Classes base WebSocket
+│   │   └── base.gateway.ts
 │   └── utils/               # Funções utilitárias
 │
-└── types/                   # 📦 Tipos internos do backend
+└── shared/                  # 📦 Tipos Internos Compartilhados
+    ├── types/               # Tipos utilitários
+    └── websocket/           # Tipos WebSocket
+        └── namespaces-map.ts
 ```
 
 ### Dependências entre Módulos
 
 ```
-                    ┌─────────────────┐
-                    │   AppModule     │
-                    └────────┬────────┘
-                             │
-         ┌───────────────────┼───────────────────┐
-         │                   │                   │
-         ▼                   ▼                   ▼
-    ┌─────────┐        ┌──────────┐        ┌──────────┐
-    │  Auth   │◄───────│ Firebase │◄───────│ Database │
-    └─────────┘        └──────────┘        └──────────┘
-         │                   │                   │
-         └───────────────────┼───────────────────┘
-                             │
-              ┌──────────────┼──────────────┐
-              │              │              │
-              ▼              ▼              ▼
-         ┌─────────┐   ┌──────────┐   ┌─────────┐
-         │  Match  │◄──│  Queue   │   │  User   │
-         └─────────┘   └──────────┘   └─────────┘
-              │
-              ▼
-         ┌─────────┐
-         │ Rating  │
-         └─────────┘
+                         ┌─────────────────┐
+                         │   AppModule     │
+                         └────────┬────────┘
+                                  │
+    ┌─────────────────────────────┼─────────────────────────────┐
+    │                             │                             │
+    ▼                             ▼                             ▼
+┌─────────────────┐       ┌─────────────────┐         ┌─────────────────┐
+│     infra/      │       │    modules/     │         │    common/      │
+│  (Firebase,     │◄──────│  (Auth, Match,  │────────►│  (BaseGateway,  │
+│   Database,     │       │   Queue, User,  │         │   Guards,       │
+│   WebSocket)    │       │   Rating, Admin)│         │   Filters)      │
+└─────────────────┘       └─────────────────┘         └─────────────────┘
+
+                    Fluxo detalhado dos módulos:
+
+         ┌─────────┐        ┌──────────┐        ┌──────────┐
+         │  Auth   │◄───────│ Firebase │◄───────│ Database │
+         └─────────┘        └──────────┘        └──────────┘
+              │                   │                   │
+              └───────────────────┼───────────────────┘
+                                  │
+                   ┌──────────────┼──────────────┐
+                   │              │              │
+                   ▼              ▼              ▼
+              ┌─────────┐   ┌──────────┐   ┌─────────┐
+              │  Match  │◄──│  Queue   │   │  User   │
+              └─────────┘   └──────────┘   └─────────┘
+                   │              │
+                   ▼              │
+              ┌─────────┐        │
+              │ Rating  │◄───────┘
+              └─────────┘
+                   │
+                   ▼
+         ┌────────────────┐
+         │ WebsocketModule│ (emite eventos para gateways)
+         └────────────────┘
 ```
 
 ---
@@ -242,9 +276,9 @@ Tipos de entidades do Firestore:
 | `frontend/lib/auth-client.ts` | Gerencia sessão, obtém tokens |
 | `frontend/contexts/auth-context.tsx` | Estado de auth no React |
 | `frontend/services/clients/base-api-client.ts` | Injeta token em requests |
-| `backend/auth/auth.guard.ts` | Intercepta requests, valida token |
-| `backend/auth/auth.service.ts` | Chama Firebase Admin para validar |
-| `backend/firebase/firebase.service.ts` | Conexão com Firebase Admin |
+| `backend/src/modules/auth/auth.guard.ts` | Intercepta requests, valida token |
+| `backend/src/modules/auth/auth.service.ts` | Chama Firebase Admin para validar |
+| `backend/src/infra/firebase/firebase.service.ts` | Conexão com Firebase Admin |
 
 ### Headers de Autenticação
 
@@ -452,8 +486,186 @@ PORT=3000
 
 ### Frontend (`.env`)
 ```env
-VITE_API_URL=http://localhost:3000
+# URL do backend
+VITE_API_URL=http://localhost:4000
+
+# URL do CDN para assets
+VITE_CDN_URL=https://storage.googleapis.com/your-bucket.appspot.com
+
+# Firebase Credentials
+VITE_FIREBASE_API_KEY=your-api-key-here
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+VITE_FIREBASE_APP_ID=your-app-id
+VITE_FIREBASE_MEASUREMENT_ID=your-measurement-id
 ```
+
+> ⚠️ **Importante:** Nunca commite credenciais reais. Use o arquivo `.env.example` como template.
+
+---
+
+## Segurança
+
+O projeto implementa múltiplas camadas de segurança tanto para requisições HTTP quanto WebSocket.
+
+### Headers de Segurança (Helmet)
+
+O backend utiliza o middleware [Helmet](https://helmetjs.github.io/) para configurar headers HTTP de segurança:
+
+```typescript
+// main.ts
+import helmet from 'helmet'
+app.use(helmet())
+```
+
+Headers configurados automaticamente:
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `Strict-Transport-Security` (HSTS)
+- `X-XSS-Protection`
+
+### CORS (Cross-Origin Resource Sharing)
+
+O CORS está configurado para aceitar apenas origens autorizadas:
+
+```typescript
+// Origens permitidas
+const ALLOWED_ORIGINS = [
+  'https://magic3t.com.br',
+  'https://www.magic3t.com.br',
+  'http://localhost:3000',  // Desenvolvimento
+]
+
+// HTTP
+app.enableCors({
+  origin: ALLOWED_ORIGINS,
+  credentials: true,
+})
+
+// WebSocket Gateways
+@WebSocketGateway({
+  cors: { origin: ALLOWED_ORIGINS, credentials: true },
+  namespace: 'match'
+})
+```
+
+### Rate Limiting
+
+#### HTTP (ThrottlerModule)
+
+O NestJS ThrottlerModule limita requisições HTTP:
+
+```typescript
+ThrottlerModule.forRoot({
+  throttlers: [
+    { name: 'short', limit: 3, ttl: 1000 },   // 3 req/segundo
+    { name: 'medium', limit: 20, ttl: 10000 }, // 20 req/10 segundos
+    { name: 'long', limit: 100, ttl: 60000 },  // 100 req/minuto
+  ]
+})
+```
+
+#### WebSocket (WsThrottlerGuard)
+
+Um guard customizado protege os WebSocket gateways contra abuso:
+
+```typescript
+// common/guards/ws-throttler.guard.ts
+@Injectable()
+export class WsThrottlerGuard extends ThrottlerGuard {
+  async handleRequest(requestProps: ThrottlerRequest): Promise<boolean> {
+    // Identifica cliente pelo IP
+    const tracker = client.handshake.address
+    // Incrementa contador e verifica limite
+    // Bloqueia se exceder limite
+  }
+}
+```
+
+### Validação de Entrada
+
+#### ValidationPipe Global
+
+Todas as requisições passam por validação automática:
+
+```typescript
+app.useGlobalPipes(new ValidationPipe())
+```
+
+#### DTOs com class-validator
+
+```typescript
+export class ChangeNickCommandClass {
+  @IsDefined()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(16)
+  @Matches(/^[a-zA-Z0-9áÁâÂ...]*$/)
+  nickname: string
+}
+```
+
+#### Sanitização de Mensagens de Chat
+
+Mensagens de chat são validadas e sanitizadas:
+
+```typescript
+const MAX_MESSAGE_LENGTH = 500
+
+// Valida tipo e tamanho
+if (!body || typeof body !== 'string' || body.length > MAX_MESSAGE_LENGTH) {
+  return
+}
+
+// Sanitiza conteúdo
+const sanitizedMessage = body.trim().slice(0, MAX_MESSAGE_LENGTH)
+```
+
+### Exception Filters
+
+Filters globais garantem tratamento consistente de erros:
+
+| Filter | Propósito |
+|--------|----------|
+| `UnexpectedErrorFilter` | Captura erros não tratados, retorna 500 genérico |
+| `ResponseErrorFilter` | Formata erros esperados com `errorCode` |
+| `ThrottlingFilter` | Trata exceção de rate limit |
+
+### Autenticação WebSocket
+
+A autenticação WebSocket é feita durante a conexão:
+
+```typescript
+// BaseGateway.handleConnection()
+async handleConnection(client: Socket) {
+  const token = client.handshake.auth.token
+  const userId = await this.authService.validateToken(token)
+
+  if (!userId) {
+    client.send('error', { errorCode: 'unauthorized' })
+    client.disconnect()
+    return
+  }
+
+  client.data.userId = userId
+  client.join(`user:${userId}@${this.namespace}`)
+}
+```
+
+### Boas Práticas Implementadas
+
+| Prática | Status | Detalhes |
+|---------|--------|----------|
+| Credenciais em variáveis de ambiente | ✅ | Firebase config via `import.meta.env` |
+| CORS restrito | ✅ | Apenas domínios autorizados |
+| Rate limiting HTTP | ✅ | ThrottlerModule configurado |
+| Rate limiting WebSocket | ✅ | WsThrottlerGuard customizado |
+| Headers de segurança | ✅ | Helmet middleware |
+| Validação de entrada | ✅ | ValidationPipe + class-validator |
+| Container não-root | ✅ | `USER node` no Dockerfile |
+| Sanitização de mensagens | ✅ | Limite de tamanho e trim |
 
 ---
 
