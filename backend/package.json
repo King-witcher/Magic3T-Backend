@@ -55,5 +55,8 @@
     "typecheck": "tsc --noEmit",
     "typeorm": "typeorm-ts-node-commonjs"
   },
-  "version": "2.0.1"
+  "version": "2.0.1",
+  "overrides": {
+    "lodash": "4.17.23"
+  }
 }
