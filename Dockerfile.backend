@@ -7,6 +7,7 @@ WORKDIR /app
 RUN npm clean-install
 
 WORKDIR /app/backend
+RUN echo $SENTRY_AUTH_TOKEN
 RUN npm run build
 USER node
 WORKDIR /app/backend
