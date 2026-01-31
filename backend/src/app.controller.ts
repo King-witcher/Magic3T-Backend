@@ -25,7 +25,6 @@ export class AppController {
   })
   @Get('teapot')
   async teapot() {
-    unexpected('Test Sentry error!')
     respondError('teapot', 418, 'I am a teapot')
   }
 
