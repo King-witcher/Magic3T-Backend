@@ -1,11 +1,13 @@
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common'
+import { SentryExceptionCaptured } from '@sentry/nestjs'
 import { UnexpectedError } from '../errors'
 
 @Catch()
 export class UnexpectedErrorFilter implements ExceptionFilter {
   logger = new Logger(UnexpectedErrorFilter.name, { timestamp: true })
 
-  async catch(error: Error, argumentsHost: ArgumentsHost) {
+  @SentryExceptionCaptured()
+  catch(error: Error, argumentsHost: ArgumentsHost) {
     const context = argumentsHost.getType()
 
     if (error instanceof UnexpectedError) {
@@ -13,7 +15,6 @@ export class UnexpectedErrorFilter implements ExceptionFilter {
     } else {
       this.logger.error(`Unknown error caught: ${error}`)
     }
-    console.error(error)
 
     switch (context) {
       case 'ws': {
@@ -34,7 +35,6 @@ export class UnexpectedErrorFilter implements ExceptionFilter {
         break
       }
       case 'rpc': {
-        console.error('RPC ResponseError:', error)
       }
     }
   }

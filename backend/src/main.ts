@@ -1,3 +1,6 @@
+// Enable instrumentation (Sentry, etc)
+import './instrument'
+
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
@@ -15,7 +18,15 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule)
 
   // Security middleware
-  app.use(helmet())
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          'script-src': ["'self'", "'unsafe-inline'", 'cdn.jsdelivr.net'],
+        },
+      },
+    })
+  )
 
   // Enable class validator globally
   app.useGlobalPipes(new ValidationPipe())

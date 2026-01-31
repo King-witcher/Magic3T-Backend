@@ -5,19 +5,18 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ScheduleModule } from '@nestjs/schedule'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
-
+import { SentryModule } from '@sentry/nestjs/setup'
 import { ResponseErrorFilter, ThrottlingFilter, UnexpectedErrorFilter } from '@/common'
 import { DatabaseModule, FirebaseModule } from '@/infra'
 import { AdminModule, AuthModule, QueueModule, RatingModule, UserModule } from '@/modules'
-
 import { AppController } from './app.controller'
 import { AppGateway } from './app.gateway'
 import { WebsocketModule } from './infra/websocket/websocket.module'
-import { WebsocketEmitterService } from './infra/websocket/websocket-emitter.service'
 
 @Global()
 @Module({
   imports: [
+    SentryModule.forRoot(),
     ThrottlerModule.forRoot([
       {
         name: 'short',

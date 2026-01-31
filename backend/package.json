@@ -12,6 +12,8 @@
     "@nestjs/throttler": "^6.5.0",
     "@nestjs/websockets": "^11.1.12",
     "@scalar/nestjs-api-reference": "^1.0.20",
+    "@sentry/cli": "^2.58.4",
+    "@sentry/nestjs": "^10.38.0",
     "cache-manager": "^7.2.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
@@ -47,13 +49,13 @@
   "license": "UNLICENSED",
   "name": "magic3t-backend",
   "scripts": {
-    "build": "nest build",
+    "build": "nest build && npm run sentry:sourcemaps",
     "dev": "nest start -wd",
     "lint": "biome check src --error-on-warnings --diagnostic-level=warn",
     "start:prod": "node dist/main",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org magic3t --project magic3t-backend ./dist && sentry-cli sourcemaps upload --org magic3t --project magic3t-backend ./dist"
   },
   "version": "2.0.1",
   "overrides": {

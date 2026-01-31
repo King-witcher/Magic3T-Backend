@@ -7,7 +7,7 @@ import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.inte
 import { Throttle } from '@nestjs/throttler'
 import * as z from 'zod'
 
-import { respondError } from '@/common'
+import { respondError, unexpected } from '@/common'
 import { CrashReportsRepository } from '@/infra'
 
 @Controller()
@@ -25,6 +25,7 @@ export class AppController {
   })
   @Get('teapot')
   async teapot() {
+    unexpected('Test Sentry error!')
     respondError('teapot', 418, 'I am a teapot')
   }
 

@@ -12,7 +12,14 @@ O backend utiliza dois tipos principais de erros:
 |------|--------|-----------|
 | **Response Error** | `ErrorResponseException` | Erros esperados que devem ser comunicados ao cliente |
 | **Unexpected Error** | `UnexpectedError` | Erros inesperados (panic) que são logados mas ocultados do cliente |
+### Integração com Sentry
 
+O backend está integrado com o Sentry para monitoramento de erros e performance:
+
+- **Configuração**: Inicializado em [`instrument.ts`](../src/instrument.ts) antes de qualquer outro módulo
+- **Ativação**: Controlado pela variável de ambiente `SENTRY_DSN` (se não definida, Sentry fica desabilitado)
+- **Captura automática**: Ambos os tipos de erro (Response Error e Unexpected Error) são automaticamente capturados pelo Sentry
+- **Decoradores**: Filters usam `@SentryExceptionCaptured()` para garantir que exceções sejam enviadas ao Sentry antes de serem tratadas
 ---
 
 ## Response Error (`ErrorResponseException`)
@@ -53,7 +60,9 @@ respondError('validation-failed', 400, { field: 'email', reason: 'invalid format
 
 ### Resposta ao Cliente
 
-O `ResponseErrorFilter` captura a exceção e envia a resposta apropriada:
+O `ResponseErrorFilter` captura a exceção e envia a resposta apropriada.
+
+> **Nota**: O decorator `@SentryExceptionCaptured()` garante que todos os Response Errors sejam registrados no Sentry para análise, mesmo sendo erros esperados. Isso permite monitorar padrões de erro e identificar problemas de UX.
 
 **HTTP Response:**
 ```json
@@ -125,8 +134,9 @@ if (!config) {
 ### Comportamento
 
 1. **Loga o erro** no servidor (com stack trace completo)
-2. **Oculta detalhes** do cliente (segurança)
-3. Retorna resposta genérica
+2. **Envia ao Sentry** (via `@SentryExceptionCaptured()`) para rastreamento e alertas
+3. **Oculta detalhes** do cliente (segurança)
+4. Retorna resposta genérica
 
 **HTTP Response:**
 ```json
@@ -157,22 +167,34 @@ Os filters do NestJS interceptam exceções e formatam as respostas.
 ```typescript
 @Catch(ErrorResponseException)
 class ResponseErrorFilter implements ExceptionFilter {
-  // Captura apenas ErrorResponseException
-  // Envia error.response ao cliente
-  // Respeita error.httpStatus
+  @SentryExceptionCaptured()  // Envia erro ao Sentry
+  catch(exception: ErrorResponseException, host: ArgumentsHost) {
+    // Captura apenas ErrorResponseException
+    // Registra no Sentry para análise
+    // Envia error.response ao cliente
+    // Respeita error.httpStatus
+  }
 }
 ```
+
+**Localização:** [`backend/src/common/filters/response-error.filter.ts`](../src/common/filters/response-error.filter.ts)
 
 ### UnexpectedErrorFilter
 
 ```typescript
 @Catch()  // Captura QUALQUER exceção não tratada
 class UnexpectedErrorFilter implements ExceptionFilter {
-  // Loga o erro no console
-  // Envia resposta genérica 500 ao cliente
-  // Funciona como "catch-all" de segurança
+  @SentryExceptionCaptured()  // Envia erro ao Sentry
+  catch(exception: unknown, host: ArgumentsHost) {
+    // Loga o erro no console
+    // Envia ao Sentry com stack trace completo
+    // Envia resposta genérica 500 ao cliente
+    // Funciona como "catch-all" de segurança
+  }
 }
 ```
+
+**Localização:** [`backend/src/common/filters/unexpected-error.filter.ts`](../src/common/filters/unexpected-error.filter.ts)
 
 ### ThrottlingFilter
 

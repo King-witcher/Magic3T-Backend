@@ -10,7 +10,7 @@ Este documento descreve a arquitetura técnica do projeto Magic3T, um jogo multi
 | **Backend** | NestJS, TypeScript, WebSockets (Socket.IO) |
 | **Database** | Firebase Firestore |
 | **Autenticação** | Firebase Authentication (Google Provider) |
-| **Observabilidade** | Sentry (Error tracking, Performance monitoring, Session Replay) |
+| **Observabilidade** | Sentry (Error tracking, Performance monitoring) - Backend e Frontend |
 | **Monorepo** | npm Workspaces |
 | **Linting** | Biome |
 | **Deploy** | Render (backend), Vercel (frontend) |
@@ -40,6 +40,7 @@ Magic3T/
 
 ```
 backend/src/
+├── instrument.ts            # ⚡ Instrumentação (Sentry) - DEVE ser importado primeiro
 ├── main.ts                  # Bootstrap da aplicação
 ├── app.module.ts            # Módulo raiz - importa todos os outros
 ├── app.gateway.ts           # WebSocket gateway principal
