@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 import { ConfigRepository, UserRepository } from '@/infra/database'
 import { RatingConverter } from './rating-converter'
+import * as Sentry from '@sentry/node';
 
 const MAX_CHALLENGERS = 1
 
@@ -31,6 +32,10 @@ export class RatingService {
     })
 
     await this.usersRepository.setOrReplaceChallengers(challengers.map((c) => c.id))
+
+    Sentry.logger.info('Updated Challengers', {
+      challengers: challengers.map((c) => c.data.identification.unique_id)
+    });
     this.logger.log(
       `Updated Challengers: ${challengers.map((c) => c.data.identification.unique_id).join(', ')}`
     )

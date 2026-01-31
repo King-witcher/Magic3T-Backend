@@ -2,6 +2,7 @@ services:
   - type: web
     runtime: node
     name: Magic3T Backend
+
     plan: free
     buildCommand: npm ci && npm run build --workspace=backend
     startCommand: npm run start:prod --workspace=backend
