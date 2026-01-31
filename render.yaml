@@ -3,7 +3,7 @@ services:
     runtime: node
     name: Magic3T Backend
     plan: free
-    buildCommand: npm run build --workspace=backend
+    buildCommand: npm ci && npm run build --workspace=backend
     startCommand: npm run start:prod --workspace=backend
     region: virginia
     repo: https://github.com/King-witcher/Magic3T
