@@ -3,8 +3,8 @@ services:
     runtime: node
     name: Magic3T Backend
     plan: free
-    buildCommand: npm run build
-    startCommand: npm run start:prod
+    buildCommand: npm run build --workspace=backend
+    startCommand: npm run start:prod --workspace=backend
     region: virginia
     repo: https://github.com/King-witcher/Magic3T
     envVars:
