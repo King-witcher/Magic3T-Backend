@@ -344,7 +344,6 @@ O projeto usa **Tailwind CSS v4** como única solução de estilização.
 ```css
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@/styles/fonts.sass";  /* Apenas para @font-face */
 
 @theme {
   /* Cores customizadas */

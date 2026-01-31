@@ -6,7 +6,7 @@ Este documento descreve a arquitetura técnica do projeto Magic3T, um jogo multi
 
 | Camada | Tecnologia |
 |--------|------------|
-| **Frontend** | React 19, TypeScript, Vite, TanStack Router, TanStack Query, Tailwind CSS |
+| **Frontend** | React 19, TypeScript, Vite, TanStack Router, TanStack Query, Tailwind CSS, Radix UI |
 | **Backend** | NestJS, TypeScript, WebSockets (Socket.IO) |
 | **Database** | Firebase Firestore |
 | **Autenticação** | Firebase Authentication (Google Provider) |

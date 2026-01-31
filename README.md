@@ -7,9 +7,38 @@
 ## Description
 This is the Magic3T monorepo, which includes the backend, the frontend and some shared type libraries.
 
+## Tech Stack
+
+### Backend
+- **Framework:** [NestJS](https://nestjs.com/)
+- **WebSockets:** [Socket.IO](https://socket.io/) with `@nestjs/websockets`
+- **Database:** [Cloud Firestore](https://cloud.google.com/products/firestore) [(with Firebase)](https://firebase.google.com/docs/firestore)
+- **API Documentation:** OpenAPI (`@nestjs/swagger`) + [Scalar](https://scalar.com/)
+- **Validation:** [class-validator + class-transformer](https://docs.nestjs.com/techniques/validation) + [Zod](https://zod.dev/)
+- **Observability:** [Sentry](https://sentry.io/)
+- **Testing:** [Vitest](https://vitest.dev/) (very little tests so far)
+
+### Frontend
+- **Framework:** [React 19](https://react.dev/) with React Compiler
+- **Build Tool:** [Vite](https://vitejs.dev/)
+- **Routing:** [TanStack Router](https://tanstack.com/router/latest)
+- **State Management:** [TanStack Query](https://tanstack.com/query/latest) + [React Hook Form](https://react-hook-form.com/)
+- **WebSockets:** [Socket.IO](https://socket.io/)
+- **UI Components:** [Radix UI](https://www.radix-ui.com/) + [Lucide Icons](https://lucide.dev/) + [React Icons](https://react-icons.github.io/react-icons/) + [Tailwind CSS](https://tailwindcss.com/)
+- **Authentication:** [Firebase Auth](https://firebase.google.com/docs/auth) + [Firebase Functions](https://firebase.google.com/docs/functions)
+- **Analytics:** [Vercel Analytics](https://vercel.com/docs/analytics) + [Speed Insights](https://vercel.com/docs/speed-insights)
+- **Observability:** [Sentry](https://sentry.io/) (+ [PostHog](https://posthog.com/) in the future)
+
+### Monorepo & Tooling
+- **Package Manager:** npm Workspaces
+- **Linting:** [Biome JS](https://biomejs.dev/)
+- **CI/CD:** GitHub Actions ([Biome CI](https://biomejs.dev/recipes/continuous-integration/), [Reviewdog](https://github.com/reviewdog/reviewdog), npm audit)
+- **Deployment:** [Render with IaC](https://render.com/) (backend) + [Vercel](https://vercel.com/docs) (frontend) + [Firebase](https://firebase.google.com/)
+- **Debugging:** [VSCode Launch Configurations](https://code.visualstudio.com/docs/debugtest/debugging) and a bunch of [Tasks](https://code.visualstudio.com/docs/debugtest/tasks) + [Problem Matchers](https://code.visualstudio.com/docs/debugtest/tasks#_defining-a-problem-matcher) (see `.vscode` folder)
+
 ## Projects
-- **[backend](./packages/backend)**: The backend server built with NestJS.
-- **[frontend](./packages/frontend)**: The frontend application built with React and Vite.
+- **[backend](./backend)**: The backend server built with NestJS.
+- **[frontend](./frontend)**: The frontend application built with React and Vite.
 
 ## Running Locally
 

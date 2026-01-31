@@ -1,50 +1,101 @@
 # Magic3T Frontend
 
-[![Audit](https://github.com/King-witcher/Magic3T-Frontend/actions/workflows/audit.yml/badge.svg)](https://github.com/King-witcher/Magic3T-Frontend/actions/workflows/audit.yml)
-[![Biome Lint](https://github.com/King-witcher/Magic3T-Frontend/actions/workflows/biome-lint.yml/badge.svg)](https://github.com/King-witcher/Magic3T-Frontend/actions/workflows/biome-lint.yml)
+Frontend application for Magic3T, a multiplayer real-time game based on the magic square concept.
 
-## Overview
+## Tech Stack
 
-Frontend application for Magic3T, built with React 19, TypeScript, Vite, and TanStack Router.
+| Technology | Purpose |
+|------------|---------|
+| **React 19** | UI library with React Compiler |
+| **Vite** | Build tool & dev server |
+| **TanStack Router** | Type-safe file-based routing |
+| **TanStack Query** | Server state management & caching |
+| **Tailwind CSS v4** | Utility-first styling |
+| **Radix UI** | Accessible UI primitives |
+| **Lucide Icons** | Icon library |
+| **React Hook Form** | Form handling |
+| **Firebase Auth** | Authentication (Google provider) |
+| **Socket.IO Client** | Real-time communication |
+| **Sentry** | Error tracking & performance monitoring |
 
-## Key Features
+## Project Structure
 
-- **Modern Stack**: React 19, TypeScript, Vite, Tailwind CSS v4
-- **Type-safe Routing**: TanStack Router with automatic route generation
-- **Real-time Communication**: Socket.IO for game state synchronization
-- **Observability**: Sentry integration for error tracking, performance monitoring, and session replay
-- **Firebase Auth**: Google authentication provider
-- **Responsive Design**: League of Legends themed UI
+```
+frontend/src/
+├── main.tsx                 # Entry point
+├── router.ts                # Router configuration
+├── main.css                 # Global styles (Tailwind + theme)
+├── route-tree.gen.ts        # Auto-generated routes
+│
+├── routes/                  # Pages (TanStack Router)
+│   ├── __root.tsx           # Root layout
+│   ├── _auth.tsx            # Auth pages layout
+│   ├── _auth-guarded.tsx    # Protected pages layout
+│   └── ...
+│
+├── components/              # React components
+│   ├── ui/                  # Base components (Button, Input, Dialog)
+│   └── templates/           # Page templates
+│
+├── contexts/                # React Contexts
+│   ├── auth-context.tsx     # Authentication state
+│   ├── game-context.tsx     # Current match state
+│   └── queue.context.tsx    # Matchmaking queue state
+│
+├── services/                # External communication
+│   ├── firebase.ts          # Firebase initialization
+│   └── clients/             # REST API clients
+│
+├── hooks/                   # Custom hooks
+├── lib/                     # Utilities & classes
+├── types/                   # TypeScript types
+└── assets/                  # Fonts & textures
+```
 
-## How to run
+## Running Locally
+
+### Prerequisites
+
+- Node.js 20+
+- npm 10+
 
 ### Using Docker
 
-If you prefer to run magic3t locally using Docker:
-
-```shell
+```bash
 docker build -t magic3t-frontend .
 docker run -p 3000:3000 magic3t-frontend
 ```
 
 ### Local Development
 
-1. Install dependencies:
-```shell
+1. Install dependencies (from monorepo root):
+
+```bash
 npm install
 ```
 
-2. Copy `.env.example` to `.env` and fill in the required values:
-```shell
+2. Create a `.env` file based on `.env.example`:
+
+```bash
 cp .env.example .env
 ```
 
-3. Run the development server:
-```shell
+3. Start the development server:
+
+```bash
 npm run dev
 ```
 
 The application will be available at `http://localhost:3000`.
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview production build |
+| `npm run lint` | Run Biome linter |
 
 ## Environment Variables
 
