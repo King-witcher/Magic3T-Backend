@@ -5,9 +5,9 @@ import { Body, Controller, Get, Post, Redirect } from '@nestjs/common'
 import { ApiBody, ApiExcludeEndpoint, ApiOperation } from '@nestjs/swagger'
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface'
 import { Throttle } from '@nestjs/throttler'
+import { logger } from '@sentry/nestjs'
 import * as z from 'zod'
-
-import { respondError, unexpected } from '@/common'
+import { respondError } from '@/common'
 import { CrashReportsRepository } from '@/infra'
 
 @Controller()
@@ -25,7 +25,8 @@ export class AppController {
   })
   @Get('teapot')
   async teapot() {
-    respondError('teapot', 418, 'I am a teapot')
+    logger.debug('Teapot endpoint called', { endpoint: 'teapot' })
+    respondError('Teapot', 418, 'I am a teapot')
   }
 
   @ApiOperation({

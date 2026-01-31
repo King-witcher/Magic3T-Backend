@@ -5,6 +5,8 @@
  */
 /** biome-ignore-all lint/suspicious/noExplicitAny: Anything can be logged */
 export class UnexpectedError extends Error {
+  name: string = 'UnexpectedError'
+
   constructor(
     public readonly message: string,
     public readonly metadata?: any

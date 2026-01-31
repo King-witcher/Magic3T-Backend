@@ -18,6 +18,7 @@ export class ErrorResponseException<T extends string = string>
 
   constructor(errorCode: T, httpStatus = 400, metadata?: any) {
     super(errorCode)
+    this.name = errorCode
 
     this.errorCode = errorCode
     this.metadata = metadata
